@@ -18,7 +18,7 @@
 //
 
 //hoMuonAnalyzer header file
-#include "Analysis/hoTriggerAnalyzer/interface/hoMuonAnalyzer.h"
+#include "HoMuonTrigger/hoTriggerAnalyzer/interface/hoMuonAnalyzer.h"
 
 // system include files
 #include <memory>
@@ -50,8 +50,8 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 //#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
-#include "Analysis/hoTriggerAnalyzer/interface/HistogramBuilder.h"
-#include "Analysis/hoTriggerAnalyzer/interface/CommonFunctions.h"
+#include "HoMuonTrigger/hoTriggerAnalyzer/interface/HistogramBuilder.h"
+#include "HoMuonTrigger/hoTriggerAnalyzer/interface/CommonFunctions.h"
 
 #include <vector>
 #include <iostream>

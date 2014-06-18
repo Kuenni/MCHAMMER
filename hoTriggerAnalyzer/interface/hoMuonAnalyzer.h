@@ -34,7 +34,7 @@
 #include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
 #include "DataFormats/HcalRecHit/interface/HORecHit.h"
 
-#include "Analysis/hoTriggerAnalyzer/interface/HistogramBuilder.h"
+#include "HoMuonTrigger/hoTriggerAnalyzer/interface/HistogramBuilder.h"
 
 #include <vector>
 #include <iostream>
