@@ -300,6 +300,29 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		hoT_eta = caloGeo->getPosition(bho_recoT->id()).eta();
 		hoT_phi = caloGeo->getPosition(bho_recoT->id()).phi();
 		histogramBuilder.fillEtaPhiHistograms(hoT_eta, hoT_phi, horecoT_key);
+
+		/*
+		 * Fill histogram for different pt thresholds
+		 * CAREFUL!! THIS IS NOT A REAL RATE YET!!
+		 *
+		 * Here we have to loop over the l1Muons again to find a MIP match.
+		 * More than one found match could be possible. Matching is done using a
+		 * Delta R matcher
+		 *
+		 */
+		bl1Muon = l1Muons->cbegin();
+		for( ; bl1Muon != el1Muon; ++bl1Muon ){
+			float l1Muon_eta = bl1Muon->eta();
+			float l1Muon_phi = bl1Muon->phi();
+			if(isInsideRCut(l1Muon_eta, hoT_eta, l1Muon_phi, hoT_phi)){
+				for (int i = 0; i < 200; i+=5) {
+					if(bl1Muon->pt() >= i)
+						histogramBuilder.fillTrigRateHistograms(i,horecoT_key);
+				}
+				break;
+			}
+		}
+
 	}
 
 	/*
