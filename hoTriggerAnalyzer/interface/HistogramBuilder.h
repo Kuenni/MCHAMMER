@@ -40,6 +40,7 @@ class HistogramBuilder {
 				      float phi1, float phi2,  std::string key);
   void fillCountHistogram(std::string key);                                   
   void fillTrigHistograms(bool trigDecision,std::string key);
+  void fillTrigRateHistograms(float ptThreshold, std::string key);
 
   //int getMyNumber(); //{return mynumber;}
 
