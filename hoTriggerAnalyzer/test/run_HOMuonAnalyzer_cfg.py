@@ -55,17 +55,27 @@ process.demo = cms.EDAnalyzer(
     #stdMuSrc = cms.InputTag("standAloneMuons"),
     horecoSrc = cms.InputTag("horeco"),
     #L1GtTmLInputTag = cms.InputTag("l1GtTriggerMenuLite")
+    l1MuonGenMatchSrc = cms.InputTag("l1MuonGenMatch")
     )
+
+process.l1MuonGenMatch = cms.EDProducer("MCTruthDeltaRMatcherNew",
+     src = cms.InputTag("l1extraParticles"),
+     matched = cms.InputTag("genParticles"),
+     distMin = cms.double(0.15),
+#     matchPDGId = cms.vint32( 13 ) # muons
+)
+
 
 #Path definitions
 process.raw2digi_step = cms.Path(process.RawToDigi)
 process.l1extra_step = cms.Path(process.L1Extra)
 process.horeco_step = cms.Path(process.horeco)
+process.l1MuonGenMatch_step = cms.Path(process.l1MuonGenMatch)
 process.demo_step = cms.Path(process.demo)
 
 #Schedule Definition
 process.schedule = cms.Schedule(process.raw2digi_step, process.l1extra_step,
-                                process.horeco_step, process.demo_step)
+                                process.horeco_step,process.l1MuonGenMatch_step, process.demo_step)
 
 #process.p = cms.Path(process.RawToDigi)
 

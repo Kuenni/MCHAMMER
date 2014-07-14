@@ -50,6 +50,8 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 //#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
+#include "DataFormats/Common/interface/Association.h"
+
 #include "HoMuonTrigger/hoTriggerAnalyzer/interface/HistogramBuilder.h"
 #include "HoMuonTrigger/hoTriggerAnalyzer/interface/CommonFunctions.h"
 
@@ -73,6 +75,7 @@ hoMuonAnalyzer::hoMuonAnalyzer(const edm::ParameterSet& iConfig){
 	_genInput = iConfig.getParameter<edm::InputTag>("genSrc");
 	_l1MuonInput = iConfig.getParameter<edm::InputTag>("l1MuonSrc");
 	_horecoInput = iConfig.getParameter<edm::InputTag>("horecoSrc");
+	_l1MuonGenMatchInput = iConfig.getParameter<edm::InputTag>("l1MuonGenMatchSrc");
 	//_stdMuInput = iConfig.getParameter<edm::InputTag>("stdMuSrc");
 
 	// m_l1GtTmLInputTag = iConfig.getParameter<edm::InputTag> ("L1GtTmLInputTag");
@@ -136,6 +139,11 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	ESHandle<CaloGeometry> caloGeo;
 	iSetup.get<CaloGeometryRecord>().get(caloGeo);
 
+	edm::Handle<edm::View<l1extra::L1MuonParticle> > l1MuonView;
+	iEvent.getByLabel(_l1MuonInput,l1MuonView);
+
+	Handle<reco::GenParticleMatch> l1MuonGenMatches;
+	iEvent.getByLabel(_l1MuonGenMatchInput,l1MuonGenMatches);
 
 	/*
 	 * Set Up Level 1 Global Trigger Utility
@@ -331,18 +339,19 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 
 	string l1MuonMipMatch_key = "L1MuonwithMipMatch";
 
-
 	bl1Muon = l1Muons->cbegin();
 	el1Muon = l1Muons->cend();
 
-	for( ; bl1Muon != el1Muon; ++bl1Muon ){
+	for( unsigned int i = 0 ; i < l1Muons->size(); i++ ){
+
+		const l1extra::L1MuonParticle* bl1Muon = &(l1Muons->at(i));
 
 		//bool isMipMatch=checkMipMatch();
 		bho_recoT = hoRecoHitsAboveThreshold.begin();
 		eho_recoT = hoRecoHitsAboveThreshold.end();
 
 		bool mipMatch = false;
-		for(; bho_recoT != eho_recoT; ++bho_recoT){
+		for( ; bho_recoT != eho_recoT; ++bho_recoT){
 			float l1Muon_eta, horeco_eta, l1Muon_phi, horeco_phi;
 			l1Muon_eta = bl1Muon->eta();
 			l1Muon_phi = bl1Muon->phi();
@@ -367,6 +376,16 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				histogramBuilder.fillDeltaEtaDeltaPhiHistograms(l1Muon_eta,horeco_eta,
 						l1Muon_phi, horeco_phi,
 						l1MuonhoRecomipMatch_key);
+
+				edm::RefToBase<l1extra::L1MuonParticle> l1MuonCandiateRef(l1MuonView,i);
+				reco::GenParticleRef ref = (*l1MuonGenMatches)[l1MuonCandiateRef];
+
+				if(ref.isNonnull())
+					std::cout << ref->pdgId() << std::endl;
+				else
+					std::cout << "Ref is null" << std::endl;
+
+				//Make the pseudo trig rate plot
 				for (int i = 0; i < 200; i+=5) {
 					if(bl1Muon->pt() >= i)
 						histogramBuilder.fillTrigRateHistograms(i,hoRecoMipMatch_key);

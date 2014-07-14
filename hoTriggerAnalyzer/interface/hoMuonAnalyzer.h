@@ -73,9 +73,8 @@ private:
 
   edm::InputTag _genInput;
   edm::InputTag _l1MuonInput;
-  //edm::InputTag _stdMuInput;
   edm::InputTag _horecoInput;
-  //edm::InputTag _l1GtTmLInputTag;
+  edm::InputTag _l1MuonGenMatchInput;
 
   HistogramBuilder histogramBuilder;
 
