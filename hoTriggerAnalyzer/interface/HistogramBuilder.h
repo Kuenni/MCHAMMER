@@ -41,13 +41,15 @@ class HistogramBuilder {
   void fillCountHistogram(std::string key);                                   
   void fillTrigHistograms(bool trigDecision,std::string key);
   void fillTrigRateHistograms(float ptThreshold, std::string key);
+  void fillPdgIdHistogram(int pdgId,std::string key);
 
   //int getMyNumber(); //{return mynumber;}
 
  private:
 
-  std::map<std::string,TH1F*> _h1L1MuonPt;                                      
-  std::map<std::string,TH1F*> _h1Energy;                                        
+  std::map<std::string,TH1F*> _h1L1MuonPt;
+  std::map<std::string,TH1F*> _h1Energy;
+  std::map<std::string,TH1D*> _h1pdgId;
   
   std::map<std::string,TH1F*> _h1Eta;
   std::map<std::string,TH1F*> _h1Phi;

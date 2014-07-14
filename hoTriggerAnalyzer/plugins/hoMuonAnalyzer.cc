@@ -381,9 +381,9 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				reco::GenParticleRef ref = (*l1MuonGenMatches)[l1MuonCandiateRef];
 
 				if(ref.isNonnull())
-					std::cout << ref->pdgId() << std::endl;
+					histogramBuilder.fillPdgIdHistogram(ref->pdgId(),hoRecoMipMatch_key);
 				else
-					std::cout << "Ref is null" << std::endl;
+					histogramBuilder.fillPdgIdHistogram(0,hoRecoMipMatch_key);
 
 				//Make the pseudo trig rate plot
 				for (int i = 0; i < 200; i+=5) {

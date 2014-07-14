@@ -33,6 +33,15 @@ void HistogramBuilder::fillCountHistogram(std::string key){
   _h1Counter[key]->Fill(1);                                                     
 }                                                                               
 
+void HistogramBuilder::fillPdgIdHistogram(int pdgId, std::string key){
+	if(!_h1pdgId.count(key)){
+		_h1pdgId[key] = _fileService->make<TH1D>(Form("%s_pdgId",key.c_str()),
+                Form("%s PDG ID",key.c_str()),
+                501, -250.5, 250.5);
+	}
+	_h1pdgId[key]->Fill(pdgId);
+}
+
 /*                                                                              
  *Trigger Histograms                                                            
  */
