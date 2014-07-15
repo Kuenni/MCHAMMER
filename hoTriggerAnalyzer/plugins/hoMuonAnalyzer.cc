@@ -234,6 +234,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	/*
 	 * L1 Trigger Decisions
 	 */
+
 	processTriggerDecision(singleMu3TrigName,iEvent);
 	processTriggerDecision(doubleMu0TrigName,iEvent);
 //	processTriggerDecision(doubleMu5TrigName,iEvent);
@@ -254,6 +255,10 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			hoRecoHitsAboveThreshold.begin(),
 			hoBelowThreshold);
 	hoRecoHitsAboveThreshold.resize(std::distance(hoRecoHitsAboveThreshold.begin(),it));
+
+	histogramBuilder.fillDigiPerEvtHistogram(hoRecoHitsAboveThreshold.size(),horecoT_key);
+
+	std::cout << "Rechits above threshold " << hoRecoHitsAboveThreshold.size() << std::endl;
 
 	auto bho_recoT = hoRecoHitsAboveThreshold.begin();
 	auto eho_recoT = hoRecoHitsAboveThreshold.end();

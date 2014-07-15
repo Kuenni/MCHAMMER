@@ -4,10 +4,12 @@
  * The HistogramBuilder Class contains  
  * functions to build generic histograms of                           
  * different types.  The type of object (or a specific                          
- * selection cut) can be sepecified by the key.                                 
+ * selection cut) can be specified by the key.
  * All histograms are saved through the TFileService                            
  * Created by Christopher Anelli
  * On 6.15.2014
+ *
+ * Modified: Andreas Kuensken <kuensken@physik.rwth-aachen.de>
  */
 
 #include "TH1F.h"
@@ -32,6 +34,15 @@ void HistogramBuilder::fillCountHistogram(std::string key){
 	}
 	_h1Counter[key]->Fill(1);
 }                                                                               
+
+void HistogramBuilder::fillDigiPerEvtHistogram(int nDigis, std::string key){
+	if(!_h1DigisPerEvt.count(key)){
+		_h1DigisPerEvt[key] = _fileService->make<TH1D>(Form("%s_DigisPerEvt",key.c_str()),
+				Form("%s Digis Per Event",key.c_str()),
+				201, -0.5, 200.5);
+	}
+	_h1DigisPerEvt[key]->Fill(nDigis);
+}
 
 void HistogramBuilder::fillPdgIdHistogram(int pdgId, std::string key){
 	if(!_h1pdgId.count(key)){
