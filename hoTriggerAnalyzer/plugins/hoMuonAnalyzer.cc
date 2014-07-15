@@ -361,10 +361,16 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			histogramBuilder.fillCountHistogram(l1MuonMipMatch_key);
 			histogramBuilder.fillL1MuonPtHistograms(bl1Muon->pt(), l1MuonMipMatch_key);
 			histogramBuilder.fillEtaPhiHistograms(bl1Muon->eta(), bl1Muon->phi(), l1MuonMipMatch_key);
+			std::stringstream singleMu3Key;
+			singleMu3Key << singleMu3TrigName;
+			singleMu3Key << "L1HOMatch";
+			std::stringstream doubleMu0Key;
+			doubleMu0Key << doubleMu0TrigName;
+			doubleMu0Key << "L1HOMatch";
 			if(singleMu3Trig)
-				histogramBuilder.fillTrigHistograms(singleMu3Trig,singleMu3TrigName);
+				histogramBuilder.fillTrigHistograms(singleMu3Trig,singleMu3Key.str());
 			if(doubleMu0Trig)
-				histogramBuilder.fillTrigHistograms(doubleMu0Trig,doubleMu0TrigName);
+				histogramBuilder.fillTrigHistograms(doubleMu0Trig,doubleMu0Key.str());
 			break;
 		}
 	}
