@@ -258,8 +258,6 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 
 	histogramBuilder.fillDigiPerEvtHistogram(hoRecoHitsAboveThreshold.size(),horecoT_key);
 
-	std::cout << "Rechits above threshold " << hoRecoHitsAboveThreshold.size() << std::endl;
-
 	auto bho_recoT = hoRecoHitsAboveThreshold.begin();
 	auto eho_recoT = hoRecoHitsAboveThreshold.end();
 
@@ -343,17 +341,24 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				edm::RefToBase<l1extra::L1MuonParticle> l1MuonCandiateRef(l1MuonView,i);
 				reco::GenParticleRef ref = (*l1MuonGenMatches)[l1MuonCandiateRef];
 
-				if(ref.isNonnull())
+				if(ref.isNonnull()){
+					string l1MuonAndHoRecoAndGenref_key = "L1MuonandHORecowithMipMatchAndGenMatch";
+					//Make the pseudo trig rate plot
+					for (int i = 0; i < 200; i+=5) {
+						if(bl1Muon->pt() >= i)
+							histogramBuilder.fillTrigRateHistograms(i,l1MuonAndHoRecoAndGenref_key);
+					}
 					histogramBuilder.fillPdgIdHistogram(ref->pdgId(),hoRecoMipMatch_key);
-				else
+				} else{
 					histogramBuilder.fillPdgIdHistogram(0,hoRecoMipMatch_key);
+				}
 
 				//Make the pseudo trig rate plot
 				for (int i = 0; i < 200; i+=5) {
 					if(bl1Muon->pt() >= i)
 						histogramBuilder.fillTrigRateHistograms(i,hoRecoMipMatch_key);
 				}
-
+				break;
 			}
 		}
 
