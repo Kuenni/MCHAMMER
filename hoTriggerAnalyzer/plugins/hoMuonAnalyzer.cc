@@ -197,12 +197,8 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	//cout << hoRecoHits.size() << endl;
 	auto bho_reco = hoRecoHits->begin();
 	auto eho_reco = hoRecoHits->end();
-	histogramBuilder.fillCountHistogram(horeco_key);
 	for(; bho_reco != eho_reco; ++bho_reco){
-		//cout << caloGeo->getPosition(bho_reco->id()).eta() << endl;
-
-		//h1HORecoEnergy->HistogramBuilder.Fill( bho_reco->energy());
-
+		histogramBuilder.fillCountHistogram(horeco_key);
 		histogramBuilder.fillEnergyHistograms(bho_reco->energy(), horeco_key);
 
 		float ho_eta, ho_phi;
