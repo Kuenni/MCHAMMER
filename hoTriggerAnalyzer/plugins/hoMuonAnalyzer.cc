@@ -160,8 +160,9 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	auto bl1Muon = l1Muons->cbegin();
 	auto el1Muon = l1Muons->cend();
 
-	for( ; bl1Muon != el1Muon; ++bl1Muon ) {
+	for(  unsigned int i = 0 ; i < l1Muons->size(); i++  ) {
 		histogramBuilder.fillCountHistogram(l1muon_key);
+		const l1extra::L1MuonParticle* bl1Muon = &(l1Muons->at(i));
 
 		/*
 		 * Fill histogram for different pt thresholds
@@ -178,6 +179,12 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		//fillEtaPhiHistograms(bl1Muon->eta(), bl1Muon->phi(), l1muon_key);
 		//For variable binning
 		listL1MuonPt.push_back(bl1Muon->pt());
+		edm::RefToBase<l1extra::L1MuonParticle> l1MuonCandiateRef(l1MuonView,i);
+		reco::GenParticleRef ref = (*l1MuonGenMatches)[l1MuonCandiateRef];
+		if(ref.isNonnull())
+			histogramBuilder.fillPdgIdHistogram(ref->pdgId(),l1muon_key);
+		else
+			histogramBuilder.fillPdgIdHistogram(0,l1muon_key);
 	}
 
 
@@ -233,7 +240,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	 */
 	processTriggerDecision(singleMu3TrigName,iEvent);
 	processTriggerDecision(doubleMu0TrigName,iEvent);
-	processTriggerDecision(doubleMu5TrigName,iEvent);
+//	processTriggerDecision(doubleMu5TrigName,iEvent);
 
 
 

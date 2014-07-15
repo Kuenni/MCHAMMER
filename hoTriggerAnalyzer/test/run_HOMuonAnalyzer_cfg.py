@@ -77,6 +77,3 @@ process.demo_step = cms.Path(process.demo)
 process.schedule = cms.Schedule(process.raw2digi_step, process.l1extra_step,
                                 process.horeco_step,process.l1MuonGenMatch_step, process.demo_step)
 
-#process.p = cms.Path(process.RawToDigi)
-
-#process.p = cms.Path(process.RawToDigi * process.L1Extra*process.demo)
