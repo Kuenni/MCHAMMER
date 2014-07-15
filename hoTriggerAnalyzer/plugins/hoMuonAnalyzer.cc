@@ -80,7 +80,7 @@ hoMuonAnalyzer::hoMuonAnalyzer(const edm::ParameterSet& iConfig){
 	_l1MuonGenMatchInput = iConfig.getParameter<edm::InputTag>("l1MuonGenMatchSrc");
 
 
-	singleMu3TrigName = "L1_SingleMu7";
+	singleMu3TrigName = "L1_SingleMu3";
 	doubleMu0TrigName = "L1_DoubleMu0";
 	doubleMu5TrigName = "L1_DoubleMu5 ";
 

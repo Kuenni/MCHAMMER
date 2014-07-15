@@ -28,7 +28,7 @@ void HistogramBuilder::fillCountHistogram(std::string key){
   if(!_h1Counter.count(key)){                                                   
     _h1Counter[key] = _fileService->make<TH1F>(Form("%s_Count",key.c_str()),    
                                                Form("%s Count",key.c_str()),    
-                                               2, 0, 2);                        
+                                               3, -0.5, 2.5);
   }                                                                             
   _h1Counter[key]->Fill(1);                                                     
 }                                                                               
@@ -49,7 +49,7 @@ void HistogramBuilder::fillTrigHistograms(bool trigDecision,std::string key){
   if(!_h1Trig.count(key)){                                                      
     _h1Trig[key] = _fileService->make<TH1F>(Form("%s_Trig",key.c_str()),        
                                             Form("%s Trigger",key.c_str()),     
-                                            2, 0, 2);                           
+                                            3, -0.5, 2.5);
   }                                                                             
   _h1Trig[key]->Fill(trigDecision);                                             
 }      

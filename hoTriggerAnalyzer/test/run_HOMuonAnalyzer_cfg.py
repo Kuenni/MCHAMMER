@@ -58,6 +58,7 @@ process.demo = cms.EDAnalyzer(
     l1MuonGenMatchSrc = cms.InputTag("l1MuonGenMatch")
     )
 
+#Alternative matcher: TrivialDeltaRMatcher
 process.l1MuonGenMatch = cms.EDProducer("MCTruthDeltaRMatcherNew",
      src = cms.InputTag("l1extraParticles"),
      matched = cms.InputTag("genParticles"),
