@@ -141,7 +141,6 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 
 	m_l1GtUtils.getL1GtRunCache(iEvent, iSetup, useL1EventSetup,
 			useL1GtTriggerMenuLite);
-
 	/*
 	 *
 	 *  Start of Analysis
@@ -358,6 +357,9 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	}
 }
 
+/**
+ * Small helper function to print the number of triggers for a certain algorithm name
+ */
 void hoMuonAnalyzer::processTriggerDecision(std::string algorithmName,const edm::Event& iEvent){
 	// Select on events that pass a specific L1Trigger Decision
 	int iErrorCode = -1;
