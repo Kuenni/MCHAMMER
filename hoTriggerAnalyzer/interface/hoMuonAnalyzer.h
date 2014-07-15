@@ -69,7 +69,7 @@ private:
   virtual void endRun(const edm::Run& iRun, 
 		      const edm::EventSetup& evSetup);
   
-  void processTriggerDecision(string algorithmName,const edm::Event& );
+  bool processTriggerDecision(string algorithmName,const edm::Event& );
 
   edm::Service<TFileService> _fileService;
 
@@ -91,6 +91,8 @@ private:
   string doubleMu0TrigName;
   string doubleMu5TrigName;
   bool trigDecision;
+  bool singleMu3Trig,doubleMu0Trig;
+
 
   //toFigureOutL1VariableBinning
   std::list<float> listL1MuonPt;

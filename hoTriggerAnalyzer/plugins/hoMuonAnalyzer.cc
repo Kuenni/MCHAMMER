@@ -235,8 +235,8 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	 * L1 Trigger Decisions
 	 */
 
-	processTriggerDecision(singleMu3TrigName,iEvent);
-	processTriggerDecision(doubleMu0TrigName,iEvent);
+	singleMu3Trig = processTriggerDecision(singleMu3TrigName,iEvent);
+	doubleMu0Trig = processTriggerDecision(doubleMu0TrigName,iEvent);
 //	processTriggerDecision(doubleMu5TrigName,iEvent);
 
 
@@ -353,6 +353,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 					if(bl1Muon->pt() >= i)
 						histogramBuilder.fillTrigRateHistograms(i,hoRecoMipMatch_key);
 				}
+
 			}
 		}
 
@@ -360,6 +361,10 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			histogramBuilder.fillCountHistogram(l1MuonMipMatch_key);
 			histogramBuilder.fillL1MuonPtHistograms(bl1Muon->pt(), l1MuonMipMatch_key);
 			histogramBuilder.fillEtaPhiHistograms(bl1Muon->eta(), bl1Muon->phi(), l1MuonMipMatch_key);
+			if(singleMu3Trig)
+				histogramBuilder.fillTrigHistograms(singleMu3Trig,singleMu3TrigName);
+			if(doubleMu0Trig)
+				histogramBuilder.fillTrigHistograms(doubleMu0Trig,doubleMu0TrigName);
 			break;
 		}
 	}
@@ -368,7 +373,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 /**
  * Small helper function to print the number of triggers for a certain algorithm name
  */
-void hoMuonAnalyzer::processTriggerDecision(std::string algorithmName,const edm::Event& iEvent){
+bool hoMuonAnalyzer::processTriggerDecision(std::string algorithmName,const edm::Event& iEvent){
 	// Select on events that pass a specific L1Trigger Decision
 	int iErrorCode = -1;
 	bool trigDecision = m_l1GtUtils.decision(iEvent, algorithmName, iErrorCode);
@@ -384,6 +389,7 @@ void hoMuonAnalyzer::processTriggerDecision(std::string algorithmName,const edm:
 		// error - see error code
 		cout << "Error Code " << iErrorCode;
 	}
+	return trigDecision;
 }
 
 
