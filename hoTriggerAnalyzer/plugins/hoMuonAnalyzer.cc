@@ -36,6 +36,8 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
+#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
+#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
@@ -76,24 +78,12 @@ hoMuonAnalyzer::hoMuonAnalyzer(const edm::ParameterSet& iConfig){
 	_l1MuonInput = iConfig.getParameter<edm::InputTag>("l1MuonSrc");
 	_horecoInput = iConfig.getParameter<edm::InputTag>("horecoSrc");
 	_l1MuonGenMatchInput = iConfig.getParameter<edm::InputTag>("l1MuonGenMatchSrc");
-	//_stdMuInput = iConfig.getParameter<edm::InputTag>("stdMuSrc");
 
-	// m_l1GtTmLInputTag = iConfig.getParameter<edm::InputTag> ("L1GtTmLInputTag");
 
-	m_nameAlgTechTrig="L1_SingleMu7";
-	//m_nameAlgTechTrig="L1_AlwaysTrue";
+	singleMu3TrigName = "L1_SingleMu7";
+	doubleMu0TrigName = "L1_DoubleMu0";
+	doubleMu5TrigName = "L1_DoubleMu5 ";
 
-	//edm::Service<TFileService> _fileService;
-
-	//eventCounter = 0;
-
-	//initializeHistograms();
-
-	/*
-	 * Vector to store hold unique L1MuonPt values, for variable binning.
-	 */
-
-	//listL1MuonPt = new vector();
 
 }
 
@@ -130,9 +120,6 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	Handle<l1extra::L1MuonParticleCollection> l1Muons;
 	iEvent.getByLabel(_l1MuonInput, l1Muons);
 
-	//Handle<reco::TrackCollection> standAloneMuons;
-	//iEvent.getByLabel(_stdMuInput,standAloneMuons);
-
 	Handle<HORecHitCollection> hoRecoHits;
 	iEvent.getByLabel(_horecoInput, hoRecoHits);
 
@@ -154,19 +141,6 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 
 	m_l1GtUtils.getL1GtRunCache(iEvent, iSetup, useL1EventSetup,
 			useL1GtTriggerMenuLite);
-	//cout << "L1 Gt Readout Record From Provenance: "
-	//<< m_l1GtUtils.provL1GtReadoutRecordInputTag() << endl;
-	//cout << "L1 Gt Record From Provenance: "
-	//<< m_l1GtUtils.provL1GtRecordInputTag() << endl;
-
-	//m_l1GtUtils.getL1GtRunCache(iEvent, iSetup, useL1EventSetup,
-	//		       useL1GtTriggerMenuLite, m_l1GtTmLInputTag);
-
-	//bool l1GtUtilsIsValid = m_l1GtUtils.isValid();
-
-	//m_l1GtUtils.retrieveL1GtTriggerMenuLite(iEvent, m_l1GtTmLinputTag);
-
-
 
 	/*
 	 *
@@ -258,24 +232,9 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	/*
 	 * L1 Trigger Decisions
 	 */
-
-	// Select on events that pass a specific L1Trigger Decision
-	int iErrorCode = -1;
-	bool trigDecision = m_l1GtUtils.decision(iEvent, m_nameAlgTechTrig, iErrorCode);
-	//cout << "Error Code: " << iErrorCode << " and Trigger Decision: " << trigDecision << endl;
-
-	if(iErrorCode == 0){
-		histogramBuilder.fillTrigHistograms(trigDecision,m_nameAlgTechTrig);
-		if(trigDecision){
-			histogramBuilder.fillCountHistogram(m_nameAlgTechTrig);
-		}
-
-	} else if (iErrorCode == 1) {
-		cout<< "trigger does not exist in the L1 menu" << endl;
-	} else {
-		// error - see error code
-		cout << "Error Code " << iErrorCode;
-	}
+	processTriggerDecision(singleMu3TrigName,iEvent);
+	processTriggerDecision(doubleMu0TrigName,iEvent);
+	processTriggerDecision(doubleMu5TrigName,iEvent);
 
 
 
@@ -293,9 +252,6 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			hoRecoHitsAboveThreshold.begin(),
 			hoBelowThreshold);
 	hoRecoHitsAboveThreshold.resize(std::distance(hoRecoHitsAboveThreshold.begin(),it));
-
-	//Handle<HORecHitCollection> hoRecHitsAboveThreshold;
-	//HORecHitCollection* hoRecHitsAboveThreshold = new HORecHitCollection(hoRecoHits->size());
 
 	auto bho_recoT = hoRecoHitsAboveThreshold.begin();
 	auto eho_recoT = hoRecoHitsAboveThreshold.end();
@@ -402,6 +358,24 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	}
 }
 
+void hoMuonAnalyzer::processTriggerDecision(std::string algorithmName,const edm::Event& iEvent){
+	// Select on events that pass a specific L1Trigger Decision
+	int iErrorCode = -1;
+	bool trigDecision = m_l1GtUtils.decision(iEvent, algorithmName, iErrorCode);
+	if(iErrorCode == 0){
+		histogramBuilder.fillTrigHistograms(trigDecision,algorithmName);
+		if(trigDecision){
+			histogramBuilder.fillCountHistogram(algorithmName);
+		}
+
+	} else if (iErrorCode == 1) {
+		cout<< "trigger " << algorithmName << " does not exist in the L1 menu" << endl;
+	} else {
+		// error - see error code
+		cout << "Error Code " << iErrorCode;
+	}
+}
+
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
@@ -413,9 +387,6 @@ hoMuonAnalyzer::beginJob()
 void 
 hoMuonAnalyzer::endJob() 
 {
-	//h1SAMuonPt->Write();
-	//histogramBuilder.fillCountHistogram(eventCounter,"Events");
-	//h1EventCounter->Write();
 }
 
 // ------------ method called when starting to processes a run  ------------
@@ -425,31 +396,6 @@ hoMuonAnalyzer::beginRun(const edm::Run& iRun,
 		const edm::EventSetup& evSetup)
 {
 
-	/*
-	 *Exploring Provenance
-	 */
-
-	/*
-  typedef std::vector<edm::Provenance const*> Provenances;
-  Provenances provenances;
-  iRun.getAllProvenance(provenances);
-  for (Provenances::iterator itProv = provenances.begin(), itProvEnd =
-         provenances.end(); itProv != itProvEnd; ++itProv) {
-    cout << endl << (*itProv)->friendlyClassName() << ", " << (*itProv)->moduleLabel() << ", "
-         << (*itProv)->productInstanceName() << ", " << (*itProv)->processName() << endl;
-  }
-	 */
-
-	/*
-	 * So that code runs faster. Trigger quantities that can be cached in
-	 * beginRun, are not cached again in analyze.  (Handled by Utility)
-	 */
-
-	// edm::InputTag l1GtTriggerMenuLiteInputTag;
-	//m_l1GtUtils.getL1GtTriggerMenuLiteInputTag(iRun, l1GtTriggerMenuLiteInputTag);
-	//cout << "Get L1 GT Trigger Menu Lite Input Tag" <<  l1GtTriggerMenuLiteInputTag << endl;
-
-
 	bool useL1EventSetup = true;
 	bool useL1GtTriggerMenuLite = true;
 	cout << "getL1GtRunCache" << endl;
@@ -457,12 +403,6 @@ hoMuonAnalyzer::beginRun(const edm::Run& iRun,
 			<< useL1GtTriggerMenuLite << endl;
 	m_l1GtUtils.getL1GtRunCache(iRun, evSetup, useL1EventSetup, useL1GtTriggerMenuLite);
 
-	/*
-  cout << "Trigger Menu From Provenance: " 
-       << m_l1GtUtils.provL1GtTriggerMenuLiteInputTag() << endl;
-	 */
-
-	//m_l1GtUtils.retrieveL1GtTriggerMenuLite(iRun, _l1GtTmLInputTag);
 }
 
 
@@ -483,22 +423,6 @@ hoMuonAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& evSetup)
 	cout << endl;
 }
 
-
-// ------------ method called when starting to processes a luminosity block  ------------
-/*
-void 
-hoMuonAnalyzer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
- */
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-/*
-void 
-hoMuonAnalyzer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
- */
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void

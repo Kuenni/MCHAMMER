@@ -69,6 +69,8 @@ private:
   virtual void endRun(const edm::Run& iRun, 
 		      const edm::EventSetup& evSetup);
   
+  void processTriggerDecision(string algorithmName,const edm::Event& );
+
   edm::Service<TFileService> _fileService;
 
   edm::InputTag _genInput;
@@ -85,20 +87,13 @@ private:
   //edm::InputTag m_l1GtTmLInputTag;
   
   L1GtUtils m_l1GtUtils;
-  string m_nameAlgTechTrig;
+  string singleMu3TrigName;
+  string doubleMu0TrigName;
+  string doubleMu5TrigName;
   bool trigDecision;
 
   //toFigureOutL1VariableBinning
   std::list<float> listL1MuonPt;
-
-  
-  //For Filtering
-  // bool hoBelowThreshold(HORecHit horeco);
-
-
-  //Helper Functions for hoMuonAnalyzer Initilization
-  //void initializeHistograms();
-
 
   //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
   //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
