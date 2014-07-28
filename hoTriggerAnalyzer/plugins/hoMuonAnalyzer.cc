@@ -78,7 +78,7 @@ hoMuonAnalyzer::hoMuonAnalyzer(const edm::ParameterSet& iConfig){
 	_l1MuonInput = iConfig.getParameter<edm::InputTag>("l1MuonSrc");
 	_horecoInput = iConfig.getParameter<edm::InputTag>("horecoSrc");
 	_l1MuonGenMatchInput = iConfig.getParameter<edm::InputTag>("l1MuonGenMatchSrc");
-
+	_hltSumAODInput = iConfig.getParameter<edm::InputTag>("hltSumAODSrc");
 
 	singleMu3TrigName = "L1_SingleMu3";
 	doubleMu0TrigName = "L1_DoubleMu0";
@@ -132,6 +132,12 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	Handle<reco::GenParticleMatch> l1MuonGenMatches;
 	iEvent.getByLabel(_l1MuonGenMatchInput,l1MuonGenMatches);
 
+	Handle<trigger::TriggerEvent> aodTriggerEvent;
+	iEvent.getByLabel(_hltSumAODInput, aodTriggerEvent);
+	InputTag _hltTrigResultsLabel = edm::InputTag("TriggerResults", "", "HLT");
+	Handle<TriggerResults> hltTriggerResults;
+	iEvent.getByLabel(_hltTrigResultsLabel, hltTriggerResults);
+	const TriggerNames & names = iEvent.triggerNames(*hltTriggerResults);
 	/*
 	 * Set Up Level 1 Global Trigger Utility
 	 */
@@ -150,6 +156,14 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	histogramBuilder.fillCountHistogram("Events");
 
 
+	/**
+	 *
+	 * Playground for HLT functionality. May be moved to some other place or even completely removed
+	 */
+	 for(int hltNameIndex =0; hltNameIndex < (int) names.size(); hltNameIndex++){
+		 std::cout << names.triggerName(hltNameIndex) << std::endl;
+		 std::cout << "Accept: " << hltTriggerResults->accept(hltNameIndex) << std::endl;
+	 }
 
 	/*
 	 * Level 1 Muons

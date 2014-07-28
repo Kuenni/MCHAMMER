@@ -9,7 +9,7 @@ process.TFileService = cms.Service("TFileService",
                                    )
 
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 
 process.source = cms.Source("PoolSource",
     # replace 'myfile.root' with the source file you want to use
@@ -55,6 +55,7 @@ process.demo = cms.EDAnalyzer(
     #stdMuSrc = cms.InputTag("standAloneMuons"),
     horecoSrc = cms.InputTag("horeco"),
     #L1GtTmLInputTag = cms.InputTag("l1GtTriggerMenuLite")
+    hltSumAODSrc = cms.InputTag("hltTriggerSummaryAOD"),
     l1MuonGenMatchSrc = cms.InputTag("l1MuonGenMatch")
     )
 
@@ -73,6 +74,14 @@ process.l1extra_step = cms.Path(process.L1Extra)
 process.horeco_step = cms.Path(process.horeco)
 process.l1MuonGenMatch_step = cms.Path(process.l1MuonGenMatch)
 process.demo_step = cms.Path(process.demo)
+
+#For the HLT
+# customisation of the process.
+# Automatic addition of the customisation function from HLTrigger.Configuration.customizeHLTforMC
+from HLTrigger.Configuration.customizeHLTforMC import customizeHLTforMC
+#call to customisation function customizeHLTforMC imported from HLTrigger.Configuration.customizeHLTforMC
+process = customizeHLTforMC(process)
+
 
 #Schedule Definition
 process.schedule = cms.Schedule(process.raw2digi_step, process.l1extra_step,

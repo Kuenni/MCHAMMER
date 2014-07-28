@@ -77,6 +77,7 @@ private:
   edm::InputTag _l1MuonInput;
   edm::InputTag _horecoInput;
   edm::InputTag _l1MuonGenMatchInput;
+  edm::InputTag _hltSumAODInput;
 
   HistogramBuilder histogramBuilder;
 
