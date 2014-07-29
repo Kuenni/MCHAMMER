@@ -46,6 +46,12 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/HcalRecHit/interface/HORecHit.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "FWCore/Common/interface/TriggerNames.h"
+#include "DataFormats/HLTReco/interface/TriggerObject.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
