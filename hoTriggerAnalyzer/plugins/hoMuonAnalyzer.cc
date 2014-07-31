@@ -47,11 +47,6 @@
 #include "DataFormats/HcalRecHit/interface/HORecHit.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
-#include "DataFormats/HLTReco/interface/TriggerEvent.h"
-#include "FWCore/Common/interface/TriggerNames.h"
-#include "DataFormats/HLTReco/interface/TriggerObject.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
-
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -90,7 +85,7 @@ hoMuonAnalyzer::hoMuonAnalyzer(const edm::ParameterSet& iConfig){
 	doubleMu0TrigName = "L1_DoubleMu0";
 	doubleMu5TrigName = "L1_DoubleMu5 ";
 
-
+	defineTriggersOfInterest();
 }
 
 
@@ -166,9 +161,20 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	 *
 	 * Playground for HLT functionality. May be moved to some other place or even completely removed
 	 */
-	 for(int hltNameIndex =0; hltNameIndex < (int) names.size(); hltNameIndex++){
-		 std::cout << names.triggerName(hltNameIndex) << std::endl;
-		 std::cout << "Accept: " << hltTriggerResults->accept(hltNameIndex) << std::endl;
+//	 for(int hltNameIndex =0; hltNameIndex < (int) names.size(); hltNameIndex++){
+//		 std::cout << names.triggerName(hltNameIndex) << std::endl;
+//		 std::cout << "Accept: " << hltTriggerResults->accept(hltNameIndex) << std::endl;
+//	 }
+
+	 //Collection of objects that have to do with the Trigger
+	 trigger::TriggerObjectCollection hltAllObjects = aodTriggerEvent->getObjects();
+//	 hltAllObjects[1].pt();
+
+	 std::map<std::string,std::string>::const_iterator namesOfInterestIterator = hltNamesOfInterest.begin();
+	 for( ;namesOfInterestIterator != hltNamesOfInterest.end(); namesOfInterestIterator++){
+		 int triggerIndex = names.triggerIndex(namesOfInterestIterator->second);
+		 bool trigDecision = hltTriggerResults->accept(triggerIndex);
+		 histogramBuilder.fillTrigHistograms(trigDecision,namesOfInterestIterator->first);
 	 }
 
 	/*
@@ -504,6 +510,27 @@ bool isInsideRCut(float eta1, float eta2, float phi1, float phi2){
 	//The L1 Muon is compared with all HO Rec Hits above Threshold.
 	if(pow(delta_eta,2)+pow(delta_phi,2) <= pow(deltaR_Max,2)) return true;
 	return false;
+}
+
+void hoMuonAnalyzer::defineTriggersOfInterest(){
+
+  /*
+   * HLT Triggers
+   */
+
+  string hltIsoMu24_key = "hltIsoMu24";
+  hltNamesOfInterest.insert(pair<string, string>(hltIsoMu24_key,"HLT_IsoMu24_v18"));
+  hltFiltersOfInterest.insert(pair<string, edm::InputTag>(hltIsoMu24_key,
+							  edm::InputTag("hltL3crIsoL1sMu16L1f0L2f16QL3"
+									"f24QL3crIsoRhoFiltered0p15",
+									"","HLT")));
+
+  string hltMu5_key = "hltMu5";
+  hltNamesOfInterest.insert(pair<string, string>(hltMu5_key, "HLT_Mu5_v21"));
+  hltFiltersOfInterest.insert(pair<string, edm::InputTag>(hltMu5_key,
+							  edm::InputTag("hltL3fL1sMu3L3Filtered5",
+									"","HLT")));
+
 }
 
 //define this as a plug-in

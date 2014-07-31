@@ -82,8 +82,12 @@ from HLTrigger.Configuration.customizeHLTforMC import customizeHLTforMC
 #call to customisation function customizeHLTforMC imported from HLTrigger.Configuration.customizeHLTforMC
 process = customizeHLTforMC(process)
 
-
+#HLT Tester
+import HLTrigger.HLTcore.triggerSummaryAnalyzerAOD_cfi
+process.tsaAOD = HLTrigger.HLTcore.triggerSummaryAnalyzerAOD_cfi.triggerSummaryAnalyzerAOD.clone()
+process.tsa = cms.Path(process.tsaAOD)#+process.tsaRAW)
 #Schedule Definition
 process.schedule = cms.Schedule(process.raw2digi_step, process.l1extra_step,
                                 process.horeco_step,process.l1MuonGenMatch_step, process.demo_step)
+                                #,process.tsa)
 

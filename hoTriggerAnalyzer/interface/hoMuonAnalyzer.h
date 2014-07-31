@@ -36,6 +36,11 @@
 
 #include "HoMuonTrigger/hoTriggerAnalyzer/interface/HistogramBuilder.h"
 
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "FWCore/Common/interface/TriggerNames.h"
+#include "DataFormats/HLTReco/interface/TriggerObject.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+
 #include <vector>
 #include <iostream>
 #include <map>
@@ -69,6 +74,8 @@ private:
   virtual void endRun(const edm::Run& iRun, 
 		      const edm::EventSetup& evSetup);
   
+  void defineTriggersOfInterest();
+
   bool processTriggerDecision(string algorithmName,const edm::Event& );
 
   edm::Service<TFileService> _fileService;
@@ -81,6 +88,15 @@ private:
 
   HistogramBuilder histogramBuilder;
 
+  /*
+   * Maps of selected hlt triggers to get the trigger decisions,
+   * and hlt filters to get the trigger objects.
+   */
+
+  std::map<std::string, std::string> hltNamesOfInterest;
+  std::map<std::string, edm::InputTag> hltFiltersOfInterest;
+  std::vector<trigger::TriggerObject> hltTriggerObjects;
+  std::map<std::string, std::vector<trigger::TriggerObject> > hltTriggerObjectsOfInterest;
   
   // I would prefer to run without an InputTag, the L1GtUtility should be     
   // able to find it automatically from the Providence information.        
@@ -93,6 +109,7 @@ private:
   string doubleMu5TrigName;
   bool trigDecision;
   bool singleMu3Trig,doubleMu0Trig;
+
 
 
   //toFigureOutL1VariableBinning
