@@ -158,22 +158,42 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 
 
 	/**
-	 *
 	 * Playground for HLT functionality. May be moved to some other place or even completely removed
 	 */
-//	 for(int hltNameIndex =0; hltNameIndex < (int) names.size(); hltNameIndex++){
-//		 std::cout << names.triggerName(hltNameIndex) << std::endl;
-//		 std::cout << "Accept: " << hltTriggerResults->accept(hltNameIndex) << std::endl;
-//	 }
+	//Collection of objects that have to do with the Trigger
+	trigger::TriggerObjectCollection hltAllObjects = aodTriggerEvent->getObjects();
+//	hltAllObjects[1].pt();
 
-	 //Collection of objects that have to do with the Trigger
-	 trigger::TriggerObjectCollection hltAllObjects = aodTriggerEvent->getObjects();
-//	 hltAllObjects[1].pt();
-
+	 //Iterate over the trigger path names that we are interested in
 	 std::map<std::string,std::string>::const_iterator namesOfInterestIterator = hltNamesOfInterest.begin();
 	 for( ;namesOfInterestIterator != hltNamesOfInterest.end(); namesOfInterestIterator++){
-		 int triggerIndex = names.triggerIndex(namesOfInterestIterator->second);
+		 unsigned int triggerIndex = names.triggerIndex(namesOfInterestIterator->second);
+		 //In case the trigger index is out of bounds, something went wrong -> Continue loop
+		 if(!(triggerIndex < hltTriggerResults->size())){
+			 std::cout << "Trigger index larger than trigger results size!" << std::endl;
+			 continue;
+		 }
+		 //Find, whether the given HLT path was accepted
 		 bool trigDecision = hltTriggerResults->accept(triggerIndex);
+		 if( trigDecision ){
+			 /* Get the input tag for the last run filter
+			  * This seems to be necessary to find the right index of the L3Objects
+			  * in the TriggerObject collection that set of the given trigger path
+			  */
+			 std::cout << "HLT Path " << names.triggerName(triggerIndex) << " accepted." << std::endl;
+			 //Get the filter index from the Trigger event by using the filter Tag
+			 int filterIndex = aodTriggerEvent->filterIndex(hltFiltersOfInterest[namesOfInterestIterator->first]);
+			 std::cout << "Filter Index: " << filterIndex << std::endl;
+			 //Check the range
+			 if( filterIndex < aodTriggerEvent->sizeFilters() ){
+				 //Get the keys to the Objects in this Trigger Path
+				 const trigger::Keys& keys( aodTriggerEvent->filterKeys( filterIndex ) );
+				 for(unsigned int i = 0; i < keys.size() ; i++ ){
+					 std::cout << "Key " << i << ": " << keys[i] << std::endl;
+				 }
+			 }
+		 }
+
 		 histogramBuilder.fillTrigHistograms(trigDecision,namesOfInterestIterator->first);
 	 }
 
@@ -530,6 +550,10 @@ void hoMuonAnalyzer::defineTriggersOfInterest(){
   hltFiltersOfInterest.insert(pair<string, edm::InputTag>(hltMu5_key,
 							  edm::InputTag("hltL3fL1sMu3L3Filtered5",
 									"","HLT")));
+
+  string l1SingleMuOpen_key = "hlt_l1SingleMuOpen";
+  hltNamesOfInterest.insert(std::pair<std::string,std::string>(l1SingleMuOpen_key,"HLT_L1SingleMuOpen_v7"));
+  hltFiltersOfInterest.insert(std::pair<std::string,edm::InputTag>(l1SingleMuOpen_key,edm::InputTag("hltL1MuOpenL1Filtered0","","HLT")));
 
 }
 
