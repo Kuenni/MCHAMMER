@@ -81,7 +81,7 @@ void HistogramBuilder::fillTrigRateHistograms(float ptThreshold,std::string key)
 	if(!_h1Trig.count(key)){
 		_h1Trig[key] = _fileService->make<TH1F>(Form("%s_TrigRate",key.c_str()),
 				Form("%s Trigger Pseudo Rate",key.c_str()),
-				40, 0, 200);
+				100, 0, 500);
 	}
 	_h1Trig[key]->Fill(ptThreshold);
 }

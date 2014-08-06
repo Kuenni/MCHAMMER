@@ -167,9 +167,16 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		}
 	}
 
+	//Clone the HORecHits and delete all references to hits, that are
+	//below a certain signal threshold
+	std::vector<HORecHit> hoAboveThreshold (hoRecoHits->size());
+	auto itEnd =std::remove_copy_if (hoRecoHits->begin(), hoRecoHits->end(),
+			hoAboveThreshold.begin(),
+			hoBelowThreshold);
+	hoAboveThreshold.resize(std::distance(hoAboveThreshold.begin(),itEnd));
+
 	//Collection of objects that have to do with the Trigger
 	trigger::TriggerObjectCollection hltAllObjects = aodTriggerEvent->getObjects();
-//	hltAllObjects[1].pt();
 
 	 //Iterate over the trigger path names that we are interested in
 	 std::map<std::string,std::string>::const_iterator namesOfInterestIterator = hltNamesOfInterest.begin();
@@ -197,9 +204,49 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				 const trigger::Keys& keys( aodTriggerEvent->filterKeys( filterIndex ) );
 				 for(unsigned int i = 0; i < keys.size() ; i++ ){
 					 std::cout << "Key " << i << ": " << keys[i] << std::endl;
-				 }
+					 trigger::TriggerObject triggerObject = hltAllObjects[i];
+					 double etaTO = triggerObject.eta();
+					 double phiTO = triggerObject.phi();
+					 std::stringstream trigRateKey;
+					 trigRateKey << namesOfInterestIterator->second;
+					 for(int i = 0 ; i < 500; i+=5){
+						 if(triggerObject.pt() >= i)
+							 histogramBuilder.fillTrigRateHistograms(i,trigRateKey.str());
+					 }
+					 /**
+					  * First loop over all HO Rec hits and try to match the HLT object to an HO tile
+					  * Break this loop on the first match
+					  */
+					 trigRateKey << "_hoMatch";
+					 for(auto hoRecHitIt = hoRecoHits->begin(); hoRecHitIt != hoRecoHits->end() ; hoRecHitIt++){
+						 double etaHO = caloGeo->getPosition(hoRecHitIt->id()).eta();
+						 double phiHO = caloGeo->getPosition(hoRecHitIt->id()).phi();
+						 if(isInsideRCut(etaTO, etaHO, phiTO, phiHO)){
+							 for (int i = 0; i < 500; i+=5) {
+								 if(triggerObject.pt() >= i)
+									 histogramBuilder.fillTrigRateHistograms(i,trigRateKey.str());
+							 }
+							 break;
+						 }
+					 }
+					 /**
+					  * Now loop again but over the list of HO rec hits that are above the energy threshold
+					  */
+					 trigRateKey << "AboveThr";
+					 for(auto hoRecHitIt = hoAboveThreshold.begin(); hoRecHitIt != hoAboveThreshold.end() ; hoRecHitIt++){
+						 double etaHO = caloGeo->getPosition(hoRecHitIt->id()).eta();
+						 double phiHO = caloGeo->getPosition(hoRecHitIt->id()).phi();
+						 if(isInsideRCut(etaTO, etaHO, phiTO, phiHO)){
+							 for (int i = 0; i < 500; i+=5) {
+								 if(triggerObject.pt() >= i)
+									 histogramBuilder.fillTrigRateHistograms(i,trigRateKey.str());
+							 }
+							 break;
+						 }
+					 }
+				 }//Trigger object keys
 			 }
-		 }
+		 }//trigger decision
 
 		 histogramBuilder.fillTrigHistograms(trigDecision,namesOfInterestIterator->first);
 	 }
