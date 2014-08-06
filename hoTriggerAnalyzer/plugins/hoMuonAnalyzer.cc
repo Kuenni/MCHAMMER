@@ -160,6 +160,13 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	/**
 	 * Playground for HLT functionality. May be moved to some other place or even completely removed
 	 */
+	//Loop over all HLT Paths and see which path is fired how often
+	for(int hltNameIndex =0; hltNameIndex < (int) names.size(); hltNameIndex++){
+		if(hltTriggerResults->accept(hltNameIndex)){
+			histogramBuilder.fillHltIndexHistogram(hltNameIndex,"Accepted");
+		}
+	}
+
 	//Collection of objects that have to do with the Trigger
 	trigger::TriggerObjectCollection hltAllObjects = aodTriggerEvent->getObjects();
 //	hltAllObjects[1].pt();
@@ -183,7 +190,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			 std::cout << "HLT Path " << names.triggerName(triggerIndex) << " accepted." << std::endl;
 			 //Get the filter index from the Trigger event by using the filter Tag
 			 int filterIndex = aodTriggerEvent->filterIndex(hltFiltersOfInterest[namesOfInterestIterator->first]);
-			 std::cout << "Filter Index: " << filterIndex << std::endl;
+			 std::cout << "Trigger Index: " << triggerIndex << ". Filter Index: " << filterIndex << std::endl;
 			 //Check the range
 			 if( filterIndex < aodTriggerEvent->sizeFilters() ){
 				 //Get the keys to the Objects in this Trigger Path

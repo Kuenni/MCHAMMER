@@ -43,6 +43,7 @@ class HistogramBuilder {
   void fillTrigRateHistograms(float ptThreshold, std::string key);
   void fillPdgIdHistogram(int pdgId,std::string key);
   void fillDigiPerEvtHistogram(int nDigis, std::string key);
+  void fillHltIndexHistogram(int hltIndex, std::string key);
 
   //int getMyNumber(); //{return mynumber;}
 
@@ -52,6 +53,7 @@ class HistogramBuilder {
   std::map<std::string,TH1F*> _h1Energy;
   std::map<std::string,TH1D*> _h1pdgId;
   std::map<std::string,TH1D*> _h1DigisPerEvt;
+  std::map<std::string,TH1D*> _h1HltIndex;
   
   std::map<std::string,TH1F*> _h1Eta;
   std::map<std::string,TH1F*> _h1Phi;

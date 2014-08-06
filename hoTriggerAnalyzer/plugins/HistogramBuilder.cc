@@ -22,6 +22,15 @@ HistogramBuilder::HistogramBuilder(){
 };
  */
 
+void HistogramBuilder::fillHltIndexHistogram(int hltIndex, std::string key){
+	if(!_h1HltIndex.count(key)){
+		_h1HltIndex[key] = _fileService->make<TH1D>(Form("%s_hltIndex",key.c_str()),
+				Form("%s HLT Index",key.c_str()),
+				251, -0.5, 250.5);
+	}
+	_h1HltIndex[key]->Fill(hltIndex);
+}
+
 /*                                                                              
  *Counting Histograms                                                           
  *Fills the 1 bin.                                                              
