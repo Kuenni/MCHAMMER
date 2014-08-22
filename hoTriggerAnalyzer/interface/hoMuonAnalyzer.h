@@ -40,6 +40,8 @@
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
 
 #include <vector>
 #include <iostream>
@@ -75,6 +77,9 @@ private:
 		      const edm::EventSetup& evSetup);
   
   void defineTriggersOfInterest();
+
+  trigger::TriggerObjectCollection getHltObjectsWithL1Match(trigger::TriggerObjectCollection,edm::Handle<l1extra::L1MuonParticleCollection>);
+  bool hasL1Match(trigger::TriggerObject,edm::Handle<l1extra::L1MuonParticleCollection>);
 
   bool processTriggerDecision(string algorithmName,const edm::Event& );
 

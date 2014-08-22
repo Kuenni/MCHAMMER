@@ -40,12 +40,12 @@
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
-#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/HcalRecHit/interface/HORecHit.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 
@@ -157,15 +157,18 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	histogramBuilder.fillCountHistogram("Events");
 
 
+	//Try getting the event info for weights
+	Handle<GenEventInfoProduct> genEventInfo;
+	iEvent.getByLabel(edm::InputTag("generator"), genEventInfo);
+//	double weight = genEventInfo->weight();
+//	double qScale = genEventInfo->qScale();
+//	std::cout << "Weight: " << weight << ". qScale: " << qScale << "." << std::endl;
+//	int errorCode = 0;
+//	std::cout << "Return of function: " << m_l1GtUtils.prescaleFactor( iEvent, doubleMu0TrigName,  errorCode)
+//			<< ". Value of errorCode " << errorCode << std::endl;
 	/**
 	 * Playground for HLT functionality. May be moved to some other place or even completely removed
 	 */
-	//Loop over all HLT Paths and see which path is fired how often
-	for(int hltNameIndex =0; hltNameIndex < (int) names.size(); hltNameIndex++){
-		if(hltTriggerResults->accept(hltNameIndex)){
-			histogramBuilder.fillHltIndexHistogram(hltNameIndex,"Accepted");
-		}
-	}
 
 	//Clone the HORecHits and delete all references to hits, that are
 	//below a certain signal threshold
@@ -177,6 +180,11 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 
 	//Collection of objects that have to do with the Trigger
 	trigger::TriggerObjectCollection hltAllObjects = aodTriggerEvent->getObjects();
+
+	/**
+	 * get a vector containing only the HLT objects that have a match to L1 muons
+	 */
+	trigger::TriggerObjectCollection hltObjectsL1Match = getHltObjectsWithL1Match(hltAllObjects,l1Muons);
 
 	 //Iterate over the trigger path names that we are interested in
 	 std::map<std::string,std::string>::const_iterator namesOfInterestIterator = hltNamesOfInterest.begin();
@@ -197,21 +205,26 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			 std::cout << "HLT Path " << names.triggerName(triggerIndex) << " accepted." << std::endl;
 			 //Get the filter index from the Trigger event by using the filter Tag
 			 int filterIndex = aodTriggerEvent->filterIndex(hltFiltersOfInterest[namesOfInterestIterator->first]);
-			 std::cout << "Trigger Index: " << triggerIndex << ". Filter Index: " << filterIndex << std::endl;
 			 //Check the range
 			 if( filterIndex < aodTriggerEvent->sizeFilters() ){
 				 //Get the keys to the Objects in this Trigger Path
 				 const trigger::Keys& keys( aodTriggerEvent->filterKeys( filterIndex ) );
 				 for(unsigned int i = 0; i < keys.size() ; i++ ){
-					 std::cout << "Key " << i << ": " << keys[i] << std::endl;
 					 trigger::TriggerObject triggerObject = hltAllObjects[i];
 					 double etaTO = triggerObject.eta();
 					 double phiTO = triggerObject.phi();
 					 std::stringstream trigRateKey;
 					 trigRateKey << namesOfInterestIterator->second;
+					 std::stringstream trigRateKeyL1Match;
+					 trigRateKeyL1Match << namesOfInterestIterator->second;
+					 trigRateKeyL1Match << "L1Match";
 					 for(int i = 0 ; i < 500; i+=5){
-						 if(triggerObject.pt() >= i)
+						 if(triggerObject.pt() >= i){
 							 histogramBuilder.fillTrigRateHistograms(i,trigRateKey.str());
+							 if(!hasL1Match(triggerObject, l1Muons)){
+								 histogramBuilder.fillTrigRateHistograms(i,trigRateKeyL1Match.str());
+							 }
+						 }
 					 }
 					 /**
 					  * First loop over all HO Rec hits and try to match the HLT object to an HO tile
@@ -233,6 +246,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 					  * Now loop again but over the list of HO rec hits that are above the energy threshold
 					  */
 					 trigRateKey << "AboveThr";
+					 trigRateKeyL1Match << "HoAboveThr";
 					 for(auto hoRecHitIt = hoAboveThreshold.begin(); hoRecHitIt != hoAboveThreshold.end() ; hoRecHitIt++){
 						 double etaHO = caloGeo->getPosition(hoRecHitIt->id()).eta();
 						 double phiHO = caloGeo->getPosition(hoRecHitIt->id()).phi();
@@ -240,7 +254,11 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 							 for (int i = 0; i < 500; i+=5) {
 								 if(triggerObject.pt() >= i)
 									 histogramBuilder.fillTrigRateHistograms(i,trigRateKey.str());
+								 	 if(!hasL1Match(triggerObject, l1Muons)){
+								 		 histogramBuilder.fillTrigRateHistograms(i,trigRateKeyL1Match.str());
+								 	 }
 							 }
+							 //Leave loop if one match was found
 							 break;
 						 }
 					 }
@@ -286,6 +304,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		else
 			histogramBuilder.fillPdgIdHistogram(0,l1muon_key);
 	}
+
 
 
 	/*
@@ -561,8 +580,6 @@ hoMuonAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 	descriptions.addDefault(desc);
 }
 
-
-
 /*
  * Helper Functions for Filter
  */
@@ -583,6 +600,36 @@ bool isInsideRCut(float eta1, float eta2, float phi1, float phi2){
 
 	//The L1 Muon is compared with all HO Rec Hits above Threshold.
 	if(pow(delta_eta,2)+pow(delta_phi,2) <= pow(deltaR_Max,2)) return true;
+	return false;
+}
+
+trigger::TriggerObjectCollection hoMuonAnalyzer::getHltObjectsWithL1Match(trigger::TriggerObjectCollection hltObjects
+		,edm::Handle<l1extra::L1MuonParticleCollection> l1muons){
+	trigger::TriggerObjectCollection returnObjects;
+	for(trigger::TriggerObjectCollection::const_iterator hltObjectIt = hltObjects.begin();
+			hltObjectIt != hltObjects.end();
+			hltObjectIt++){
+		if(hasL1Match(*hltObjectIt,l1muons))
+			returnObjects.push_back(*hltObjectIt);
+	}
+	return returnObjects;
+}
+
+/**
+ * returns true, if the trigger object has a delta R match to a l1muon object
+ */
+bool hoMuonAnalyzer::hasL1Match(trigger::TriggerObject hltObject,edm::Handle<l1extra::L1MuonParticleCollection> l1muons){
+	for(unsigned int i = 0; i < l1muons->size(); i++){
+		const l1extra::L1MuonParticle* l1muon = &(l1muons->at(i));
+		double hltPhi,hltEta;
+		double l1Phi,l1Eta;
+		hltEta = hltObject.eta();
+		hltPhi = hltObject.phi();
+		l1Eta = l1muon->eta();
+		l1Phi = l1muon->phi();
+		if(isInsideRCut(hltEta,l1Eta,hltPhi,l1Phi))
+			return true;
+	}
 	return false;
 }
 
