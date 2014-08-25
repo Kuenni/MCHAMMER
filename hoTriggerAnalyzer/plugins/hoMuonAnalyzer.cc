@@ -160,12 +160,12 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	//Try getting the event info for weights
 	Handle<GenEventInfoProduct> genEventInfo;
 	iEvent.getByLabel(edm::InputTag("generator"), genEventInfo);
-//	double weight = genEventInfo->weight();
-//	double qScale = genEventInfo->qScale();
-//	std::cout << "Weight: " << weight << ". qScale: " << qScale << "." << std::endl;
-//	int errorCode = 0;
-//	std::cout << "Return of function: " << m_l1GtUtils.prescaleFactor( iEvent, doubleMu0TrigName,  errorCode)
-//			<< ". Value of errorCode " << errorCode << std::endl;
+	//	double weight = genEventInfo->weight();
+	//	double qScale = genEventInfo->qScale();
+	//	std::cout << "Weight: " << weight << ". qScale: " << qScale << "." << std::endl;
+	//	int errorCode = 0;
+	//	std::cout << "Return of function: " << m_l1GtUtils.prescaleFactor( iEvent, doubleMu0TrigName,  errorCode)
+	//			<< ". Value of errorCode " << errorCode << std::endl;
 	/**
 	 * Playground for HLT functionality. May be moved to some other place or even completely removed
 	 */
@@ -181,93 +181,89 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	//Collection of objects that have to do with the Trigger
 	trigger::TriggerObjectCollection hltAllObjects = aodTriggerEvent->getObjects();
 
-	/**
-	 * get a vector containing only the HLT objects that have a match to L1 muons
-	 */
-	trigger::TriggerObjectCollection hltObjectsL1Match = getHltObjectsWithL1Match(hltAllObjects,l1Muons);
+	//Iterate over the trigger path names that we are interested in
+	std::map<std::string,std::string>::const_iterator namesOfInterestIterator = hltNamesOfInterest.begin();
+	for( ;namesOfInterestIterator != hltNamesOfInterest.end(); namesOfInterestIterator++){
+		unsigned int triggerIndex = names.triggerIndex(namesOfInterestIterator->second);
+		//In case the trigger index is out of bounds, something went wrong -> Continue loop
+		if(!(triggerIndex < hltTriggerResults->size())){
+			std::cout << "Trigger index larger than trigger results size!" << std::endl;
+			continue;
+		}
+		//Find, whether the given HLT path was accepted
+		bool trigDecision = hltTriggerResults->accept(triggerIndex);
+		if( trigDecision ){
+			/* Get the input tag for the last run filter
+			 * This seems to be necessary to find the right index of the L3Objects
+			 * in the TriggerObject collection that set of the given trigger path
+			 */
+			std::cout << "HLT Path " << names.triggerName(triggerIndex) << " accepted." << std::endl;
+			//Get the filter index from the Trigger event by using the filter Tag
+			int filterIndex = aodTriggerEvent->filterIndex(hltFiltersOfInterest[namesOfInterestIterator->first]);
+			//Check the range
+			if( filterIndex < aodTriggerEvent->sizeFilters() ){
+				//Get the keys to the Objects in this Trigger Path
+				const trigger::Keys& keys( aodTriggerEvent->filterKeys( filterIndex ) );
+				for(unsigned int i = 0; i < keys.size() ; i++ ){
+					trigger::TriggerObject triggerObject = hltAllObjects[i];
+					double etaTO = triggerObject.eta();
+					double phiTO = triggerObject.phi();
+					std::stringstream trigRateKey;
+					trigRateKey << namesOfInterestIterator->second;
+					std::stringstream trigRateKeyL1Match;
+					trigRateKeyL1Match << namesOfInterestIterator->second;
+					trigRateKeyL1Match << "L1Match";
+					for(int i = 0 ; i < 500; i+=5){
+						if(triggerObject.pt() >= i){
+							histogramBuilder.fillTrigRateHistograms(i,trigRateKey.str());
+							if(hasL1Match(triggerObject, l1Muons)){
+								histogramBuilder.fillTrigRateHistograms(i,trigRateKeyL1Match.str());
+							}
+						}
+					}
+					/**
+					 * First loop over all HO Rec hits and try to match the HLT object to an HO tile
+					 * Break this loop on the first match
+					 */
+					trigRateKey << "_hoMatch";
+					for(auto hoRecHitIt = hoRecoHits->begin(); hoRecHitIt != hoRecoHits->end() ; hoRecHitIt++){
+						double etaHO = caloGeo->getPosition(hoRecHitIt->id()).eta();
+						double phiHO = caloGeo->getPosition(hoRecHitIt->id()).phi();
+						if(isInsideRCut(etaTO, etaHO, phiTO, phiHO)){
+							for (int i = 0; i < 500; i+=5) {
+								if(triggerObject.pt() >= i)
+									histogramBuilder.fillTrigRateHistograms(i,trigRateKey.str());
+							}
+							break;
+						}
+					}
+					/**
+					 * Now loop again but over the list of HO rec hits that are above the energy threshold
+					 */
+					trigRateKey << "AboveThr";
+					trigRateKeyL1Match << "HoAboveThr";
+					for(auto hoRecHitIt = hoAboveThreshold.begin(); hoRecHitIt != hoAboveThreshold.end() ; hoRecHitIt++){
+						double etaHO = caloGeo->getPosition(hoRecHitIt->id()).eta();
+						double phiHO = caloGeo->getPosition(hoRecHitIt->id()).phi();
+						if(isInsideRCut(etaTO, etaHO, phiTO, phiHO)){
+							for (int i = 0; i < 500; i+=5) {
+								if(triggerObject.pt() >= i){
+									histogramBuilder.fillTrigRateHistograms(i,trigRateKey.str());
+									if(hasL1Match(triggerObject, l1Muons)){
+										histogramBuilder.fillTrigRateHistograms(i,trigRateKeyL1Match.str());
+									}
+								}
+							}
+							//Leave loop if one match was found
+							break;
+						}
+					}
+				}//Trigger object keys
+			}
+		}//trigger decision
 
-	 //Iterate over the trigger path names that we are interested in
-	 std::map<std::string,std::string>::const_iterator namesOfInterestIterator = hltNamesOfInterest.begin();
-	 for( ;namesOfInterestIterator != hltNamesOfInterest.end(); namesOfInterestIterator++){
-		 unsigned int triggerIndex = names.triggerIndex(namesOfInterestIterator->second);
-		 //In case the trigger index is out of bounds, something went wrong -> Continue loop
-		 if(!(triggerIndex < hltTriggerResults->size())){
-			 std::cout << "Trigger index larger than trigger results size!" << std::endl;
-			 continue;
-		 }
-		 //Find, whether the given HLT path was accepted
-		 bool trigDecision = hltTriggerResults->accept(triggerIndex);
-		 if( trigDecision ){
-			 /* Get the input tag for the last run filter
-			  * This seems to be necessary to find the right index of the L3Objects
-			  * in the TriggerObject collection that set of the given trigger path
-			  */
-			 std::cout << "HLT Path " << names.triggerName(triggerIndex) << " accepted." << std::endl;
-			 //Get the filter index from the Trigger event by using the filter Tag
-			 int filterIndex = aodTriggerEvent->filterIndex(hltFiltersOfInterest[namesOfInterestIterator->first]);
-			 //Check the range
-			 if( filterIndex < aodTriggerEvent->sizeFilters() ){
-				 //Get the keys to the Objects in this Trigger Path
-				 const trigger::Keys& keys( aodTriggerEvent->filterKeys( filterIndex ) );
-				 for(unsigned int i = 0; i < keys.size() ; i++ ){
-					 trigger::TriggerObject triggerObject = hltAllObjects[i];
-					 double etaTO = triggerObject.eta();
-					 double phiTO = triggerObject.phi();
-					 std::stringstream trigRateKey;
-					 trigRateKey << namesOfInterestIterator->second;
-					 std::stringstream trigRateKeyL1Match;
-					 trigRateKeyL1Match << namesOfInterestIterator->second;
-					 trigRateKeyL1Match << "L1Match";
-					 for(int i = 0 ; i < 500; i+=5){
-						 if(triggerObject.pt() >= i){
-							 histogramBuilder.fillTrigRateHistograms(i,trigRateKey.str());
-							 if(!hasL1Match(triggerObject, l1Muons)){
-								 histogramBuilder.fillTrigRateHistograms(i,trigRateKeyL1Match.str());
-							 }
-						 }
-					 }
-					 /**
-					  * First loop over all HO Rec hits and try to match the HLT object to an HO tile
-					  * Break this loop on the first match
-					  */
-					 trigRateKey << "_hoMatch";
-					 for(auto hoRecHitIt = hoRecoHits->begin(); hoRecHitIt != hoRecoHits->end() ; hoRecHitIt++){
-						 double etaHO = caloGeo->getPosition(hoRecHitIt->id()).eta();
-						 double phiHO = caloGeo->getPosition(hoRecHitIt->id()).phi();
-						 if(isInsideRCut(etaTO, etaHO, phiTO, phiHO)){
-							 for (int i = 0; i < 500; i+=5) {
-								 if(triggerObject.pt() >= i)
-									 histogramBuilder.fillTrigRateHistograms(i,trigRateKey.str());
-							 }
-							 break;
-						 }
-					 }
-					 /**
-					  * Now loop again but over the list of HO rec hits that are above the energy threshold
-					  */
-					 trigRateKey << "AboveThr";
-					 trigRateKeyL1Match << "HoAboveThr";
-					 for(auto hoRecHitIt = hoAboveThreshold.begin(); hoRecHitIt != hoAboveThreshold.end() ; hoRecHitIt++){
-						 double etaHO = caloGeo->getPosition(hoRecHitIt->id()).eta();
-						 double phiHO = caloGeo->getPosition(hoRecHitIt->id()).phi();
-						 if(isInsideRCut(etaTO, etaHO, phiTO, phiHO)){
-							 for (int i = 0; i < 500; i+=5) {
-								 if(triggerObject.pt() >= i)
-									 histogramBuilder.fillTrigRateHistograms(i,trigRateKey.str());
-								 	 if(!hasL1Match(triggerObject, l1Muons)){
-								 		 histogramBuilder.fillTrigRateHistograms(i,trigRateKeyL1Match.str());
-								 	 }
-							 }
-							 //Leave loop if one match was found
-							 break;
-						 }
-					 }
-				 }//Trigger object keys
-			 }
-		 }//trigger decision
-
-		 histogramBuilder.fillTrigHistograms(trigDecision,namesOfInterestIterator->first);
-	 }
+		histogramBuilder.fillTrigHistograms(trigDecision,namesOfInterestIterator->first);
+	}
 
 	/*
 	 * Level 1 Muons
@@ -356,7 +352,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 
 	singleMu3Trig = processTriggerDecision(singleMu3TrigName,iEvent);
 	doubleMu0Trig = processTriggerDecision(doubleMu0TrigName,iEvent);
-//	processTriggerDecision(doubleMu5TrigName,iEvent);
+	//	processTriggerDecision(doubleMu5TrigName,iEvent);
 
 
 
@@ -603,16 +599,20 @@ bool isInsideRCut(float eta1, float eta2, float phi1, float phi2){
 	return false;
 }
 
-trigger::TriggerObjectCollection hoMuonAnalyzer::getHltObjectsWithL1Match(trigger::TriggerObjectCollection hltObjects
+const l1extra::L1MuonParticle* hoMuonAnalyzer::getMatchedL1Object(trigger::TriggerObject hltObject
 		,edm::Handle<l1extra::L1MuonParticleCollection> l1muons){
-	trigger::TriggerObjectCollection returnObjects;
-	for(trigger::TriggerObjectCollection::const_iterator hltObjectIt = hltObjects.begin();
-			hltObjectIt != hltObjects.end();
-			hltObjectIt++){
-		if(hasL1Match(*hltObjectIt,l1muons))
-			returnObjects.push_back(*hltObjectIt);
+	for(unsigned int i = 0; i < l1muons->size(); i++){
+		const l1extra::L1MuonParticle* l1muon = &(l1muons->at(i));
+		double hltPhi,hltEta;
+		double l1Phi,l1Eta;
+		hltEta = hltObject.eta();
+		hltPhi = hltObject.phi();
+		l1Eta = l1muon->eta();
+		l1Phi = l1muon->phi();
+		if(isInsideRCut(hltEta,l1Eta,hltPhi,l1Phi))
+			return l1muon;
 	}
-	return returnObjects;
+	return NULL;
 }
 
 /**
@@ -635,26 +635,26 @@ bool hoMuonAnalyzer::hasL1Match(trigger::TriggerObject hltObject,edm::Handle<l1e
 
 void hoMuonAnalyzer::defineTriggersOfInterest(){
 
-  /*
-   * HLT Triggers
-   */
+	/*
+	 * HLT Triggers
+	 */
 
-  string hltIsoMu24_key = "hltIsoMu24";
-  hltNamesOfInterest.insert(pair<string, string>(hltIsoMu24_key,"HLT_IsoMu24_v18"));
-  hltFiltersOfInterest.insert(pair<string, edm::InputTag>(hltIsoMu24_key,
-							  edm::InputTag("hltL3crIsoL1sMu16L1f0L2f16QL3"
-									"f24QL3crIsoRhoFiltered0p15",
-									"","HLT")));
+	string hltIsoMu24_key = "hltIsoMu24";
+	hltNamesOfInterest.insert(pair<string, string>(hltIsoMu24_key,"HLT_IsoMu24_v18"));
+	hltFiltersOfInterest.insert(pair<string, edm::InputTag>(hltIsoMu24_key,
+			edm::InputTag("hltL3crIsoL1sMu16L1f0L2f16QL3"
+					"f24QL3crIsoRhoFiltered0p15",
+					"","HLT")));
 
-  string hltMu5_key = "hltMu5";
-  hltNamesOfInterest.insert(pair<string, string>(hltMu5_key, "HLT_Mu5_v21"));
-  hltFiltersOfInterest.insert(pair<string, edm::InputTag>(hltMu5_key,
-							  edm::InputTag("hltL3fL1sMu3L3Filtered5",
-									"","HLT")));
+	string hltMu5_key = "hltMu5";
+	hltNamesOfInterest.insert(pair<string, string>(hltMu5_key, "HLT_Mu5_v21"));
+	hltFiltersOfInterest.insert(pair<string, edm::InputTag>(hltMu5_key,
+			edm::InputTag("hltL3fL1sMu3L3Filtered5",
+					"","HLT")));
 
-  string l1SingleMuOpen_key = "hlt_l1SingleMuOpen";
-  hltNamesOfInterest.insert(std::pair<std::string,std::string>(l1SingleMuOpen_key,"HLT_L1SingleMuOpen_v7"));
-  hltFiltersOfInterest.insert(std::pair<std::string,edm::InputTag>(l1SingleMuOpen_key,edm::InputTag("hltL1MuOpenL1Filtered0","","HLT")));
+	string l1SingleMuOpen_key = "hlt_l1SingleMuOpen";
+	hltNamesOfInterest.insert(std::pair<std::string,std::string>(l1SingleMuOpen_key,"HLT_L1SingleMuOpen_v7"));
+	hltFiltersOfInterest.insert(std::pair<std::string,edm::InputTag>(l1SingleMuOpen_key,edm::InputTag("hltL1MuOpenL1Filtered0","","HLT")));
 
 }
 

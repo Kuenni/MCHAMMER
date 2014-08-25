@@ -78,7 +78,7 @@ private:
   
   void defineTriggersOfInterest();
 
-  trigger::TriggerObjectCollection getHltObjectsWithL1Match(trigger::TriggerObjectCollection,edm::Handle<l1extra::L1MuonParticleCollection>);
+  const l1extra::L1MuonParticle* getMatchedL1Object(trigger::TriggerObject,edm::Handle<l1extra::L1MuonParticleCollection>);
   bool hasL1Match(trigger::TriggerObject,edm::Handle<l1extra::L1MuonParticleCollection>);
 
   bool processTriggerDecision(string algorithmName,const edm::Event& );
