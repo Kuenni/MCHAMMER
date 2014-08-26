@@ -78,6 +78,8 @@ private:
   
   void defineTriggersOfInterest();
 
+  reco::GenParticle* getBestGenMatch(float,float);
+
   const l1extra::L1MuonParticle* getMatchedL1Object(trigger::TriggerObject,edm::Handle<l1extra::L1MuonParticleCollection>);
   bool hasL1Match(trigger::TriggerObject,edm::Handle<l1extra::L1MuonParticleCollection>);
 
@@ -90,6 +92,8 @@ private:
   edm::InputTag _horecoInput;
   edm::InputTag _l1MuonGenMatchInput;
   edm::InputTag _hltSumAODInput;
+
+  edm::Handle<reco::GenParticleCollection> truthParticles;
 
   HistogramBuilder histogramBuilder;
 

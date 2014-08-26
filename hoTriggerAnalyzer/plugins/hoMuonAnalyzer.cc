@@ -44,6 +44,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/HcalRecHit/interface/HORecHit.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
@@ -114,8 +115,6 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	/*
 	 * Get Event Data and Event Setup
 	 */
-
-	Handle<reco::GenParticleCollection> truthParticles;
 	iEvent.getByLabel(_genInput,truthParticles);
 
 	Handle<l1extra::L1MuonParticleCollection> l1Muons;
@@ -221,6 +220,12 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 							}
 						}
 					}
+					reco::GenParticle* bestGenMatch = getBestGenMatch(triggerObject.eta(),triggerObject.phi());
+					if(bestGenMatch){
+						//first argument is the condition for a muon trigger object to pass
+						//Second is the pt of the "real" particle
+						histogramBuilder.fillEfficiency(triggerObject.pt()>=20,bestGenMatch->pt(),trigRateKey.str());
+					}
 					/**
 					 * First loop over all HO Rec hits and try to match the HLT object to an HO tile
 					 * Break this loop on the first match
@@ -246,12 +251,18 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 						double etaHO = caloGeo->getPosition(hoRecHitIt->id()).eta();
 						double phiHO = caloGeo->getPosition(hoRecHitIt->id()).phi();
 						if(isInsideRCut(etaTO, etaHO, phiTO, phiHO)){
+							reco::GenParticle* bestGenMatch = getBestGenMatch(triggerObject.eta(),triggerObject.phi());
+							if(bestGenMatch){
+								//first argument is the condition for a muon trigger object to pass
+								//Second is the pt of the "real" particle
+								histogramBuilder.fillEfficiency(triggerObject.pt()>=20,bestGenMatch->pt(),trigRateKey.str());
+							}
+							histogramBuilder.fillEnergyHistograms(hoRecHitIt->energy(),trigRateKeyL1Match.str());
 							for (int i = 0; i < 500; i+=5) {
 								if(triggerObject.pt() >= i){
 									histogramBuilder.fillTrigRateHistograms(i,trigRateKey.str());
 									if(hasL1Match(triggerObject, l1Muons)){
 										histogramBuilder.fillTrigRateHistograms(i,trigRateKeyL1Match.str());
-										histogramBuilder.fillEnergyHistograms(hoRecHitIt->energy(),trigRateKeyL1Match.str());
 									}
 								}
 							}
@@ -283,11 +294,18 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		 * Fill histogram for different pt thresholds
 		 * CAREFUL!! THIS IS NOT A REAL RATE YET!!
 		 */
-		for (int i = 0; i < 200; i+=5) {
-			if(bl1Muon->pt() >= i)
-				histogramBuilder.fillTrigRateHistograms(i,l1muon_key);
+		for (int j = 0; j < 200; j+=5) {
+			if(bl1Muon->pt() >= j){
+				histogramBuilder.fillTrigRateHistograms(j,l1muon_key);
+			}
 		}
 
+		reco::GenParticle* bestGenMatch = getBestGenMatch(bl1Muon->eta(),bl1Muon->phi());
+		if(bestGenMatch){
+			//first argument is the condition for a muon trigger object to pass
+			//Second is the pt of the "real" particle
+			histogramBuilder.fillEfficiency(bl1Muon->pt()>=20,bestGenMatch->pt(),l1muon_key);
+		}
 		histogramBuilder.fillL1MuonPtHistograms(bl1Muon->pt(), l1muon_key);
 		histogramBuilder.fillEtaPhiHistograms(bl1Muon->eta(), bl1Muon->phi(),
 				l1muon_key);
@@ -403,6 +421,12 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				for (int i = 0; i < 200; i+=5) {
 					if(bl1Muon->pt() >= i)
 						histogramBuilder.fillTrigRateHistograms(i,horecoT_key);
+				}
+				reco::GenParticle* bestGenMatch = getBestGenMatch(bl1Muon->eta(),bl1Muon->phi());
+				if(bestGenMatch){
+					//first argument is the condition for a muon trigger object to pass
+					//Second is the pt of the "real" particle
+					histogramBuilder.fillEfficiency(bl1Muon->pt()>=20,bestGenMatch->pt(),horecoT_key);
 				}
 				break;
 			}
@@ -632,6 +656,29 @@ bool hoMuonAnalyzer::hasL1Match(trigger::TriggerObject hltObject,edm::Handle<l1e
 			return true;
 	}
 	return false;
+}
+
+/**
+ * Returns a pointer to the closest gen particle of all particles that are closer
+ * than delta R < 1
+ */
+reco::GenParticle* hoMuonAnalyzer::getBestGenMatch(float eta, float phi){
+	reco::GenParticle* bestGen = 0;
+	float bestDR = 999.;
+	reco::GenParticleCollection::const_iterator genIt = truthParticles->begin();
+	reco::GenParticleCollection::const_iterator genEnd = truthParticles->end();
+	for(; genIt!=genEnd; ++genIt) {
+		if (abs(genIt->pdgId()) == 13 ) {
+			float genPhi = genIt->phi();
+			float genEta = genIt->eta();
+			float dR = deltaR(eta,phi,genEta,genPhi);
+			if (dR < 1. && dR < bestDR) { // CB get it from CFG
+				bestDR = dR;
+				bestGen = &(*genIt);
+			}
+		}
+	}
+	return bestGen;
 }
 
 void hoMuonAnalyzer::defineTriggersOfInterest(){
