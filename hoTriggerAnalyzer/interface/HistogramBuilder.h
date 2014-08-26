@@ -5,6 +5,9 @@
  * Class Test Class
  * Author Chris Anelli
  * 6.13.2013
+ * Edited by Andreas Kuensken
+ * kuensken@physik.rwth-aachen.de
+ * 26. Aug 2014
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -15,17 +18,14 @@
 
 #include "TH1F.h"
 #include "TH2.h"
+#include "TEfficiency.h"
 #include <map>
 
 
 
 class HistogramBuilder {
-  
-  //int mynumber = 13;
-  
- public:
 
-  //HistogramBuilder(); //Constructor
+ public:
  
   edm::Service<TFileService> _fileService;
   
@@ -44,8 +44,8 @@ class HistogramBuilder {
   void fillPdgIdHistogram(int pdgId,std::string key);
   void fillDigiPerEvtHistogram(int nDigis, std::string key);
   void fillHltIndexHistogram(int hltIndex, std::string key);
+  void fillEfficiency(bool,float,std::string);
 
-  //int getMyNumber(); //{return mynumber;}
 
  private:
 
@@ -63,13 +63,9 @@ class HistogramBuilder {
   std::map<std::string,TH1F*> _h1DeltaPhi;                                      
   std::map<std::string,TH2F*> _h2DeltaEtaDeltaPhi;                              
   std::map<std::string,TH1F*> _h1Trig;                                          
-  std::map<std::string,TH1F*> _h1Counter; 
-  
-  /*
-   * Helper Functions
-   */
+  std::map<std::string,TH1F*> _h1Counter;
 
-  //float WrapCheck(float phi1, float phi2);
+  std::map<std::string,TEfficiency*> _effMap;
   
 };
 
