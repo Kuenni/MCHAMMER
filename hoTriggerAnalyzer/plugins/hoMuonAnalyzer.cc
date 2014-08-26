@@ -251,6 +251,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 									histogramBuilder.fillTrigRateHistograms(i,trigRateKey.str());
 									if(hasL1Match(triggerObject, l1Muons)){
 										histogramBuilder.fillTrigRateHistograms(i,trigRateKeyL1Match.str());
+										histogramBuilder.fillEnergyHistograms(hoRecHitIt->energy(),trigRateKeyL1Match.str());
 									}
 								}
 							}
