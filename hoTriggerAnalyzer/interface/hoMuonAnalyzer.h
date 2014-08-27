@@ -42,6 +42,7 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 #include <vector>
 #include <iostream>
@@ -78,7 +79,7 @@ private:
   
   void defineTriggersOfInterest();
 
-  reco::GenParticle* getBestGenMatch(float,float);
+  const reco::GenParticle* getBestGenMatch(float,float);
 
   const l1extra::L1MuonParticle* getMatchedL1Object(trigger::TriggerObject,edm::Handle<l1extra::L1MuonParticleCollection>);
   bool hasL1Match(trigger::TriggerObject,edm::Handle<l1extra::L1MuonParticleCollection>);

@@ -220,7 +220,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 							}
 						}
 					}
-					reco::GenParticle* bestGenMatch = getBestGenMatch(triggerObject.eta(),triggerObject.phi());
+					const reco::GenParticle* bestGenMatch = getBestGenMatch(triggerObject.eta(),triggerObject.phi());
 					if(bestGenMatch){
 						//first argument is the condition for a muon trigger object to pass
 						//Second is the pt of the "real" particle
@@ -251,7 +251,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 						double etaHO = caloGeo->getPosition(hoRecHitIt->id()).eta();
 						double phiHO = caloGeo->getPosition(hoRecHitIt->id()).phi();
 						if(isInsideRCut(etaTO, etaHO, phiTO, phiHO)){
-							reco::GenParticle* bestGenMatch = getBestGenMatch(triggerObject.eta(),triggerObject.phi());
+							const reco::GenParticle* bestGenMatch = getBestGenMatch(triggerObject.eta(),triggerObject.phi());
 							if(bestGenMatch){
 								//first argument is the condition for a muon trigger object to pass
 								//Second is the pt of the "real" particle
@@ -300,7 +300,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			}
 		}
 
-		reco::GenParticle* bestGenMatch = getBestGenMatch(bl1Muon->eta(),bl1Muon->phi());
+		const reco::GenParticle* bestGenMatch = getBestGenMatch(bl1Muon->eta(),bl1Muon->phi());
 		if(bestGenMatch){
 			//first argument is the condition for a muon trigger object to pass
 			//Second is the pt of the "real" particle
@@ -422,7 +422,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 					if(bl1Muon->pt() >= i)
 						histogramBuilder.fillTrigRateHistograms(i,horecoT_key);
 				}
-				reco::GenParticle* bestGenMatch = getBestGenMatch(bl1Muon->eta(),bl1Muon->phi());
+				const reco::GenParticle* bestGenMatch = getBestGenMatch(bl1Muon->eta(),bl1Muon->phi());
 				if(bestGenMatch){
 					//first argument is the condition for a muon trigger object to pass
 					//Second is the pt of the "real" particle
@@ -662,8 +662,8 @@ bool hoMuonAnalyzer::hasL1Match(trigger::TriggerObject hltObject,edm::Handle<l1e
  * Returns a pointer to the closest gen particle of all particles that are closer
  * than delta R < 1
  */
-reco::GenParticle* hoMuonAnalyzer::getBestGenMatch(float eta, float phi){
-	reco::GenParticle* bestGen = 0;
+const reco::GenParticle* hoMuonAnalyzer::getBestGenMatch(float eta, float phi){
+	const reco::GenParticle* bestGen = 0;
 	float bestDR = 999.;
 	reco::GenParticleCollection::const_iterator genIt = truthParticles->begin();
 	reco::GenParticleCollection::const_iterator genEnd = truthParticles->end();
