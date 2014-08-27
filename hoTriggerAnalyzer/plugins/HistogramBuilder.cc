@@ -82,13 +82,26 @@ void HistogramBuilder::fillTrigHistograms(bool trigDecision,std::string key){
  * Trigger rate histograms
  */
 void HistogramBuilder::fillTrigRateHistograms(float ptThreshold,std::string key){
-//	float variableBinArray[] = {0,0.5,1,1.5,2,2.5,3,3.5,4,4.5,5,6,7,8,9,10,12,14,16,18,20,25,30,35,40,45,50,60,70,80,100,120,140,180};
-	if(!_h1Trig.count(key)){
-		_h1Trig[key] = _fileService->make<TH1F>(Form("%s_TrigRate",key.c_str()),
+	if(!_h1TrigRate.count(key)){
+		_h1TrigRate[key] = _fileService->make<TH1F>(Form("%s_TrigRate",key.c_str()),
 				Form("%s Trigger Pseudo Rate",key.c_str()),
 				501, -0.5,500.5);
 	}
-	_h1Trig[key]->Fill(ptThreshold);
+	_h1TrigRate[key]->Fill(ptThreshold);
+
+}
+
+/**
+ * Trig rate histogram with special x binning for L1 resolution
+ */
+void HistogramBuilder::fillTrigRateL1Histograms(float ptThreshold, std::string key){
+	float variableBinArray[] = {0,0.5,1,1.5,2,2.5,3,3.5,4,4.5,5,6,7,8,9,10,12,14,16,18,20,25,30,35,40,45,50,60,70,80,100,120,140,180};
+	if(!_h1TrigRate.count(key)){
+		_h1TrigRate[key] = _fileService->make<TH1F>(Form("%s_TrigRate",key.c_str()),
+				Form("%s Trigger Pseudo Rate",key.c_str()),
+				33,variableBinArray);
+	}
+	_h1TrigRate[key]->Fill(ptThreshold);
 }
 
 /*                                                                              

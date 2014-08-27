@@ -212,7 +212,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 					std::stringstream trigRateKeyL1Match;
 					trigRateKeyL1Match << namesOfInterestIterator->second;
 					trigRateKeyL1Match << "L1Match";
-					for(int i = 0 ; i < 500; i+=5){
+					for(int i = 0 ; i < 500; i+=2){
 						if(triggerObject.pt() >= i){
 							histogramBuilder.fillTrigRateHistograms(i,trigRateKey.str());
 							if(hasL1Match(triggerObject, l1Muons)){
@@ -235,7 +235,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 						double etaHO = caloGeo->getPosition(hoRecHitIt->id()).eta();
 						double phiHO = caloGeo->getPosition(hoRecHitIt->id()).phi();
 						if(isInsideRCut(etaTO, etaHO, phiTO, phiHO)){
-							for (int i = 0; i < 500; i+=5) {
+							for (int i = 0; i < 500; i+=2) {
 								if(triggerObject.pt() >= i)
 									histogramBuilder.fillTrigRateHistograms(i,trigRateKey.str());
 							}
@@ -258,7 +258,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 								histogramBuilder.fillEfficiency(triggerObject.pt()>=20,bestGenMatch->pt(),trigRateKey.str());
 							}
 							histogramBuilder.fillEnergyHistograms(hoRecHitIt->energy(),trigRateKeyL1Match.str());
-							for (int i = 0; i < 500; i+=5) {
+							for (int i = 0; i < 200; i+=2) {
 								if(triggerObject.pt() >= i){
 									histogramBuilder.fillTrigRateHistograms(i,trigRateKey.str());
 									if(hasL1Match(triggerObject, l1Muons)){
@@ -354,7 +354,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			float l1Muon_eta = bl1Muon->eta();
 			float l1Muon_phi = bl1Muon->phi();
 			if(isInsideRCut(l1Muon_eta, ho_eta, l1Muon_phi, ho_phi)){
-				for (int i = 0; i < 200; i+=5) {
+				for (int i = 0; i < 200; i+=2) {
 					if(bl1Muon->pt() >= i)
 						histogramBuilder.fillTrigRateHistograms(i,horeco_key);
 				}
@@ -418,7 +418,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			float l1Muon_eta = bl1Muon->eta();
 			float l1Muon_phi = bl1Muon->phi();
 			if(isInsideRCut(l1Muon_eta, hoT_eta, l1Muon_phi, hoT_phi)){
-				for (int i = 0; i < 200; i+=5) {
+				for (int i = 0; i < 200; i+=2) {
 					if(bl1Muon->pt() >= i)
 						histogramBuilder.fillTrigRateHistograms(i,horecoT_key);
 				}
@@ -484,7 +484,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				if(ref.isNonnull()){
 					string l1MuonAndHoRecoAndGenref_key = "L1MuonandHORecowithMipMatchAndGenMatch";
 					//Make the pseudo trig rate plot
-					for (int i = 0; i < 200; i+=5) {
+					for (int i = 0; i < 200; i+=2) {
 						if(bl1Muon->pt() >= i)
 							histogramBuilder.fillTrigRateHistograms(i,l1MuonAndHoRecoAndGenref_key);
 					}
@@ -494,7 +494,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				}
 
 				//Make the pseudo trig rate plot
-				for (int i = 0; i < 200; i+=5) {
+				for (int i = 0; i < 200; i+=2) {
 					if(bl1Muon->pt() >= i)
 						histogramBuilder.fillTrigRateHistograms(i,hoRecoMipMatch_key);
 				}

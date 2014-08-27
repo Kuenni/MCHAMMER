@@ -17,6 +17,7 @@
 
 
 #include "TH1F.h"
+#include "TH1D.h"
 #include "TH2.h"
 #include "TEfficiency.h"
 #include <map>
@@ -41,6 +42,7 @@ class HistogramBuilder {
   void fillCountHistogram(std::string key);                                   
   void fillTrigHistograms(bool trigDecision,std::string key);
   void fillTrigRateHistograms(float ptThreshold, std::string key);
+  void fillTrigRateL1Histograms(float,std::string);
   void fillPdgIdHistogram(int pdgId,std::string key);
   void fillDigiPerEvtHistogram(int nDigis, std::string key);
   void fillHltIndexHistogram(int hltIndex, std::string key);
@@ -62,7 +64,8 @@ class HistogramBuilder {
   std::map<std::string,TH1F*> _h1DeltaEta;                                      
   std::map<std::string,TH1F*> _h1DeltaPhi;                                      
   std::map<std::string,TH2F*> _h2DeltaEtaDeltaPhi;                              
-  std::map<std::string,TH1F*> _h1Trig;                                          
+  std::map<std::string,TH1F*> _h1Trig;
+  std::map<std::string,TH1D*> _h1TrigRate;
   std::map<std::string,TH1F*> _h1Counter;
 
   std::map<std::string,TEfficiency*> _effMap;
