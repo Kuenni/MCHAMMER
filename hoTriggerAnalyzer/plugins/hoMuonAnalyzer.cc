@@ -177,6 +177,9 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	}
 
 
+	/**
+	 * HLT Path analysis
+	 */
 	//Clone the HORecHits and delete all references to hits, that are
 	//below a certain signal threshold
 	std::vector<HORecHit> hoAboveThreshold (hoRecoHits->size());
@@ -476,7 +479,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			if(isInsideRCut(l1Muon_eta, horeco_eta, l1Muon_phi, horeco_phi)){
 				mipMatch=true; //Only need a single match
 				//NB It is possible for there to be more than one matched Mip.
-				string hoRecoMipMatch_key = "HORecowithMipMatch";
+				string hoRecoMipMatch_key = "L1MuonAndHoAboveThr";
 				histogramBuilder.fillCountHistogram(hoRecoMipMatch_key);
 				histogramBuilder.fillEtaPhiHistograms(caloGeo->getPosition(bho_recoT->id()).eta(),
 						caloGeo->getPosition(bho_recoT->id()).phi(),
