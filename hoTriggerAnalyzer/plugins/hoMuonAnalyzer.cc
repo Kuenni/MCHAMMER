@@ -160,6 +160,23 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	Handle<GenEventInfoProduct> genEventInfo;
 	iEvent.getByLabel(edm::InputTag("generator"), genEventInfo);
 
+
+	/*
+	 * Fill a trig rate histogramm for the muons of the gen particles
+	 */
+	std::string genTrigRate = "genTrigRate";
+	for(reco::GenParticleCollection::const_iterator genIt = truthParticles->begin();
+			genIt != truthParticles->end(); genIt++){
+		if(genIt->isMuon()){
+			for (int i = 0; i < 200; i+=2) {
+				if(genIt->pt() >= i){
+					histogramBuilder.fillTrigRateHistograms(i,genTrigRate);
+				}
+			}
+		}
+	}
+
+
 	//Clone the HORecHits and delete all references to hits, that are
 	//below a certain signal threshold
 	std::vector<HORecHit> hoAboveThreshold (hoRecoHits->size());
