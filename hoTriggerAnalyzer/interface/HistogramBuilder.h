@@ -47,7 +47,8 @@ class HistogramBuilder {
   void fillDigiPerEvtHistogram(int nDigis, std::string key);
   void fillHltIndexHistogram(int hltIndex, std::string key);
   void fillEfficiency(bool,float,std::string);
-
+  void fillDeltaVzHistogam(float,std::string);
+  void fillPtCorrelationHistogram(float,float,std::string);
 
  private:
 
@@ -56,6 +57,7 @@ class HistogramBuilder {
   std::map<std::string,TH1D*> _h1pdgId;
   std::map<std::string,TH1D*> _h1DigisPerEvt;
   std::map<std::string,TH1D*> _h1HltIndex;
+  std::map<std::string,TH1D*> _h1DeltaVz;
   
   std::map<std::string,TH1F*> _h1Eta;
   std::map<std::string,TH1F*> _h1Phi;
@@ -67,6 +69,7 @@ class HistogramBuilder {
   std::map<std::string,TH1F*> _h1Trig;
   std::map<std::string,TH1D*> _h1TrigRate;
   std::map<std::string,TH1F*> _h1Counter;
+  std::map<std::string,TH2D*> _h2PtCorrelation;
 
   std::map<std::string,TEfficiency*> _effMap;
   

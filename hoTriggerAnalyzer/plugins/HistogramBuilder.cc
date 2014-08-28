@@ -16,6 +16,29 @@
 #include "TH2F.h"
 #include "HoMuonTrigger/hoTriggerAnalyzer/interface/CommonFunctions.h"
 
+/**
+ * Fill a histogram with the difference of two vz values from the vertex position
+ */
+void HistogramBuilder::fillDeltaVzHistogam(float deltaVz, std::string key){
+	if(!_h1DeltaVz.count(key)){
+		_h1DeltaVz[key] = _fileService->make<TH1D>(Form("%s_DeltaVz",key.c_str()),
+				Form("%s #Delta V_{z}",key.c_str()),
+				1000, -10, 10);
+	}
+	_h1DeltaVz[key]->Fill(deltaVz);
+}
+
+/**
+ * Fill a correlation histogram for Pt of two objects
+ */
+void HistogramBuilder::fillPtCorrelationHistogram(float pt1, float pt2, std::string key){
+	if(!_h2PtCorrelation.count(key)){
+		_h2PtCorrelation[key] = _fileService->make<TH2D>(Form("%s_PtCorrelation",key.c_str()),
+				Form("%s P_{T} Correlation;pt1;pt2",key.c_str()),
+				500, 0,500,500,0,500);
+	}
+	_h2PtCorrelation[key]->Fill(pt1,pt2);
+}
 
 void HistogramBuilder::fillEfficiency(bool passed, float pt, std::string key){
 	if(!_effMap.count(key)){
@@ -83,9 +106,9 @@ void HistogramBuilder::fillTrigHistograms(bool trigDecision,std::string key){
  */
 void HistogramBuilder::fillTrigRateHistograms(float ptThreshold,std::string key){
 	if(!_h1TrigRate.count(key)){
-		_h1TrigRate[key] = _fileService->make<TH1F>(Form("%s_TrigRate",key.c_str()),
+		_h1TrigRate[key] = _fileService->make<TH1D>(Form("%s_TrigRate",key.c_str()),
 				Form("%s Trigger Pseudo Rate",key.c_str()),
-				501, -0.5,500.5);
+				500, 0,500);
 	}
 	_h1TrigRate[key]->Fill(ptThreshold);
 
@@ -97,7 +120,7 @@ void HistogramBuilder::fillTrigRateHistograms(float ptThreshold,std::string key)
 void HistogramBuilder::fillTrigRateL1Histograms(float ptThreshold, std::string key){
 	float variableBinArray[] = {0,0.5,1,1.5,2,2.5,3,3.5,4,4.5,5,6,7,8,9,10,12,14,16,18,20,25,30,35,40,45,50,60,70,80,100,120,140,180};
 	if(!_h1TrigRate.count(key)){
-		_h1TrigRate[key] = _fileService->make<TH1F>(Form("%s_TrigRate",key.c_str()),
+		_h1TrigRate[key] = _fileService->make<TH1D>(Form("%s_TrigRate",key.c_str()),
 				Form("%s Trigger Pseudo Rate",key.c_str()),
 				33,variableBinArray);
 	}

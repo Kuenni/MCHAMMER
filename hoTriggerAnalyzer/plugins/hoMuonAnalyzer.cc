@@ -159,15 +159,6 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	//Try getting the event info for weights
 	Handle<GenEventInfoProduct> genEventInfo;
 	iEvent.getByLabel(edm::InputTag("generator"), genEventInfo);
-	//	double weight = genEventInfo->weight();
-	//	double qScale = genEventInfo->qScale();
-	//	std::cout << "Weight: " << weight << ". qScale: " << qScale << "." << std::endl;
-	//	int errorCode = 0;
-	//	std::cout << "Return of function: " << m_l1GtUtils.prescaleFactor( iEvent, doubleMu0TrigName,  errorCode)
-	//			<< ". Value of errorCode " << errorCode << std::endl;
-	/**
-	 * Playground for HLT functionality. May be moved to some other place or even completely removed
-	 */
 
 	//Clone the HORecHits and delete all references to hits, that are
 	//below a certain signal threshold
@@ -225,6 +216,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 						//first argument is the condition for a muon trigger object to pass
 						//Second is the pt of the "real" particle
 						histogramBuilder.fillEfficiency(triggerObject.pt()>=20,bestGenMatch->pt(),trigRateKey.str());
+			//			histogramBuilder.fillDeltaVzHistogam(triggerObject.)
 					}
 					/**
 					 * First loop over all HO Rec hits and try to match the HLT object to an HO tile
@@ -246,7 +238,8 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 					 * Now loop again but over the list of HO rec hits that are above the energy threshold
 					 */
 					trigRateKey << "AboveThr";
-					trigRateKeyL1Match << "HoAboveThr";
+					trigRateKeyL1Match.clear();
+					trigRateKeyL1Match<< "HoAboveThr";
 					for(auto hoRecHitIt = hoAboveThreshold.begin(); hoRecHitIt != hoAboveThreshold.end() ; hoRecHitIt++){
 						double etaHO = caloGeo->getPosition(hoRecHitIt->id()).eta();
 						double phiHO = caloGeo->getPosition(hoRecHitIt->id()).phi();
@@ -269,7 +262,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 							//Leave loop if one match was found
 							break;
 						}
-					}
+					}//Loop Ho above Thr.
 				}//Trigger object keys
 			}
 		}//trigger decision
