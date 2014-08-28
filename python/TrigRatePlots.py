@@ -5,6 +5,8 @@ import PlotStyle
 import numpy as np
 
 import L1RatePlotter
+import EnergyPlotter
+import EfficiencyPlotter
 
 PlotStyle.setPlotStyle()
 
@@ -12,12 +14,16 @@ if(len(sys.argv) < 2):
     print 'Error! Filename as first argument needed.'
     sys.exit(1)
 
-os.mkdir('plots')
+if( not os.path.exists('plots')):
+    os.mkdir('plots')
 
 filename = sys.argv[1]
 print 'Opening file:',filename
 
 L1RatePlotter.plotL1Rates(filename)
+EnergyPlotter.plotL1Rates(filename)
+EfficiencyPlotter.plotL1Rates(filename)
+
 
 file = TFile.Open(filename)
 

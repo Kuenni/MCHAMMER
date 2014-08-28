@@ -17,7 +17,7 @@ def plotL1Rates(filename):
     ho.SetStats(0)
     ho.GetXaxis().SetTitle('Energie / GeV')
     ho.GetYaxis().SetTitle('Anzahl Eintr#ddot{a}ge')
-    ho.SetRangeUser(0,100)
+    ho.GetYaxis().SetRangeUser(0,100)
     
     ho.SetLineColor(ROOT.kBlack)
    # hoAboveThr.SetLineColor(ROOT.kBlue)
