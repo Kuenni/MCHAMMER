@@ -164,13 +164,13 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	/*
 	 * Fill a trig rate histogramm for the muons of the gen particles
 	 */
-	std::string genTrigRate = "genTrigRate";
+	std::string gen_key = "gen";
 	for(reco::GenParticleCollection::const_iterator genIt = truthParticles->begin();
 			genIt != truthParticles->end(); genIt++){
 		if(genIt->isMuon()){
 			for (int i = 0; i < 200; i+=2) {
 				if(genIt->pt() >= i){
-					histogramBuilder.fillTrigRateHistograms(i,genTrigRate);
+					histogramBuilder.fillTrigRateHistograms(i,gen_key);
 				}
 			}
 		}
