@@ -77,7 +77,7 @@ void HistogramBuilder::fillMultiplicityHistogram(int nEvents, std::string key){
 				Form("%s Digis Per Event",key.c_str()),
 				201, -0.5, 200.5);
 	}
-	_h1Multiplicity[key]->Fill(nDigis);
+	_h1Multiplicity[key]->Fill(nEvents);
 }
 
 void HistogramBuilder::fillPdgIdHistogram(int pdgId, std::string key){
