@@ -304,7 +304,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	auto bl1Muon = l1Muons->cbegin();
 	auto el1Muon = l1Muons->cend();
 
-	for(  unsigned int i = 0 ; i < l1Muons->size(); i++  ) {
+	for( unsigned int i = 0 ; i < l1Muons->size(); i++  ) {
 		histogramBuilder.fillCountHistogram(l1muon_key);
 		const l1extra::L1MuonParticle* bl1Muon = &(l1Muons->at(i));
 
@@ -314,7 +314,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			 * Fill histogram for different pt thresholds
 			 * CAREFUL!! THIS IS NOT A REAL RATE YET!!
 			 */
-			for (int j = 0; j < 200; j+=5) {
+			for (int j = 0; j < 200; j+=2) {
 				if(bl1Muon->pt() >= j){
 					histogramBuilder.fillTrigRateHistograms(j,l1muon_key);
 				}
@@ -374,6 +374,10 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		for( ; bl1Muon != el1Muon; ++bl1Muon ){
 			float l1Muon_eta = bl1Muon->eta();
 			float l1Muon_phi = bl1Muon->phi();
+			//Filter for full barrel region only
+			if( !( abs(bl1Muon->eta())>0.8 || abs(ho_eta)>0.8 ) ){
+				continue;
+			}
 			if(isInsideRCut(l1Muon_eta, ho_eta, l1Muon_phi, ho_phi)){
 				for (int i = 0; i < 200; i+=2) {
 					if(bl1Muon->pt() >= i)
@@ -438,6 +442,10 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		for( ; bl1Muon != el1Muon; ++bl1Muon ){
 			float l1Muon_eta = bl1Muon->eta();
 			float l1Muon_phi = bl1Muon->phi();
+			//Filter for full barrel region only
+			if( !( abs(bl1Muon->eta())>0.8 || abs(hoT_eta)>0.8 ) ){
+				continue;
+			}
 			if(isInsideRCut(l1Muon_eta, hoT_eta, l1Muon_phi, hoT_phi)){
 				for (int i = 0; i < 200; i+=2) {
 					if(bl1Muon->pt() >= i)
@@ -484,6 +492,10 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			histogramBuilder.fillDeltaEtaDeltaPhiHistograms(l1Muon_eta, horeco_eta,
 					l1Muon_phi, horeco_phi,
 					l1MuonhoReco_key);
+			//Filter for full barrel region only
+			if( !( abs(bl1Muon->eta())>0.8 || abs(horeco_eta)>0.8 ) ){
+				continue;
+			}
 			if(isInsideRCut(l1Muon_eta, horeco_eta, l1Muon_phi, horeco_phi)){
 				mipMatch=true; //Only need a single match
 				//NB It is possible for there to be more than one matched Mip.
