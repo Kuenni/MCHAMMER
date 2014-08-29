@@ -3,34 +3,41 @@ import sys
 import PlotStyle
 import numpy as np
 
-def plotL1Rates(filename):
+def plotEnergy(filename):
     
     file = TFile.Open(filename)
     
     ho = file.Get("demo/horeco_Energy")
     hoAboveThr = file.Get("demo/horecoAboveThreshold_Energy")
-    L1MuonAndHoMatch = file.Get('demo/L1MuonAndHoAboveThr_Energy')
+    L1MuonAndHoMatch = file.Get('demo/HORecowithMipMatch'
+                                #L1MuonAndHoAboveThr
+                                '_Energy')
     
     canv = TCanvas("energieCanvas",'EnergieCanvas')
-    canv.cd(1).SetLogy()
+    canv.SetLogy()
     
     ho.SetStats(0)
-    ho.GetXaxis().SetTitle('Energie / GeV')
+    ho.SetTitle('Energie der HO-Treffer')
+    ho.GetXaxis().SetTitle('Rekonstruierte Energie / GeV')
     ho.GetYaxis().SetTitle('Anzahl Eintr#ddot{a}ge')
-    ho.GetYaxis().SetRangeUser(0,100)
+    ho.GetXaxis().SetRangeUser(-0.2,4)
     
     ho.SetLineColor(ROOT.kBlack)
-   # hoAboveThr.SetLineColor(ROOT.kBlue)
-   # L1MuonAndHoMatch.SetLineColor(ROOT.kRed)
+    hoAboveThr.SetLineColor(ROOT.kBlue)
+    L1MuonAndHoMatch.SetLineColor(ROOT.kRed)
+    
+    ho.SetLineWidth(3)
+    hoAboveThr.SetLineWidth(3)
+    L1MuonAndHoMatch.SetLineWidth(3)
    
     ho.Draw()
-   # hoAboveThr.Draw('same')
-   # L1MuonAndHoMatch.Draw('same')
+    hoAboveThr.Draw('same')
+    L1MuonAndHoMatch.Draw('same')
     
     legend = TLegend(0.5,0.65,0.9,0.9)
     legend.AddEntry(ho,'Alle HO Hits','l')
-   # legend.AddEntry(hoAboveThr,'HO Hits > 0.2 GeV','ep')
-   # legend.AddEntry(L1MuonAndHoMatch,'L1 Objekte mit HO-Match','ep')
+    legend.AddEntry(hoAboveThr,'HO Hits > 0.2 GeV','l')
+    legend.AddEntry(L1MuonAndHoMatch,'L1 Objekte mit HO-Match > 0.2 GeV','l')
     legend.Draw()
     
     canv.SaveAs("plots/Energieverteilung.png")

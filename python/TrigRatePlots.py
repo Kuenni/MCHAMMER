@@ -20,9 +20,9 @@ if( not os.path.exists('plots')):
 filename = sys.argv[1]
 print 'Opening file:',filename
 
-L1RatePlotter.plotL1Rates(filename)
-EnergyPlotter.plotL1Rates(filename)
-EfficiencyPlotter.plotL1Rates(filename)
+#L1RatePlotter.plotL1Rates(filename)
+EnergyPlotter.plotEnergy(filename)
+#EfficiencyPlotter.plotEfficiency(filename)
 
 
 file = TFile.Open(filename)
@@ -32,7 +32,7 @@ hltHoMatch_TrigRate = file.Get("demo/HLT_L1SingleMuOpen_v7_hoMatch_TrigRate")
 hltHoMatchAboveThr_TrigRate = file.Get("demo/HLT_L1SingleMuOpen_v7_hoMatchAboveThr_TrigRate")
 l1Muon_TrigRate = file.Get("demo/L1Muon_TrigRate")
 
-frameHist = TH2D('frame','Pseudo Trigger Rate HLT_L1SingleMuOpen',1,0,150,1,40,2e3)
+frameHist = TH2D('frame','Pseudo Trigger Rate HLT_L1SingleMuOpen',1,0,100,1,40,2e3)
 
 canv = TCanvas("pseudoTrigRateCanvas",'pseudoTrigRateCanvas')
 canv.cd(1).SetLogy()
@@ -104,19 +104,12 @@ variableBinArray = np.array(variableBinArray,dtype=float)
 
 newHist = l1Muon_TrigRate.Rebin(len(variableBinArray)-1,"newTestHist",variableBinArray)
 
-print variableBinArray
-yValues = l1Muon_TrigRate.GetArray()
-nEntries = l1Muon_TrigRate.GetEntries()
-yValues.SetSize(nEntries)
-print yValues
-
-
 
 l1Muon_TrigRate.SetMarkerStyle(21)
 l1Muon_TrigRate.SetLineColor(ROOT.kBlack)
 l1Muon_TrigRate.SetMarkerColor(ROOT.kBlack)
 l1Muon_TrigRate.SetStats(0)
-l1Muon_TrigRate.GetXaxis().SetRangeUser(0,170)
+l1Muon_TrigRate.GetXaxis().SetRangeUser(0,100)
 l1Muon_TrigRate.GetYaxis().SetRangeUser(40,2e4)
 l1Muon_TrigRate.Draw('p,e1')
 
@@ -163,7 +156,7 @@ legend.AddEntry(l1MuWithHoMatch_TrigRate,'L1Muon + HO above Thr.','ep')
 legend.AddEntry(hltWithL1Match_TrigRate,'HLT (Single Mu Open) with L1 match','ep')
 legend.AddEntry(hltWithL1MatchAboveThr_TrigRate,'HLT (Single Mu Open) + HO above Thr.','ep')
 #legend.AddEntry(hltMu5_TrigRate,'HLT (Single Mu 5)','ep')
-legend.AddEntry(hltMu5L1Match_TrigRate,'HLT (Signle Mu 5) + HO match','ep')
+legend.AddEntry(hltMu5L1Match_TrigRate,'HLT (Single Mu 5) + L1 match','ep')
 legend.AddEntry(hltMu5L1MatchAboveThr_TrigRate,'HLT (Single Mu 5) + HO above Thr. match','ep')
 
 legend.Draw()
