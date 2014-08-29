@@ -71,13 +71,13 @@ void HistogramBuilder::fillCountHistogram(std::string key){
 	_h1Counter[key]->Fill(1);
 }                                                                               
 
-void HistogramBuilder::fillDigiPerEvtHistogram(int nDigis, std::string key){
-	if(!_h1DigisPerEvt.count(key)){
-		_h1DigisPerEvt[key] = _fileService->make<TH1D>(Form("%s_DigisPerEvt",key.c_str()),
+void HistogramBuilder::fillMultiplicityHistogram(int nEvents, std::string key){
+	if(!_h1Multiplicity.count(key)){
+		_h1Multiplicity[key] = _fileService->make<TH1D>(Form("%s_Multiplicity",key.c_str()),
 				Form("%s Digis Per Event",key.c_str()),
 				201, -0.5, 200.5);
 	}
-	_h1DigisPerEvt[key]->Fill(nDigis);
+	_h1Multiplicity[key]->Fill(nDigis);
 }
 
 void HistogramBuilder::fillPdgIdHistogram(int pdgId, std::string key){

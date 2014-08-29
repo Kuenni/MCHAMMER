@@ -44,7 +44,7 @@ class HistogramBuilder {
   void fillTrigRateHistograms(float ptThreshold, std::string key);
   void fillTrigRateL1Histograms(float,std::string);
   void fillPdgIdHistogram(int pdgId,std::string key);
-  void fillDigiPerEvtHistogram(int nDigis, std::string key);
+  void fillMultiplicityHistogram(int , std::string );
   void fillHltIndexHistogram(int hltIndex, std::string key);
   void fillEfficiency(bool,float,std::string);
   void fillDeltaVzHistogam(float,std::string);
@@ -55,7 +55,7 @@ class HistogramBuilder {
   std::map<std::string,TH1F*> _h1L1MuonPt;
   std::map<std::string,TH1F*> _h1Energy;
   std::map<std::string,TH1D*> _h1pdgId;
-  std::map<std::string,TH1D*> _h1DigisPerEvt;
+  std::map<std::string,TH1D*> _h1Multiplicity;
   std::map<std::string,TH1D*> _h1HltIndex;
   std::map<std::string,TH1D*> _h1DeltaVz;
   
