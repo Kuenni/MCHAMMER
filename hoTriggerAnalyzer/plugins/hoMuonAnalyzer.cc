@@ -165,17 +165,21 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	 * Fill a trig rate histogramm for the muons of the gen particles
 	 */
 	std::string gen_key = "gen";
+	int genMuonCounter = 0;
 	for(reco::GenParticleCollection::const_iterator genIt = truthParticles->begin();
 			genIt != truthParticles->end(); genIt++){
-		//Check for muons only
-		if(abs(genIt->pdgId())==13){
+		//Check for muons in Full barrel onl< only
+		if( ( abs(genIt->pdgId()) == 13 ) && ( abs(genIt->eta()) <= 0.8 ) ){
+			genMuonCounter++;
 			for (int i = 0; i < 200; i+=2) {
 				if(genIt->pt() >= i){
 					histogramBuilder.fillTrigRateHistograms(i,gen_key);
+					histogramBuilder.fillEtaPhiHistograms(genIt->eta(),genIt->phi(),gen_key);
 				}
 			}
 		}
 	}
+	histogramBuilder.fillMultiplicityHistogram(genMuonCounter,gen_key);
 
 
 	/**
@@ -304,34 +308,37 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		histogramBuilder.fillCountHistogram(l1muon_key);
 		const l1extra::L1MuonParticle* bl1Muon = &(l1Muons->at(i));
 
-		/*
-		 * Fill histogram for different pt thresholds
-		 * CAREFUL!! THIS IS NOT A REAL RATE YET!!
-		 */
-		for (int j = 0; j < 200; j+=5) {
-			if(bl1Muon->pt() >= j){
-				histogramBuilder.fillTrigRateHistograms(j,l1muon_key);
+		//Filter on l1muon objects in Barrel region only
+		if( abs(bl1Muon->eta()) <= 0.8 ){
+			/*
+			 * Fill histogram for different pt thresholds
+			 * CAREFUL!! THIS IS NOT A REAL RATE YET!!
+			 */
+			for (int j = 0; j < 200; j+=5) {
+				if(bl1Muon->pt() >= j){
+					histogramBuilder.fillTrigRateHistograms(j,l1muon_key);
+				}
 			}
-		}
 
-		const reco::GenParticle* bestGenMatch = getBestGenMatch(bl1Muon->eta(),bl1Muon->phi());
-		if(bestGenMatch){
-			//first argument is the condition for a muon trigger object to pass
-			//Second is the pt of the "real" particle
-			histogramBuilder.fillEfficiency(bl1Muon->pt()>=20,bestGenMatch->pt(),l1muon_key);
+			const reco::GenParticle* bestGenMatch = getBestGenMatch(bl1Muon->eta(),bl1Muon->phi());
+			if(bestGenMatch){
+				//first argument is the condition for a muon trigger object to pass
+				//Second is the pt of the "real" particle
+				histogramBuilder.fillEfficiency(bl1Muon->pt()>=20,bestGenMatch->pt(),l1muon_key);
+			}
+			histogramBuilder.fillL1MuonPtHistograms(bl1Muon->pt(), l1muon_key);
+			histogramBuilder.fillEtaPhiHistograms(bl1Muon->eta(), bl1Muon->phi(),
+					l1muon_key);
+			//fillEtaPhiHistograms(bl1Muon->eta(), bl1Muon->phi(), l1muon_key);
+			//For variable binning
+			listL1MuonPt.push_back(bl1Muon->pt());
+			edm::RefToBase<l1extra::L1MuonParticle> l1MuonCandiateRef(l1MuonView,i);
+			reco::GenParticleRef ref = (*l1MuonGenMatches)[l1MuonCandiateRef];
+			if(ref.isNonnull())
+				histogramBuilder.fillPdgIdHistogram(ref->pdgId(),l1muon_key);
+			else
+				histogramBuilder.fillPdgIdHistogram(0,l1muon_key);
 		}
-		histogramBuilder.fillL1MuonPtHistograms(bl1Muon->pt(), l1muon_key);
-		histogramBuilder.fillEtaPhiHistograms(bl1Muon->eta(), bl1Muon->phi(),
-				l1muon_key);
-		//fillEtaPhiHistograms(bl1Muon->eta(), bl1Muon->phi(), l1muon_key);
-		//For variable binning
-		listL1MuonPt.push_back(bl1Muon->pt());
-		edm::RefToBase<l1extra::L1MuonParticle> l1MuonCandiateRef(l1MuonView,i);
-		reco::GenParticleRef ref = (*l1MuonGenMatches)[l1MuonCandiateRef];
-		if(ref.isNonnull())
-			histogramBuilder.fillPdgIdHistogram(ref->pdgId(),l1muon_key);
-		else
-			histogramBuilder.fillPdgIdHistogram(0,l1muon_key);
 	}
 
 
@@ -404,7 +411,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			hoBelowThreshold);
 	hoRecoHitsAboveThreshold.resize(std::distance(hoRecoHitsAboveThreshold.begin(),it));
 
-	histogramBuilder.fillDigiPerEvtHistogram(hoRecoHitsAboveThreshold.size(),horecoT_key);
+	histogramBuilder.fillMultiplicityHistogram(hoRecoHitsAboveThreshold.size(),horecoT_key);
 
 	auto bho_recoT = hoRecoHitsAboveThreshold.begin();
 	auto eho_recoT = hoRecoHitsAboveThreshold.end();
