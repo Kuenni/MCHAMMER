@@ -167,7 +167,8 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	std::string gen_key = "gen";
 	for(reco::GenParticleCollection::const_iterator genIt = truthParticles->begin();
 			genIt != truthParticles->end(); genIt++){
-		if(genIt->isMuon()){
+		//Check for muons only
+		if(abs(genIt->pdgId())==13){
 			for (int i = 0; i < 200; i+=2) {
 				if(genIt->pt() >= i){
 					histogramBuilder.fillTrigRateHistograms(i,gen_key);
