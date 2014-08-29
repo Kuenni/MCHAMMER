@@ -293,6 +293,7 @@ process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('Configuration.Geometry.GeometryExtended2015Reco_cff')
+process.load('Configuration.StandardSequences.SimL1Emulator_cff')
 #Global Tag
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.GlobalTag.globaltag='PostLS162_V2::All'
@@ -308,6 +309,10 @@ process.load('L1Trigger.Configuration.L1Extra_cff')
 #horeco
 process.load('Configuration.StandardSequences.Reconstruction_cff')
 
+# add SiPMs to HO
+process.mix.digitizers.hcal.ho.pixels = cms.int32(2500)
+process.mix.digitizers.hcal.ho.siPMCode = 1
+process.mix.digitizers.hcal.ho.photoelectronsToAnalog = cms.vdouble([4.0]*16)
 
 process.demo = cms.EDAnalyzer(
     'hoMuonAnalyzer',
@@ -331,6 +336,7 @@ process.l1MuonGenMatch = cms.EDProducer("MCTruthDeltaRMatcherNew",
 
 #Path definitions
 process.raw2digi_step = cms.Path(process.RawToDigi)
+process.L1simulation_step = cms.Path(process.SimL1Emulator)
 process.l1extra_step = cms.Path(process.L1Extra)
 process.horeco_step = cms.Path(process.horeco)
 process.l1MuonGenMatch_step = cms.Path(process.l1MuonGenMatch)
@@ -348,7 +354,7 @@ import HLTrigger.HLTcore.triggerSummaryAnalyzerAOD_cfi
 process.tsaAOD = HLTrigger.HLTcore.triggerSummaryAnalyzerAOD_cfi.triggerSummaryAnalyzerAOD.clone()
 process.tsa = cms.Path(process.tsaAOD)#+process.tsaRAW)
 #Schedule Definition
-process.schedule = cms.Schedule(process.raw2digi_step, process.l1extra_step,
+process.schedule = cms.Schedule(process.L1simulation_step,process.raw2digi_step, process.l1extra_step,
                                 process.horeco_step,process.l1MuonGenMatch_step, process.demo_step)
                                 #,process.tsa)
 
