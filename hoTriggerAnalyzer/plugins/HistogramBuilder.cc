@@ -29,6 +29,18 @@ void HistogramBuilder::fillDeltaVzHistogam(float deltaVz, std::string key){
 }
 
 /**
+ * Fill a histogram with the vz values from the vertex position
+ */
+void HistogramBuilder::fillVzHistogram(float vz, std::string key){
+	if(!_h1Vz.count(key)){
+		_h1Vz[key] = _fileService->make<TH1D>(Form("%s_Vz",key.c_str()),
+				Form("%s V_{z}",key.c_str()),
+				1000, -10, 10);
+	}
+	_h1Vz[key]->Fill(vz);
+}
+
+/**
  * Fill a correlation histogram for Pt of two objects
  */
 void HistogramBuilder::fillPtCorrelationHistogram(float pt1, float pt2, std::string key){
@@ -222,6 +234,15 @@ void HistogramBuilder::fillL1MuonPtHistograms(float pt, std::string key){
 	}
 	_h1L1MuonPt[key]->Fill(pt);
 }         
+
+void HistogramBuilder::fillPtHistogram(float pt, std::string key){
+	if(!_h1L1MuonPt.count(key)){
+		_h1L1MuonPt[key] = _fileService->make<TH1F>(Form("%s_Pt",key.c_str()),
+				Form("%s Pt",key.c_str()),
+				500,0,500);
+	}
+	_h1L1MuonPt[key]->Fill(pt);
+}
 
 /*
 int HistogramBuilder::getMyNumber(){

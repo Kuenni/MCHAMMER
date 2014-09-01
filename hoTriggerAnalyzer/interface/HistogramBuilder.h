@@ -49,6 +49,8 @@ class HistogramBuilder {
   void fillEfficiency(bool,float,std::string);
   void fillDeltaVzHistogam(float,std::string);
   void fillPtCorrelationHistogram(float,float,std::string);
+  void fillPtHistogram(float,std::string);
+  void fillVzHistogram(float,std::string);
 
  private:
 
@@ -58,6 +60,7 @@ class HistogramBuilder {
   std::map<std::string,TH1D*> _h1Multiplicity;
   std::map<std::string,TH1D*> _h1HltIndex;
   std::map<std::string,TH1D*> _h1DeltaVz;
+  std::map<std::string,TH1D*> _h1Vz;
   
   std::map<std::string,TH1F*> _h1Eta;
   std::map<std::string,TH1F*> _h1Phi;
