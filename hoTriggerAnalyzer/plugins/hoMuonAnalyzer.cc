@@ -168,7 +168,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	int genMuonCounter = 0;
 	for(reco::GenParticleCollection::const_iterator genIt = truthParticles->begin();
 			genIt != truthParticles->end(); genIt++){
-		//Check for muons in Full barrel onl< only
+		//Check for muons in Full barrel only
 		if( ( abs(genIt->pdgId()) == 13 ) && ( abs(genIt->eta()) <= 0.8 ) ){
 			genMuonCounter++;
 			histogramBuilder.fillPtHistogram(genIt->pt(),gen_key);

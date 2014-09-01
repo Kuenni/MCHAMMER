@@ -20,7 +20,7 @@ if( not os.path.exists('plots')):
 filename = sys.argv[1]
 print 'Opening file:',filename
 
-#L1RatePlotter.plotL1Rates(filename)
+L1RatePlotter.plotL1Rates(filename)
 EnergyPlotter.plotEnergy(filename)
 #EfficiencyPlotter.plotEfficiency(filename)
 
