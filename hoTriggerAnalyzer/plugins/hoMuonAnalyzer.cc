@@ -171,6 +171,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		//Check for muons in Full barrel onl< only
 		if( ( abs(genIt->pdgId()) == 13 ) && ( abs(genIt->eta()) <= 0.8 ) ){
 			genMuonCounter++;
+			histogramBuilder.fillPtHistogram(genIt->pt(),gen_key);
 			for (int i = 0; i < 200; i+=2) {
 				if(genIt->pt() >= i){
 					histogramBuilder.fillTrigRateHistograms(i,gen_key);
@@ -307,9 +308,15 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	for( unsigned int i = 0 ; i < l1Muons->size(); i++  ) {
 		histogramBuilder.fillCountHistogram(l1muon_key);
 		const l1extra::L1MuonParticle* bl1Muon = &(l1Muons->at(i));
-
 		//Filter on l1muon objects in Barrel region only
 		if( abs(bl1Muon->eta()) <= 0.8 ){
+			histogramBuilder.fillPdgIdHistogram(bl1Muon->pdgId(),l1muon_key);
+			histogramBuilder.fillVzHistogram(bl1Muon->vz(),l1muon_key);
+			const reco::GenParticle* genMatch = getBestGenMatch(bl1Muon->eta(),bl1Muon->phi());
+			if(genMatch){
+				histogramBuilder.fillDeltaVzHistogam( (genMatch->vz() - bl1Muon->vz()) ,l1muon_key);
+				histogramBuilder.fillPtCorrelationHistogram(genMatch->pt(),bl1Muon->pt(),l1muon_key);
+			}
 			/*
 			 * Fill histogram for different pt thresholds
 			 * CAREFUL!! THIS IS NOT A REAL RATE YET!!
@@ -338,7 +345,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				histogramBuilder.fillPdgIdHistogram(ref->pdgId(),l1muon_key);
 			else
 				histogramBuilder.fillPdgIdHistogram(0,l1muon_key);
-		}
+		}// eta <= 0.8
 	}
 
 
