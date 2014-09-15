@@ -300,6 +300,10 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	 * Level 1 Muons
 	 */
 
+	//Use this variable to store whether the event has L1Muons in acceptance
+	//This can be used when inspecting the HO energy
+	bool hasMuonsInAcceptance = false;
+
 	string l1muon_key = "L1Muon";
 
 	auto bl1Muon = l1Muons->cbegin();
@@ -310,6 +314,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		const l1extra::L1MuonParticle* bl1Muon = &(l1Muons->at(i));
 		//Filter on l1muon objects in Barrel region only
 		if( abs(bl1Muon->eta()) <= 0.8 ){
+			hasMuonsInAcceptance = true;
 			histogramBuilder.fillPdgIdHistogram(bl1Muon->pdgId(),l1muon_key);
 			histogramBuilder.fillVzHistogram(bl1Muon->vz(),l1muon_key);
 			const reco::GenParticle* genMatch = getBestGenMatch(bl1Muon->eta(),bl1Muon->phi());
@@ -361,13 +366,16 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	auto eho_reco = hoRecoHits->end();
 	for(; bho_reco != eho_reco; ++bho_reco){
 		histogramBuilder.fillCountHistogram(horeco_key);
-		histogramBuilder.fillEnergyHistograms(bho_reco->energy(), horeco_key);
 
 		float ho_eta, ho_phi;
 		ho_eta = caloGeo->getPosition(bho_reco->id()).eta();
 		ho_phi = caloGeo->getPosition(bho_reco->id()).phi();
-		histogramBuilder.fillEtaPhiHistograms(ho_eta, ho_phi, horeco_key);
 
+		//only look at HO Energies when there are muon trigger events present
+		if(l1Muons->size() > 0 && hasMuonsInAcceptance){
+			histogramBuilder.fillEnergyHistograms(bho_reco->energy(), horeco_key);
+			histogramBuilder.fillEtaPhiHistograms(ho_eta, ho_phi, horeco_key);
+		}
 		/*
 		 * Fill histogram for different pt thresholds
 		 * CAREFUL!! THIS IS NOT A REAL RATE YET!!
@@ -428,9 +436,11 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	auto eho_recoT = hoRecoHitsAboveThreshold.end();
 
 	for(; bho_recoT != eho_recoT; ++bho_recoT){
-		histogramBuilder.fillCountHistogram(horecoT_key);
-		histogramBuilder.fillEnergyHistograms(bho_recoT->energy(), horecoT_key);
-
+		if(hasMuonsInAcceptance){
+			histogramBuilder.fillCountHistogram(horecoT_key);
+			histogramBuilder.fillEnergyHistograms(bho_recoT->energy(), horecoT_key);
+			histogramBuilder.fillMultiplicityHistogram(hoRecoHitsAboveThreshold.size(),std::string("horecoAboveThresholdMuInAcc"));
+		}
 		float hoT_eta, hoT_phi;
 		hoT_eta = caloGeo->getPosition(bho_recoT->id()).eta();
 		hoT_phi = caloGeo->getPosition(bho_recoT->id()).phi();
