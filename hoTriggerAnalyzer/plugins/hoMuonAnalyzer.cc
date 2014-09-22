@@ -431,6 +431,10 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	hoRecoHitsAboveThreshold.resize(std::distance(hoRecoHitsAboveThreshold.begin(),it));
 
 	histogramBuilder.fillMultiplicityHistogram(hoRecoHitsAboveThreshold.size(),horecoT_key);
+	//Also fill multiplicity for HO Rec hits that have muons in their acceptance area
+	if(hasMuonsInAcceptance){
+		histogramBuilder.fillMultiplicityHistogram(hoRecoHitsAboveThreshold.size(),std::string("horecoAboveThresholdMuInAcc"));
+	}
 
 	auto bho_recoT = hoRecoHitsAboveThreshold.begin();
 	auto eho_recoT = hoRecoHitsAboveThreshold.end();
@@ -439,7 +443,6 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		if(hasMuonsInAcceptance){
 			histogramBuilder.fillCountHistogram(horecoT_key);
 			histogramBuilder.fillEnergyHistograms(bho_recoT->energy(), horecoT_key);
-			histogramBuilder.fillMultiplicityHistogram(hoRecoHitsAboveThreshold.size(),std::string("horecoAboveThresholdMuInAcc"));
 		}
 		float hoT_eta, hoT_phi;
 		hoT_eta = caloGeo->getPosition(bho_recoT->id()).eta();
