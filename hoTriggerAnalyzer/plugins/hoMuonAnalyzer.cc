@@ -58,6 +58,7 @@
 
 #include "HoMuonTrigger/hoTriggerAnalyzer/interface/HistogramBuilder.h"
 #include "HoMuonTrigger/hoTriggerAnalyzer/interface/CommonFunctions.h"
+#include "HoMuonTrigger/hoTriggerAnalyzer/interface/FilterPlugin.h"
 
 #include <vector>
 #include <iostream>
@@ -65,9 +66,9 @@
 
 using namespace::std;
 
-bool hoBelowThreshold(HORecHit horeco);
+
 //bool isMipMatch(l1extra::L1MuonParticle l1muon, vector<HORecHit> & hoRecoHitsAboveThreshold);
-bool isInsideRCut(float eta1, float eta2, float phi1, float phi2);
+
 //float WrapCheck(float phi1, float phi2);
 
 hoMuonAnalyzer::hoMuonAnalyzer(const edm::ParameterSet& iConfig){
@@ -134,10 +135,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 
 	Handle<trigger::TriggerEvent> aodTriggerEvent;
 	iEvent.getByLabel(_hltSumAODInput, aodTriggerEvent);
-	InputTag _hltTrigResultsLabel = edm::InputTag("TriggerResults", "", "HLT");
-	Handle<TriggerResults> hltTriggerResults;
-	iEvent.getByLabel(_hltTrigResultsLabel, hltTriggerResults);
-	const TriggerNames & names = iEvent.triggerNames(*hltTriggerResults);
+
 	/*
 	 * Set Up Level 1 Global Trigger Utility
 	 */
@@ -182,119 +180,6 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	}
 	histogramBuilder.fillMultiplicityHistogram(genMuonCounter,gen_key);
 
-
-	/**
-	 * HLT Path analysis
-	 */
-	//Clone the HORecHits and delete all references to hits, that are
-	//below a certain signal threshold
-	std::vector<HORecHit> hoAboveThreshold (hoRecoHits->size());
-	auto itEnd =std::remove_copy_if (hoRecoHits->begin(), hoRecoHits->end(),
-			hoAboveThreshold.begin(),
-			hoBelowThreshold);
-	hoAboveThreshold.resize(std::distance(hoAboveThreshold.begin(),itEnd));
-
-	//Collection of objects that have to do with the Trigger
-	trigger::TriggerObjectCollection hltAllObjects = aodTriggerEvent->getObjects();
-
-	//Iterate over the trigger path names that we are interested in
-	std::map<std::string,std::string>::const_iterator namesOfInterestIterator = hltNamesOfInterest.begin();
-	for( ;namesOfInterestIterator != hltNamesOfInterest.end(); namesOfInterestIterator++){
-		unsigned int triggerIndex = names.triggerIndex(namesOfInterestIterator->second);
-		//In case the trigger index is out of bounds, something went wrong -> Continue loop
-		if(!(triggerIndex < hltTriggerResults->size())){
-			std::cout << "Trigger index larger than trigger results size!" << std::endl;
-			continue;
-		}
-		//Find, whether the given HLT path was accepted
-		bool trigDecision = hltTriggerResults->accept(triggerIndex);
-		if( trigDecision ){
-			/* Get the input tag for the last run filter
-			 * This seems to be necessary to find the right index of the L3Objects
-			 * in the TriggerObject collection that set of the given trigger path
-			 */
-			std::cout << "HLT Path " << names.triggerName(triggerIndex) << " accepted." << std::endl;
-			//Get the filter index from the Trigger event by using the filter Tag
-			int filterIndex = aodTriggerEvent->filterIndex(hltFiltersOfInterest[namesOfInterestIterator->first]);
-			//Check the range
-			if( filterIndex < aodTriggerEvent->sizeFilters() ){
-				//Get the keys to the Objects in this Trigger Path
-				const trigger::Keys& keys( aodTriggerEvent->filterKeys( filterIndex ) );
-				for(unsigned int i = 0; i < keys.size() ; i++ ){
-					trigger::TriggerObject triggerObject = hltAllObjects[i];
-					double etaTO = triggerObject.eta();
-					double phiTO = triggerObject.phi();
-					std::stringstream trigRateKey;
-					trigRateKey << namesOfInterestIterator->second;
-					std::stringstream trigRateKeyL1Match;
-					trigRateKeyL1Match << namesOfInterestIterator->second;
-					trigRateKeyL1Match << "L1Match";
-					for(int i = 0 ; i < 500; i+=2){
-						if(triggerObject.pt() >= i){
-							histogramBuilder.fillTrigRateHistograms(i,trigRateKey.str());
-							if(hasL1Match(triggerObject, l1Muons)){
-								histogramBuilder.fillTrigRateHistograms(i,trigRateKeyL1Match.str());
-							}
-						}
-					}
-					const reco::GenParticle* bestGenMatch = getBestGenMatch(triggerObject.eta(),triggerObject.phi());
-					if(bestGenMatch){
-						//first argument is the condition for a muon trigger object to pass
-						//Second is the pt of the "real" particle
-						histogramBuilder.fillEfficiency(triggerObject.pt()>=20,bestGenMatch->pt(),trigRateKey.str());
-			//			histogramBuilder.fillDeltaVzHistogam(triggerObject.)
-					}
-					/**
-					 * First loop over all HO Rec hits and try to match the HLT object to an HO tile
-					 * Break this loop on the first match
-					 */
-					trigRateKey << "_hoMatch";
-					for(auto hoRecHitIt = hoRecoHits->begin(); hoRecHitIt != hoRecoHits->end() ; hoRecHitIt++){
-						double etaHO = caloGeo->getPosition(hoRecHitIt->id()).eta();
-						double phiHO = caloGeo->getPosition(hoRecHitIt->id()).phi();
-						if(isInsideRCut(etaTO, etaHO, phiTO, phiHO)){
-							for (int i = 0; i < 500; i+=2) {
-								if(triggerObject.pt() >= i)
-									histogramBuilder.fillTrigRateHistograms(i,trigRateKey.str());
-							}
-							break;
-						}
-					}
-					/**
-					 * Now loop again but over the list of HO rec hits that are above the energy threshold
-					 */
-					trigRateKey << "AboveThr";
-					trigRateKeyL1Match.clear();
-					trigRateKeyL1Match<< "HoAboveThr";
-					for(auto hoRecHitIt = hoAboveThreshold.begin(); hoRecHitIt != hoAboveThreshold.end() ; hoRecHitIt++){
-						double etaHO = caloGeo->getPosition(hoRecHitIt->id()).eta();
-						double phiHO = caloGeo->getPosition(hoRecHitIt->id()).phi();
-						if(isInsideRCut(etaTO, etaHO, phiTO, phiHO)){
-							const reco::GenParticle* bestGenMatch = getBestGenMatch(triggerObject.eta(),triggerObject.phi());
-							if(bestGenMatch){
-								//first argument is the condition for a muon trigger object to pass
-								//Second is the pt of the "real" particle
-								histogramBuilder.fillEfficiency(triggerObject.pt()>=20,bestGenMatch->pt(),trigRateKey.str());
-							}
-							histogramBuilder.fillEnergyHistograms(hoRecHitIt->energy(),trigRateKeyL1Match.str());
-							for (int i = 0; i < 200; i+=2) {
-								if(triggerObject.pt() >= i){
-									histogramBuilder.fillTrigRateHistograms(i,trigRateKey.str());
-									if(hasL1Match(triggerObject, l1Muons)){
-										histogramBuilder.fillTrigRateHistograms(i,trigRateKeyL1Match.str());
-									}
-								}
-							}
-							//Leave loop if one match was found
-							break;
-						}
-					}//Loop Ho above Thr.
-				}//Trigger object keys
-			}
-		}//trigger decision
-
-		histogramBuilder.fillTrigHistograms(trigDecision,namesOfInterestIterator->first);
-	}
 
 	/*
 	 * Level 1 Muons
@@ -423,12 +308,12 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 
 	//Filter out HO Rec Hits below Threshold.
 
-	std::vector<HORecHit> hoRecoHitsAboveThreshold (hoRecoHits->size());
+	HORecHitCollection hoRecoHitsAboveThreshold = FilterPlugin::cleanHoRecHits(*hoRecoHits,threshold);
 
-	auto it =std::remove_copy_if (hoRecoHits->begin(), hoRecoHits->end(),
-			hoRecoHitsAboveThreshold.begin(),
-			hoBelowThreshold);
-	hoRecoHitsAboveThreshold.resize(std::distance(hoRecoHitsAboveThreshold.begin(),it));
+//	auto it =std::remove_copy_if (hoRecoHits->begin(), hoRecoHits->end(),
+//			hoRecoHitsAboveThreshold.begin(),
+//			this->*hoBelowThreshold);
+//	hoRecoHitsAboveThreshold.resize(std::distance(hoRecoHitsAboveThreshold.begin(),it));
 
 	histogramBuilder.fillMultiplicityHistogram(hoRecoHitsAboveThreshold.size(),horecoT_key);
 	//Also fill multiplicity for HO Rec hits that have muons in their acceptance area
@@ -654,17 +539,13 @@ hoMuonAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 	descriptions.addDefault(desc);
 }
 
-/*
+/*############################
  * Helper Functions for Filter
+ *############################
  */
 
-bool hoBelowThreshold(HORecHit horeco){
-	if(horeco.energy() < threshold) return true;
-	return false;
-}
 
-
-bool isInsideRCut(float eta1, float eta2, float phi1, float phi2){
+bool hoMuonAnalyzer::isInsideRCut(float eta1, float eta2, float phi1, float phi2){
 
 	float delta_eta, delta_phi;
 	CommonFunctions commonFunctions;

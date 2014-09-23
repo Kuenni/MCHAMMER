@@ -119,7 +119,7 @@ private:
   string doubleMu5TrigName;
   bool trigDecision;
   bool singleMu3Trig,doubleMu0Trig;
-
+  bool isInsideRCut(float eta1, float eta2, float phi1, float phi2);
 
 
   //toFigureOutL1VariableBinning
