@@ -17,11 +17,13 @@
 #include "HoMuonTrigger/hoTriggerAnalyzer/interface/CommonFunctions.h"
 
 /**
+ *
  * Fill a histogram with the difference of two vz values from the vertex position
  */
 void HistogramBuilder::fillDeltaVzHistogam(float deltaVz, std::string key){
+	TFileDirectory vertexDir = _fileService->mkdir( "vertex" );
 	if(!_h1DeltaVz.count(key)){
-		_h1DeltaVz[key] = _fileService->make<TH1D>(Form("%s_DeltaVz",key.c_str()),
+		_h1DeltaVz[key] = vertexDir.make<TH1D>(Form("%s_DeltaVz",key.c_str()),
 				Form("%s #Delta V_{z}",key.c_str()),
 				1000, -10, 10);
 	}
@@ -32,8 +34,9 @@ void HistogramBuilder::fillDeltaVzHistogam(float deltaVz, std::string key){
  * Fill a histogram with the vz values from the vertex position
  */
 void HistogramBuilder::fillVzHistogram(float vz, std::string key){
+	TFileDirectory vertexDir = _fileService->mkdir( "vertex" );
 	if(!_h1Vz.count(key)){
-		_h1Vz[key] = _fileService->make<TH1D>(Form("%s_Vz",key.c_str()),
+		_h1Vz[key] = vertexDir.make<TH1D>(Form("%s_Vz",key.c_str()),
 				Form("%s V_{z}",key.c_str()),
 				1000, -10, 10);
 	}
@@ -53,8 +56,9 @@ void HistogramBuilder::fillPtCorrelationHistogram(float pt1, float pt2, std::str
 }
 
 void HistogramBuilder::fillEfficiency(bool passed, float pt, std::string key){
+	TFileDirectory efficiencyDir = _fileService->mkdir("efficiency");
 	if(!_effMap.count(key)){
-		_effMap[key] = _fileService->make<TEfficiency>(Form("%s_Efficiency",key.c_str()),
+		_effMap[key] = efficiencyDir.make<TEfficiency>(Form("%s_Efficiency",key.c_str()),
 				Form("%s Efficiency",key.c_str()),
 				251, -0.5, 250.5);
 	}
@@ -62,8 +66,9 @@ void HistogramBuilder::fillEfficiency(bool passed, float pt, std::string key){
 }
 
 void HistogramBuilder::fillHltIndexHistogram(int hltIndex, std::string key){
+	TFileDirectory hltDir = _fileService->mkdir("hlt");
 	if(!_h1HltIndex.count(key)){
-		_h1HltIndex[key] = _fileService->make<TH1D>(Form("%s_hltIndex",key.c_str()),
+		_h1HltIndex[key] = hltDir.make<TH1D>(Form("%s_hltIndex",key.c_str()),
 				Form("%s HLT Index",key.c_str()),
 				251, -0.5, 250.5);
 	}
@@ -157,22 +162,23 @@ void HistogramBuilder::fillEnergyHistograms(float energy, std::string key){
  */
 
 void HistogramBuilder::fillEtaPhiHistograms(float eta, float phi, std::string key){
+	TFileDirectory etaPhiDir = _fileService->mkdir("etaPhi");
 	if(!_h1Eta.count(key)){
-		_h1Eta[key] = _fileService->make<TH1F>(Form("%s_Eta",key.c_str()),
+		_h1Eta[key] = etaPhiDir.make<TH1F>(Form("%s_Eta",key.c_str()),
 				Form("%s Eta",key.c_str()),
 				500, -1.5, 1.5);  //HO has 72 iphis and 30 ietas
 	}
 	_h1Eta[key]->Fill(eta);
 
 	if(!_h1Phi.count(key)){
-		_h1Phi[key] = _fileService->make<TH1F>(Form("%s_Phi",key.c_str()),
+		_h1Phi[key] = etaPhiDir.make<TH1F>(Form("%s_Phi",key.c_str()),
 				Form("%s Phi",key.c_str()),
 				500, -3.14, 3.14);  //HO has 72 iphis and 30 ietas
 	}
 	_h1Phi[key]->Fill(phi);
 
 	if(!_h2EtaPhiMap.count(key)){
-		_h2EtaPhiMap[key] = _fileService->make<TH2F>(Form("%s_EtaPhi",key.c_str()),
+		_h2EtaPhiMap[key] = etaPhiDir.make<TH2F>(Form("%s_EtaPhi",key.c_str()),
 				Form("%s_EtaPhi",key.c_str()),
 				500, -1.5, 1.5, 500, -3.14, 3.14);
 	}
@@ -187,6 +193,7 @@ void HistogramBuilder::fillEtaPhiHistograms(float eta, float phi, std::string ke
 void HistogramBuilder::fillDeltaEtaDeltaPhiHistograms(float eta1, float eta2, 
 		float phi1, float phi2,
 		std::string key){
+	TFileDirectory etaPhiDir = _fileService->mkdir("etaPhi");
 	float deltaEta, deltaPhi;
 	CommonFunctions commonFunctions;
 	deltaEta = eta1 - eta2;
@@ -194,7 +201,7 @@ void HistogramBuilder::fillDeltaEtaDeltaPhiHistograms(float eta1, float eta2,
 
 	//Delta Eta Histograms Fill
 	if(!_h1DeltaEta.count(key)){
-		_h1DeltaEta[key] =  _fileService->make<TH1F>(Form("%s_DeltaEta",
+		_h1DeltaEta[key] =  etaPhiDir.make<TH1F>(Form("%s_DeltaEta",
 				key.c_str()),
 				Form("#Delta #Eta %s",
 						key.c_str()),
@@ -203,7 +210,7 @@ void HistogramBuilder::fillDeltaEtaDeltaPhiHistograms(float eta1, float eta2,
 	_h1DeltaEta[key]->Fill(deltaEta);
 	//Delta Eta Histograms Fill
 	if(!_h1DeltaPhi.count(key)){
-		_h1DeltaPhi[key] = _fileService->make<TH1F>(Form("%s_DeltaPhi",
+		_h1DeltaPhi[key] = etaPhiDir.make<TH1F>(Form("%s_DeltaPhi",
 				key.c_str()),
 				Form("%s #Delta #Phi",
 						key.c_str()),
@@ -213,7 +220,7 @@ void HistogramBuilder::fillDeltaEtaDeltaPhiHistograms(float eta1, float eta2,
 
 	//DeltaEta Delta Phi Histograms Fill
 	if(!_h2DeltaEtaDeltaPhi.count(key)){
-		_h2DeltaEtaDeltaPhi[key] = _fileService->make<TH2F>(Form("%s_DeltaEtaDeltaPhi",key.c_str()),Form("%s #Delta#eta #Delta#Phi",key.c_str()), 2000, -2.6, 2.6, 2000, -3.14, 3.14);
+		_h2DeltaEtaDeltaPhi[key] = etaPhiDir.make<TH2F>(Form("%s_DeltaEtaDeltaPhi",key.c_str()),Form("%s #Delta#eta #Delta#Phi",key.c_str()), 2000, -2.6, 2.6, 2000, -3.14, 3.14);
 	}
 	_h2DeltaEtaDeltaPhi[key]->Fill(deltaEta, deltaPhi);
 } 
@@ -224,9 +231,7 @@ void HistogramBuilder::fillDeltaEtaDeltaPhiHistograms(float eta1, float eta2,
  */
 void HistogramBuilder::fillL1MuonPtHistograms(float pt, std::string key){
 	if(!_h1L1MuonPt.count(key)){
-
 		float variableBinArray[] = {0,0.5,1,1.5,2,2.5,3,3.5,4,4.5,5,6,7,8,9,10,12,14,16,18,20,25,30,35,40,45,50,60,70,80,100,120,140,180};
-
 		_h1L1MuonPt[key] = _fileService->make<TH1F>(Form("%s_Pt",key.c_str()),
 				Form("%s Pt",key.c_str()),
 				33,
