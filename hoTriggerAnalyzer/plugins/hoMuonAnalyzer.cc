@@ -36,6 +36,7 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
+
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
 
@@ -45,6 +46,7 @@
 #include "DataFormats/HcalRecHit/interface/HORecHit.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
@@ -133,9 +135,6 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	Handle<reco::GenParticleMatch> l1MuonGenMatches;
 	iEvent.getByLabel(_l1MuonGenMatchInput,l1MuonGenMatches);
 
-	Handle<trigger::TriggerEvent> aodTriggerEvent;
-	iEvent.getByLabel(_hltSumAODInput, aodTriggerEvent);
-
 	/*
 	 * Set Up Level 1 Global Trigger Utility
 	 */
@@ -191,8 +190,9 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 
 	string l1muon_key = "L1Muon";
 
-	auto bl1Muon = l1Muons->cbegin();
-	auto el1Muon = l1Muons->cend();
+	//Define iterators
+	l1extra::L1MuonParticleCollection::const_iterator bl1Muon = l1Muons->begin();
+	l1extra::L1MuonParticleCollection::const_iterator el1Muon = l1Muons->end();
 
 	for( unsigned int i = 0 ; i < l1Muons->size(); i++  ) {
 		histogramBuilder.fillCountHistogram(l1muon_key);
@@ -270,7 +270,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		 * Delta R matcher
 		 *
 		 */
-		bl1Muon = l1Muons->cbegin();
+		bl1Muon = l1Muons->begin();
 		for( ; bl1Muon != el1Muon; ++bl1Muon ){
 			float l1Muon_eta = bl1Muon->eta();
 			float l1Muon_phi = bl1Muon->phi();
@@ -343,7 +343,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		 * Delta R matcher
 		 *
 		 */
-		bl1Muon = l1Muons->cbegin();
+		bl1Muon = l1Muons->begin();
 		for( ; bl1Muon != el1Muon; ++bl1Muon ){
 			float l1Muon_eta = bl1Muon->eta();
 			float l1Muon_phi = bl1Muon->phi();
@@ -374,8 +374,8 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 
 	string l1MuonMipMatch_key = "L1MuonwithMipMatch";
 
-	bl1Muon = l1Muons->cbegin();
-	el1Muon = l1Muons->cend();
+	bl1Muon = l1Muons->begin();
+	el1Muon = l1Muons->end();
 
 	for( unsigned int i = 0 ; i < l1Muons->size(); i++ ){
 
