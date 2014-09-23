@@ -13,12 +13,13 @@ class FilterPlugin {
 
  public:
 
-  /*
-   * Takes the difference of two phis, makes
-   * sure they are not more than 2 pi.
-   */
  static HORecHitCollection cleanHoRecHits(HORecHitCollection, double);
-
+ /*
+  * Takes the difference of two phis, makes
+  * sure they are not more than 2 pi.
+  */
+ static double wrapCheck(float phi1, float phi2);
+ static bool isInsideRCut(float eta1, float eta2, float phi1, float phi2,float deltaR_Max);
  private:
 
 

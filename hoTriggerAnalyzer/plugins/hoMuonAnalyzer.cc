@@ -68,11 +68,6 @@
 
 using namespace::std;
 
-
-//bool isMipMatch(l1extra::L1MuonParticle l1muon, vector<HORecHit> & hoRecoHitsAboveThreshold);
-
-//float WrapCheck(float phi1, float phi2);
-
 hoMuonAnalyzer::hoMuonAnalyzer(const edm::ParameterSet& iConfig){
 
 	//now do what ever initialization is needed
@@ -297,7 +292,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			if( !( abs(bl1Muon->eta())>0.8 || abs(ho_eta)>0.8 ) ){
 				continue;
 			}
-			if(isInsideRCut(l1Muon_eta, ho_eta, l1Muon_phi, ho_phi)){
+			if(FilterPlugin::isInsideRCut(l1Muon_eta, ho_eta, l1Muon_phi, ho_phi,deltaR_Max)){
 				histogramBuilder.fillCountHistogram(horeco_key);
 				histogramBuilder.fillEnergyHistograms(bho_reco->energy(), horeco_key);
 				histogramBuilder.fillEtaPhiHistograms(ho_eta, ho_phi, horeco_key);
@@ -325,7 +320,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				continue;
 			}
 			//If eta and phi information for both match, then go on
-			if(isInsideRCut(l1Muon_eta, horeco_eta, l1Muon_phi, horeco_phi)){
+			if(FilterPlugin::isInsideRCut(l1Muon_eta, horeco_eta, l1Muon_phi, horeco_phi, deltaR_Max)){
 				//There could be more than one match but we are only interested in one
 				//Use this switch to kill the loop
 				mipMatch=true;
@@ -464,20 +459,6 @@ hoMuonAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
  *############################
  */
 
-
-bool hoMuonAnalyzer::isInsideRCut(float eta1, float eta2, float phi1, float phi2){
-
-	float delta_eta, delta_phi;
-	CommonFunctions commonFunctions;
-
-	delta_eta = eta1 - eta2;
-	delta_phi = commonFunctions.WrapCheck(phi1,phi2); //Finds difference in phi
-
-	//The L1 Muon is compared with all HO Rec Hits above Threshold.
-	if(pow(delta_eta,2)+pow(delta_phi,2) <= pow(deltaR_Max,2)) return true;
-	return false;
-}
-
 const l1extra::L1MuonParticle* hoMuonAnalyzer::getMatchedL1Object(trigger::TriggerObject hltObject
 		,edm::Handle<l1extra::L1MuonParticleCollection> l1muons){
 	for(unsigned int i = 0; i < l1muons->size(); i++){
@@ -488,14 +469,14 @@ const l1extra::L1MuonParticle* hoMuonAnalyzer::getMatchedL1Object(trigger::Trigg
 		hltPhi = hltObject.phi();
 		l1Eta = l1muon->eta();
 		l1Phi = l1muon->phi();
-		if(isInsideRCut(hltEta,l1Eta,hltPhi,l1Phi))
+		if(FilterPlugin::isInsideRCut(hltEta,l1Eta,hltPhi,l1Phi,deltaR_Max))
 			return l1muon;
 	}
 	return NULL;
 }
 
 /**
- * returns true, if the trigger object has a delta R match to a l1muon object
+ FilterPlugin::isInsideRCutue, if the trigger object has a delta R match to a l1muon object
  */
 bool hoMuonAnalyzer::hasL1Match(trigger::TriggerObject hltObject,edm::Handle<l1extra::L1MuonParticleCollection> l1muons){
 	for(unsigned int i = 0; i < l1muons->size(); i++){
@@ -506,7 +487,7 @@ bool hoMuonAnalyzer::hasL1Match(trigger::TriggerObject hltObject,edm::Handle<l1e
 		hltPhi = hltObject.phi();
 		l1Eta = l1muon->eta();
 		l1Phi = l1muon->phi();
-		if(isInsideRCut(hltEta,l1Eta,hltPhi,l1Phi))
+		if(FilterPlugin::isInsideRCut(hltEta,l1Eta,hltPhi,l1Phi,deltaR_Max))
 			return true;
 	}
 	return false;
