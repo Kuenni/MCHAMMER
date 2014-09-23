@@ -240,91 +240,41 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 
 
 	/*
-	 * HO Reco Hits
+	 * Multiplicities
 	 */
-
 	string horeco_key = "horeco";
-
 	/**
 	 * Fill the multiplicity histograms for HORecHits without cuts and
 	 * for events that contain L1 muons in the acceptance region
 	 */
 	histogramBuilder.fillMultiplicityHistogram(hoRecoHits->size(),horeco_key);
-		//Also fill multiplicity for HO Rec hits that have muons in their acceptance area
+	//Also fill multiplicity for HO Rec hits that have muons in their acceptance area
 	if(hasMuonsInAcceptance){
 		histogramBuilder.fillMultiplicityHistogram(hoRecoHits->size(),std::string("horecoMuInAcc"));
 	}
-
-	//cout << hoRecoHits.size() << endl;
-	auto bho_reco = hoRecoHits->begin();
-	auto eho_reco = hoRecoHits->end();
-	for(; bho_reco != eho_reco; ++bho_reco){
-		float ho_eta, ho_phi;
-		ho_eta = caloGeo->getPosition(bho_reco->id()).eta();
-		ho_phi = caloGeo->getPosition(bho_reco->id()).phi();
-		//only look at HO Energies when there are muon trigger events present
-		if(l1Muons->size() > 0 && hasMuonsInAcceptance){
-			histogramBuilder.fillCountHistogram(horeco_key);
-			histogramBuilder.fillEnergyHistograms(bho_reco->energy(), horeco_key);
-			histogramBuilder.fillEtaPhiHistograms(ho_eta, ho_phi, horeco_key);
-		}
-		/*
-		 * Fill histogram for different pt thresholds
-		 * CAREFUL!! THIS IS NOT A REAL RATE YET!!
-		 *
-		 * Here we have to loop over the l1Muons again to find a MIP match.
-		 * More than one found match could be possible. Matching is done using a
-		 * Delta R matcher
-		 *
-		 */
-		bl1Muon = l1Muons->begin();
-		for( ; bl1Muon != el1Muon; ++bl1Muon ){
-			float l1Muon_eta = bl1Muon->eta();
-			float l1Muon_phi = bl1Muon->phi();
-			//Filter for full barrel region only
-			if( !( abs(bl1Muon->eta())>0.8 || abs(ho_eta)>0.8 ) ){
-				continue;
-			}
-			if(isInsideRCut(l1Muon_eta, ho_eta, l1Muon_phi, ho_phi)){
-				for (int i = 0; i < 200; i+=2) {
-					if(bl1Muon->pt() >= i)
-						histogramBuilder.fillTrigRateHistograms(i,std::string("HoWithL1Match"));
-				}
-				break;
-			}
-		}
-
-	}
-
-
-	/*
-	 * L1 Trigger Decisions
-	 */
-
-	singleMu3Trig = processTriggerDecision(singleMu3TrigName,iEvent);
-	doubleMu0Trig = processTriggerDecision(doubleMu0TrigName,iEvent);
-	//	processTriggerDecision(doubleMu5TrigName,iEvent);
-
-	/*
-	 * get HO Rec Hits Above Threshold
-	 */
-
+	//get HO Rec Hits Above Threshold
 	string horecoT_key ="horecoAboveThreshold";
 	HORecHitCollection hoRecoHitsAboveThreshold = FilterPlugin::cleanHoRecHits(*hoRecoHits,threshold);
-
 	histogramBuilder.fillMultiplicityHistogram(hoRecoHitsAboveThreshold.size(),horecoT_key);
 	//Also fill multiplicity for HO Rec hits that have muons in their acceptance area
 	if(hasMuonsInAcceptance){
 		histogramBuilder.fillMultiplicityHistogram(hoRecoHitsAboveThreshold.size(),std::string("horecoAboveThresholdMuInAcc"));
 	}
 
+
+	/*
+	 * L1 Trigger Decisions
+	 */
+	singleMu3Trig = processTriggerDecision(singleMu3TrigName,iEvent);
+	doubleMu0Trig = processTriggerDecision(doubleMu0TrigName,iEvent);
+	//	processTriggerDecision(doubleMu5TrigName,iEvent);
+
 	auto bho_recoT = hoRecoHitsAboveThreshold.begin();
 	auto eho_recoT = hoRecoHitsAboveThreshold.end();
 
 	/*
-	 * L1 Muons Matched to a MIP
+	 * L1 Muons and matched HO information
 	 */
-
 	string l1MuonWithHoMatch_key = "L1MuonwithHoMatch";
 
 	bl1Muon = l1Muons->begin();
@@ -334,6 +284,33 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 
 		const l1extra::L1MuonParticle* bl1Muon = &(l1Muons->at(i));
 
+		//first fill information for ho hits without energy threshold
+		auto bho_reco = hoRecoHits->begin();
+		auto eho_reco = hoRecoHits->end();
+		for(; bho_reco != eho_reco; ++bho_reco){
+			float ho_eta, ho_phi;
+			ho_eta = caloGeo->getPosition(bho_reco->id()).eta();
+			ho_phi = caloGeo->getPosition(bho_reco->id()).phi();
+			float l1Muon_eta = bl1Muon->eta();
+			float l1Muon_phi = bl1Muon->phi();
+			//Filter for full barrel region only
+			if( !( abs(bl1Muon->eta())>0.8 || abs(ho_eta)>0.8 ) ){
+				continue;
+			}
+			if(isInsideRCut(l1Muon_eta, ho_eta, l1Muon_phi, ho_phi)){
+				histogramBuilder.fillCountHistogram(horeco_key);
+				histogramBuilder.fillEnergyHistograms(bho_reco->energy(), horeco_key);
+				histogramBuilder.fillEtaPhiHistograms(ho_eta, ho_phi, horeco_key);
+				histogramBuilder.fillDeltaEtaDeltaPhiHistograms(l1Muon_eta,ho_eta,l1Muon_phi, ho_phi,std::string("L1MuonwithHoMatch"));
+				for (int i = 0; i < 200; i+=2) {
+					if(bl1Muon->pt() >= i)
+						histogramBuilder.fillTrigRateHistograms(i,std::string("L1MuonWithHoNoThr"));
+				}
+				break;//Leave hoReco loop if a match was found
+			}
+		}
+
+		//Now fill information for hits above threshold and escape l1muon loop if a match was found
 		bool mipMatch = false;
 		for( ; bho_recoT != eho_recoT; ++bho_recoT){
 			//Get the eta and phi information
@@ -357,7 +334,14 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				histogramBuilder.fillCountHistogram(l1MuonWithHoMatch_key);
 				histogramBuilder.fillEnergyHistograms(bho_recoT->energy(),l1MuonWithHoMatch_key);
 				histogramBuilder.fillEtaPhiHistograms(horeco_eta,horeco_phi,std::string("L1MuonwithHoMatch_HO"));
-				histogramBuilder.fillDeltaEtaDeltaPhiHistograms(l1Muon_eta,horeco_eta,l1Muon_phi, horeco_phi,l1MuonWithHoMatch_key);
+				histogramBuilder.fillDeltaEtaDeltaPhiHistograms(l1Muon_eta,horeco_eta,l1Muon_phi, horeco_phi,std::string("L1MuonwithHoMatchAboveThr"));
+
+				//Make the pseudo trig rate plot
+				for (int i = 0; i < 200; i+=2) {
+					if(bl1Muon->pt() >= i)
+						histogramBuilder.fillTrigRateHistograms(i,l1MuonWithHoMatch_key);
+				}
+				break;
 
 				//Try to find a corresponding Gen Muon
 				edm::RefToBase<l1extra::L1MuonParticle> l1MuonCandiateRef(l1MuonView,i);
@@ -374,13 +358,6 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				} else{
 					histogramBuilder.fillPdgIdHistogram(0,l1MuonWithHoMatch_key);
 				}
-
-				//Make the pseudo trig rate plot
-				for (int i = 0; i < 200; i+=2) {
-					if(bl1Muon->pt() >= i)
-						histogramBuilder.fillTrigRateHistograms(i,l1MuonWithHoMatch_key);
-				}
-				break;
 			}
 		}
 
