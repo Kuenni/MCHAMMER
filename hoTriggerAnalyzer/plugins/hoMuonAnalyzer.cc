@@ -347,7 +347,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				//Fill the HO information
 				histogramBuilder.fillCountHistogram(l1MuonWithHoMatch_key);
 				histogramBuilder.fillEnergyHistograms(bho_recoT->energy(),std::string("L1MuonWithHoMatchAboveThr"));
-				histogramBuilder.fillEtaPhiHistograms(horeco_eta,horeco_phi,std::string("L1MuonwithHoMatch_HO"));
+				histogramBuilder.fillEtaPhiHistograms(horeco_eta,horeco_phi,std::string("L1MuonwithHoMatchAboveThr_HO"));
 				histogramBuilder.fillDeltaEtaDeltaPhiHistograms(l1Muon_eta,horeco_eta,l1Muon_phi, horeco_phi,std::string("L1MuonWithHoMatchAboveThr"));
 
 				//Make the pseudo trig rate plot
