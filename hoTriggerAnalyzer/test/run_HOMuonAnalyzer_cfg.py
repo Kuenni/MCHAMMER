@@ -10,7 +10,7 @@ process.TFileService = cms.Service("TFileService",
                                    )
 
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(25000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 
 readFiles = cms.untracked.vstring()
 
@@ -314,7 +314,7 @@ process.mix.digitizers.hcal.ho.pixels = cms.int32(2500)
 process.mix.digitizers.hcal.ho.siPMCode = 1
 process.mix.digitizers.hcal.ho.photoelectronsToAnalog = cms.vdouble([4.0]*16)
 
-process.demo = cms.EDAnalyzer(
+process.hoMuonAnalyzer = cms.EDAnalyzer(
     'hoMuonAnalyzer',
     genSrc = cms.InputTag("genParticles"),
     l1MuonSrc=cms.InputTag("l1extraParticles"),
@@ -340,7 +340,7 @@ process.L1simulation_step = cms.Path(process.SimL1Emulator)
 process.l1extra_step = cms.Path(process.L1Extra)
 process.horeco_step = cms.Path(process.horeco)
 process.l1MuonGenMatch_step = cms.Path(process.l1MuonGenMatch)
-process.demo_step = cms.Path(process.demo)
+process.demo_step = cms.Path(process.hoMuonAnalyzer)
 
 #For the HLT
 # customisation of the process.
