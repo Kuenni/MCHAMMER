@@ -289,7 +289,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			float l1Muon_eta = bl1Muon->eta();
 			float l1Muon_phi = bl1Muon->phi();
 			//Filter for full barrel region only
-			if( !( abs(bl1Muon->eta())>0.8 || abs(ho_eta)>0.8 ) ){
+			if( !( abs(bl1Muon->eta())<0.8 || abs(ho_eta)<0.8 ) ){
 				continue;
 			}
 			if(FilterPlugin::isInsideRCut(l1Muon_eta, ho_eta, l1Muon_phi, ho_phi,deltaR_Max)){
@@ -300,6 +300,12 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				for (int i = 0; i < 200; i+=2) {
 					if(bl1Muon->pt() >= i)
 						histogramBuilder.fillTrigRateHistograms(i,std::string("L1MuonWithHoNoThr"));
+				}
+				const reco::GenParticle* bestGenMatch = getBestGenMatch(bl1Muon->eta(),bl1Muon->phi());
+				if(bestGenMatch){
+					//first argument is the condition for a muon trigger object to pass
+					//Second is the pt of the "real" particle
+					histogramBuilder.fillEfficiency(bl1Muon->pt()>=20,bestGenMatch->pt(),std::string("L1MuonPt20HoReco"));
 				}
 				break;//Leave hoReco loop if a match was found
 			}
@@ -316,7 +322,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			horeco_phi = caloGeo->getPosition(bho_recoT->id()).phi();
 
 			//Filter for full barrel region only
-			if( !( abs(bl1Muon->eta())>0.8 || abs(horeco_eta)>0.8 ) ){
+			if( !( abs(bl1Muon->eta())<0.8 || abs(horeco_eta)<0.8 ) ){
 				continue;
 			}
 			//If eta and phi information for both match, then go on
@@ -336,8 +342,12 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 					if(bl1Muon->pt() >= i)
 						histogramBuilder.fillTrigRateHistograms(i,l1MuonWithHoMatch_key);
 				}
-				break;
-
+				const reco::GenParticle* bestGenMatch = getBestGenMatch(bl1Muon->eta(),bl1Muon->phi());
+				if(bestGenMatch){
+					//first argument is the condition for a muon trigger object to pass
+					//Second is the pt of the "real" particle
+					histogramBuilder.fillEfficiency(bl1Muon->pt()>=20,bestGenMatch->pt(),std::string("L1MuonPt20HoRecoAboveThr"));
+				}
 				//Try to find a corresponding Gen Muon
 				edm::RefToBase<l1extra::L1MuonParticle> l1MuonCandiateRef(l1MuonView,i);
 				reco::GenParticleRef ref = (*l1MuonGenMatches)[l1MuonCandiateRef];
@@ -353,8 +363,9 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				} else{
 					histogramBuilder.fillPdgIdHistogram(0,l1MuonWithHoMatch_key);
 				}
-			}
-		}
+				break;
+			}//inside delta R
+		}//ho reco above thr loop
 
 		if(mipMatch){
 			histogramBuilder.fillL1MuonPtHistograms(bl1Muon->pt(), l1MuonWithHoMatch_key);
