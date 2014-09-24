@@ -256,6 +256,21 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		histogramBuilder.fillMultiplicityHistogram(hoRecoHitsAboveThreshold.size(),std::string("horecoAboveThresholdMuInAcc"));
 	}
 
+	/**
+	 * Collect information of all HO Rec hits when there are
+	 * l1 muons in the acceptance region
+	 */
+	auto hoRecoIt = hoRecoHits->begin();
+	for( ; hoRecoIt != hoRecoHits->end() ; hoRecoIt++){
+		if(hasMuonsInAcceptance){
+			double ho_eta = caloGeo->getPosition(hoRecoIt->id()).eta();
+			double ho_phi = caloGeo->getPosition(hoRecoIt->id()).phi();
+			histogramBuilder.fillCountHistogram(horeco_key);
+			histogramBuilder.fillEnergyHistograms(hoRecoIt->energy(),horeco_key);
+			histogramBuilder.fillEtaPhiHistograms(ho_eta, ho_phi, horeco_key);
+		}
+	}
+	delete hoRecoIt;
 
 	/*
 	 * L1 Trigger Decisions
@@ -271,7 +286,6 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	 * L1 Muons and matched HO information
 	 */
 	string l1MuonWithHoMatch_key = "L1MuonWithHoMatch";
-
 	bl1Muon = l1Muons->begin();
 	el1Muon = l1Muons->end();
 
@@ -293,10 +307,10 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				continue;
 			}
 			if(FilterPlugin::isInsideRCut(l1Muon_eta, ho_eta, l1Muon_phi, ho_phi,deltaR_Max)){
-				histogramBuilder.fillCountHistogram(horeco_key);
-				histogramBuilder.fillEnergyHistograms(bho_reco->energy(), horeco_key);
-				histogramBuilder.fillEtaPhiHistograms(ho_eta, ho_phi, horeco_key);
-				histogramBuilder.fillDeltaEtaDeltaPhiHistograms(l1Muon_eta,ho_eta,l1Muon_phi, ho_phi,std::string("L1MuonwithHoMatch"));
+				histogramBuilder.fillCountHistogram(l1MuonWithHoMatch_key);
+				histogramBuilder.fillEnergyHistograms(bho_reco->energy(),l1MuonWithHoMatch_key);
+				histogramBuilder.fillEtaPhiHistograms(ho_eta, ho_phi,l1MuonWithHoMatch_key);
+				histogramBuilder.fillDeltaEtaDeltaPhiHistograms(l1Muon_eta,ho_eta,l1Muon_phi, ho_phi,l1MuonWithHoMatch_key);
 				for (int i = 0; i < 200; i+=2) {
 					if(bl1Muon->pt() >= i)
 						histogramBuilder.fillTrigRateHistograms(i,std::string("L1MuonWithHoNoThr"));
@@ -333,9 +347,9 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 
 				//Fill the HO information
 				histogramBuilder.fillCountHistogram(l1MuonWithHoMatch_key);
-				histogramBuilder.fillEnergyHistograms(bho_recoT->energy(),l1MuonWithHoMatch_key);
+				histogramBuilder.fillEnergyHistograms(bho_recoT->energy(),std::string("L1MuonWithHoMatchAboveThr"));
 				histogramBuilder.fillEtaPhiHistograms(horeco_eta,horeco_phi,std::string("L1MuonwithHoMatch_HO"));
-				histogramBuilder.fillDeltaEtaDeltaPhiHistograms(l1Muon_eta,horeco_eta,l1Muon_phi, horeco_phi,std::string("L1MuonwithHoMatchAboveThr"));
+				histogramBuilder.fillDeltaEtaDeltaPhiHistograms(l1Muon_eta,horeco_eta,l1Muon_phi, horeco_phi,std::string("L1MuonWithHoMatchAboveThr"));
 
 				//Make the pseudo trig rate plot
 				for (int i = 0; i < 200; i+=2) {
