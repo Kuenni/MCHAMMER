@@ -270,7 +270,6 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			histogramBuilder.fillEtaPhiHistograms(ho_eta, ho_phi, horeco_key);
 		}
 	}
-	delete hoRecoIt;
 
 	/*
 	 * L1 Trigger Decisions
