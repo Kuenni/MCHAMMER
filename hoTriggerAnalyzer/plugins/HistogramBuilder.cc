@@ -147,10 +147,10 @@ void HistogramBuilder::fillTrigRateL1Histograms(float ptThreshold, std::string k
 /*                                                                              
  *Energy Histograms                                                             
  */
-
-void HistogramBuilder::fillEnergyHistograms(float energy, std::string key){     
+void HistogramBuilder::fillEnergyHistograms(float energy, std::string key){
+	TFileDirectory energyDir = _fileService->mkdir("energy");
 	if(!_h1Energy.count(key)){
-		_h1Energy[key] = _fileService->make<TH1F>(Form("%s_Energy",key.c_str()),
+		_h1Energy[key] = energyDir.make<TH1F>(Form("%s_Energy",key.c_str()),
 				Form("%s Energy",key.c_str()),
 				2100, -5.0, 100.0);
 	}
