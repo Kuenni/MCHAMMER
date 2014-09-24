@@ -270,7 +270,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	/*
 	 * L1 Muons and matched HO information
 	 */
-	string l1MuonWithHoMatch_key = "L1MuonwithHoMatch";
+	string l1MuonWithHoMatch_key = "L1MuonWithHoMatch";
 
 	bl1Muon = l1Muons->begin();
 	el1Muon = l1Muons->end();
