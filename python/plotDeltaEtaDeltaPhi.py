@@ -1,3 +1,4 @@
+#!/usr/bin/python
 from ROOT import ROOT,gROOT,gStyle,TCanvas,TFile,TH1D,TH2D,TLegend,THStack,TPaveText,TBox
 import sys
 import os

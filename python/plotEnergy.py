@@ -1,3 +1,4 @@
+#!/usr/bin/python
 from ROOT import ROOT,gROOT,TCanvas,TFile,TH1D,TH2D,TLegend,THStack,TPaveText
 import sys,os
 import PlotStyle
