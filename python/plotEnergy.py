@@ -30,7 +30,7 @@ ho.SetStats(0)
 ho.SetTitle('Energy distribution of HO hits')
 ho.GetXaxis().SetTitle('Reconstructed HO energy / GeV')
 ho.GetYaxis().SetTitle('N')
-ho.GetXaxis().SetRangeUser(-0.2,4)
+ho.GetXaxis().SetRangeUser(-2,6)
 
 ho.SetLineColor(ROOT.kBlack)
 L1MuonAndHoMatch.SetLineColor(ROOT.kBlue)
