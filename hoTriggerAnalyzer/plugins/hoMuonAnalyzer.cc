@@ -59,7 +59,6 @@
 #include "DataFormats/Common/interface/Association.h"
 
 #include "HoMuonTrigger/hoTriggerAnalyzer/interface/HistogramBuilder.h"
-#include "HoMuonTrigger/hoTriggerAnalyzer/interface/CommonFunctions.h"
 #include "HoMuonTrigger/hoTriggerAnalyzer/interface/FilterPlugin.h"
 
 #include <vector>

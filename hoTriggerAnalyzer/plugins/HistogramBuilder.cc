@@ -14,7 +14,7 @@
 
 #include "TH1F.h"
 #include "TH2F.h"
-#include "HoMuonTrigger/hoTriggerAnalyzer/interface/CommonFunctions.h"
+#include "HoMuonTrigger/hoTriggerAnalyzer/interface/FilterPlugin.h"
 
 /**
  *
@@ -195,9 +195,8 @@ void HistogramBuilder::fillDeltaEtaDeltaPhiHistograms(float eta1, float eta2,
 		std::string key){
 	TFileDirectory etaPhiDir = _fileService->mkdir("etaPhi");
 	float deltaEta, deltaPhi;
-	CommonFunctions commonFunctions;
 	deltaEta = eta1 - eta2;
-	deltaPhi = commonFunctions.WrapCheck(phi1, phi2);
+	deltaPhi = FilterPlugin::wrapCheck(phi1, phi2);
 
 	//Delta Eta Histograms Fill
 	if(!_h1DeltaEta.count(key)){
