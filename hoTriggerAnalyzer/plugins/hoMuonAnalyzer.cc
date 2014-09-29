@@ -277,8 +277,6 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	doubleMu0Trig = processTriggerDecision(doubleMu0TrigName,iEvent);
 	//	processTriggerDecision(doubleMu5TrigName,iEvent);
 
-	auto bho_recoT = hoRecoHitsAboveThreshold.begin();
-	auto eho_recoT = hoRecoHitsAboveThreshold.end();
 
 	/*
 	 * L1 Muons and matched HO information
@@ -292,92 +290,91 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		const l1extra::L1MuonParticle* bl1Muon = &(l1Muons->at(i));
 
 		//first fill information for ho hits without energy threshold
-		auto bho_reco = hoRecoHits->begin();
-		auto eho_reco = hoRecoHits->end();
-		for(; bho_reco != eho_reco; ++bho_reco){
-			float ho_eta, ho_phi;
-			ho_eta = caloGeo->getPosition(bho_reco->id()).eta();
-			ho_phi = caloGeo->getPosition(bho_reco->id()).phi();
-			float l1Muon_eta = bl1Muon->eta();
-			float l1Muon_phi = bl1Muon->phi();
-			//Filter for full barrel region only
-			if( !( abs(bl1Muon->eta())<0.8 || abs(ho_eta)<0.8 ) ){
-				continue;
-			}
-			if(FilterPlugin::isInsideDeltaR(l1Muon_eta, ho_eta, l1Muon_phi, ho_phi,deltaR_Max)){
-				histogramBuilder.fillCountHistogram(l1MuonWithHoMatch_key);
-				histogramBuilder.fillEnergyHistograms(bho_reco->energy(),l1MuonWithHoMatch_key);
-				histogramBuilder.fillEtaPhiHistograms(ho_eta, ho_phi,l1MuonWithHoMatch_key);
-				histogramBuilder.fillDeltaEtaDeltaPhiHistograms(l1Muon_eta,ho_eta,l1Muon_phi, ho_phi,l1MuonWithHoMatch_key);
-				for (int i = 0; i < 200; i+=2) {
-					if(bl1Muon->pt() >= i)
-						histogramBuilder.fillTrigRateHistograms(i,std::string("L1MuonWithHoNoThr"));
-				}
-				const reco::GenParticle* bestGenMatch = getBestGenMatch(bl1Muon->eta(),bl1Muon->phi());
-				if(bestGenMatch){
-					//first argument is the condition for a muon trigger object to pass
-					//Second is the pt of the "real" particle
-					histogramBuilder.fillEfficiency(bl1Muon->pt()>=20,bestGenMatch->pt(),std::string("L1MuonPt20HoReco"));
-				}
-				break;//Leave hoReco loop if a match was found
-			}
+		//###########################################################
+		float l1Muon_eta = bl1Muon->eta();
+		float l1Muon_phi = bl1Muon->phi();
+		//Filter for full barrel region only
+		if( !( abs(bl1Muon->eta())<0.8 ) ){
+			continue;
 		}
-
-		//Now fill information for hits above threshold and escape l1muon loop if a match was found
-		bool mipMatch = false;
-		for( ; bho_recoT != eho_recoT; ++bho_recoT){
-			//Get the eta and phi information
-			float l1Muon_eta, horeco_eta, l1Muon_phi, horeco_phi;
-			l1Muon_eta = bl1Muon->eta();
-			l1Muon_phi = bl1Muon->phi();
-			horeco_eta = caloGeo->getPosition(bho_recoT->id()).eta();
-			horeco_phi = caloGeo->getPosition(bho_recoT->id()).phi();
-
-			//Filter for full barrel region only
-			if( !( abs(bl1Muon->eta())<0.8 || abs(horeco_eta)<0.8 ) ){
-				continue;
+		HORecHit* matchedRecHit = HoMatcher::matchByEMaxDeltaR(l1Muon_eta,l1Muon_phi,deltaR_Max,*hoRecoHits,*caloGeo);
+		if(matchedRecHit){
+			double hoEta,hoPhi;
+			hoEta = caloGeo->getPosition(matchedRecHit->detid()).eta();
+			hoPhi = caloGeo->getPosition(matchedRecHit->detid()).phi();
+			histogramBuilder.fillCountHistogram(l1MuonWithHoMatch_key);
+			histogramBuilder.fillEnergyHistograms(matchedRecHit->energy(),l1MuonWithHoMatch_key);
+			histogramBuilder.fillEtaPhiHistograms(hoEta, hoPhi,l1MuonWithHoMatch_key);
+			histogramBuilder.fillDeltaEtaDeltaPhiHistograms(l1Muon_eta,hoEta,l1Muon_phi, hoPhi,l1MuonWithHoMatch_key);
+			for (int i = 0; i < 200; i+=2) {
+				if(bl1Muon->pt() >= i)
+					histogramBuilder.fillTrigRateHistograms(i,std::string("L1MuonWithHoNoThr"));
 			}
-			//If eta and phi information for both match, then go on
-			if(FilterPlugin::isInsideDeltaR(l1Muon_eta, horeco_eta, l1Muon_phi, horeco_phi, deltaR_Max)){
-				//There could be more than one match but we are only interested in one
-				//Use this switch to kill the loop
-				mipMatch=true;
+			const reco::GenParticle* bestGenMatch = getBestGenMatch(bl1Muon->eta(),bl1Muon->phi());
+			if(bestGenMatch){
+				//first argument is the condition for a muon trigger object to pass
+				//Second is the pt of the "real" particle
+				histogramBuilder.fillEfficiency(bl1Muon->pt()>=20,bestGenMatch->pt(),std::string("L1MuonPt20HoReco"));
+			}
+			break;//Leave hoReco loop if a match was found
+		}
+		//###########################################################
 
-				//Fill the HO information
-				histogramBuilder.fillCountHistogram(std::string("L1MuonWithHoMatchAboveThr"));
-				histogramBuilder.fillEnergyHistograms(bho_recoT->energy(),std::string("L1MuonWithHoMatchAboveThr"));
-				histogramBuilder.fillEtaPhiHistograms(horeco_eta,horeco_phi,std::string("L1MuonwithHoMatchAboveThr_HO"));
-				histogramBuilder.fillDeltaEtaDeltaPhiHistograms(l1Muon_eta,horeco_eta,l1Muon_phi, horeco_phi,std::string("L1MuonWithHoMatchAboveThr"));
 
+		//Now fill information for hits above threshold
+		//###########################################################
+		bool mipMatch = false;
+		//Get the eta and phi information
+		//Filter for full barrel region only
+		if( !( abs(bl1Muon->eta())<0.8) ){
+			continue;
+		}
+		//Reset pointer to use it again in the next loop
+		matchedRecHit = 0;
+		HORecHit* matchedRecHit = HoMatcher::matchByEMaxDeltaR(l1Muon_eta,l1Muon_phi,deltaR_Max,hoRecoHitsAboveThreshold,*caloGeo);
+		if(matchedRecHit){
+			//There could be more than one match but we are only interested in one
+			//Use this switch to kill the loop
+			mipMatch=true;
+			double hoEta,hoPhi;
+			hoEta = caloGeo->getPosition(matchedRecHit->detid()).eta();
+			hoPhi = caloGeo->getPosition(matchedRecHit->detid()).phi();
+			//Fill the HO information
+			histogramBuilder.fillCountHistogram(std::string("L1MuonWithHoMatchAboveThr"));
+			histogramBuilder.fillEnergyHistograms(matchedRecHit->energy(),std::string("L1MuonWithHoMatchAboveThr"));
+			histogramBuilder.fillEtaPhiHistograms(hoEta,hoPhi,std::string("L1MuonwithHoMatchAboveThr_HO"));
+			histogramBuilder.fillDeltaEtaDeltaPhiHistograms(l1Muon_eta,hoEta,l1Muon_phi, hoPhi,std::string("L1MuonWithHoMatchAboveThr"));
+
+			//Make the pseudo trig rate plot
+			for (int i = 0; i < 200; i+=2) {
+				if(bl1Muon->pt() >= i)
+					histogramBuilder.fillTrigRateHistograms(i,l1MuonWithHoMatch_key);
+			}
+			const reco::GenParticle* bestGenMatch = getBestGenMatch(bl1Muon->eta(),bl1Muon->phi());
+			if(bestGenMatch){
+				//first argument is the condition for a muon trigger object to pass
+				//Second is the pt of the "real" particle
+				histogramBuilder.fillEfficiency(bl1Muon->pt()>=20,bestGenMatch->pt(),std::string("L1MuonPt20HoRecoAboveThr"));
+			}
+			//Try to find a corresponding Gen Muon
+			edm::RefToBase<l1extra::L1MuonParticle> l1MuonCandiateRef(l1MuonView,i);
+			reco::GenParticleRef ref = (*l1MuonGenMatches)[l1MuonCandiateRef];
+
+			if(ref.isNonnull()){
+				string l1MuonAndHoRecoAndGenref_key = "L1MuonandHORecowithMipMatchAndGenMatch";
 				//Make the pseudo trig rate plot
 				for (int i = 0; i < 200; i+=2) {
 					if(bl1Muon->pt() >= i)
-						histogramBuilder.fillTrigRateHistograms(i,l1MuonWithHoMatch_key);
+						histogramBuilder.fillTrigRateHistograms(i,l1MuonAndHoRecoAndGenref_key);
 				}
-				const reco::GenParticle* bestGenMatch = getBestGenMatch(bl1Muon->eta(),bl1Muon->phi());
-				if(bestGenMatch){
-					//first argument is the condition for a muon trigger object to pass
-					//Second is the pt of the "real" particle
-					histogramBuilder.fillEfficiency(bl1Muon->pt()>=20,bestGenMatch->pt(),std::string("L1MuonPt20HoRecoAboveThr"));
-				}
-				//Try to find a corresponding Gen Muon
-				edm::RefToBase<l1extra::L1MuonParticle> l1MuonCandiateRef(l1MuonView,i);
-				reco::GenParticleRef ref = (*l1MuonGenMatches)[l1MuonCandiateRef];
+				histogramBuilder.fillPdgIdHistogram(ref->pdgId(),l1MuonWithHoMatch_key);
+			} else{
+				histogramBuilder.fillPdgIdHistogram(0,l1MuonWithHoMatch_key);
+			}
+			break;
+		}//inside delta R
+		//###########################################################
 
-				if(ref.isNonnull()){
-					string l1MuonAndHoRecoAndGenref_key = "L1MuonandHORecowithMipMatchAndGenMatch";
-					//Make the pseudo trig rate plot
-					for (int i = 0; i < 200; i+=2) {
-						if(bl1Muon->pt() >= i)
-							histogramBuilder.fillTrigRateHistograms(i,l1MuonAndHoRecoAndGenref_key);
-					}
-					histogramBuilder.fillPdgIdHistogram(ref->pdgId(),l1MuonWithHoMatch_key);
-				} else{
-					histogramBuilder.fillPdgIdHistogram(0,l1MuonWithHoMatch_key);
-				}
-				break;
-			}//inside delta R
-		}//ho reco above thr loop
 
 		if(mipMatch){
 			histogramBuilder.fillL1MuonPtHistograms(bl1Muon->pt(), l1MuonWithHoMatch_key);
@@ -394,7 +391,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				histogramBuilder.fillTrigHistograms(doubleMu0Trig,doubleMu0Key.str());
 			break;
 		}
-	}
+	}// For loop over all l1muons
 }
 
 /**
