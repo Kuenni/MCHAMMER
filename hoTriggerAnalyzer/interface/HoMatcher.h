@@ -22,7 +22,7 @@ public:
 	 * for a given eta and phi. Uses the calo geometry for calculating eta and phi
 	 * of the rec hits
 	 */
-	static HORecHit* matchByEMaxDeltaR(double,double,double,HORecHitCollection,CaloGeometry);
+	static const HORecHit* matchByEMaxDeltaR(double,double,double,HORecHitCollection,CaloGeometry);
 //	static HORecHit* matchByDeltaR(double,double,double,HORecHitCollection);
 };
 

@@ -60,6 +60,8 @@
 
 #include "HoMuonTrigger/hoTriggerAnalyzer/interface/HistogramBuilder.h"
 #include "HoMuonTrigger/hoTriggerAnalyzer/interface/FilterPlugin.h"
+#include "HoMuonTrigger/hoTriggerAnalyzer/interface/HoMatcher.h"
+
 
 #include <vector>
 #include <iostream>
@@ -297,7 +299,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		if( !( abs(bl1Muon->eta())<0.8 ) ){
 			continue;
 		}
-		HORecHit* matchedRecHit = HoMatcher::matchByEMaxDeltaR(l1Muon_eta,l1Muon_phi,deltaR_Max,*hoRecoHits,*caloGeo);
+		const HORecHit* matchedRecHit = HoMatcher::matchByEMaxDeltaR(l1Muon_eta,l1Muon_phi,deltaR_Max,*hoRecoHits,*caloGeo);
 		if(matchedRecHit){
 			double hoEta,hoPhi;
 			hoEta = caloGeo->getPosition(matchedRecHit->detid()).eta();
@@ -331,7 +333,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		}
 		//Reset pointer to use it again in the next loop
 		matchedRecHit = 0;
-		HORecHit* matchedRecHit = HoMatcher::matchByEMaxDeltaR(l1Muon_eta,l1Muon_phi,deltaR_Max,hoRecoHitsAboveThreshold,*caloGeo);
+		matchedRecHit = HoMatcher::matchByEMaxDeltaR(l1Muon_eta,l1Muon_phi,deltaR_Max,hoRecoHitsAboveThreshold,*caloGeo);
 		if(matchedRecHit){
 			//There could be more than one match but we are only interested in one
 			//Use this switch to kill the loop
