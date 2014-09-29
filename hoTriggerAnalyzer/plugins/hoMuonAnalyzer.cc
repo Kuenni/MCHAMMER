@@ -304,7 +304,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			if( !( abs(bl1Muon->eta())<0.8 || abs(ho_eta)<0.8 ) ){
 				continue;
 			}
-			if(FilterPlugin::isInsideRCut(l1Muon_eta, ho_eta, l1Muon_phi, ho_phi,deltaR_Max)){
+			if(FilterPlugin::isInsideDeltaR(l1Muon_eta, ho_eta, l1Muon_phi, ho_phi,deltaR_Max)){
 				histogramBuilder.fillCountHistogram(l1MuonWithHoMatch_key);
 				histogramBuilder.fillEnergyHistograms(bho_reco->energy(),l1MuonWithHoMatch_key);
 				histogramBuilder.fillEtaPhiHistograms(ho_eta, ho_phi,l1MuonWithHoMatch_key);
@@ -338,7 +338,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				continue;
 			}
 			//If eta and phi information for both match, then go on
-			if(FilterPlugin::isInsideRCut(l1Muon_eta, horeco_eta, l1Muon_phi, horeco_phi, deltaR_Max)){
+			if(FilterPlugin::isInsideDeltaR(l1Muon_eta, horeco_eta, l1Muon_phi, horeco_phi, deltaR_Max)){
 				//There could be more than one match but we are only interested in one
 				//Use this switch to kill the loop
 				mipMatch=true;
@@ -492,7 +492,7 @@ const l1extra::L1MuonParticle* hoMuonAnalyzer::getMatchedL1Object(trigger::Trigg
 		hltPhi = hltObject.phi();
 		l1Eta = l1muon->eta();
 		l1Phi = l1muon->phi();
-		if(FilterPlugin::isInsideRCut(hltEta,l1Eta,hltPhi,l1Phi,deltaR_Max))
+		if(FilterPlugin::isInsideDeltaR(hltEta,l1Eta,hltPhi,l1Phi,deltaR_Max))
 			return l1muon;
 	}
 	return NULL;
@@ -510,7 +510,7 @@ bool hoMuonAnalyzer::hasL1Match(trigger::TriggerObject hltObject,edm::Handle<l1e
 		hltPhi = hltObject.phi();
 		l1Eta = l1muon->eta();
 		l1Phi = l1muon->phi();
-		if(FilterPlugin::isInsideRCut(hltEta,l1Eta,hltPhi,l1Phi,deltaR_Max))
+		if(FilterPlugin::isInsideDeltaR(hltEta,l1Eta,hltPhi,l1Phi,deltaR_Max))
 			return true;
 	}
 	return false;

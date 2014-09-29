@@ -30,7 +30,7 @@ double FilterPlugin::wrapCheck(float phi1, float phi2){
   return delta_phi;
 };
 
-bool FilterPlugin::isInsideRCut(float eta1, float eta2, float phi1, float phi2, float deltaR_Max){
+bool FilterPlugin::isInsideDeltaR(float eta1, float eta2, float phi1, float phi2, float deltaR_Max){
 
 	float delta_eta, delta_phi;
 
