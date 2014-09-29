@@ -92,7 +92,7 @@ void HistogramBuilder::fillMultiplicityHistogram(int nEvents, std::string key){
 	if(!_h1Multiplicity.count(key)){
 		_h1Multiplicity[key] = _fileService->make<TH1D>(Form("%s_Multiplicity",key.c_str()),
 				Form("%s Digis Per Event",key.c_str()),
-				201, -0.5, 200.5);
+				2001, -0.5, 2000.5);
 	}
 	_h1Multiplicity[key]->Fill(nEvents);
 }
