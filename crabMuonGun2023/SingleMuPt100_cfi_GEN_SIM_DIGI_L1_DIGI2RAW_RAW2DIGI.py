@@ -28,9 +28,6 @@ process.load('Configuration.StandardSequences.L1Extra_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-#import digitizers for theDigitizersValid
-from SimGeneral.MixingModule.digitizers_cfi import *
-
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10)
 )
