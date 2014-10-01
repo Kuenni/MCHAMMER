@@ -14,7 +14,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 
 readFiles = cms.untracked.vstring()
 readFiles.extend([
-	'file:///user/kuensken/ChrisAnelliCode/CMSSW_6_2_0_SLHC11/src/crabMuonGun2023/SingleMuPt100_cfi_GEN_SIM_DIGI_L1_DIGI2RAW_RAW2DIGI.root'
+	'/store/mc/Muon2023Upg14/MinBias_TuneZ2star_14TeV-pythia6/GEN-SIM/DES23_62_V1-v1/00000/001013BF-FCCC-E311-B864-002618943978.root'
 ])
 
 
@@ -58,7 +58,8 @@ process.load('L1Trigger.Configuration.L1Extra_cff')
 #horeco
 process.load('Configuration.StandardSequences.Reconstruction_cff')
 
-
+#Use another digitizer to include merged truth
+process.mix.digitizers = cms.PSet(process.theDigitizersValid)
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'DES23_62_V1::All', '')
 
