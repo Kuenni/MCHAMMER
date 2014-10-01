@@ -113,9 +113,9 @@ process.demo_step = cms.Path(process.hoMuonAnalyzer)
 #Schedule Definition
 process.schedule = cms.Schedule(
 	process.digitisation_step,
+	process.L1simulation_step,
 	process.digi2raw_step,
 	process.raw2digi_step,
-	process.L1simulation_step,
 	process.l1extra_step,
         process.horeco_step,
 	process.l1MuonGenMatch_step,
@@ -129,3 +129,7 @@ from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023Muon
 
 #call to customisation function cust_2023Muon imported from SLHCUpgradeSimulations.Configuration.combinedCustoms
 process = cust_2023Muon(process)
+#### fix
+process.raw2digi_step.replace(process.muonDTDigis,process.hcalDigis*process.muonCSCDigis*process.muonDTDigis) 
+
+
