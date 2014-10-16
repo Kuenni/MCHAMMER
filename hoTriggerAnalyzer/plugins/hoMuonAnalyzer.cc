@@ -175,7 +175,6 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	}
 	histogramBuilder.fillMultiplicityHistogram(genMuonCounter,gen_key);
 
-
 	/*
 	 * Level 1 Muons
 	 */
@@ -185,6 +184,8 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	bool hasMuonsInAcceptance = false;
 
 	string l1muon_key = "L1Muon";
+	histogramBuilder.fillMultiplicityHistogram(l1Muons->size(),l1muon_key);
+
 
 	//Define iterators
 	l1extra::L1MuonParticleCollection::const_iterator bl1Muon = l1Muons->begin();
