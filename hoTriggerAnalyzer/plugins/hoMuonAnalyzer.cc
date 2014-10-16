@@ -321,7 +321,6 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				histogramBuilder.fillEfficiency(bl1Muon->pt()>=20,bestGenMatch->pt(),std::string("L1MuonPt20HoReco"));
 				histogramBuilder.fillEfficiency(bl1Muon->pt()>=25,bestGenMatch->pt(),std::string("L1MuonPt25HoReco"));
 			}
-			break;//Leave hoReco loop if a match was found
 		}
 		//###########################################################
 
@@ -379,7 +378,6 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			} else{
 				histogramBuilder.fillPdgIdHistogram(0,l1MuonWithHoMatch_key);
 			}
-			break;
 		}//inside delta R
 		//###########################################################
 
@@ -397,7 +395,6 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				histogramBuilder.fillTrigHistograms(singleMu3Trig,singleMu3Key.str());
 			if(doubleMu0Trig)
 				histogramBuilder.fillTrigHistograms(doubleMu0Trig,doubleMu0Key.str());
-			break;
 		}
 	}// For loop over all l1muons
 }
