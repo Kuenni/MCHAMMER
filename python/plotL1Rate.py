@@ -1,15 +1,33 @@
 #!/usr/bin/python
 from ROOT import ROOT,gROOT,TCanvas,TFile,TH1D,TH2D,TLegend,THStack,TPaveText
-import sys
+import sys,os
 import PlotStyle
 import numpy as np
 
-def plotL1Rates(filename):
+DEBUG = 1
+prefix = '[plotL1Rates] '
+
+def plotL1Rates(folder):
+    
+    if(DEBUG):
+	print prefix + 'was called'
+	
+	if(folder == None):
+		print prefix + 'Error! Filename as first argument needed.'
+		sys.exit(1)
+		
+	if( not os.path.exists('plots')):
+		os.mkdir('plots')
+   	if( not os.path.exists('plots/' + folder)):
+		os.mkdir('plots/' + folder)
+	
+	filename = folder + '/L1MuonHistogram.root'
+	print prefix + 'Opening file:',filename
     
     file = TFile.Open(filename)
     
-    l1Muon_TrigRate = file.Get("demo/L1Muon_TrigRate")
-    l1MuWithHoMatch_TrigRate = file.Get('demo/L1MuonAndHoAboveThr'
+    l1Muon_TrigRate = file.Get("hoMuonAnalyzer/L1Muon_TrigRate")
+    l1MuWithHoMatch_TrigRate = file.Get('hoMuonAnalyzer/L1MuonWithHoMatch'
    #     HORecowithMipMatch
         '_TrigRate')
 #    genMuons_TrigRate = file.Get('demo/gen_TrigRate')
@@ -49,10 +67,10 @@ def plotL1Rates(filename):
   #  legend.AddEntry(genMuons_TrigRate,'Gen Myonen','ep')
     legend.Draw()
     
-    canv.SaveAs("plots/PseudoTrigRateL1.png")
-    canv.SaveAs("plots/PseudoTrigRateL1.pdf")
+    canv.SaveAs("plots/" + folder + "/PseudoTrigRateL1.png")
+    canv.SaveAs("plots/" + folder + "/PseudoTrigRateL1.pdf")
     
-    f = TFile.Open("plots/PseudoTrigRatePlotsL1.root","RECREATE")
+    f = TFile.Open("plots/" + folder + "/PseudoTrigRatePlotsL1.root","RECREATE")
     canv.Write()
     f.Close()
     

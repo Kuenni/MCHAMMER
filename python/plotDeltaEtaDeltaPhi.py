@@ -5,9 +5,12 @@ import os
 import PlotStyle
 import numpy as np
 
+DEBUG = 1
+prefix = '[plotDeltaEtaDeltaPhi] '
+
+
 PlotStyle.setPlotStyle()
 gStyle.SetPalette(1)
-
 
 
 def drawHoBoxes(canvas):
@@ -18,29 +21,34 @@ def drawHoBoxes(canvas):
             box = TBox(-0.3045 + (i-1)*0.087,-0.3045 + (j-1)*0.087,-0.3045 + i*0.087,-0.3045 + j*0.087)
             box.SetFillStyle(0)
             box.SetLineColor(ROOT.kBlack)
-            box.SetLineWidth(1)
+            box.SetLineWidth(2)
             box.Draw()
             boxes.append(box)
     return boxes
 
-def plotDeltaEtaDeltaPhi():
-	if(len(sys.argv) < 2):
-	    print 'Error! Filename as first argument needed.'
-	    sys.exit(1)
+def plotDeltaEtaDeltaPhi(folder):
+
+	if(DEBUG):
+		print prefix + 'was called'
+
+	if(folder == None):
+		print prefix + 'Error! Filename as first argument needed.'
+		sys.exit(1)
 
 	if( not os.path.exists('plots')):
 	    os.mkdir('plots')
-
-	filename = sys.argv[1]
-	print 'Opening file:',filename
+	if( not os.path.exists('plots/' + folder)):
+		os.mkdir('plots/' + folder)
+        
+	filename = folder + '/L1MuonHistogram.root'
+	print prefix + 'Opening file:',filename
 
 	file = TFile.Open(filename)
-
 
 	h2dDeltaEtaDeltaPhi = file.Get("hoMuonAnalyzer/etaPhi/L1MuonWithHoMatch_DeltaEtaDeltaPhi")
 
 	canv = TCanvas("canvasDeltaEtaDeltaPhi",'canvasDeltaEtaDeltaPhi',1200,1200)
-	h2dDeltaEtaDeltaPhi.Rebin2D(8,8)
+	h2dDeltaEtaDeltaPhi.Rebin2D(2,2)
 	h2dDeltaEtaDeltaPhi.GetXaxis().SetRangeUser(-.45,.45)
 	h2dDeltaEtaDeltaPhi.GetXaxis().SetTitle("#Delta#eta")
 	h2dDeltaEtaDeltaPhi.GetYaxis().SetRangeUser(-.45,.45)
@@ -66,9 +74,9 @@ def plotDeltaEtaDeltaPhi():
 
 	canv.Update();
 
-	canv.SaveAs("plots/DeltaEtaDeltaPhi.png")
-	canv.SaveAs("plots/DeltaEtaDeltaPhi.pdf")
+	canv.SaveAs("plots/" + folder + "/DeltaEtaDeltaPhi.png")
+	canv.SaveAs("plots/" + folder + "/DeltaEtaDeltaPhi.pdf")
 
-	f = TFile.Open("plots/DeltaEtaDeltaPhi.root","RECREATE")
+	f = TFile.Open("plots/" + folder + "/DeltaEtaDeltaPhi.root","RECREATE")
 	canv.Write()
 	f.Close()
