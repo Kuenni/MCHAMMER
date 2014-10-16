@@ -23,52 +23,52 @@ def drawHoBoxes(canvas):
             boxes.append(box)
     return boxes
 
+def plotDeltaEtaDeltaPhi():
+	if(len(sys.argv) < 2):
+	    print 'Error! Filename as first argument needed.'
+	    sys.exit(1)
 
-if(len(sys.argv) < 2):
-    print 'Error! Filename as first argument needed.'
-    sys.exit(1)
+	if( not os.path.exists('plots')):
+	    os.mkdir('plots')
 
-if( not os.path.exists('plots')):
-    os.mkdir('plots')
+	filename = sys.argv[1]
+	print 'Opening file:',filename
 
-filename = sys.argv[1]
-print 'Opening file:',filename
-
-file = TFile.Open(filename)
+	file = TFile.Open(filename)
 
 
-h2dDeltaEtaDeltaPhi = file.Get("hoMuonAnalyzer/etaPhi/L1MuonWithHoMatch_DeltaEtaDeltaPhi")
+	h2dDeltaEtaDeltaPhi = file.Get("hoMuonAnalyzer/etaPhi/L1MuonWithHoMatch_DeltaEtaDeltaPhi")
 
-canv = TCanvas("canvasDeltaEtaDeltaPhi",'canvasDeltaEtaDeltaPhi',1200,1200)
-h2dDeltaEtaDeltaPhi.Rebin2D(8,8)
-h2dDeltaEtaDeltaPhi.GetXaxis().SetRangeUser(-.45,.45)
-h2dDeltaEtaDeltaPhi.GetXaxis().SetTitle("#Delta#eta")
-h2dDeltaEtaDeltaPhi.GetYaxis().SetRangeUser(-.45,.45)
-h2dDeltaEtaDeltaPhi.GetYaxis().SetTitle("#Delta#phi")
-h2dDeltaEtaDeltaPhi.GetZaxis().SetTitle("N")
-h2dDeltaEtaDeltaPhi.Draw("colz")
+	canv = TCanvas("canvasDeltaEtaDeltaPhi",'canvasDeltaEtaDeltaPhi',1200,1200)
+	h2dDeltaEtaDeltaPhi.Rebin2D(8,8)
+	h2dDeltaEtaDeltaPhi.GetXaxis().SetRangeUser(-.45,.45)
+	h2dDeltaEtaDeltaPhi.GetXaxis().SetTitle("#Delta#eta")
+	h2dDeltaEtaDeltaPhi.GetYaxis().SetRangeUser(-.45,.45)
+	h2dDeltaEtaDeltaPhi.GetYaxis().SetTitle("#Delta#phi")
+	h2dDeltaEtaDeltaPhi.GetZaxis().SetTitle("N")
+	h2dDeltaEtaDeltaPhi.Draw("colz")
 
-boxList = drawHoBoxes(canv)
+	boxList = drawHoBoxes(canv)
 
-canv.Update()
-pal = h2dDeltaEtaDeltaPhi.GetListOfFunctions().FindObject("palette")
-pal.SetX2NDC(0.92)
+	canv.Update()
+	pal = h2dDeltaEtaDeltaPhi.GetListOfFunctions().FindObject("palette")
+	pal.SetX2NDC(0.92)
 
-stats = h2dDeltaEtaDeltaPhi.GetListOfFunctions().FindObject("stats")
-stats.SetX1NDC(.1)
-stats.SetX2NDC(.2)
-stats.SetY1NDC(.1)
-stats.SetY2NDC(.25)
+	stats = h2dDeltaEtaDeltaPhi.GetListOfFunctions().FindObject("stats")
+	stats.SetX1NDC(.1)
+	stats.SetX2NDC(.2)
+	stats.SetY1NDC(.1)
+	stats.SetY2NDC(.25)
 
-legend = TLegend(0.7,0.8,0.9,0.9)
-legend.AddEntry(boxList[0],"HO tile dimensions","le")
-legend.Draw()
+	legend = TLegend(0.7,0.8,0.9,0.9)
+	legend.AddEntry(boxList[0],"HO tile dimensions","le")
+	legend.Draw()
 
-canv.Update();
+	canv.Update();
 
-canv.SaveAs("plots/DeltaEtaDeltaPhi.png")
-canv.SaveAs("plots/DeltaEtaDeltaPhi.pdf")
+	canv.SaveAs("plots/DeltaEtaDeltaPhi.png")
+	canv.SaveAs("plots/DeltaEtaDeltaPhi.pdf")
 
-f = TFile.Open("plots/DeltaEtaDeltaPhi.root","RECREATE")
-canv.Write()
-f.Close()
+	f = TFile.Open("plots/DeltaEtaDeltaPhi.root","RECREATE")
+	canv.Write()
+	f.Close()
