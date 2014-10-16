@@ -284,6 +284,9 @@ process.options = cms.untracked.PSet(
 
 )
 
+#Try using different source for hoReco
+process.horeco.digiLabel = cms.InputTag('simHcalDigis')
+
 #Path definitions
 #process.digitisation_step = cms.Path(process.pdigi)
 #process.digi2raw_step = cms.Path(process.DigiToRaw)
