@@ -56,6 +56,7 @@ def plotL1Rates(folder):
     l1MuWithHoMatch_TrigRate.Rebin(2)
     
     l1Muon_TrigRate.GetXaxis().SetRangeUser(0,140)
+    l1Muon_TrigRate.GetYaxis().SetRangeUser(1e4,1e7)
     
     l1Muon_TrigRate.Draw('p,e1')
     l1MuWithHoMatch_TrigRate.Draw('same,p,e1')
