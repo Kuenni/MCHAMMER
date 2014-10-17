@@ -347,7 +347,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			//Fill the HO information
 			histogramBuilder.fillCountHistogram(std::string("L1MuonWithHoMatchAboveThr"));
 			histogramBuilder.fillEnergyHistograms(matchedRecHit->energy(),std::string("L1MuonWithHoMatchAboveThr"));
-			histogramBuilder.fillEtaPhiHistograms(hoEta,hoPhi,std::string("L1MuonwithHoMatchAboveThr_HO"));
+			histogramBuilder.fillEtaPhiHistograms(hoEta,hoPhi,std::string("L1MuonWithHoMatchAboveThr_HO"));
 			histogramBuilder.fillDeltaEtaDeltaPhiHistograms(l1Muon_eta,hoEta,l1Muon_phi, hoPhi,std::string("L1MuonWithHoMatchAboveThr"));
 
 			//Make the pseudo trig rate plot
@@ -379,13 +379,8 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			} else{
 				histogramBuilder.fillPdgIdHistogram(0,l1MuonWithHoMatch_key);
 			}
-		}//inside delta R
-		//###########################################################
-
-
-		if(mipMatch){
 			histogramBuilder.fillL1MuonPtHistograms(bl1Muon->pt(), l1MuonWithHoMatch_key);
-			histogramBuilder.fillEtaPhiHistograms(bl1Muon->eta(), bl1Muon->phi(), std::string("L1MuonwithHoMatch_L1Mu"));
+			histogramBuilder.fillEtaPhiHistograms(bl1Muon->eta(), bl1Muon->phi(), std::string("L1MuonWithHoMatchAboveThr_L1Mu"));
 			std::stringstream singleMu3Key;
 			singleMu3Key << singleMu3TrigName;
 			singleMu3Key << "L1HOMatch";
@@ -396,7 +391,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				histogramBuilder.fillTrigHistograms(singleMu3Trig,singleMu3Key.str());
 			if(doubleMu0Trig)
 				histogramBuilder.fillTrigHistograms(doubleMu0Trig,doubleMu0Key.str());
-		}
+		}//inside delta R
 	}// For loop over all l1muons
 }
 
