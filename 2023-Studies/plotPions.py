@@ -12,7 +12,7 @@ from plotEfficiency import plotEfficiency
 from plotMultiplicity import plotMultiplicity
 
 toProcess = [
-             'crabSiPMCalib'
+             'PionGun'
              ]
 
 for s in toProcess:
@@ -22,11 +22,7 @@ for s in toProcess:
 	plotDeltaEtaDeltaPhi(s)
 	print 'Doing Eta Phi...'
 	plotEtaPhi(s)
-	print 'Doing L1Rates...'
-	plotL1Rates(s)
 	print 'Doing Phi...'
 	plotPhi(s)
-	print 'Doing Efficiency...'
-	plotEfficiency(s)
 	print 'Doing Multiplicity...'
 	plotMultiplicity(s)
