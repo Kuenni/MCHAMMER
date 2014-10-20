@@ -328,7 +328,6 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 
 		//Now fill information for hits above threshold
 		//###########################################################
-		bool mipMatch = false;
 		//Get the eta and phi information
 		//Filter for full barrel region only
 		if( !( abs(bl1Muon->eta())<0.8) ){
@@ -340,7 +339,6 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		if(matchedRecHit){
 			//There could be more than one match but we are only interested in one
 			//Use this switch to kill the loop
-			mipMatch=true;
 			double hoEta,hoPhi;
 			hoEta = caloGeo->getPosition(matchedRecHit->detid()).eta();
 			hoPhi = caloGeo->getPosition(matchedRecHit->detid()).phi();

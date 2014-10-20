@@ -248,15 +248,3 @@ void HistogramBuilder::fillPtHistogram(float pt, std::string key){
 	_h1L1MuonPt[key]->Fill(pt);
 }
 
-/*
-int HistogramBuilder::getMyNumber(){
-  return mynumber;
-};
- */
-
-
-/*
- *
- * Helper Functions
- *
- */
