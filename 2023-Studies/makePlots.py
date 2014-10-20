@@ -12,7 +12,7 @@ from plotEfficiency import plotEfficiency
 from plotMultiplicity import plotMultiplicity
 
 toProcess = [
-             'crabSiPMCalib',
+             'crabSiPMCalib'
              ]
 
 for s in toProcess:
