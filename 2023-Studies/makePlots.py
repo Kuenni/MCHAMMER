@@ -8,6 +8,8 @@ from plotDeltaEtaDeltaPhi import plotDeltaEtaDeltaPhi
 from plotEtaPhi import plotEtaPhi
 from plotL1Rate import plotL1Rates
 from plotPhi import plotPhi
+from plotEfficiency import plotEfficiency
+from plotMultiplicity import plotMultiplicity
 
 toProcess = [
              'crabSiPMCalib',
@@ -25,5 +27,9 @@ for s in toProcess:
 	plotL1Rates(s)
 	print 'Doing Phi...'
 	plotPhi(s)
+	print 'Doing Efficiency...'
+	plotEfficiency(s)
+	print 'Doing Multiplicity...'
+	plotMultiplicity(s)
 
 print "Say Hello" 
