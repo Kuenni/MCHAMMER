@@ -13,7 +13,6 @@ from plotMultiplicity import plotMultiplicity
 
 toProcess = [
              'crabSiPMCalib',
-             'crabSiPMNoExtraCalib'
              ]
 
 for s in toProcess:

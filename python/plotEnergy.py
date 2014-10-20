@@ -49,8 +49,8 @@ def plotEnergy(folder):
 
 	legend = TLegend(0.5,0.65,0.9,0.9)
 	legend.AddEntry(ho,'All HO hits','l')
-	legend.AddEntry(L1MuonAndHoMatch,'L1 + HO match','l')
-	legend.AddEntry(L1MuonAndHoMatchAboveThr,'L1 + HO match > 0.2 GeV','l')
+	legend.AddEntry(L1MuonAndHoMatch,'L1Muon + HO match','l')
+	legend.AddEntry(L1MuonAndHoMatchAboveThr,'L1Muon + HO match > 0.2 GeV','l')
 	legend.Draw()
 
 	canv.SaveAs("plots/" + folder + "/Energieverteilung.png")
@@ -59,3 +59,4 @@ def plotEnergy(folder):
 	f = TFile.Open("plots/" + folder + "/Energieverteilung.root","RECREATE")
 	canv.Write()
 	f.Close()
+	return canv
