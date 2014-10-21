@@ -328,11 +328,6 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 
 		//Now fill information for hits above threshold
 		//###########################################################
-		//Get the eta and phi information
-		//Filter for full barrel region only
-		if( !( abs(bl1Muon->eta())<0.8) ){
-			continue;
-		}
 		//Reset pointer to use it again in the next loop
 		matchedRecHit = 0;
 		matchedRecHit = HoMatcher::matchByEMaxDeltaR(l1Muon_eta,l1Muon_phi,deltaR_Max,hoRecoHitsAboveThreshold,*caloGeo);

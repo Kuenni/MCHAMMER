@@ -22,7 +22,6 @@ for s in toProcess:
 	plotDeltaEtaDeltaPhi(s)
 	print 'Doing Eta Phi...'
 	plotEtaPhi(s)
-	print 'Doing Phi...'
-	plotPhi(s)
+
 	print 'Doing Multiplicity...'
 	plotMultiplicity(s)

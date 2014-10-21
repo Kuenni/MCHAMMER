@@ -48,14 +48,14 @@ def plotDeltaEtaDeltaPhi(folder):
 	h2dDeltaEtaDeltaPhi = file.Get("hoMuonAnalyzer/etaPhi/L1MuonWithHoMatch_DeltaEtaDeltaPhi")
 
 	canv = TCanvas("canvasDeltaEtaDeltaPhi",'canvasDeltaEtaDeltaPhi',1200,1200)
-	h2dDeltaEtaDeltaPhi.Rebin2D(2,2)
+	canv.SetLogz()
+#	h2dDeltaEtaDeltaPhi.Rebin2D(2,2)
 	h2dDeltaEtaDeltaPhi.GetXaxis().SetRangeUser(-.45,.45)
 	h2dDeltaEtaDeltaPhi.GetXaxis().SetTitle("#Delta#eta")
 	h2dDeltaEtaDeltaPhi.GetYaxis().SetRangeUser(-.45,.45)
 	h2dDeltaEtaDeltaPhi.GetYaxis().SetTitle("#Delta#phi")
 	h2dDeltaEtaDeltaPhi.GetZaxis().SetTitle("N")
 	h2dDeltaEtaDeltaPhi.Draw("colz")
-
 	boxList = drawHoBoxes(canv)
 
 	canv.Update()
@@ -80,3 +80,4 @@ def plotDeltaEtaDeltaPhi(folder):
 	f = TFile.Open("plots/" + folder + "/DeltaEtaDeltaPhi.root","RECREATE")
 	canv.Write()
 	f.Close()
+	return canv
