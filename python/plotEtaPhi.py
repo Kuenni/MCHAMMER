@@ -49,6 +49,7 @@ def plotEtaPhi(folder):
 	h2dDeltaEtaDeltaPhi = file.Get("hoMuonAnalyzer/etaPhi/horeco_EtaPhi")
 	
 	canv = TCanvas("canvasEtaPhi",'canvasEtaPhi',1200,1200)
+	canv.SetLogz()
 	#h2dDeltaEtaDeltaPhi.Rebin2D(8,8)
 	#h2dDeltaEtaDeltaPhi.GetXaxis().SetRangeUser(-.45,.45)
 	h2dDeltaEtaDeltaPhi.GetXaxis().SetTitle("#Delta#eta")
