@@ -204,7 +204,7 @@ void HistogramBuilder::fillDeltaEtaDeltaPhiHistograms(float eta1, float eta2,
 				key.c_str()),
 				Form("#Delta #Eta %s",
 						key.c_str()),
-						2000, -2.6, 2.6);
+						510, -2.2185, 2.2185);//510 times 0.087/10; 0 in center of a bin
 	}
 	_h1DeltaEta[key]->Fill(deltaEta);
 	//Delta Eta Histograms Fill
@@ -213,13 +213,13 @@ void HistogramBuilder::fillDeltaEtaDeltaPhiHistograms(float eta1, float eta2,
 				key.c_str()),
 				Form("%s #Delta #Phi",
 						key.c_str()),
-						2000, -3.14, 3.14);
+						730, -3.1755, 3.1755);//730 times 0.087/10; 0 in center of a bin
 	}
 	_h1DeltaPhi[key]->Fill(deltaPhi);
 
 	//DeltaEta Delta Phi Histograms Fill
 	if(!_h2DeltaEtaDeltaPhi.count(key)){
-		_h2DeltaEtaDeltaPhi[key] = etaPhiDir.make<TH2F>(Form("%s_DeltaEtaDeltaPhi",key.c_str()),Form("%s #Delta#eta #Delta#Phi",key.c_str()), 2000, -2.6, 2.6, 2000, -3.14, 3.14);
+		_h2DeltaEtaDeltaPhi[key] = etaPhiDir.make<TH2F>(Form("%s_DeltaEtaDeltaPhi",key.c_str()),Form("%s #Delta#eta #Delta#Phi",key.c_str()),51, -2.2185, 2.2185, 73, -3.1755, 3.1755);
 	}
 	_h2DeltaEtaDeltaPhi[key]->Fill(deltaEta, deltaPhi);
 } 
@@ -243,7 +243,7 @@ void HistogramBuilder::fillPtHistogram(float pt, std::string key){
 	if(!_h1L1MuonPt.count(key)){
 		_h1L1MuonPt[key] = _fileService->make<TH1F>(Form("%s_Pt",key.c_str()),
 				Form("%s Pt",key.c_str()),
-				500,0,500);
+				5000,0,500);
 	}
 	_h1L1MuonPt[key]->Fill(pt);
 }
