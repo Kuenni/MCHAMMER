@@ -280,3 +280,47 @@ void HistogramBuilder::fillEnergyCorrelationHistogram(double simHitEnergy, doubl
 	}
 	_h2EnergyCorrelation[key]->Fill(simHitEnergy, recHitEnergy);
 }
+
+/**
+ * Fill histograms for energy depending on position
+ */
+void HistogramBuilder::fillEnergyVsPosition(double eta, double phi, double energy, std::string key){
+	TFileDirectory energyDir = _fileService->mkdir("energy");
+
+	//Fill energy vs eta
+	if(!_h2EnergyVsEta.count(key)){
+		_h2EnergyVsEta[key] = energyDir.make<TH2D>(Form("%s_EnergyVsEta",key.c_str()),
+				Form("%s Energy vs #{eta};#{eta};Energy / GeV",key.c_str()),
+				720, -3.132, 3.132, //0.0087 eta bins
+				2000,0,100 //50 MeV bins
+		);
+	}
+	_h2EnergyVsEta[key]->Fill(eta,energy);
+
+	//Fill energy vs phi
+	if(!_h2EnergyVsPhi.count(key)){
+		_h2EnergyVsPhi[key] = energyDir.make<TH2D>(Form("%s_EnergyVsPhi",key.c_str()),
+				Form("%s Energy vs #{phi};#{phi};Energy / GeV",key.c_str()),
+				720, -3.132, 3.132, //0.0087 phi bins
+				2000,0,100 //50 MeV bins
+		);
+	}
+	_h2EnergyVsPhi[key]->Fill(phi,energy);
+
+//	//Fill Eta phi energy histogram
+//	if(!_h2EnergyEtaPhiEnergies.count(key)){
+//		_h2EnergyEtaPhiEnergies[key] = energyDir.make<TH1D>(Form("%s_EnergyVsEtaPhi",key.c_str()),
+//				Form("%s Energy vs #{eta}#{phi};#{eta};#{phi}",key.c_str()),
+//				720, -3.132, 3.132, //0.0087 phi bins
+//				2000,0,100 //50 MeV bins
+//		);
+//	}
+//	_h2EnergyEtaPhiEnergies[key]->Fill(eta,phi,energy);
+//	if(!_h2EnergyEtaPhiCounter.count(key)){
+//		_h2EnergyEtaPhiCounter[key] = energyDir.make<TH1D>(Form("%s_EnergyVsEtaPhiCounter",key.c_str()),
+//				Form("%s Energy vs #{eta}#{phi} Counter;#{eta};#{phi}",key.c_str()),
+//				720, -3.132, 3.132, //0.0087 phi bins
+//				2000,0,100 //50 MeV bins
+//		);
+//	}
+}
