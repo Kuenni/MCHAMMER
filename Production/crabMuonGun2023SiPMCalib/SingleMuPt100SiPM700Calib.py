@@ -138,7 +138,9 @@ from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023Muon
 #call to customisation function cust_2023Muon imported from SLHCUpgradeSimulations.Configuration.combinedCustoms
 process = cust_2023Muon(process)
 #### fix
+process.digitisation_step.replace(process.simHcalDigis,process.simHcalTriggerPrimitiveDigis+process.simHcalDigis+process.simHcalTTPDigis)
 process.raw2digi_step.replace(process.muonDTDigis,process.hcalDigis*process.muonCSCDigis*process.muonDTDigis) 
+process.digi2raw_step.replace(process.esDigiToRaw,process.esDigiToRaw+process.hcalRawData)
 
 
 ####
