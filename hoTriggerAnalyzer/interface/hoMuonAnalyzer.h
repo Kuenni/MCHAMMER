@@ -15,39 +15,28 @@
 
 
 // system include files
-#include <memory>
-
-// user include files
-
-
+#include <CommonTools/UtilAlgos/interface/TFileService.h>
+#include <DataFormats/Common/interface/Handle.h>
+#include <DataFormats/HepMCCandidate/interface/GenParticleFwd.h>
+#include <DataFormats/HLTReco/interface/TriggerObject.h>
+#include <DataFormats/L1Trigger/interface/L1MuonParticleFwd.h>
+#include <FWCore/Framework/interface/EDAnalyzer.h>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-
-#include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
-#include "DataFormats/HcalRecHit/interface/HORecHit.h"
-
-#include "HoMuonTrigger/hoTriggerAnalyzer/interface/HistogramBuilder.h"
-
-#include "DataFormats/HLTReco/interface/TriggerEvent.h"
-#include "FWCore/Common/interface/TriggerNames.h"
-#include "DataFormats/HLTReco/interface/TriggerObject.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
-#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
-#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-
-#include <vector>
-#include <iostream>
-#include <map>
+#include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
+#include <FWCore/ServiceRegistry/interface/Service.h>
+#include <FWCore/Utilities/interface/InputTag.h>
+#include <L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h>
+#include <TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h>
+#include <TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h>
 #include <list>
+#include <map>
+#include <string>
+#include <vector>
+
+#include "RecoMuon/MuonIdentification/interface/MuonHOAcceptance.h"
+
+
+#include "HistogramBuilder.h"
 
 using namespace::std;
 
@@ -97,6 +86,10 @@ private:
   edm::Handle<reco::GenParticleCollection> truthParticles;
 
   HistogramBuilder histogramBuilder;
+
+//  TrackDetectorAssociator assoc;
+//  TrackAssociatorParameters assocParams;
+
 
   /*
    * Maps of selected hlt triggers to get the trigger decisions,

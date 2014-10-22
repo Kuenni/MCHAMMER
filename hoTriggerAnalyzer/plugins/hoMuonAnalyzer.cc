@@ -20,56 +20,52 @@
 //hoMuonAnalyzer header file
 #include "HoMuonTrigger/hoTriggerAnalyzer/interface/hoMuonAnalyzer.h"
 
-// system include files
-#include <memory>
-
-// user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/Event.h"
+#include <DataFormats/CaloRecHit/interface/CaloRecHit.h>
+#include <DataFormats/Candidate/interface/LeafCandidate.h>
+#include <DataFormats/Common/interface/HandleBase.h>
+#include <DataFormats/Common/interface/Ref.h>
+#include <DataFormats/Common/interface/RefToBase.h>
+#include <DataFormats/Common/interface/SortedCollection.h>
+#include <DataFormats/Common/interface/View.h>
+#include <DataFormats/DetId/interface/DetId.h>
+#include <DataFormats/GeometryVector/interface/GlobalPoint.h>
+#include <DataFormats/GeometryVector/interface/GlobalVector.h>
+#include <DataFormats/GeometryVector/interface/Phi.h>
+#include <DataFormats/GeometryVector/interface/PV3DBase.h>
+#include <DataFormats/HcalDetId/interface/HcalDetId.h>
+#include <DataFormats/HcalRecHit/interface/HcalRecHitCollections.h>
+#include <DataFormats/HcalRecHit/interface/HORecHit.h>
+#include <DataFormats/HepMCCandidate/interface/GenParticle.h>
+#include <DataFormats/L1Trigger/interface/L1MuonParticle.h>
+#include <DataFormats/Math/interface/deltaR.h>
+#include <FWCore/Framework/interface/ESHandle.h>
+#include <FWCore/Framework/interface/Event.h>
+#include <FWCore/Framework/interface/EventSetup.h>
+#include <FWCore/Framework/interface/EventSetupRecord.h>
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+#include <Geometry/CaloGeometry/interface/CaloGeometry.h>
+#include <Geometry/Records/interface/CaloGeometryRecord.h>
+#include <Math/GenVector/PositionVector3D.h>
+#include <SimDataFormats/CaloHit/interface/PCaloHit.h>
+#include <SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h>
+#include <TrackingTools/TrackAssociator/interface/TrackDetMatchInfo.h>
+#include <cmath>
+#include <cstdlib>
+#include <iostream>
+#include <iterator>
+#include <sstream>
+#include <utility>
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-
-#include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
-
-#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
-#include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
-
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/HcalRecHit/interface/HORecHit.h"
-#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-#include "DataFormats/Math/interface/deltaR.h"
-#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
-
-#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
-
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-//#include "DataFormats/HcalDetId/interface/HcalDetId.h"
-
-#include "DataFormats/Common/interface/Association.h"
-
-#include "HoMuonTrigger/hoTriggerAnalyzer/interface/HistogramBuilder.h"
 #include "HoMuonTrigger/hoTriggerAnalyzer/interface/FilterPlugin.h"
 #include "HoMuonTrigger/hoTriggerAnalyzer/interface/HoMatcher.h"
 
-
-#include <vector>
-#include <iostream>
-#include "math.h"
-
 using namespace::std;
 
-hoMuonAnalyzer::hoMuonAnalyzer(const edm::ParameterSet& iConfig){
+hoMuonAnalyzer::hoMuonAnalyzer(const edm::ParameterSet& iConfig)/*:
+				assocParams(iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters"))*/
+{
 
 	//now do what ever initialization is needed
 
@@ -131,6 +127,51 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	Handle<reco::GenParticleMatch> l1MuonGenMatches;
 	iEvent.getByLabel(_l1MuonGenMatchInput,l1MuonGenMatches);
 
+	Handle<vector<PCaloHit>> caloHits;
+	iEvent.getByLabel(edm::InputTag("g4SimHits","HcalHits"),caloHits);
+
+	if (!caloHits.isValid()) {
+		std::cout << "no SimHits" << std::endl;
+		return;
+	}
+
+	//Generate the energy correlation plot
+	for(HORecHitCollection::const_iterator recHitIt = hoRecoHits->begin();
+			recHitIt != hoRecoHits->end(); recHitIt++){
+		for(std::vector<PCaloHit>::const_iterator caloHitIt = caloHits->begin();
+				caloHitIt != caloHits->end(); caloHitIt++){
+			HcalDetId tempId(caloHitIt->id());
+	//		std::cout << tempId.ieta()  << std::endl;
+	//		std::cout << tempId.iphi()  << std::endl;
+			if(tempId.rawId() == recHitIt->id().rawId()){
+				std::cout << HcalDetId(caloHitIt->id()) << std::endl;
+				std::cout << recHitIt->id().rawId() << std::endl;
+				std::cout << std::endl;
+			}
+			if(recHitIt->detid() == HcalDetId(caloHitIt->id())){
+				histogramBuilder.fillEnergyCorrelationHistogram(caloHitIt->energy(),recHitIt->energy(),std::string("energyCorr"));
+			}
+		}
+	}
+
+	/**
+	 * Get the track det match info running
+	 */
+	reco::GenParticleCollection::const_iterator genPart = truthParticles->begin();
+	GlobalPoint genvertex(genPart->vx(), genPart->vy(), genPart->vz());
+	GlobalVector genmomentum(genPart->px(), genPart->py(), genPart->pz());
+
+//	assoc.useDefaultPropagator();
+//
+//	TrackDetMatchInfo genMatch = assoc.associate(iEvent, iSetup, genmomentum,
+//			genvertex, genPart->charge(),
+//			assocParams);
+
+//	double genHoEta = genMatch.trkGlobPosAtHO.Eta();
+//	double genHoPhi = genMatch.trkGlobPosAtHO.Phi();
+//
+//	std::cout << "GenEta " << genHoEta << " GenPhi " << genHoPhi << std::endl;
+
 	/*
 	 * Set Up Level 1 Global Trigger Utility
 	 */
@@ -152,7 +193,6 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	//Try getting the event info for weights
 	Handle<GenEventInfoProduct> genEventInfo;
 	iEvent.getByLabel(edm::InputTag("generator"), genEventInfo);
-
 
 	/*
 	 * Fill a trig rate histogramm for the muons of the gen particles
