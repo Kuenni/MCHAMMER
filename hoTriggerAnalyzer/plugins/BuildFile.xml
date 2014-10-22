@@ -15,4 +15,6 @@
 <use name="Geometry/CaloGeometry"/>
 <use name="Geometry/CommonDetUnit"/>
 <use name="DataFormats/GeometrySurface"/>
+<use name="TrackingTools/TrackAssociator"/>
+
 <flags EDM_PLUGIN="1"/>
