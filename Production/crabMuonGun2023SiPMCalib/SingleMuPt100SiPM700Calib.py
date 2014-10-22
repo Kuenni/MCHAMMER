@@ -29,7 +29,7 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(1000)
 )
 
 # Input source
@@ -169,4 +169,5 @@ for path in process.paths:
 #process = cust_2023Muon(process)
 
 # End of customisation functions
-process.FEVTDEBUGHLToutput.outputCommands.append('keep *_hcalDigis_*_*')
+process.FEVTDEBUGHLToutput.outputCommands.append('keep *_*digi*_*_*')
+process.FEVTDEBUGHLToutput.outputCommands.append('keep *_*Digi*_*_*')
