@@ -51,6 +51,7 @@ class HistogramBuilder {
   void fillPtCorrelationHistogram(float,float,std::string);
   void fillPtHistogram(float,std::string);
   void fillVzHistogram(float,std::string);
+  void fillEnergyCorrelationHistogram(double,double,std::string);
 
  private:
 
@@ -72,7 +73,9 @@ class HistogramBuilder {
   std::map<std::string,TH1F*> _h1Trig;
   std::map<std::string,TH1D*> _h1TrigRate;
   std::map<std::string,TH1F*> _h1Counter;
+
   std::map<std::string,TH2D*> _h2PtCorrelation;
+  std::map<std::string,TH2D*> _h2EnergyCorrelation;
 
   std::map<std::string,TEfficiency*> _effMap;
   

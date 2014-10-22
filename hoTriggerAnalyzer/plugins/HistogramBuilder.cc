@@ -248,3 +248,35 @@ void HistogramBuilder::fillPtHistogram(float pt, std::string key){
 	_h1L1MuonPt[key]->Fill(pt);
 }
 
+/**
+ * Fill histogram with correlation between sim hit energy and rec hit energy
+ */
+void HistogramBuilder::fillEnergyCorrelationHistogram(double simHitEnergy, double recHitEnergy, std::string key){
+	TFileDirectory energyDir = _fileService->mkdir("energy");
+
+	//Fill Sim hit energy histo
+	TString simHitKey(key);
+	key.append("simHits");
+	if(!_h1Energy.count(simHitKey.Data())){
+		_h1Energy[simHitKey.Data()] = energyDir.make<TH1F>(Form("%s_Energy_SimHits",key.c_str()),
+				Form("%s Energy;Sim Hits / GeV;#",key.c_str()),
+				2100, -5.0, 100.0);
+	}
+	_h1Energy[simHitKey.Data()]->Fill(simHitEnergy);
+
+	//Fill rec hit energy histo
+	TString recHitKey(key);
+	key.append("recHits");
+	if(!_h1Energy.count(recHitKey.Data())){
+		_h1Energy[recHitKey.Data()] = energyDir.make<TH1F>(Form("%s_Energy_RecHits",key.c_str()),
+				Form("%s Energy;Rec Hits / GeV;#",key.c_str()),
+				2100, -5.0, 100.0);
+	}
+	_h1Energy[recHitKey.Data()]->Fill(recHitEnergy);
+
+	//Fill correlation
+	if(!_h2EnergyCorrelation.count(key)){
+		_h2EnergyCorrelation[key] = energyDir.make<TH2D>(Form("%s_EnergyCorrelation",key.c_str()),Form("%s Energy correlation;Sim Hits / GeV;Rec Hits / GeV",key.c_str()),51, -2.2185, 2.2185, 73, -3.1755, 3.1755);
+	}
+	_h2EnergyCorrelation[key]->Fill(simHitEnergy, recHitEnergy);
+}
