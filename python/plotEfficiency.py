@@ -11,7 +11,7 @@ def plotEfficiency(folder):
 		print prefix + 'was called'
 	
 	if(folder == None):
-		print prefix + 'Error! Filename as first argument needed.'
+		print prefix + 'Error! Folder as first argument needed.'
 		return
 		
 	if( not os.path.exists('plots')):
@@ -70,3 +70,4 @@ def plotEfficiency(folder):
 	f = TFile.Open("plots/" + folder + "/Efficiency.root","RECREATE")
 	canv.Write()
 	f.Close()
+	return canv
