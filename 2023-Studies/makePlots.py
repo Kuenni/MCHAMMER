@@ -11,8 +11,16 @@ from plotPhi import plotPhi
 from plotEfficiency import plotEfficiency
 from plotMultiplicity import plotMultiplicity
 
+print len(sys.argv)
+
+filename = 'L1MuonHistogram.root'
+
+if(len(sys.argv) > 1 ):
+	filename = sys.argv[1]
+
 toProcess = [
-             'crabSiPMCalib'
+             'crabSiPMCalib',
+             'crab2023MinBias'
              ]
 
 for s in toProcess:
@@ -31,7 +39,7 @@ for s in toProcess:
 	print 'Doing Multiplicity...'
 	plotMultiplicity(s)
 	print 'Doing Energy Vs Eta...'
-	plotEnergyVsEta(s,'L1MuonHistogram_Full.root')
+	plotEnergyVsEta(s,filename)
 	print 'Doing Energy Vs Phi...'
-	plotEnergyVsPhi(s,'L1MuonHistogram_Full.root')
+	plotEnergyVsPhi(s,filename)
 print 'All done.'

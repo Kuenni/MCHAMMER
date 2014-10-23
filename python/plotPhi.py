@@ -28,7 +28,7 @@ def plotPhi(folder):
 	
 	filename = folder + '/L1MuonHistogram.root'
 	if( not os.path.exists(filename)):
-		print 'Error! File' + filename + ' does not exist!'
+		print 'Error! File ' + filename + ' does not exist!'
 		return
 	print prefix + 'Opening file:',filename
 	
