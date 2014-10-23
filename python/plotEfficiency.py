@@ -12,7 +12,7 @@ def plotEfficiency(folder):
 	
 	if(folder == None):
 		print prefix + 'Error! Filename as first argument needed.'
-		sys.exit(1)
+		return
 		
 	if( not os.path.exists('plots')):
 		os.mkdir('plots')
@@ -20,6 +20,9 @@ def plotEfficiency(folder):
 		os.mkdir('plots/' + folder)
 	
 	filename = folder + '/L1MuonHistogram.root'
+	if( not os.path.exists(filename)):
+		print 'Error! File' + filename + ' does not exist!'
+		return
 	print prefix + 'Opening file:',filename
 	
 	file = TFile.Open(filename)
