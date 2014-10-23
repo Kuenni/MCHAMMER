@@ -84,6 +84,9 @@ def plotEnergyVsEta(folder,filename = 'L1MuonHistogram.root'):
 		os.mkdir('plots/' + folder)
 
 	fullname = folder + '/' + filename
+	if( not os.path.exists(fullname)):
+		print 'Error! File ' + fullname + ' does not exist!'
+		return
 	print 'Opening file:',fullname
 	file = TFile.Open(fullname)
 	
@@ -130,6 +133,9 @@ def plotEnergyVsPhi(folder,filename = 'L1MuonHistogram.root'):
 		os.mkdir('plots/' + folder)
 
 	fullname = folder + '/' + filename
+	if( not os.path.exists(fullname)):
+		print 'Error! File ' + fullname + ' does not exist!'
+		return
 	print 'Opening file:',fullname
 	file = TFile.Open(fullname)
 	
