@@ -16,7 +16,7 @@ def plotMultiplicity(folder):
 
 	filename = folder + '/L1MuonHistogram.root'
 	if( not os.path.exists(filename)):
-		print 'Error! File' + filename + ' does not exist!'C
+		print 'Error! File' + filename + ' does not exist!'
 		return
 	print 'Opening file:',filename
 	file = TFile.Open(filename)
