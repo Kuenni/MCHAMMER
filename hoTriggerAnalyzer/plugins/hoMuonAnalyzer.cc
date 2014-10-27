@@ -58,6 +58,9 @@
 #include <sstream>
 #include <utility>
 
+#include "RecoMuon/MuonIdentification/interface/MuonHOAcceptance.h"
+#include "TMultiGraph.h"
+
 #include "HoMuonTrigger/hoTriggerAnalyzer/interface/FilterPlugin.h"
 #include "HoMuonTrigger/hoTriggerAnalyzer/interface/HoMatcher.h"
 
@@ -76,6 +79,8 @@ hoMuonAnalyzer::hoMuonAnalyzer(const edm::ParameterSet& iConfig)/*:
 	_horecoInput = iConfig.getParameter<edm::InputTag>("horecoSrc");
 	_l1MuonGenMatchInput = iConfig.getParameter<edm::InputTag>("l1MuonGenMatchSrc");
 	_hltSumAODInput = iConfig.getParameter<edm::InputTag>("hltSumAODSrc");
+	deltaR_Max = iConfig.getParameter<double>("maxDeltaR");
+	threshold = iConfig.getParameter<double>("hoEnergyThreshold");
 
 	singleMu3TrigName = "L1_SingleMu3";
 	doubleMu0TrigName = "L1_DoubleMu0";
@@ -106,6 +111,19 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		const edm::EventSetup& iSetup)
 {
 	using namespace edm;
+
+	if (!MuonHOAcceptance::Inited()) MuonHOAcceptance::initIds(iSetup);
+
+//	TFile* graphFile = TFile::Open("graphs.root","RECREATE");
+//	TMultiGraph* deadRegions = MuonHOAcceptance::graphDeadRegions();
+//	TMultiGraph* sipmRegions = MuonHOAcceptance::graphSiPMRegions();
+//	deadRegions->Write();
+//	sipmRegions->Write();
+//	graphFile->Write();
+//	graphFile->Close();
+//
+//	deadRegions = 0;
+//	sipmRegions = 0;
 
 	/*
 	 * Get Event Data and Event Setup
@@ -372,6 +390,19 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		//Reset pointer to use it again in the next loop
 		matchedRecHit = 0;
 		matchedRecHit = HoMatcher::matchByEMaxDeltaR(l1Muon_eta,l1Muon_phi,deltaR_Max,hoRecoHitsAboveThreshold,*caloGeo);
+
+		//Fill some counting histograms. Can be used for cut flow in efficiency
+		histogramBuilder.fillCountHistogram(std::string("AllL1Muons"));
+
+		if (MuonHOAcceptance::inGeomAccept(l1Muon_eta,l1Muon_phi,deltaR_Max,deltaR_Max))
+			histogramBuilder.fillCountHistogram(std::string("AllL1MuonsInAcc"));
+
+		if (MuonHOAcceptance::inNotDeadGeom(l1Muon_eta,l1Muon_phi,deltaR_Max,deltaR_Max))
+			histogramBuilder.fillCountHistogram(std::string("AllL1MuonsInAccNotDead"));
+
+		if (MuonHOAcceptance::inSiPMGeom(l1Muon_eta,l1Muon_phi,deltaR_Max,deltaR_Max))
+			histogramBuilder.fillCountHistogram(std::string("AllL1MuonsInAccNotDeadInSipm"));
+
 		if(matchedRecHit){
 			//There could be more than one match but we are only interested in one
 			//Use this switch to kill the loop
@@ -380,10 +411,19 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			hoPhi = caloGeo->getPosition(matchedRecHit->detid()).phi();
 			//Fill the HO information
 			histogramBuilder.fillCountHistogram(std::string("L1MuonWithHoMatchAboveThr"));
+			//Fill the counters
+			if (MuonHOAcceptance::inGeomAccept(l1Muon_eta,l1Muon_phi/*,deltaR_Max,deltaR_Max*/)){
+				histogramBuilder.fillCountHistogram(std::string("AllL1MuonsAndHoInAcc"));
+				if (MuonHOAcceptance::inNotDeadGeom(l1Muon_eta,l1Muon_phi/*,deltaR_Max,deltaR_Max*/))
+					histogramBuilder.fillCountHistogram(std::string("AllL1MuonsAndHoInAccNotDead"));
+				if (MuonHOAcceptance::inSiPMGeom(l1Muon_eta,l1Muon_phi/*,deltaR_Max,deltaR_Max*/)){
+					histogramBuilder.fillCountHistogram(std::string("AllL1MuonsAndHoInAccNotDeadInSipm"));
+				}
+			}
 			histogramBuilder.fillEnergyHistograms(matchedRecHit->energy(),std::string("L1MuonWithHoMatchAboveThr"));
 			histogramBuilder.fillEtaPhiHistograms(hoEta,hoPhi,std::string("L1MuonWithHoMatchAboveThr_HO"));
 			histogramBuilder.fillDeltaEtaDeltaPhiHistograms(l1Muon_eta,hoEta,l1Muon_phi, hoPhi,std::string("L1MuonWithHoMatchAboveThr"));
-
+			histogramBuilder.fillL1MuonPtHistograms(bl1Muon->pt(),std::string("L1MuonWithHoMatchAboveThr"));
 			//Make the pseudo trig rate plot
 			for (int i = 0; i < 200; i+=2) {
 				if(bl1Muon->pt() >= i)

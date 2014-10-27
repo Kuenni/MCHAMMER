@@ -16,5 +16,6 @@
 <use name="Geometry/CommonDetUnit"/>
 <use name="DataFormats/GeometrySurface"/>
 <use name="TrackingTools/TrackAssociator"/>
+<use name="RecoMuon/MuonIdentification"/>
 
 <flags EDM_PLUGIN="1"/>

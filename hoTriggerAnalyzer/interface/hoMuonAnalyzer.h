@@ -33,16 +33,9 @@
 #include <string>
 #include <vector>
 
-#include "RecoMuon/MuonIdentification/interface/MuonHOAcceptance.h"
-
-
 #include "HistogramBuilder.h"
 
 using namespace::std;
-
-static const float threshold = 0.2;
-static const float deltaR_Max = 0.3;
-
 //
 // class declaration
 //
@@ -90,7 +83,6 @@ private:
 //  TrackDetectorAssociator assoc;
 //  TrackAssociatorParameters assocParams;
 
-
   /*
    * Maps of selected hlt triggers to get the trigger decisions,
    * and hlt filters to get the trigger objects.
@@ -112,6 +104,10 @@ private:
   string doubleMu5TrigName;
   bool trigDecision;
   bool singleMu3Trig,doubleMu0Trig;
+
+  float threshold;
+  float deltaR_Max;
+
 
   //toFigureOutL1VariableBinning
   std::list<float> listL1MuonPt;

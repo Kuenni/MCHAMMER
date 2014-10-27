@@ -10,7 +10,7 @@ process.TFileService = cms.Service("TFileService",
                                    )
 
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(5000) )
 
 readFiles = cms.untracked.vstring()
 readFiles.extend( [
@@ -269,7 +269,9 @@ process.hoMuonAnalyzer = cms.EDAnalyzer(
     horecoSrc = cms.InputTag("horeco"),
     #L1GtTmLInputTag = cms.InputTag("l1GtTriggerMenuLite")
     hltSumAODSrc = cms.InputTag("hltTriggerSummaryAOD"),
-    l1MuonGenMatchSrc = cms.InputTag("l1MuonGenMatch")
+    l1MuonGenMatchSrc = cms.InputTag("l1MuonGenMatch"),
+    hoEnergyThreshold = cms.double(0.2),
+    maxDeltaR = cms.double(0.3)
     )
 
 #Alternative matcher: TrivialDeltaRMatcher
