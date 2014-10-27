@@ -10,11 +10,11 @@ process.TFileService = cms.Service("TFileService",
                                    )
 
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 readFiles = cms.untracked.vstring()
 readFiles.extend([
-	'/store/mc/Muon2023Upg14/MinBias_TuneZ2star_14TeV-pythia6/GEN-SIM/DES23_62_V1-v1/00000/001013BF-FCCC-E311-B864-002618943978.root'
+	'file:///user/kuensken/ChrisAnelliCode/CMSSW_6_2_0_SLHC11/src/HoMuonTrigger/2023-Studies/crab2023MinBias/001013BF-FCCC-E311-B864-002618943978.root'
 ])
 
 
@@ -131,5 +131,6 @@ from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023Muon
 process = cust_2023Muon(process)
 #### fix
 process.raw2digi_step.replace(process.muonDTDigis,process.hcalDigis*process.muonCSCDigis*process.muonDTDigis) 
-
+#process.raw2digi_step.replace(process.muonDTDigis,process.hcalDigis*process.muonCSCDigis*process.muonDTDigis) 
+#process.digi2raw_step.replace(process.esDigiToRaw,process.esDigiToRaw+process.hcalRawData)
 
