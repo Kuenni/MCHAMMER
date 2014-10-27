@@ -10,6 +10,7 @@ from plotL1Rate import plotL1Rates
 from plotPhi import plotPhi
 from plotEfficiency import plotEfficiency
 from plotMultiplicity import plotMultiplicity
+from plotPtCorrelation import plotPtCorrelation
 
 print len(sys.argv)
 
@@ -19,8 +20,8 @@ if(len(sys.argv) > 1 ):
 	filename = sys.argv[1]
 
 toProcess = [
-             'crabSiPMCalib',
-             'crab2023MinBias'
+             'crabSiPMCalib'
+   #         ,'crab2023MinBias'
              ]
 
 for s in toProcess:
