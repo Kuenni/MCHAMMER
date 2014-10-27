@@ -394,14 +394,18 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		//Fill some counting histograms. Can be used for cut flow in efficiency
 		histogramBuilder.fillCountHistogram(std::string("AllL1Muons"));
 
-		if (MuonHOAcceptance::inGeomAccept(l1Muon_eta,l1Muon_phi,deltaR_Max,deltaR_Max))
+		if (MuonHOAcceptance::inGeomAccept(l1Muon_eta,l1Muon_phi,deltaR_Max,deltaR_Max)){
 			histogramBuilder.fillCountHistogram(std::string("AllL1MuonsInAcc"));
 
-		if (MuonHOAcceptance::inNotDeadGeom(l1Muon_eta,l1Muon_phi,deltaR_Max,deltaR_Max))
-			histogramBuilder.fillCountHistogram(std::string("AllL1MuonsInAccNotDead"));
+			if (MuonHOAcceptance::inNotDeadGeom(l1Muon_eta,l1Muon_phi,deltaR_Max,deltaR_Max)){
+				histogramBuilder.fillCountHistogram(std::string("AllL1MuonsInAccNotDead"));
 
-		if (MuonHOAcceptance::inSiPMGeom(l1Muon_eta,l1Muon_phi,deltaR_Max,deltaR_Max))
-			histogramBuilder.fillCountHistogram(std::string("AllL1MuonsInAccNotDeadInSipm"));
+				//This one is filled for the sake of completeness. The SiPM regions are hardcoded in the class!!
+				if (MuonHOAcceptance::inSiPMGeom(l1Muon_eta,l1Muon_phi,deltaR_Max,deltaR_Max)){
+					histogramBuilder.fillCountHistogram(std::string("AllL1MuonsInAccNotDeadInSipm"));
+				}
+			}
+		}
 
 		if(matchedRecHit){
 			//There could be more than one match but we are only interested in one
@@ -414,10 +418,18 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			//Fill the counters
 			if (MuonHOAcceptance::inGeomAccept(l1Muon_eta,l1Muon_phi/*,deltaR_Max,deltaR_Max*/)){
 				histogramBuilder.fillCountHistogram(std::string("AllL1MuonsAndHoInAcc"));
-				if (MuonHOAcceptance::inNotDeadGeom(l1Muon_eta,l1Muon_phi/*,deltaR_Max,deltaR_Max*/))
+				if (MuonHOAcceptance::inNotDeadGeom(l1Muon_eta,l1Muon_phi/*,deltaR_Max,deltaR_Max*/)){
 					histogramBuilder.fillCountHistogram(std::string("AllL1MuonsAndHoInAccNotDead"));
-				if (MuonHOAcceptance::inSiPMGeom(l1Muon_eta,l1Muon_phi/*,deltaR_Max,deltaR_Max*/)){
-					histogramBuilder.fillCountHistogram(std::string("AllL1MuonsAndHoInAccNotDeadInSipm"));
+
+					histogramBuilder.fillEnergyHistograms(matchedRecHit->energy(),std::string("L1MuonWithHoMatchAboveThrFilt"));
+					histogramBuilder.fillEtaPhiHistograms(hoEta,hoPhi,std::string("L1MuonWithHoMatchAboveThrFilt_HO"));
+					histogramBuilder.fillDeltaEtaDeltaPhiHistograms(l1Muon_eta,hoEta,l1Muon_phi, hoPhi,std::string("L1MuonWithHoMatchAboveThrFilt"));
+					histogramBuilder.fillL1MuonPtHistograms(bl1Muon->pt(),std::string("L1MuonWithHoMatchAboveThrFilt"));
+
+					//This one is filled for the sake of completeness. The SiPM regions are hardcoded in the class!!
+					if (MuonHOAcceptance::inSiPMGeom(l1Muon_eta,l1Muon_phi/*,deltaR_Max,deltaR_Max*/)){
+						histogramBuilder.fillCountHistogram(std::string("AllL1MuonsAndHoInAccNotDeadInSipm"));
+					}
 				}
 			}
 			histogramBuilder.fillEnergyHistograms(matchedRecHit->energy(),std::string("L1MuonWithHoMatchAboveThr"));
