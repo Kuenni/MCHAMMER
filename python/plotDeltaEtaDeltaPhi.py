@@ -26,7 +26,7 @@ def drawHoBoxes(canvas):
             boxes.append(box)
     return boxes
 
-def plotDeltaEtaDeltaPhi(folder):
+def plotDeltaEtaDeltaPhi(folder,sourceHistogram = 'L1MuonWithHoMatch_DeltaEtaDeltaPhi'):
 
 	if(DEBUG):
 		print prefix + 'was called'
@@ -47,7 +47,7 @@ def plotDeltaEtaDeltaPhi(folder):
 
 	file = TFile.Open(filename)
 
-	h2dDeltaEtaDeltaPhi = file.Get("hoMuonAnalyzer/etaPhi/L1MuonWithHoMatch_DeltaEtaDeltaPhi")
+	h2dDeltaEtaDeltaPhi = file.Get("hoMuonAnalyzer/etaPhi/" + sourceHistogram)
 
 	canv = TCanvas("canvasDeltaEtaDeltaPhi",'canvasDeltaEtaDeltaPhi',1200,1200)
 	canv.SetLogz()
