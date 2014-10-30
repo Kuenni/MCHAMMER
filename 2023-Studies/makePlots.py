@@ -33,8 +33,8 @@ for s in toProcess:
 	plotEtaPhi(s)
 	print 'Doing L1Rates...'
 	plotL1Rates(s)
-	print 'Doing Phi...'
-	plotPhi(s)
+# 	print 'Doing Phi...'
+# 	plotPhi(s)
 	print 'Doing Efficiency...'
 	plotEfficiency(s)
 	print 'Doing Multiplicity...'
