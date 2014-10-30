@@ -31,6 +31,7 @@ def plotEnergy(folder):
 	ho = file.Get("hoMuonAnalyzer/energy/horeco_Energy")
 	L1MuonAndHoMatch = file.Get('hoMuonAnalyzer/energy/L1MuonWithHoMatch_Energy')
 	L1MuonAndHoMatchAboveThr = file.Get('hoMuonAnalyzer/energy/L1MuonWithHoMatchAboveThr_Energy')
+	L1MuonAndHoMatchAboveThrFilt = file.Get('hoMuonAnalyzer/energy/L1MuonWithHoMatchAboveThrFilt_Energy')
 
 	canv = TCanvas("energieCanvas",'Energy canvas',1200,1200)
 	canv.SetLogy()
@@ -42,22 +43,33 @@ def plotEnergy(folder):
 	ho.GetXaxis().SetRangeUser(-2,6)
 
 	ho.SetLineColor(ROOT.kBlack)
-	L1MuonAndHoMatch.SetLineColor(ROOT.kBlue)
-	L1MuonAndHoMatchAboveThr.SetLineColor(ROOT.kRed)
-
 	ho.SetLineWidth(3)
-	L1MuonAndHoMatch.SetLineWidth(3)
-	L1MuonAndHoMatchAboveThr.SetLineWidth(3)
-
 	ho.Draw()
-	L1MuonAndHoMatch.Draw('same')
-	L1MuonAndHoMatchAboveThr.Draw('same')
-
+	
 	legend = TLegend(0.5,0.65,0.9,0.9)
 	legend.AddEntry(ho,'All HO hits','l')
-	legend.AddEntry(L1MuonAndHoMatch,'L1Muon + HO match','l')
-	legend.AddEntry(L1MuonAndHoMatchAboveThr,'L1Muon + HO match > 0.2 GeV','l')
 	legend.Draw()
+
+	if(L1MuonAndHoMatch):
+		L1MuonAndHoMatch.SetLineColor(ROOT.kBlue)
+		L1MuonAndHoMatch.SetLineWidth(3)
+		L1MuonAndHoMatch.Draw('same')
+		legend.AddEntry(L1MuonAndHoMatch,'L1Muon + HO match','l')
+		
+	if(L1MuonAndHoMatchAboveThr):
+		L1MuonAndHoMatchAboveThr.SetLineColor(ROOT.kRed)
+		L1MuonAndHoMatchAboveThr.SetLineWidth(3)
+		L1MuonAndHoMatchAboveThr.Draw('same')
+		legend.AddEntry(L1MuonAndHoMatchAboveThr,'L1Muon + HO match > 0.2 GeV','l')
+
+
+	if(L1MuonAndHoMatchAboveThrFilt):
+		L1MuonAndHoMatchAboveThrFilt.SetLineColor(ROOT.kGreen)
+		L1MuonAndHoMatchAboveThrFilt.SetLineWidth(3)
+		L1MuonAndHoMatchAboveThrFilt.Draw('same')
+		legend.AddEntry(L1MuonAndHoMatchAboveThrFilt,'L1Muon + HO match > 0.2 GeV (In Ho Geom.)','l')
+
+	
 
 	canv.SaveAs("plots/" + folder + "/energy.png")
 	canv.SaveAs("plots/" + folder + "/energy.pdf")
@@ -67,7 +79,7 @@ def plotEnergy(folder):
 	f.Close()
 	return canv
 
-def plotEnergyVsEta(folder,filename = 'L1MuonHistogram.root'):
+def plotEnergyVsEta(folder,sourceHistogram = 'L1MuonWithHoMatch_EnergyVsEta',filename = 'L1MuonHistogram.root'):
 	if(DEBUG):
 		print prefix + ' energy vs eta was called.'
 	if(folder == None):
@@ -94,7 +106,7 @@ def plotEnergyVsEta(folder,filename = 'L1MuonHistogram.root'):
 
 	canv = TCanvas("energieCanvas",'Energy canvas',1200,1200)
 
-	energyVsEta = file.Get("hoMuonAnalyzer/energy/L1MuonWithHoMatch_EnergyVsEta")
+	energyVsEta = file.Get("hoMuonAnalyzer/energy/" + sourceHistogram)
 	energyVsEta.Rebin2D(10,1)
 	energyVsEta.GetXaxis().SetRangeUser(-1.1,1.1)
 	energyVsEta.GetYaxis().SetRangeUser(0,2.5)
@@ -116,7 +128,7 @@ def plotEnergyVsEta(folder,filename = 'L1MuonHistogram.root'):
 	f.Close()
 	return canv
 
-def plotEnergyVsPhi(folder,filename = 'L1MuonHistogram.root'):
+def plotEnergyVsPhi(folder,sourceHistogram = 'L1MuonWithHoMatch_EnergyVsPhi',filename = 'L1MuonHistogram.root'):
 	if(DEBUG):
 		print prefix + ' energy vs phi was called.'
 	if(folder == None):
@@ -143,7 +155,7 @@ def plotEnergyVsPhi(folder,filename = 'L1MuonHistogram.root'):
 
 	canv = TCanvas("energieCanvas",'Energy canvas',1200,1200)
 
-	energyVsEta = file.Get("hoMuonAnalyzer/energy/L1MuonWithHoMatch_EnergyVsPhi")
+	energyVsEta = file.Get("hoMuonAnalyzer/energy/" + sourceHistogram)
 	energyVsEta.Rebin2D(10,1)
 	energyVsEta.GetXaxis().SetRangeUser(-3.17,3.17)
 	energyVsEta.GetYaxis().SetRangeUser(0,2.5)
