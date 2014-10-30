@@ -474,7 +474,9 @@ process.hoMuonAnalyzer = cms.EDAnalyzer(
     horecoSrc = cms.InputTag("horeco"),
     #L1GtTmLInputTag = cms.InputTag("l1GtTriggerMenuLite")
     hltSumAODSrc = cms.InputTag("hltTriggerSummaryAOD"),
-    l1MuonGenMatchSrc = cms.InputTag("l1MuonGenMatch")
+    l1MuonGenMatchSrc = cms.InputTag("l1MuonGenMatch"),
+    maxDeltaR = cms.double(0.3),
+    hoEnergyThreshold = cms.double(0.2)
     )
 
 #Alternative matcher: TrivialDeltaRMatcher
