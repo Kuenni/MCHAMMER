@@ -51,7 +51,7 @@ def plotDeltaEtaDeltaPhi(folder,sourceHistogram = 'L1MuonWithHoMatch_DeltaEtaDel
 
 	canv = TCanvas("canvasDeltaEtaDeltaPhi",'canvasDeltaEtaDeltaPhi',1200,1200)
 	canv.SetLogz()
-#	h2dDeltaEtaDeltaPhi.Rebin2D(2,2)
+	h2dDeltaEtaDeltaPhi.Rebin2D(10,10)
 	h2dDeltaEtaDeltaPhi.GetXaxis().SetRangeUser(-.45,.45)
 	h2dDeltaEtaDeltaPhi.GetXaxis().SetTitle("#Delta#eta")
 	h2dDeltaEtaDeltaPhi.GetYaxis().SetRangeUser(-.45,.45)

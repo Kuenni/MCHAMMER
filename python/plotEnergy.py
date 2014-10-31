@@ -155,6 +155,9 @@ def plotEnergyVsPhi(folder,sourceHistogram = 'L1MuonWithHoMatch_EnergyVsPhi',fil
 
 	canv = TCanvas("energieCanvas",'Energy canvas',1200,1200)
 
+	if(DEBUG):
+		print prefix + 'Getting histogram: ' + "hoMuonAnalyzer/energy/" + sourceHistogram
+	
 	energyVsEta = file.Get("hoMuonAnalyzer/energy/" + sourceHistogram)
 	energyVsEta.Rebin2D(10,1)
 	energyVsEta.GetXaxis().SetRangeUser(-3.17,3.17)
