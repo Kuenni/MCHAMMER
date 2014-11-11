@@ -57,9 +57,11 @@
 #include <iterator>
 #include <sstream>
 #include <utility>
+#include <fstream>
 
 #include "RecoMuon/MuonIdentification/interface/MuonHOAcceptance.h"
 #include "TMultiGraph.h"
+#include <iosfwd>
 
 #include "HoMuonTrigger/hoTriggerAnalyzer/interface/FilterPlugin.h"
 #include "HoMuonTrigger/hoTriggerAnalyzer/interface/HoMatcher.h"
@@ -114,16 +116,16 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 
 	if (!MuonHOAcceptance::Inited()) MuonHOAcceptance::initIds(iSetup);
 
-//	TFile* graphFile = TFile::Open("graphs.root","RECREATE");
-//	TMultiGraph* deadRegions = MuonHOAcceptance::graphDeadRegions();
-//	TMultiGraph* sipmRegions = MuonHOAcceptance::graphSiPMRegions();
-//	deadRegions->Write();
-//	sipmRegions->Write();
-//	graphFile->Write();
-//	graphFile->Close();
-//
-//	deadRegions = 0;
-//	sipmRegions = 0;
+	//	TFile* graphFile = TFile::Open("graphs.root","RECREATE");
+	//	TMultiGraph* deadRegions = MuonHOAcceptance::graphDeadRegions();
+	//	TMultiGraph* sipmRegions = MuonHOAcceptance::graphSiPMRegions();
+	//	deadRegions->Write();
+	//	sipmRegions->Write();
+	//	graphFile->Write();
+	//	graphFile->Close();
+	//
+	//	deadRegions = 0;
+	//	sipmRegions = 0;
 
 	/*
 	 * Get Event Data and Event Setup
@@ -159,8 +161,8 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		for(std::vector<PCaloHit>::const_iterator caloHitIt = caloHits->begin();
 				caloHitIt != caloHits->end(); caloHitIt++){
 			HcalDetId tempId(caloHitIt->id());
-	//		std::cout << tempId.ieta()  << std::endl;
-	//		std::cout << tempId.iphi()  << std::endl;
+			//		std::cout << tempId.ieta()  << std::endl;
+			//		std::cout << tempId.iphi()  << std::endl;
 			if(tempId.rawId() == recHitIt->id().rawId()){
 				std::cout << HcalDetId(caloHitIt->id()) << std::endl;
 				std::cout << recHitIt->id().rawId() << std::endl;
@@ -179,16 +181,16 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	GlobalPoint genvertex(genPart->vx(), genPart->vy(), genPart->vz());
 	GlobalVector genmomentum(genPart->px(), genPart->py(), genPart->pz());
 
-//	assoc.useDefaultPropagator();
-//
-//	TrackDetMatchInfo genMatch = assoc.associate(iEvent, iSetup, genmomentum,
-//			genvertex, genPart->charge(),
-//			assocParams);
+	//	assoc.useDefaultPropagator();
+	//
+	//	TrackDetMatchInfo genMatch = assoc.associate(iEvent, iSetup, genmomentum,
+	//			genvertex, genPart->charge(),
+	//			assocParams);
 
-//	double genHoEta = genMatch.trkGlobPosAtHO.Eta();
-//	double genHoPhi = genMatch.trkGlobPosAtHO.Phi();
-//
-//	std::cout << "GenEta " << genHoEta << " GenPhi " << genHoPhi << std::endl;
+	//	double genHoEta = genMatch.trkGlobPosAtHO.Eta();
+	//	double genHoPhi = genMatch.trkGlobPosAtHO.Phi();
+	//
+	//	std::cout << "GenEta " << genHoEta << " GenPhi " << genHoPhi << std::endl;
 
 	/*
 	 * Set Up Level 1 Global Trigger Utility
@@ -331,6 +333,13 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		}
 	}
 
+	ofstream myfile;
+	myfile.open ("abThr.txt",std::ios::app);
+	for (unsigned int i = 0; i < hoRecoHitsAboveThreshold.size(); ++i) {
+		myfile << hoRecoHitsAboveThreshold[i].energy() << "\n";
+	}
+	myfile.close();
+
 	/*
 	 * L1 Trigger Decisions
 	 */
@@ -389,7 +398,6 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		//Now fill information for hits above threshold
 		//###########################################################
 		const HORecHit* matchedRecHit2 = HoMatcher::matchByEMaxDeltaR(l1Muon_eta,l1Muon_phi,deltaR_Max,hoRecoHitsAboveThreshold,*caloGeo);
-
 		//Fill some counting histograms. Can be used for cut flow in efficiency
 		histogramBuilder.fillCountHistogram(std::string("AllL1Muons"));
 
@@ -418,12 +426,28 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				histogramBuilder.fillCountHistogram(std::string("AllL1MuonsAndHoInAcc"));
 				if (MuonHOAcceptance::inNotDeadGeom(l1Muon_eta,l1Muon_phi/*,deltaR_Max,deltaR_Max*/)){
 					histogramBuilder.fillCountHistogram(std::string("AllL1MuonsAndHoInAccNotDead"));
-					histogramBuilder.fillTrigHistograms(caloGeo->present(matchedRecHit->id()),std::string("caloGeoPresent_L1MuonHoMatchAboveThrFilt"));
+					histogramBuilder.fillTrigHistograms(caloGeo->present(matchedRecHit2->id()),std::string("caloGeoPresent_L1MuonHoMatchAboveThrFilt"));
 					histogramBuilder.fillEnergyHistograms(matchedRecHit2->energy(),std::string("L1MuonWithHoMatchAboveThrFilt"));
+
+				//	ofstream myfile;
+				//	myfile.open ("matchedRecHit.txt",std::ios::app);
+				//	myfile << matchedRecHit2->energy() << "\n";
+				//	myfile.close();
+
 					histogramBuilder.fillEtaPhiHistograms(hoEta,hoPhi,std::string("L1MuonWithHoMatchAboveThrFilt_HO"));
 					histogramBuilder.fillDeltaEtaDeltaPhiHistograms(l1Muon_eta,hoEta,l1Muon_phi, hoPhi,std::string("L1MuonWithHoMatchAboveThrFilt"));
 					histogramBuilder.fillL1MuonPtHistograms(bl1Muon->pt(),std::string("L1MuonWithHoMatchAboveThrFilt"));
 					histogramBuilder.fillEnergyVsPosition(hoEta,hoPhi,matchedRecHit2->energy(),std::string("L1MuonWithHoMatchAboveThrFilt"));
+
+					const reco::GenParticle* bestGenMatch = getBestGenMatch(bl1Muon->eta(),bl1Muon->phi());
+					if(bestGenMatch){
+						//first argument is the condition for a muon trigger object to pass
+						//Second is the pt of the "real" particle
+						histogramBuilder.fillEfficiency(bl1Muon->pt()>=10,bestGenMatch->pt(),std::string("L1MuonPt10HoRecoAboveThrFilt"));
+						histogramBuilder.fillEfficiency(bl1Muon->pt()>=15,bestGenMatch->pt(),std::string("L1MuonPt15HoRecoAboveThrFilt"));
+						histogramBuilder.fillEfficiency(bl1Muon->pt()>=20,bestGenMatch->pt(),std::string("L1MuonPt20HoRecoAboveThrFilt"));
+						histogramBuilder.fillEfficiency(bl1Muon->pt()>=25,bestGenMatch->pt(),std::string("L1MuonPt25HoRecoAboveThrFilt"));
+					}
 
 					//This one is filled for the sake of completeness. The SiPM regions are hardcoded in the class!!
 					if (MuonHOAcceptance::inSiPMGeom(l1Muon_eta,l1Muon_phi/*,deltaR_Max,deltaR_Max*/)){

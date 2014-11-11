@@ -36,11 +36,11 @@ def plotEfficiency(folder):
 	
 	canv = TCanvas("efficiencyCanvas",'efficiencyCanvas',1200,1200)
 	
-	frame = TH2D('frame','L1 Efficiency',1,5,150,1,0,1.1)
-	frame.SetStats(0)
-	frame.GetXaxis().SetTitle('p_{T} / GeV')
-	frame.GetYaxis().SetTitle('Efficiency')
-	frame.Draw()
+# 	frame = TH2D('frame','L1 Efficiency',1,5,150,1,0,1.1)
+# 	frame.SetStats(0)
+# 	frame.GetXaxis().SetTitle('p_{T} / GeV')
+# 	frame.GetYaxis().SetTitle('Efficiency')
+# 	frame.Draw()
 	
 	l1Muon.SetMarkerStyle(20)
 	l1MuonAndHo.SetMarkerStyle(21)
@@ -54,7 +54,7 @@ def plotEfficiency(folder):
 	l1MuonAndHo.SetLineColor(ROOT.kBlue)
 	l1MuonAndHoAboveThr.SetLineColor(ROOT.kRed)
 	
-	l1Muon.Draw('same')
+	l1Muon.Draw()
 	l1MuonAndHo.Draw('same')
 	l1MuonAndHoAboveThr.Draw('same')
 	
@@ -64,10 +64,10 @@ def plotEfficiency(folder):
 	legend.AddEntry(l1MuonAndHoAboveThr,'L1 + HO hits > 0.2 GeV','ep')
 	legend.Draw()
 	
-	canv.SaveAs("plots/" + folder + "/Efficiency.png")
-	canv.SaveAs("plots/" + folder + "/Efficiency.pdf")
+	canv.SaveAs("plots/" + folder + "/efficiency.png")
+	canv.SaveAs("plots/" + folder + "/efficiency.pdf")
 	
-	f = TFile.Open("plots/" + folder + "/Efficiency.root","RECREATE")
+	f = TFile.Open("plots/" + folder + "/efficiency.root","RECREATE")
 	canv.Write()
 	f.Close()
 	return canv
