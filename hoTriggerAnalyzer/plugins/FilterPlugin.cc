@@ -14,9 +14,11 @@ HORecHitCollection FilterPlugin::cleanHoRecHits(HORecHitCollection hoRecHits,dou
 		HORecHitCollection::const_iterator hoRecHitIt = hoRecHits.begin();
 		for ( ; hoRecHitIt != hoRecHits.end() ; hoRecHitIt++ ){
 			if(hoRecHitIt->energy() >= threshold){
+				std::cout << "rechit " << hoRecHitIt->id() << " energy " << hoRecHitIt->energy() << std::endl;
 				returnCollection.push_back(*hoRecHitIt);
 			}
 		}
+		std::cout << "Collection size " << returnCollection.size() << std::endl;
 		return returnCollection;
 }
 
