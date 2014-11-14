@@ -416,17 +416,24 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 
 		if(matchedRecHit2){
 			double hoEta,hoPhi;
+			std::cout << "Get HO Eta" << std::endl;
 			hoEta = caloGeo->getPosition(matchedRecHit2->detid()).eta();
+			std::cout << "Get HO Phi" << std::endl;
 			hoPhi = caloGeo->getPosition(matchedRecHit2->detid()).phi();
+			std::cout << "Done" << std::endl;
 			//Fill the HO information
 			histogramBuilder.fillCountHistogram(std::string("L1MuonWithHoMatchAboveThr"));
+			std::cout << "Get CaloGeo present matched Rec hit" << std::endl;
 			histogramBuilder.fillTrigHistograms(caloGeo->present(matchedRecHit->id()),std::string("caloGeoPresent_L1MuonHoMatchAboveThr"));
+			std::cout << "Done" << std::endl;
 			//Fill the counters
 			if (MuonHOAcceptance::inGeomAccept(l1Muon_eta,l1Muon_phi/*,deltaR_Max,deltaR_Max*/)){
 				histogramBuilder.fillCountHistogram(std::string("AllL1MuonsAndHoInAcc"));
 				if (MuonHOAcceptance::inNotDeadGeom(l1Muon_eta,l1Muon_phi/*,deltaR_Max,deltaR_Max*/)){
 					histogramBuilder.fillCountHistogram(std::string("AllL1MuonsAndHoInAccNotDead"));
+					std::cout << "Get CaloGeo present matched rec hit 2" << std::endl;
 					histogramBuilder.fillTrigHistograms(caloGeo->present(matchedRecHit2->id()),std::string("caloGeoPresent_L1MuonHoMatchAboveThrFilt"));
+					std::cout << "Done" << std::endl;
 					histogramBuilder.fillEnergyHistograms(matchedRecHit2->energy(),std::string("L1MuonWithHoMatchAboveThrFilt"));
 
 				//	ofstream myfile;
