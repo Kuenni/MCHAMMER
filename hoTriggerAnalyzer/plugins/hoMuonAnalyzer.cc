@@ -419,10 +419,10 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			double hoEta,hoPhi;
 
 			std::cout << std::endl;
-			std::cout << "########################" << std::cout;
-			std::cout << "####"<< matchedRecHit->id() << "####" << std::cout;
-			std::cout << "####"<< matchedRecHit->energy() << "####" << std::cout;
-			std::cout << "########################" << std::cout;
+			std::cout << "########################" << std::endl;
+			std::cout << "####"<< matchedRecHit->id() << "####" << std::endl;
+			std::cout << "####"<< matchedRecHit->energy() << "####" << std::endl;
+			std::cout << "########################" << std::endl;
 
 			std::cout << "Get HO Eta" << std::endl;
 			hoEta = caloGeo->getPosition(matchedRecHit->detid()).eta();
