@@ -415,7 +415,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			}
 		}
 
-		if(matchedRecHit && (matchedRecHit->energy() > 0) ){
+		if(matchedRecHit /*&& (matchedRecHit->energy() > 0)*/ ){
 			double hoEta,hoPhi;
 
 			std::cout << std::endl;
