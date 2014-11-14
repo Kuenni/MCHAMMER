@@ -163,7 +163,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			HcalDetId tempId(caloHitIt->id());
 			//		std::cout << tempId.ieta()  << std::endl;
 			//		std::cout << tempId.iphi()  << std::endl;
-			if(tempId.rawId() == recHitIt->id().rawId()){
+			if(tempId == recHitIt->id()){
 				std::cout << HcalDetId(caloHitIt->id()) << std::endl;
 				std::cout << recHitIt->id().rawId() << std::endl;
 				std::cout << std::endl;
