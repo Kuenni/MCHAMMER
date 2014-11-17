@@ -163,13 +163,15 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			HcalDetId tempId(caloHitIt->id());
 			//		std::cout << tempId.ieta()  << std::endl;
 			//		std::cout << tempId.iphi()  << std::endl;
-			if(tempId == recHitIt->id()){
-				std::cout << HcalDetId(caloHitIt->id()) << std::endl;
-				std::cout << recHitIt->id().rawId() << std::endl;
-				std::cout << std::endl;
-			}
-			if(recHitIt->detid() == HcalDetId(caloHitIt->id())){
-				histogramBuilder.fillEnergyCorrelationHistogram(caloHitIt->energy(),recHitIt->energy(),std::string("energyCorr"));
+			if(tempId.subdet() == HcalSubdetector::HcalOuter){
+				std::cout << "Contains HO Id" << std::endl;
+				if(tempId == recHitIt->id() ){
+					std::cout << HcalDetId(caloHitIt->id()) << std::endl;
+					std::cout << recHitIt->id().rawId() << std::endl;
+					std::cout << std::endl;
+					histogramBuilder.fillEnergyCorrelationHistogram(caloHitIt->energy(),recHitIt->energy(),std::string("energyCorr"));
+
+				}
 			}
 		}
 	}
