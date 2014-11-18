@@ -9,13 +9,14 @@
 
 #include <math.h>
 
-HORecHitCollection FilterPlugin::cleanHoRecHits(HORecHitCollection hoRecHits,double threshold){
-	HORecHitCollection returnCollection;
+std::vector<HORecHit> FilterPlugin::cleanHoRecHits(HORecHitCollection hoRecHits,double threshold){
+	std::vector<HORecHit> returnCollection;
 		HORecHitCollection::const_iterator hoRecHitIt = hoRecHits.begin();
 		for ( ; hoRecHitIt != hoRecHits.end() ; hoRecHitIt++ ){
-			if(hoRecHitIt->energy() >= threshold){
-				std::cout << "rechit " << hoRecHitIt->id() << " energy " << hoRecHitIt->energy() << std::endl;
-				returnCollection.push_back(*hoRecHitIt);
+			HORecHit* newRecHit = new HORecHit(*hoRecHitIt);
+			if(newRecHit->energy() >= threshold){
+				std::cout << "rechit " << newRecHit->id() << " energy " << newRecHit->energy() << " Addr. " << newRecHit << std::endl;
+				returnCollection.push_back(*newRecHit);
 			}
 		}
 		std::cout << "Collection size " << returnCollection.size() << std::endl;
