@@ -313,7 +313,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	}
 	//get HO Rec Hits Above Threshold
 	string horecoT_key ="horecoAboveThreshold";
-	std::vector<HORecHit> hoRecoHitsAboveThreshold = FilterPlugin::cleanHoRecHits(*hoRecoHits,threshold);
+	HORecHitCollection hoRecoHitsAboveThreshold = FilterPlugin::cleanHoRecHits(*hoRecoHits,threshold);
 	histogramBuilder.fillMultiplicityHistogram(hoRecoHitsAboveThreshold.size(),horecoT_key);
 	//Also fill multiplicity for HO Rec hits that have muons in their acceptance area
 	if(hasMuonsInAcceptance){
@@ -393,133 +393,131 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				histogramBuilder.fillEfficiency(bl1Muon->pt()>=20,bestGenMatch->pt(),std::string("L1MuonPt20HoReco"));
 				histogramBuilder.fillEfficiency(bl1Muon->pt()>=25,bestGenMatch->pt(),std::string("L1MuonPt25HoReco"));
 			}
-		}
-		//###########################################################
 
+			//###########################################################
+			//###########################################################
+			//Now fill information for hits above threshold
+			//###########################################################
+			//###########################################################
+			if(matchedRecHit->energy() >= threshold){
+				//Fill some counting histograms. Can be used for cut flow in efficiency
+				histogramBuilder.fillCountHistogram(std::string("AllL1Muons"));
 
-		//Now fill information for hits above threshold
-		//###########################################################
-		matchedRecHit = 0;
-		matchedRecHit = HoMatcher::matchByEMaxDeltaR(l1Muon_eta,l1Muon_phi,deltaR_Max,hoRecoHitsAboveThreshold,*caloGeo);
-		//Fill some counting histograms. Can be used for cut flow in efficiency
-		histogramBuilder.fillCountHistogram(std::string("AllL1Muons"));
+				if (MuonHOAcceptance::inGeomAccept(l1Muon_eta,l1Muon_phi,deltaR_Max,deltaR_Max)){
+					histogramBuilder.fillCountHistogram(std::string("AllL1MuonsInAcc"));
 
-		if (MuonHOAcceptance::inGeomAccept(l1Muon_eta,l1Muon_phi,deltaR_Max,deltaR_Max)){
-			histogramBuilder.fillCountHistogram(std::string("AllL1MuonsInAcc"));
+					if (MuonHOAcceptance::inNotDeadGeom(l1Muon_eta,l1Muon_phi,deltaR_Max,deltaR_Max)){
+						histogramBuilder.fillCountHistogram(std::string("AllL1MuonsInAccNotDead"));
 
-			if (MuonHOAcceptance::inNotDeadGeom(l1Muon_eta,l1Muon_phi,deltaR_Max,deltaR_Max)){
-				histogramBuilder.fillCountHistogram(std::string("AllL1MuonsInAccNotDead"));
-
-				//This one is filled for the sake of completeness. The SiPM regions are hardcoded in the class!!
-				if (MuonHOAcceptance::inSiPMGeom(l1Muon_eta,l1Muon_phi,deltaR_Max,deltaR_Max)){
-					histogramBuilder.fillCountHistogram(std::string("AllL1MuonsInAccNotDeadInSipm"));
-				}
-			}
-		}
-
-		if(matchedRecHit /*&& (matchedRecHit->energy() > 0)*/ ){
-			double hoEta,hoPhi;
-//			std::cout << "vector size " << hoRecoHitsAboveThreshold.size() << std::endl;
-//			std::cout << std::endl;
-//			std::cout << "########################" << std::endl;
-//			std::cout << "#### "<< matchedRecHit << " ####" << std::endl;
-//			std::cout << "#### "<< matchedRecHit->id() << " ####" << std::endl;
-//			std::cout << "#### "<< matchedRecHit->energy() << " ####" << std::endl;
-//			std::cout << "########################" << std::endl;
-
-//			std::cout << "Get HO Eta" << std::endl;
-			hoEta = caloGeo->getPosition(matchedRecHit->detid()).eta();
-//			std::cout << "Get HO Phi" << std::endl;
-			hoPhi = caloGeo->getPosition(matchedRecHit->detid()).phi();
-//			std::cout << "Done" << std::endl;
-			//Fill the HO information
-			histogramBuilder.fillCountHistogram(std::string("L1MuonWithHoMatchAboveThr"));
-//			std::cout << "Get CaloGeo present matched Rec hit" << std::endl;
-			histogramBuilder.fillTrigHistograms(caloGeo->present(matchedRecHit->id()),std::string("caloGeoPresent_L1MuonHoMatchAboveThr"));
-//			std::cout << "Done" << std::endl;
-			//Fill the counters
-			if (MuonHOAcceptance::inGeomAccept(l1Muon_eta,l1Muon_phi/*,deltaR_Max,deltaR_Max*/)){
-				histogramBuilder.fillCountHistogram(std::string("AllL1MuonsAndHoInAcc"));
-				if (MuonHOAcceptance::inNotDeadGeom(l1Muon_eta,l1Muon_phi/*,deltaR_Max,deltaR_Max*/)){
-					histogramBuilder.fillCountHistogram(std::string("AllL1MuonsAndHoInAccNotDead"));
-//					std::cout << "Get CaloGeo present matched rec hit 2" << std::endl;
-					histogramBuilder.fillTrigHistograms(caloGeo->present(matchedRecHit->id()),std::string("caloGeoPresent_L1MuonHoMatchAboveThrFilt"));
-//					std::cout << "Done" << std::endl;
-					histogramBuilder.fillEnergyHistograms(matchedRecHit->energy(),std::string("L1MuonWithHoMatchAboveThrFilt"));
-
-				//	ofstream myfile;
-				//	myfile.open ("matchedRecHit.txt",std::ios::app);
-				//	myfile << matchedRecHit2->energy() << "\n";
-				//	myfile.close();
-
-					histogramBuilder.fillEtaPhiHistograms(hoEta,hoPhi,std::string("L1MuonWithHoMatchAboveThrFilt_HO"));
-					histogramBuilder.fillDeltaEtaDeltaPhiHistograms(l1Muon_eta,hoEta,l1Muon_phi, hoPhi,std::string("L1MuonWithHoMatchAboveThrFilt"));
-					histogramBuilder.fillL1MuonPtHistograms(bl1Muon->pt(),std::string("L1MuonWithHoMatchAboveThrFilt"));
-					histogramBuilder.fillEnergyVsPosition(hoEta,hoPhi,matchedRecHit->energy(),std::string("L1MuonWithHoMatchAboveThrFilt"));
-
-					const reco::GenParticle* bestGenMatch = getBestGenMatch(bl1Muon->eta(),bl1Muon->phi());
-					if(bestGenMatch){
-						//first argument is the condition for a muon trigger object to pass
-						//Second is the pt of the "real" particle
-						histogramBuilder.fillEfficiency(bl1Muon->pt()>=10,bestGenMatch->pt(),std::string("L1MuonPt10HoRecoAboveThrFilt"));
-						histogramBuilder.fillEfficiency(bl1Muon->pt()>=15,bestGenMatch->pt(),std::string("L1MuonPt15HoRecoAboveThrFilt"));
-						histogramBuilder.fillEfficiency(bl1Muon->pt()>=20,bestGenMatch->pt(),std::string("L1MuonPt20HoRecoAboveThrFilt"));
-						histogramBuilder.fillEfficiency(bl1Muon->pt()>=25,bestGenMatch->pt(),std::string("L1MuonPt25HoRecoAboveThrFilt"));
-					}
-
-					//This one is filled for the sake of completeness. The SiPM regions are hardcoded in the class!!
-					if (MuonHOAcceptance::inSiPMGeom(l1Muon_eta,l1Muon_phi/*,deltaR_Max,deltaR_Max*/)){
-						histogramBuilder.fillCountHistogram(std::string("AllL1MuonsAndHoInAccNotDeadInSipm"));
+						//This one is filled for the sake of completeness. The SiPM regions are hardcoded in the class!!
+						if (MuonHOAcceptance::inSiPMGeom(l1Muon_eta,l1Muon_phi,deltaR_Max,deltaR_Max)){
+							histogramBuilder.fillCountHistogram(std::string("AllL1MuonsInAccNotDeadInSipm"));
+						}
 					}
 				}
-			}
-			histogramBuilder.fillEnergyHistograms(matchedRecHit->energy(),std::string("L1MuonWithHoMatchAboveThr"));
-			histogramBuilder.fillEtaPhiHistograms(hoEta,hoPhi,std::string("L1MuonWithHoMatchAboveThr_HO"));
-			histogramBuilder.fillDeltaEtaDeltaPhiHistograms(l1Muon_eta,hoEta,l1Muon_phi, hoPhi,std::string("L1MuonWithHoMatchAboveThr"));
-			histogramBuilder.fillL1MuonPtHistograms(bl1Muon->pt(),std::string("L1MuonWithHoMatchAboveThr"));
-			histogramBuilder.fillEnergyVsPosition(hoEta,hoPhi,matchedRecHit->energy(),std::string("L1MuonWithHoMatchAboveThr"));
-			//Make the pseudo trig rate plot
-			for (int i = 0; i < 200; i+=2) {
-				if(bl1Muon->pt() >= i)
-					histogramBuilder.fillTrigRateHistograms(i,l1MuonWithHoMatch_key);
-			}
-			const reco::GenParticle* bestGenMatch = getBestGenMatch(bl1Muon->eta(),bl1Muon->phi());
-			if(bestGenMatch){
-				//first argument is the condition for a muon trigger object to pass
-				//Second is the pt of the "real" particle
-				histogramBuilder.fillEfficiency(bl1Muon->pt()>=10,bestGenMatch->pt(),std::string("L1MuonPt10HoRecoAboveThr"));
-				histogramBuilder.fillEfficiency(bl1Muon->pt()>=15,bestGenMatch->pt(),std::string("L1MuonPt15HoRecoAboveThr"));
-				histogramBuilder.fillEfficiency(bl1Muon->pt()>=20,bestGenMatch->pt(),std::string("L1MuonPt20HoRecoAboveThr"));
-				histogramBuilder.fillEfficiency(bl1Muon->pt()>=25,bestGenMatch->pt(),std::string("L1MuonPt25HoRecoAboveThr"));
-			}
-			//Try to find a corresponding Gen Muon
-			edm::RefToBase<l1extra::L1MuonParticle> l1MuonCandiateRef(l1MuonView,i);
-			reco::GenParticleRef ref = (*l1MuonGenMatches)[l1MuonCandiateRef];
+				double hoEta,hoPhi;
+				//			std::cout << "vector size " << hoRecoHitsAboveThreshold.size() << std::endl;
+				//			std::cout << std::endl;
+				//			std::cout << "########################" << std::endl;
+				//			std::cout << "#### "<< matchedRecHit << " ####" << std::endl;
+				//			std::cout << "#### "<< matchedRecHit->id() << " ####" << std::endl;
+				//			std::cout << "#### "<< matchedRecHit->energy() << " ####" << std::endl;
+				//			std::cout << "########################" << std::endl;
 
-			if(ref.isNonnull()){
-				string l1MuonAndHoRecoAndGenref_key = "L1MuonandHORecowithMipMatchAndGenMatch";
+				//			std::cout << "Get HO Eta" << std::endl;
+				hoEta = caloGeo->getPosition(matchedRecHit->detid()).eta();
+				//			std::cout << "Get HO Phi" << std::endl;
+				hoPhi = caloGeo->getPosition(matchedRecHit->detid()).phi();
+				//			std::cout << "Done" << std::endl;
+				//Fill the HO information
+				histogramBuilder.fillCountHistogram(std::string("L1MuonWithHoMatchAboveThr"));
+				//			std::cout << "Get CaloGeo present matched Rec hit" << std::endl;
+				histogramBuilder.fillTrigHistograms(caloGeo->present(matchedRecHit->id()),std::string("caloGeoPresent_L1MuonHoMatchAboveThr"));
+				//			std::cout << "Done" << std::endl;
+				//Fill the counters
+				if (MuonHOAcceptance::inGeomAccept(l1Muon_eta,l1Muon_phi/*,deltaR_Max,deltaR_Max*/)){
+					histogramBuilder.fillCountHistogram(std::string("AllL1MuonsAndHoInAcc"));
+					if (MuonHOAcceptance::inNotDeadGeom(l1Muon_eta,l1Muon_phi/*,deltaR_Max,deltaR_Max*/)){
+						histogramBuilder.fillCountHistogram(std::string("AllL1MuonsAndHoInAccNotDead"));
+						//					std::cout << "Get CaloGeo present matched rec hit 2" << std::endl;
+											histogramBuilder.fillTrigHistograms(caloGeo->present(matchedRecHit->id()),std::string("caloGeoPresent_L1MuonHoMatchAboveThrFilt"));
+						//					std::cout << "Done" << std::endl;
+						histogramBuilder.fillEnergyHistograms(matchedRecHit->energy(),std::string("L1MuonWithHoMatchAboveThrFilt"));
+
+						//	ofstream myfile;
+						//	myfile.open ("matchedRecHit.txt",std::ios::app);
+						//	myfile << matchedRecHit2->energy() << "\n";
+						//	myfile.close();
+
+						histogramBuilder.fillEtaPhiHistograms(hoEta,hoPhi,std::string("L1MuonWithHoMatchAboveThrFilt_HO"));
+						histogramBuilder.fillDeltaEtaDeltaPhiHistograms(l1Muon_eta,hoEta,l1Muon_phi, hoPhi,std::string("L1MuonWithHoMatchAboveThrFilt"));
+						histogramBuilder.fillL1MuonPtHistograms(bl1Muon->pt(),std::string("L1MuonWithHoMatchAboveThrFilt"));
+						histogramBuilder.fillEnergyVsPosition(hoEta,hoPhi,matchedRecHit->energy(),std::string("L1MuonWithHoMatchAboveThrFilt"));
+
+						const reco::GenParticle* bestGenMatch = getBestGenMatch(bl1Muon->eta(),bl1Muon->phi());
+						if(bestGenMatch){
+							//first argument is the condition for a muon trigger object to pass
+							//Second is the pt of the "real" particle
+							histogramBuilder.fillEfficiency(bl1Muon->pt()>=10,bestGenMatch->pt(),std::string("L1MuonPt10HoRecoAboveThrFilt"));
+							histogramBuilder.fillEfficiency(bl1Muon->pt()>=15,bestGenMatch->pt(),std::string("L1MuonPt15HoRecoAboveThrFilt"));
+							histogramBuilder.fillEfficiency(bl1Muon->pt()>=20,bestGenMatch->pt(),std::string("L1MuonPt20HoRecoAboveThrFilt"));
+							histogramBuilder.fillEfficiency(bl1Muon->pt()>=25,bestGenMatch->pt(),std::string("L1MuonPt25HoRecoAboveThrFilt"));
+						}
+
+						//This one is filled for the sake of completeness. The SiPM regions are hardcoded in the class!!
+						if (MuonHOAcceptance::inSiPMGeom(l1Muon_eta,l1Muon_phi/*,deltaR_Max,deltaR_Max*/)){
+							histogramBuilder.fillCountHistogram(std::string("AllL1MuonsAndHoInAccNotDeadInSipm"));
+						}
+					}
+				}
+				histogramBuilder.fillEnergyHistograms(matchedRecHit->energy(),std::string("L1MuonWithHoMatchAboveThr"));
+				histogramBuilder.fillEtaPhiHistograms(hoEta,hoPhi,std::string("L1MuonWithHoMatchAboveThr_HO"));
+				histogramBuilder.fillDeltaEtaDeltaPhiHistograms(l1Muon_eta,hoEta,l1Muon_phi, hoPhi,std::string("L1MuonWithHoMatchAboveThr"));
+				histogramBuilder.fillL1MuonPtHistograms(bl1Muon->pt(),std::string("L1MuonWithHoMatchAboveThr"));
+				histogramBuilder.fillEnergyVsPosition(hoEta,hoPhi,matchedRecHit->energy(),std::string("L1MuonWithHoMatchAboveThr"));
 				//Make the pseudo trig rate plot
 				for (int i = 0; i < 200; i+=2) {
 					if(bl1Muon->pt() >= i)
-						histogramBuilder.fillTrigRateHistograms(i,l1MuonAndHoRecoAndGenref_key);
+						histogramBuilder.fillTrigRateHistograms(i,l1MuonWithHoMatch_key);
 				}
-				histogramBuilder.fillPdgIdHistogram(ref->pdgId(),l1MuonWithHoMatch_key);
-			} else{
-				histogramBuilder.fillPdgIdHistogram(0,l1MuonWithHoMatch_key);
-			}
-			histogramBuilder.fillL1MuonPtHistograms(bl1Muon->pt(), l1MuonWithHoMatch_key);
-			histogramBuilder.fillEtaPhiHistograms(bl1Muon->eta(), bl1Muon->phi(), std::string("L1MuonWithHoMatchAboveThr_L1Mu"));
-			std::stringstream singleMu3Key;
-			singleMu3Key << singleMu3TrigName;
-			singleMu3Key << "L1HOMatch";
-			std::stringstream doubleMu0Key;
-			doubleMu0Key << doubleMu0TrigName;
-			doubleMu0Key << "L1HOMatch";
-			if(singleMu3Trig)
-				histogramBuilder.fillTrigHistograms(singleMu3Trig,singleMu3Key.str());
-			if(doubleMu0Trig)
-				histogramBuilder.fillTrigHistograms(doubleMu0Trig,doubleMu0Key.str());
-		}//inside delta R
+				const reco::GenParticle* bestGenMatch = getBestGenMatch(bl1Muon->eta(),bl1Muon->phi());
+				if(bestGenMatch){
+					//first argument is the condition for a muon trigger object to pass
+					//Second is the pt of the "real" particle
+					histogramBuilder.fillEfficiency(bl1Muon->pt()>=10,bestGenMatch->pt(),std::string("L1MuonPt10HoRecoAboveThr"));
+					histogramBuilder.fillEfficiency(bl1Muon->pt()>=15,bestGenMatch->pt(),std::string("L1MuonPt15HoRecoAboveThr"));
+					histogramBuilder.fillEfficiency(bl1Muon->pt()>=20,bestGenMatch->pt(),std::string("L1MuonPt20HoRecoAboveThr"));
+					histogramBuilder.fillEfficiency(bl1Muon->pt()>=25,bestGenMatch->pt(),std::string("L1MuonPt25HoRecoAboveThr"));
+				}
+				//Try to find a corresponding Gen Muon
+				edm::RefToBase<l1extra::L1MuonParticle> l1MuonCandiateRef(l1MuonView,i);
+				reco::GenParticleRef ref = (*l1MuonGenMatches)[l1MuonCandiateRef];
+
+				if(ref.isNonnull()){
+					string l1MuonAndHoRecoAndGenref_key = "L1MuonandHORecowithMipMatchAndGenMatch";
+					//Make the pseudo trig rate plot
+					for (int i = 0; i < 200; i+=2) {
+						if(bl1Muon->pt() >= i)
+							histogramBuilder.fillTrigRateHistograms(i,l1MuonAndHoRecoAndGenref_key);
+					}
+					histogramBuilder.fillPdgIdHistogram(ref->pdgId(),l1MuonWithHoMatch_key);
+				} else{
+					histogramBuilder.fillPdgIdHistogram(0,l1MuonWithHoMatch_key);
+				}
+				histogramBuilder.fillL1MuonPtHistograms(bl1Muon->pt(), l1MuonWithHoMatch_key);
+				histogramBuilder.fillEtaPhiHistograms(bl1Muon->eta(), bl1Muon->phi(), std::string("L1MuonWithHoMatchAboveThr_L1Mu"));
+				std::stringstream singleMu3Key;
+				singleMu3Key << singleMu3TrigName;
+				singleMu3Key << "L1HOMatch";
+				std::stringstream doubleMu0Key;
+				doubleMu0Key << doubleMu0TrigName;
+				doubleMu0Key << "L1HOMatch";
+				if(singleMu3Trig)
+					histogramBuilder.fillTrigHistograms(singleMu3Trig,singleMu3Key.str());
+				if(doubleMu0Trig)
+					histogramBuilder.fillTrigHistograms(doubleMu0Trig,doubleMu0Key.str());
+			}// E > thr.
+		}
 	}// For loop over all l1muons
 }
 
