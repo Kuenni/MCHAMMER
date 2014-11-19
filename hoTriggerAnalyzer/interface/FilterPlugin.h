@@ -13,7 +13,7 @@ class FilterPlugin {
 
  public:
 
- static std::vector<HORecHit> cleanHoRecHits(HORecHitCollection, double);
+ static HORecHitCollection cleanHoRecHits(HORecHitCollection, double);
  /*
   * Takes the difference of two phis, makes
   * sure they are not more than 2 pi.

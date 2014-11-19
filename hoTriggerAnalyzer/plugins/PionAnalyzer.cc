@@ -250,7 +250,7 @@ PionAnalyzer::analyze(const edm::Event& iEvent,
 	}
 	//get HO Rec Hits Above Threshold
 	string horecoT_key ="horecoAboveThreshold";
-	std::vector<HORecHit> hoRecoHitsAboveThreshold = FilterPlugin::cleanHoRecHits(*hoRecoHits,threshold);
+	HORecHitCollection hoRecoHitsAboveThreshold = FilterPlugin::cleanHoRecHits(*hoRecoHits,threshold);
 	histogramBuilder.fillMultiplicityHistogram(hoRecoHitsAboveThreshold.size(),horecoT_key);
 	//Also fill multiplicity for HO Rec hits that have muons in their acceptance area
 	if(hasMuonsInAcceptance){
