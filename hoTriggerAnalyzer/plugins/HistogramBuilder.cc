@@ -308,19 +308,13 @@ void HistogramBuilder::fillEnergyVsPosition(double eta, double phi, double energ
 	_h2EnergyVsPhi[key]->Fill(phi,energy);
 
 //	//Fill Eta phi energy histogram
-//	if(!_h2EnergyEtaPhiEnergies.count(key)){
-//		_h2EnergyEtaPhiEnergies[key] = energyDir.make<TH1D>(Form("%s_EnergyVsEtaPhi",key.c_str()),
-//				Form("%s Energy vs #{eta}#{phi};#{eta};#{phi}",key.c_str()),
-//				720, -3.132, 3.132, //0.0087 phi bins
-//				2000,0,100 //50 MeV bins
-//		);
-//	}
-//	_h2EnergyEtaPhiEnergies[key]->Fill(eta,phi,energy);
-//	if(!_h2EnergyEtaPhiCounter.count(key)){
-//		_h2EnergyEtaPhiCounter[key] = energyDir.make<TH1D>(Form("%s_EnergyVsEtaPhiCounter",key.c_str()),
-//				Form("%s Energy vs #{eta}#{phi} Counter;#{eta};#{phi}",key.c_str()),
-//				720, -3.132, 3.132, //0.0087 phi bins
-//				2000,0,100 //50 MeV bins
-//		);
-//	}
+	if(!_h3EtaPhiEnergy.count(key)){
+		_h3EtaPhiEnergy[key] = energyDir.make<TH3D>(Form("%s_EnergyVsEtaPhi",key.c_str()),
+				Form("%s Energy vs #eta#phi;#eta;#phi;Energy / 0.05 GeV",key.c_str()),
+				720, -3.132, 3.132, //0.0087 eta bins
+				720, -3.132, 3.132, //0.0087 phi bins
+				2000,0,100 //50 MeV bins
+		);
+	}
+	_h3EtaPhiEnergy[key]->Fill(eta,phi,energy);
 }

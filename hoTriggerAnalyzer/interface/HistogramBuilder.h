@@ -10,17 +10,14 @@
  * 26. Aug 2014
  */
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-
-
-#include "TH1F.h"
-#include "TH1D.h"
-#include "TH2.h"
-#include "TEfficiency.h"
+#include <CommonTools/UtilAlgos/interface/TFileService.h>
+#include <FWCore/ServiceRegistry/interface/Service.h>
+#include <TEfficiency.h>
+#include <TH1.h>
+#include <TH2.h>
+#include <TH3.h>
 #include <map>
+#include <string>
 
 
 
@@ -81,6 +78,8 @@ class HistogramBuilder {
   std::map<std::string,TH2D*> _h2EnergyVsEta;
   std::map<std::string,TH2D*> _h2EnergyEtaPhiEnergies;
   std::map<std::string,TH2D*> _h2EnergyEtaPhiCounter;
+
+  std::map<std::string,TH3D*> _h3EtaPhiEnergy;
 
   std::map<std::string,TEfficiency*> _effMap;
   
