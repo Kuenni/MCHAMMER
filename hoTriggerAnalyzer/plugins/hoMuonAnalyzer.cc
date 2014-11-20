@@ -83,6 +83,7 @@ hoMuonAnalyzer::hoMuonAnalyzer(const edm::ParameterSet& iConfig)/*:
 	_hltSumAODInput = iConfig.getParameter<edm::InputTag>("hltSumAODSrc");
 	deltaR_Max = iConfig.getParameter<double>("maxDeltaR");
 	threshold = iConfig.getParameter<double>("hoEnergyThreshold");
+	debug = iConfig.getParameter<bool>("debug");
 
 	singleMu3TrigName = "L1_SingleMu3";
 	doubleMu0TrigName = "L1_DoubleMu0";
@@ -313,19 +314,23 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	}
 	//get HO Rec Hits Above Threshold
 	string horecoT_key ="horecoAboveThreshold";
-	HORecHitCollection hoRecoHitsAboveThreshold = FilterPlugin::cleanHoRecHits(*hoRecoHits,threshold);
-	histogramBuilder.fillMultiplicityHistogram(hoRecoHitsAboveThreshold.size(),horecoT_key);
-	//Also fill multiplicity for HO Rec hits that have muons in their acceptance area
 	if(hasMuonsInAcceptance){
-		histogramBuilder.fillMultiplicityHistogram(hoRecoHitsAboveThreshold.size(),std::string("horecoAboveThresholdMuInAcc"));
 	}
 
 	/**
 	 * Collect information of all HO Rec hits when there are
 	 * l1 muons in the acceptance region
 	 */
+	int recHitAbThrCounter = 0;
+	int recHitAbThrInGeomCounter = 0;
 	auto hoRecoIt = hoRecoHits->begin();
 	for( ; hoRecoIt != hoRecoHits->end() ; hoRecoIt++){
+		if(hoRecoIt->energy() >= threshold){
+			recHitAbThrCounter++;
+			if(hasMuonsInAcceptance){
+				recHitAbThrInGeomCounter++;
+			}
+		}
 		if(hasMuonsInAcceptance){
 			double ho_eta = caloGeo->getPosition(hoRecoIt->id()).eta();
 			double ho_phi = caloGeo->getPosition(hoRecoIt->id()).phi();
@@ -334,13 +339,9 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			histogramBuilder.fillEtaPhiHistograms(ho_eta, ho_phi, horeco_key);
 		}
 	}
+	histogramBuilder.fillMultiplicityHistogram(recHitAbThrCounter,horecoT_key);
+	histogramBuilder.fillMultiplicityHistogram(recHitAbThrInGeomCounter,std::string("horecoAboveThresholdMuInAcc"));
 
-	ofstream myfile;
-	myfile.open ("abThr.txt",std::ios::app);
-	for (unsigned int i = 0; i < hoRecoHitsAboveThreshold.size(); ++i) {
-		myfile << hoRecoHitsAboveThreshold[i].energy() << "\n";
-	}
-	myfile.close();
 
 	/*
 	 * L1 Trigger Decisions
@@ -416,39 +417,18 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 					}
 				}
 				double hoEta,hoPhi;
-				//			std::cout << "vector size " << hoRecoHitsAboveThreshold.size() << std::endl;
-				//			std::cout << std::endl;
-				//			std::cout << "########################" << std::endl;
-				//			std::cout << "#### "<< matchedRecHit << " ####" << std::endl;
-				//			std::cout << "#### "<< matchedRecHit->id() << " ####" << std::endl;
-				//			std::cout << "#### "<< matchedRecHit->energy() << " ####" << std::endl;
-				//			std::cout << "########################" << std::endl;
-
-				//			std::cout << "Get HO Eta" << std::endl;
 				hoEta = caloGeo->getPosition(matchedRecHit->detid()).eta();
-				//			std::cout << "Get HO Phi" << std::endl;
 				hoPhi = caloGeo->getPosition(matchedRecHit->detid()).phi();
-				//			std::cout << "Done" << std::endl;
 				//Fill the HO information
 				histogramBuilder.fillCountHistogram(std::string("L1MuonWithHoMatchAboveThr"));
-				//			std::cout << "Get CaloGeo present matched Rec hit" << std::endl;
 				histogramBuilder.fillTrigHistograms(caloGeo->present(matchedRecHit->id()),std::string("caloGeoPresent_L1MuonHoMatchAboveThr"));
-				//			std::cout << "Done" << std::endl;
 				//Fill the counters
 				if (MuonHOAcceptance::inGeomAccept(l1Muon_eta,l1Muon_phi/*,deltaR_Max,deltaR_Max*/)){
 					histogramBuilder.fillCountHistogram(std::string("AllL1MuonsAndHoInAcc"));
 					if (MuonHOAcceptance::inNotDeadGeom(l1Muon_eta,l1Muon_phi/*,deltaR_Max,deltaR_Max*/)){
 						histogramBuilder.fillCountHistogram(std::string("AllL1MuonsAndHoInAccNotDead"));
-						//					std::cout << "Get CaloGeo present matched rec hit 2" << std::endl;
-											histogramBuilder.fillTrigHistograms(caloGeo->present(matchedRecHit->id()),std::string("caloGeoPresent_L1MuonHoMatchAboveThrFilt"));
-						//					std::cout << "Done" << std::endl;
+						histogramBuilder.fillTrigHistograms(caloGeo->present(matchedRecHit->id()),std::string("caloGeoPresent_L1MuonHoMatchAboveThrFilt"));
 						histogramBuilder.fillEnergyHistograms(matchedRecHit->energy(),std::string("L1MuonWithHoMatchAboveThrFilt"));
-
-						//	ofstream myfile;
-						//	myfile.open ("matchedRecHit.txt",std::ios::app);
-						//	myfile << matchedRecHit2->energy() << "\n";
-						//	myfile.close();
-
 						histogramBuilder.fillEtaPhiHistograms(hoEta,hoPhi,std::string("L1MuonWithHoMatchAboveThrFilt_HO"));
 						histogramBuilder.fillDeltaEtaDeltaPhiHistograms(l1Muon_eta,hoEta,l1Muon_phi, hoPhi,std::string("L1MuonWithHoMatchAboveThrFilt"));
 						histogramBuilder.fillL1MuonPtHistograms(bl1Muon->pt(),std::string("L1MuonWithHoMatchAboveThrFilt"));

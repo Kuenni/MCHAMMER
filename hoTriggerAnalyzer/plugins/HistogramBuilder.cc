@@ -311,8 +311,8 @@ void HistogramBuilder::fillEnergyVsPosition(double eta, double phi, double energ
 	if(!_h3EtaPhiEnergy.count(key)){
 		_h3EtaPhiEnergy[key] = energyDir.make<TH3D>(Form("%s_EnergyVsEtaPhi",key.c_str()),
 				Form("%s Energy vs #eta#phi;#eta;#phi;Energy / 0.05 GeV",key.c_str()),
-				720, -3.132, 3.132, //0.0087 eta bins
-				720, -3.132, 3.132, //0.0087 phi bins
+				72, -3.132, 3.132, //0.087 eta bins
+				72, -3.132, 3.132, //0.087 phi bins
 				2000,0,100 //50 MeV bins
 		);
 	}

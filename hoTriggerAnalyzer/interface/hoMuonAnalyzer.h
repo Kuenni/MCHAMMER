@@ -104,6 +104,7 @@ private:
   string doubleMu5TrigName;
   bool trigDecision;
   bool singleMu3Trig,doubleMu0Trig;
+  bool debug;
 
   float threshold;
   float deltaR_Max;
