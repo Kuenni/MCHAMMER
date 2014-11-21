@@ -505,7 +505,21 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	//################################
 	//################################
 	if(l1Muons->size() == 0){
-
+		histogramBuilder.fillCountHistogram("NoL1Muon");
+		int recHitAbThrNoL1Counter = 0;
+		auto hoRecoIt = hoRecoHits->begin();
+		for( ; hoRecoIt != hoRecoHits->end() ; hoRecoIt++){
+			if(hoRecoIt->energy() >= threshold){
+				recHitAbThrNoL1Counter++;
+				double ho_eta = caloGeo->getPosition(hoRecoIt->id()).eta();
+				double ho_phi = caloGeo->getPosition(hoRecoIt->id()).phi();
+				histogramBuilder.fillCountHistogram(horeco_key);
+				histogramBuilder.fillEnergyHistograms(hoRecoIt->energy(),std::string("NoL1"));
+				histogramBuilder.fillEtaPhiHistograms(ho_eta, ho_phi, std::string("NoL1"));
+				histogramBuilder.fillEnergyVsPosition(ho_eta,ho_phi,hoRecoIt->energy(),std::string("NoL1"));
+			}
+		}
+		histogramBuilder.fillMultiplicityHistogram(recHitAbThrNoL1Counter,std::string("NoL1"));
 	}
 
 }
