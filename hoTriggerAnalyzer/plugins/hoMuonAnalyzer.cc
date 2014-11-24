@@ -374,7 +374,6 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		const HORecHit* matchedRecHit = HoMatcher::matchByEMaxDeltaR(l1Muon_eta,l1Muon_phi,deltaR_Max,*hoRecoHits,*caloGeo);
 		if(matchedRecHit){
 			double hoEta,hoPhi;
-			histogramBuilder.fillTrigHistograms(caloGeo->present(matchedRecHit->id()),std::string("caloGeoPresent_L1MuonHoMatch"));
 			hoEta = caloGeo->getPosition(matchedRecHit->detid()).eta();
 			hoPhi = caloGeo->getPosition(matchedRecHit->detid()).phi();
 			histogramBuilder.fillCountHistogram("L1MuonPresentHoMatch");
@@ -420,7 +419,6 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				hoEta = caloGeo->getPosition(matchedRecHit->detid()).eta();
 				hoPhi = caloGeo->getPosition(matchedRecHit->detid()).phi();
 				//Fill the HO information
-				histogramBuilder.fillTrigHistograms(caloGeo->present(matchedRecHit->id()),std::string("caloGeoPresent_L1MuonHoMatchAboveThr"));
 				//Fill the counters
 				if (MuonHOAcceptance::inGeomAccept(l1Muon_eta,l1Muon_phi/*,deltaR_Max,deltaR_Max*/)){
 					histogramBuilder.fillCountHistogram(std::string("L1MuonAboveThrInAcc"));
@@ -485,16 +483,6 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				}
 				histogramBuilder.fillL1MuonPtHistograms(bl1Muon->pt(), l1MuonWithHoMatch_key);
 				histogramBuilder.fillEtaPhiHistograms(bl1Muon->eta(), bl1Muon->phi(), std::string("L1MuonWithHoMatchAboveThr_L1Mu"));
-				std::stringstream singleMu3Key;
-				singleMu3Key << singleMu3TrigName;
-				singleMu3Key << "L1HOMatch";
-				std::stringstream doubleMu0Key;
-				doubleMu0Key << doubleMu0TrigName;
-				doubleMu0Key << "L1HOMatch";
-				if(singleMu3Trig)
-					histogramBuilder.fillTrigHistograms(singleMu3Trig,singleMu3Key.str());
-				if(doubleMu0Trig)
-					histogramBuilder.fillTrigHistograms(doubleMu0Trig,doubleMu0Key.str());
 			}// E > thr.
 		}
 	}// For loop over all l1muons
@@ -525,6 +513,17 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		myfile << iEvent.id().run() << "\t" << iEvent.id().luminosityBlock() << "\t" << iEvent.id().event() << std::endl;
 		myfile.close();
 	}
+
+	std::stringstream singleMu3Key;
+	singleMu3Key << singleMu3TrigName;
+	singleMu3Key << "L1HOMatch";
+	std::stringstream doubleMu0Key;
+	doubleMu0Key << doubleMu0TrigName;
+	doubleMu0Key << "L1HOMatch";
+	if(singleMu3Trig)
+		histogramBuilder.fillTrigHistograms(singleMu3Trig,singleMu3Key.str());
+	if(doubleMu0Trig)
+		histogramBuilder.fillTrigHistograms(doubleMu0Trig,doubleMu0Key.str());
 }
 
 /**
