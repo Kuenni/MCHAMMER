@@ -520,8 +520,11 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			}
 		}
 		histogramBuilder.fillMultiplicityHistogram(recHitAbThrNoL1Counter,std::string("NoL1"));
+		ofstream myfile;
+		myfile.open ("eventList_NoL1Muon.txt");
+		myfile << iEvent.id().run() << "\t" << iEvent.id().luminosityBlock() << "\t" << iEvent.id().event() << std::endl;
+		myfile.close();
 	}
-
 }
 
 /**
