@@ -79,9 +79,10 @@ void HistogramBuilder::fillHltIndexHistogram(int hltIndex, std::string key){
  *Counting Histograms                                                           
  *Fills the 1 bin.                                                              
  */
-void HistogramBuilder::fillCountHistogram(std::string key){                     
+void HistogramBuilder::fillCountHistogram(std::string key){
+	TFileDirectory countDir = _fileService->mkdir("count");
 	if(!_h1Counter.count(key)){
-		_h1Counter[key] = _fileService->make<TH1F>(Form("%s_Count",key.c_str()),
+		_h1Counter[key] = countDir.make<TH1F>(Form("%s_Count",key.c_str()),
 				Form("%s Count",key.c_str()),
 				3, -0.5, 2.5);
 	}
@@ -92,7 +93,7 @@ void HistogramBuilder::fillMultiplicityHistogram(int nEvents, std::string key){
 	if(!_h1Multiplicity.count(key)){
 		_h1Multiplicity[key] = _fileService->make<TH1D>(Form("%s_Multiplicity",key.c_str()),
 				Form("%s Digis Per Event",key.c_str()),
-				2001, -0.5, 2000.5);
+				3001, -0.5, 3000.5);
 	}
 	_h1Multiplicity[key]->Fill(nEvents);
 }
