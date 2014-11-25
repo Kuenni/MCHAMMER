@@ -179,3 +179,59 @@ def plotEnergyVsPhi(folder,sourceHistogram = 'L1MuonWithHoMatch_EnergyVsPhi',fil
 	canv.Write()
 	f.Close()
 	return canv
+
+# Generate the plot based on the energy vs eta and phin histogram
+def plotEnergyVsEtaPhi(folder,sourceHistogram = 'L1MuonWithHoMatch_EnergyVsEtaPhi',filename = 'L1MuonHistogram.root'):
+	if(DEBUG):
+		print prefix + ' energy vs eta phi was called.'
+	if(folder == None):
+		print 'Error! Folder as first argument needed.'
+		return
+
+	if( not os.path.exists('plots')):
+		if(DEBUG):
+			print prefix + ' creating dir plots.'
+		os.mkdir('plots')
+	if( not os.path.exists('plots/' + folder)):
+		if(DEBUG):
+			print prefix + ' creating dir plots/' + folder + '.'
+		os.mkdir('plots/' + folder)
+
+	fullname = folder + '/' + filename
+	if( not os.path.exists(fullname)):
+		print 'Error! File ' + fullname + ' does not exist!'
+		return
+	print 'Opening file:',fullname
+	file = TFile.Open(fullname)
+	
+	PlotStyle.setPlotStyle()
+	canv = TCanvas("energieVsPositionCanvas",'Energy canvas',1200,1200)
+	
+	if(DEBUG):
+		print prefix + 'Getting histogram: ' + "hoMuonAnalyzer/energy/" + sourceHistogram
+	
+	energyVsPos = file.Get("hoMuonAnalyzer/energy/" + sourceHistogram)
+	projection = energyVsPos.Project3DProfile()
+	projection.GetXaxis().SetTitle(energyVsPos.GetXaxis().GetTitle())
+	projection.GetYaxis().SetTitle(energyVsPos.GetYaxis().GetTitle())
+	projection.GetZaxis().SetTitle(energyVsPos.GetZaxis().GetTitle())
+	projection.Draw('colz')
+	
+	canv.Update()
+	pal = projection.GetListOfFunctions().FindObject("palette")
+	pal.SetX2NDC(0.92)
+	
+	stats = projection.GetListOfFunctions().FindObject("stats")
+	stats.SetX1NDC(.1)
+	stats.SetX2NDC(.3)
+	stats.SetY1NDC(.7)
+	stats.SetY2NDC(.9)
+	
+	canv.SaveAs("plots/" + folder + "/energyVsPosition.png")
+	canv.SaveAs("plots/" + folder + "/energyVsPosition.pdf")
+
+	f = TFile.Open("plots/" + folder + "/energyVsPosition.root","RECREATE")
+	canv.Write()
+	f.Close()
+	return canv
+	

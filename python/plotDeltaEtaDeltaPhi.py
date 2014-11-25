@@ -26,7 +26,7 @@ def drawHoBoxes(canvas):
             boxes.append(box)
     return boxes
 
-def plotDeltaEtaDeltaPhi(folder,sourceHistogram = 'L1MuonWithHoMatch_DeltaEtaDeltaPhi'):
+def plotDeltaEtaDeltaPhi(folder,sourceHistogram = 'L1MuonWithHoMatch_DeltaEtaDeltaPhi', sourceFile = 'L1MuonHistogram.root'):
 
 	if(DEBUG):
 		print prefix + 'was called'
@@ -39,7 +39,7 @@ def plotDeltaEtaDeltaPhi(folder,sourceHistogram = 'L1MuonWithHoMatch_DeltaEtaDel
 	if( not os.path.exists('plots/' + folder)):
 		os.mkdir('plots/' + folder)
         
-	filename = folder + '/L1MuonHistogram.root'
+	filename = folder + '/' + sourceFile
 	if( not os.path.exists(filename)):
 		print 'Error! File ' + filename + ' does not exist!'
 		return
