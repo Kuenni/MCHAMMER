@@ -190,7 +190,6 @@ void HistogramBuilder::fillEtaPhiHistograms(float eta, float phi, std::string ke
 /*
  *Delta Eta Delta Phi Histograms
  */
-
 void HistogramBuilder::fillDeltaEtaDeltaPhiHistograms(float eta1, float eta2, 
 		float phi1, float phi2,
 		std::string key){
@@ -205,7 +204,7 @@ void HistogramBuilder::fillDeltaEtaDeltaPhiHistograms(float eta1, float eta2,
 				key.c_str()),
 				Form("#Delta #Eta %s",
 						key.c_str()),
-						510, -2.2185, 2.2185);//510 times 0.087/10; 0 in center of a bin
+						51, -2.2185, 2.2185);//510 times 0.087/10; 0 in center of a bin
 	}
 	_h1DeltaEta[key]->Fill(deltaEta);
 	//Delta Eta Histograms Fill
@@ -214,13 +213,15 @@ void HistogramBuilder::fillDeltaEtaDeltaPhiHistograms(float eta1, float eta2,
 				key.c_str()),
 				Form("%s #Delta #Phi",
 						key.c_str()),
-						730, -3.1755, 3.1755);//730 times 0.087/10; 0 in center of a bin
+						73, -3.1755, 3.1755);//730 times 0.087/10; 0 in center of a bin
 	}
 	_h1DeltaPhi[key]->Fill(deltaPhi);
 
 	//DeltaEta Delta Phi Histograms Fill
 	if(!_h2DeltaEtaDeltaPhi.count(key)){
-		_h2DeltaEtaDeltaPhi[key] = etaPhiDir.make<TH2F>(Form("%s_DeltaEtaDeltaPhi",key.c_str()),Form("%s #Delta#eta #Delta#Phi",key.c_str()),510, -2.2185, 2.2185, 730, -3.1755, 3.1755);
+		_h2DeltaEtaDeltaPhi[key] = etaPhiDir.make<TH2F>(Form("%s_DeltaEtaDeltaPhi",key.c_str()),Form("%s #Delta#eta #Delta#Phi",key.c_str()),
+				51, -2.2185, 2.2185, 	//eta
+				73, -3.1755, 3.1755);	//phi
 	}
 	_h2DeltaEtaDeltaPhi[key]->Fill(deltaEta, deltaPhi);
 } 
@@ -318,4 +319,26 @@ void HistogramBuilder::fillEnergyVsPosition(double eta, double phi, double energ
 		);
 	}
 	_h3EtaPhiEnergy[key]->Fill(eta,phi,energy);
+}
+
+/**
+ * Delta Eta Delta Phi and energy Histograms
+ * Create 3D histogram to access also the energy information of the hits
+ */
+void HistogramBuilder::fillDeltaEtaDeltaPhiEnergyHistogram(float eta1, float eta2,
+		float phi1, float phi2,float energy,
+		std::string key){
+	TFileDirectory etaPhiDir = _fileService->mkdir("etaPhi");
+	float deltaEta, deltaPhi;
+	deltaEta = eta1 - eta2;
+	deltaPhi = FilterPlugin::wrapCheck(phi1, phi2);
+
+	//DeltaEta Delta Phi Histograms Fill
+	if(!_h3DeltaEtaDeltaPhiEnergy.count(key)){
+		_h3DeltaEtaDeltaPhiEnergy[key] = etaPhiDir.make<TH3D>(Form("%s_DeltaEtaDeltaPhiEnergy",key.c_str()),Form("%s #Delta#eta #Delta#Phi Energy",key.c_str()),
+				51, -2.2185, 2.2185,	//0.087 Eta bins
+				73, -3.1755, 3.1755,	//0.087 Phi bins
+				2000,0,100);
+	}
+	_h3DeltaEtaDeltaPhiEnergy[key]->Fill(deltaEta, deltaPhi, energy);
 }
