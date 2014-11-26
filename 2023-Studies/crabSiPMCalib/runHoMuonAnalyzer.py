@@ -219,7 +219,8 @@ process.source = cms.Source("PoolSource",
     # replace 'myfile.root' with the source file you want to use
     fileNames = readFiles
 )
-
+,
+	maxDeltaRL1MuonMatching = cms.double(1.)
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
@@ -272,7 +273,8 @@ process.hoMuonAnalyzer = cms.EDAnalyzer(
     l1MuonGenMatchSrc = cms.InputTag("l1MuonGenMatch"),
     hoEnergyThreshold = cms.double(0.2),
     maxDeltaR = cms.double(0.3),
-    debug = cms.bool(True)
+    debug = cms.bool(True),
+	maxDeltaRL1MuonMatching = cms.double(1.)
     )
 
 #Alternative matcher: TrivialDeltaRMatcher

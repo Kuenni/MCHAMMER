@@ -84,6 +84,7 @@ hoMuonAnalyzer::hoMuonAnalyzer(const edm::ParameterSet& iConfig)/*:
 	deltaR_Max = iConfig.getParameter<double>("maxDeltaR");
 	threshold = iConfig.getParameter<double>("hoEnergyThreshold");
 	debug = iConfig.getParameter<bool>("debug");
+	deltaR_L1MuonMatching = iConfig.getParameter<double>("maxDeltaRL1MuonMatching");
 
 	singleMu3TrigName = "L1_SingleMu3";
 	doubleMu0TrigName = "L1_DoubleMu0";
@@ -703,7 +704,7 @@ const reco::GenParticle* hoMuonAnalyzer::getBestGenMatch(float eta, float phi){
 			float genPhi = genIt->phi();
 			float genEta = genIt->eta();
 			float dR = deltaR(eta,phi,genEta,genPhi);
-			if (dR < deltaR_Max && dR < bestDR) { // CB get it from CFG
+			if (dR < deltaR_L1MuonMatching && dR < bestDR) { // CB get it from CFG
 				bestDR = dR;
 				bestGen = &(*genIt);
 			}
@@ -725,7 +726,7 @@ const l1extra::L1MuonParticle* hoMuonAnalyzer::getBestL1MuonMatch(float eta, flo
 			float genPhi = l1It->phi();
 			float genEta = l1It->eta();
 			float dR = deltaR(eta,phi,genEta,genPhi);
-			if (dR < deltaR_Max && dR < bestDR) { // CB get it from CFG
+			if (dR < deltaR_L1MuonMatching && dR < bestDR) { // CB get it from CFG
 				bestDR = dR;
 				bestL1 = &(*l1It);
 			}

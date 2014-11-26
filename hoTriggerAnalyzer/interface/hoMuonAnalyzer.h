@@ -112,11 +112,16 @@ private:
    * Energy threshold for HO rec hits
    */
   float threshold;
+
   /**
    * Maximum delta R to be used for matching
    */
   float deltaR_Max;
 
+  /**
+   * max delta R for matching a L1Muon object to a gen particle
+   */
+  float deltaR_L1MuonMatching;
 
   //toFigureOutL1VariableBinning
   std::list<float> listL1MuonPt;

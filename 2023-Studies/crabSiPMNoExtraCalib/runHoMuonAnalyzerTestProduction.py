@@ -272,7 +272,8 @@ process.hoMuonAnalyzer = cms.EDAnalyzer(
     l1MuonGenMatchSrc = cms.InputTag("l1MuonGenMatch"),
     hoEnergyThreshold = cms.double(0.2),
 	maxDeltaR = cms.double(0.3),
-	debug = cms.bool(True)
+	debug = cms.bool(True),
+	maxDeltaRL1MuonMatching = cms.double(1.)
     )
 
 #Alternative matcher: TrivialDeltaRMatcher
