@@ -133,7 +133,6 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	 */
 	iEvent.getByLabel(_genInput,truthParticles);
 
-	Handle<l1extra::L1MuonParticleCollection> l1Muons;
 	iEvent.getByLabel(_l1MuonInput, l1Muons);
 
 	Handle<HORecHitCollection> hoRecoHits;
@@ -524,6 +523,48 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		histogramBuilder.fillTrigHistograms(singleMu3Trig,singleMu3Key.str());
 	if(doubleMu0Trig)
 		histogramBuilder.fillTrigHistograms(doubleMu0Trig,doubleMu0Key.str());
+
+	//################################
+	//################################
+	// Match Ho to gen info and try to recover mu trigger
+	//################################
+	//################################
+	for(reco::GenParticleCollection::const_iterator genIt = truthParticles->begin();
+			genIt != truthParticles->end(); genIt++){
+		//Check for muons in Full barrel only
+		if( ( abs(genIt->pdgId()) == 13 ) && ( abs(genIt->eta()) <= 0.8 ) ){
+			if(!doubleMu0Trig && singleMu3Key){
+				//Try to find a corresponding Gen Muon
+				float genEta = genIt->eta();
+				float genPhi = genIt->phi();
+				const l1extra::L1MuonParticle* l1Ref = getBestL1MuonMatch(genEta,genPhi);
+				//Inspect the cases where there was no matching to an L1Muon possible
+				if(!l1Ref){
+					const HORecHit* matchedRecHit = HoMatcher::matchByEMaxDeltaR(genEta,genPhi,deltaR_Max,*hoRecoHits,*caloGeo);
+					//Check whether matching to a rec hit was possible
+					if(matchedRecHit){
+						double hoEta = caloGeo->getPosition(matchedRecHit->id()).eta();
+						double hoPhi = caloGeo->getPosition(matchedRecHit->id()).phi();
+						//Is the energy above threshold
+						if(matchedRecHit->energy() >= threshold){
+							histogramBuilder.fillEnergyHistograms(matchedRecHit->energy(),std::string("NoDoubleMu"));
+							histogramBuilder.fillEnergyVsPosition(hoEta,hoPhi,matchedRecHit->energy(),std::string("NoDoubleMu"));
+							histogramBuilder.fillDeltaEtaDeltaPhiHistograms(genEta,hoEta,genPhi,hoPhi,std::string("NoDoubleMu"));
+							if (MuonHOAcceptance::inGeomAccept(genEta,genPhi/*,deltaR_Max,deltaR_Max*/)){
+								histogramBuilder.fillCountHistogram(std::string("L1MuonAboveThrInAcc"));
+								if (MuonHOAcceptance::inNotDeadGeom(genEta,genPhi/*,deltaR_Max,deltaR_Max*/)){
+									histogramBuilder.fillEnergyHistograms(matchedRecHit->energy(),std::string("NoDoubleMuFilt"));
+									histogramBuilder.fillEnergyVsPosition(hoEta,hoPhi,matchedRecHit->energy(),std::string("NoDoubleMuFilt"));
+									histogramBuilder.fillDeltaEtaDeltaPhiHistograms(genEta,hoEta,genPhi,hoPhi,std::string("NoDoubleMuFilt"));
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
 }
 
 /**
@@ -647,7 +688,7 @@ bool hoMuonAnalyzer::hasL1Match(trigger::TriggerObject hltObject,edm::Handle<l1e
 
 /**
  * Returns a pointer to the closest gen particle of all particles that are closer
- * than delta R < 1
+ * than delta R < delta R max
  */
 const reco::GenParticle* hoMuonAnalyzer::getBestGenMatch(float eta, float phi){
 	const reco::GenParticle* bestGen = 0;
@@ -659,13 +700,35 @@ const reco::GenParticle* hoMuonAnalyzer::getBestGenMatch(float eta, float phi){
 			float genPhi = genIt->phi();
 			float genEta = genIt->eta();
 			float dR = deltaR(eta,phi,genEta,genPhi);
-			if (dR < 1. && dR < bestDR) { // CB get it from CFG
+			if (dR < deltaR_Max && dR < bestDR) { // CB get it from CFG
 				bestDR = dR;
 				bestGen = &(*genIt);
 			}
 		}
 	}
 	return bestGen;
+}
+/**
+ * Returns a pointer to the closest l1 muon particle of all particles that are closer
+ * than delta R given by delta R max
+ */
+const l1extra::L1MuonParticle* hoMuonAnalyzer::getBestL1MuonMatch(float eta, float phi){
+	const l1extra::L1MuonParticle* bestL1 = 0;
+	float bestDR = 999.;
+	l1extra::L1MuonParticleCollection::const_iterator l1It = l1Muons->begin();
+	l1extra::L1MuonParticleCollection::const_iterator l1End = l1Muons->end();
+	for(; l1It!=l1End; ++l1It) {
+		if (abs(l1It->pdgId()) == 13 ) {
+			float genPhi = l1It->phi();
+			float genEta = l1It->eta();
+			float dR = deltaR(eta,phi,genEta,genPhi);
+			if (dR < deltaR_Max && dR < bestDR) { // CB get it from CFG
+				bestDR = dR;
+				bestL1 = &(*l1It);
+			}
+		}
+	}
+	return bestL1;
 }
 
 void hoMuonAnalyzer::defineTriggersOfInterest(){

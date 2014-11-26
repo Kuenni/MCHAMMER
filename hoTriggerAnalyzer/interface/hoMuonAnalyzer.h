@@ -62,6 +62,7 @@ private:
   void defineTriggersOfInterest();
 
   const reco::GenParticle* getBestGenMatch(float,float);
+  const l1extra::L1MuonParticle* getBestL1MuonMatch(float,float);
 
   const l1extra::L1MuonParticle* getMatchedL1Object(trigger::TriggerObject,edm::Handle<l1extra::L1MuonParticleCollection>);
   bool hasL1Match(trigger::TriggerObject,edm::Handle<l1extra::L1MuonParticleCollection>);
@@ -77,6 +78,7 @@ private:
   edm::InputTag _hltSumAODInput;
 
   edm::Handle<reco::GenParticleCollection> truthParticles;
+  edm::Handle<l1extra::L1MuonParticleCollection> l1Muons;
 
   HistogramBuilder histogramBuilder;
 
@@ -106,7 +108,13 @@ private:
   bool singleMu3Trig,doubleMu0Trig;
   bool debug;
 
+  /**
+   * Energy threshold for HO rec hits
+   */
   float threshold;
+  /**
+   * Maximum delta R to be used for matching
+   */
   float deltaR_Max;
 
 
