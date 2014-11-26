@@ -5,6 +5,8 @@ import os
 import PlotStyle
 import numpy as np
 
+sys.path.append(os.path.abspath("/user/kuensken/ChrisAnelliCode/CMSSW_6_2_0_SLHC11/src/HoMuonTrigger/python"))
+
 DEBUG = 1
 prefix = '[plotDeltaEtaDeltaPhi] '
 
@@ -26,6 +28,7 @@ def drawHoBoxes(canvas):
             boxes.append(box)
     return boxes
 
+#Create plot for delta eta and delta phi between two objects
 def plotDeltaEtaDeltaPhi(folder,sourceHistogram = 'L1MuonWithHoMatch_DeltaEtaDeltaPhi', sourceFile = 'L1MuonHistogram.root'):
 
 	if(DEBUG):
@@ -51,7 +54,6 @@ def plotDeltaEtaDeltaPhi(folder,sourceHistogram = 'L1MuonWithHoMatch_DeltaEtaDel
 
 	canv = TCanvas("canvasDeltaEtaDeltaPhi",'canvasDeltaEtaDeltaPhi',1200,1200)
 	canv.SetLogz()
-	h2dDeltaEtaDeltaPhi.Rebin2D(10,10)
 	h2dDeltaEtaDeltaPhi.GetXaxis().SetRangeUser(-.45,.45)
 	h2dDeltaEtaDeltaPhi.GetXaxis().SetTitle("#Delta#eta")
 	h2dDeltaEtaDeltaPhi.GetYaxis().SetRangeUser(-.45,.45)
@@ -76,10 +78,68 @@ def plotDeltaEtaDeltaPhi(folder,sourceHistogram = 'L1MuonWithHoMatch_DeltaEtaDel
 
 	canv.Update();
 
-	canv.SaveAs("plots/" + folder + "/DeltaEtaDeltaPhi.png")
-	canv.SaveAs("plots/" + folder + "/DeltaEtaDeltaPhi.pdf")
+	canv.SaveAs("plots/" + folder + "/" + sourceHistogram + ".png")
+	canv.SaveAs("plots/" + folder + "/" + sourceHistogram + ".pdf")
 
-	f = TFile.Open("plots/" + folder + "/DeltaEtaDeltaPhi.root","RECREATE")
+	f = TFile.Open("plots/" + folder + "/" + sourceHistogram + ".root","RECREATE")
 	canv.Write()
 	f.Close()
 	return canv
+
+#Plots the x-y-projection of the 3D-Histogram
+def plotDeltaEtaDeltaPhiEnergyProjection(folder,sourceHistogram = 'NoDoubleMuAboveThr_DeltaEtaDeltaPhiEnergy', sourceFile = 'L1MuonHistogram.root'):
+
+	if(DEBUG):
+		print prefix + 'was called'
+
+	if(folder == None):
+		print prefix + 'Error! Filename as first argument needed.'
+		return
+	if( not os.path.exists('plots')):
+	    os.mkdir('plots')
+	if( not os.path.exists('plots/' + folder)):
+		os.mkdir('plots/' + folder)
+        
+	filename = folder + '/' + sourceFile
+	if( not os.path.exists(filename)):
+		print 'Error! File ' + filename + ' does not exist!'
+		return
+	print prefix + 'Opening file:',filename
+
+	file = TFile.Open(filename)
+	
+	sourceHisto = file.Get("hoMuonAnalyzer/etaPhi/" + sourceHistogram)
+	histo = sourceHisto.Project3DProfile('yx')
+
+	canv = TCanvas("canvasDeltaEtaDeltaPhiEnergy",'canvasDeltaEtaDeltaPhiEnergy',1200,1200)
+	histo.GetXaxis().SetRangeUser(-.45,.45)
+	histo.GetXaxis().SetTitle("#Delta#eta")
+	histo.GetYaxis().SetRangeUser(-.45,.45)
+	histo.GetYaxis().SetTitle("#Delta#phi")
+	histo.GetZaxis().SetTitle(sourceHisto.GetZaxis().GetTitle())
+	histo.Draw("colz")
+	boxList = drawHoBoxes(canv)
+
+	canv.Update()
+	pal = histo.GetListOfFunctions().FindObject("palette")
+	pal.SetX2NDC(0.92)
+
+	stats = histo.GetListOfFunctions().FindObject("stats")
+	stats.SetX1NDC(.1)
+	stats.SetX2NDC(.2)
+	stats.SetY1NDC(.1)
+	stats.SetY2NDC(.25)
+
+	legend = TLegend(0.7,0.8,0.9,0.9)
+	legend.AddEntry(boxList[0],"HO tile dimensions","le")
+	legend.Draw()
+
+	canv.Update();
+
+	canv.SaveAs("plots/" + folder + "/" + sourceHistogram + ".png")
+	canv.SaveAs("plots/" + folder + "/" + sourceHistogram + ".pdf")
+
+	f = TFile.Open("plots/" + folder + "/" + sourceHistogram + ".root","RECREATE")
+	canv.Write()
+	f.Close()
+	return histo
