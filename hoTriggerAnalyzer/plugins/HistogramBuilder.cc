@@ -187,8 +187,12 @@ void HistogramBuilder::fillEtaPhiHistograms(float eta, float phi, std::string ke
 
 };
 
-/*
- *Delta Eta Delta Phi Histograms
+/**
+ * Delta Eta Delta Phi Histograms
+ *  	eta1 -> l1
+ * 		eta2 -> Ho
+ * 		phi1 -> l1
+ * 		phi2 -> Ho
  */
 void HistogramBuilder::fillDeltaEtaDeltaPhiHistograms(float eta1, float eta2, 
 		float phi1, float phi2,
@@ -278,7 +282,10 @@ void HistogramBuilder::fillEnergyCorrelationHistogram(double simHitEnergy, doubl
 
 	//Fill correlation
 	if(!_h2EnergyCorrelation.count(key)){
-		_h2EnergyCorrelation[key] = energyDir.make<TH2D>(Form("%s_EnergyCorrelation",key.c_str()),Form("%s Energy correlation;Sim Hits / GeV;Rec Hits / GeV",key.c_str()),51, -2.2185, 2.2185, 73, -3.1755, 3.1755);
+		_h2EnergyCorrelation[key] = energyDir.make<TH2D>(Form("%s_EnergyCorrelation",key.c_str()),
+				Form("%s Energy correlation;Sim Hits / GeV;Rec Hits / GeV",key.c_str()),
+				51, -2.2185, 2.2185,
+				73, -3.1755, 3.1755);
 	}
 	_h2EnergyCorrelation[key]->Fill(simHitEnergy, recHitEnergy);
 }
@@ -324,6 +331,10 @@ void HistogramBuilder::fillEnergyVsPosition(double eta, double phi, double energ
 /**
  * Delta Eta Delta Phi and energy Histograms
  * Create 3D histogram to access also the energy information of the hits
+ *  	eta1 -> Gen
+ * 		eta2 -> Ho
+ * 		phi1 -> Gen
+ * 		phi2 -> Ho
  */
 void HistogramBuilder::fillDeltaEtaDeltaPhiEnergyHistogram(float eta1, float eta2,
 		float phi1, float phi2,float energy,
@@ -335,7 +346,8 @@ void HistogramBuilder::fillDeltaEtaDeltaPhiEnergyHistogram(float eta1, float eta
 
 	//DeltaEta Delta Phi Histograms Fill
 	if(!_h3DeltaEtaDeltaPhiEnergy.count(key)){
-		_h3DeltaEtaDeltaPhiEnergy[key] = etaPhiDir.make<TH3D>(Form("%s_DeltaEtaDeltaPhiEnergy",key.c_str()),Form("%s #Delta#eta #Delta#Phi Energy",key.c_str()),
+		_h3DeltaEtaDeltaPhiEnergy[key] = etaPhiDir.make<TH3D>(Form("%s_DeltaEtaDeltaPhiEnergy",key.c_str()),
+				Form("%s #Delta#eta #Delta#Phi Energy;#eta;#phi;Energy / 0.05 GeV",key.c_str()),
 				51, -2.2185, 2.2185,	//0.087 Eta bins
 				73, -3.1755, 3.1755,	//0.087 Phi bins
 				2000,0,100);
