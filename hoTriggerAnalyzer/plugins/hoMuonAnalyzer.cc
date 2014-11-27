@@ -530,6 +530,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	// Match Ho to gen info and try to recover mu trigger
 	//################################
 	//################################
+	int matchFailCounter = 0;
 	for(reco::GenParticleCollection::const_iterator genIt = truthParticles->begin();
 			genIt != truthParticles->end(); genIt++){
 		//Check for muons in Full barrel only
@@ -542,6 +543,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				const l1extra::L1MuonParticle* l1Ref = getBestL1MuonMatch(genEta,genPhi);
 				//Inspect the cases where there was no matching to an L1Muon possible
 				if(!l1Ref){
+					matchFailCounter++;
 					const HORecHit* matchedRecHit = HoMatcher::matchByEMaxDeltaR(genEta,genPhi,deltaR_Max,*hoRecoHits,*caloGeo);
 					//Check whether matching to a rec hit was possible
 					if(matchedRecHit){
@@ -569,6 +571,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			}
 		}
 	}
+	histogramBuilder.fillMultiplicityHistogram(matchFailCounter,std::string("NoDoubleMu"));
 
 }
 
