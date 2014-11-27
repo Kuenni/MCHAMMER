@@ -516,14 +516,14 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 
 	std::stringstream singleMu3Key;
 	singleMu3Key << singleMu3TrigName;
-	singleMu3Key << "L1HOMatch";
 	std::stringstream doubleMu0Key;
 	doubleMu0Key << doubleMu0TrigName;
-	doubleMu0Key << "L1HOMatch";
 	if(singleMu3Trig)
 		histogramBuilder.fillTrigHistograms(singleMu3Trig,singleMu3Key.str());
 	if(doubleMu0Trig)
 		histogramBuilder.fillTrigHistograms(doubleMu0Trig,doubleMu0Key.str());
+	if(!doubleMu0Trig && singleMu3Trig)
+		histogramBuilder.fillTrigHistograms(doubleMu0Trig,std::string("NoDoubleMuWithSingleMu"));
 
 	//################################
 	//################################
@@ -571,7 +571,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			}
 		}
 	}
-	histogramBuilder.fillMultiplicityHistogram(matchFailCounter,std::string("NoDoubleMu"));
+	histogramBuilder.fillMultiplicityHistogram(matchFailCounter,std::string("NoDoubleMu_MatchingFail"));
 
 }
 
