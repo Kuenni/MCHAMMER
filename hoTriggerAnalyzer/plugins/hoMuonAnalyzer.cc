@@ -535,6 +535,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		//Check for muons in Full barrel only
 		if( ( abs(genIt->pdgId()) == 13 ) && ( abs(genIt->eta()) <= 0.8 ) ){
 			if(!doubleMu0Trig && singleMu3Trig){
+				histogramBuilder.fillCountHistogram(std::string("NoDoubleMuWithSingleMu"));
 				//Try to find a corresponding Gen Muon
 				float genEta = genIt->eta();
 				float genPhi = genIt->phi();
