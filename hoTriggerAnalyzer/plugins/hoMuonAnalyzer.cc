@@ -522,8 +522,12 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		histogramBuilder.fillTrigHistograms(singleMu3Trig,singleMu3Key.str());
 	if(doubleMu0Trig)
 		histogramBuilder.fillTrigHistograms(doubleMu0Trig,doubleMu0Key.str());
-	if(!doubleMu0Trig && singleMu3Trig)
+	if(!doubleMu0Trig && singleMu3Trig){
 		histogramBuilder.fillCountHistogram(std::string("NoDoubleMuWithSingleMu"));
+		histogramBuilder.fillMultiplicityHistogram(l1Muons->size(),std::string("NoDoubleMuWithSingleMu_L1Muon"));
+		histogramBuilder.fillL1MuonPtHistograms(l1Muons->at(0).pt(),std::string("NoDoubleMuWithSingleMu_L1Muon"));
+		histogramBuilder.fillEtaPhiHistograms(l1Muons->at(0).eta(),l1Muons->at(0).phi(),std::string("NoDoubleMuWithSingleMu_L1Muon"));
+	}
 
 	//################################
 	//################################
