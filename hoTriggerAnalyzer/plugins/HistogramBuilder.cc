@@ -167,7 +167,7 @@ void HistogramBuilder::fillEtaPhiHistograms(float eta, float phi, std::string ke
 	if(!_h1Eta.count(key)){
 		_h1Eta[key] = etaPhiDir.make<TH1F>(Form("%s_Eta",key.c_str()),
 				Form("%s Eta",key.c_str()),
-				720, -3.132, 3.132);  //HO has 72 iphis and 30 ietas
+				72, -3.132, 3.132);  //HO has 72 iphis and 30 ietas
 	}
 	_h1Eta[key]->Fill(eta);
 
@@ -181,7 +181,8 @@ void HistogramBuilder::fillEtaPhiHistograms(float eta, float phi, std::string ke
 	if(!_h2EtaPhiMap.count(key)){
 		_h2EtaPhiMap[key] = etaPhiDir.make<TH2F>(Form("%s_EtaPhi",key.c_str()),
 				Form("%s_EtaPhi",key.c_str()),
-				720, -3.132, 3.132,720, -3.132, 3.132);
+				720, -3.132, 3.132,
+				720, -3.132, 3.132);
 	}
 	_h2EtaPhiMap[key]->Fill(eta, phi);
 
