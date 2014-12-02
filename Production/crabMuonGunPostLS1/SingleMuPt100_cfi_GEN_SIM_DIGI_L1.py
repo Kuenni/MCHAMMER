@@ -79,7 +79,7 @@ process.generator = cms.EDProducer("FlatRandomPtGunProducer",
     ),
     Verbosity = cms.untracked.int32(0),
     psethack = cms.string('single mu pt 100'),
-    AddAntiParticle = cms.bool(True),
+    AddAntiParticle = cms.bool(False),
     firstRun = cms.untracked.uint32(1)
 )
 
