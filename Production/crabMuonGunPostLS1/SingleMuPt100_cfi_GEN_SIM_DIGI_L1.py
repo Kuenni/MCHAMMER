@@ -1,8 +1,8 @@
 # Auto generated configuration file
 # using: 
-# Revision: 1.20 
+# Revision: 1.19 
 # Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
-# with command line options: SingleMuPt100_cfi -s GEN,SIM,DIGI:pdigi_valid,L1 --mc --conditions POSTLS162_V6::All --magField 38T_PostLS1 --eventcontent FEVTDEBUGHLT -n 10 --no_exec --geometry Extended2015 --customise SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1
+# with command line options: SingleMuPt100_cfi -s GEN,SIM,DIGI:pdigi_valid,L1 --mc --conditions POSTLS171_V15::All --magField 38T_PostLS1 --eventcontent FEVTDEBUGHLT -n 1000 --no_exec --geometry Extended2015 --customise SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('L1')
@@ -26,7 +26,7 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(1000)
 )
 
 # Input source
@@ -38,8 +38,8 @@ process.options = cms.untracked.PSet(
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.20 $'),
-    annotation = cms.untracked.string('SingleMuPt100_cfi nevts:10'),
+    version = cms.untracked.string('$Revision: 1.19 $'),
+    annotation = cms.untracked.string('SingleMuPt100_cfi nevts:1000'),
     name = cms.untracked.string('Applications')
 )
 
@@ -47,7 +47,7 @@ process.configurationMetadata = cms.untracked.PSet(
 
 process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
     splitLevel = cms.untracked.int32(0),
-    eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
+    eventAutoFlushCompressedSize = cms.untracked.int32(1048576),
     outputCommands = process.FEVTDEBUGHLTEventContent.outputCommands,
     fileName = cms.untracked.string('SingleMuPt100_cfi_GEN_SIM_DIGI_L1.root'),
     dataset = cms.untracked.PSet(
@@ -65,16 +65,16 @@ process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
 process.genstepfilter.triggerConditions=cms.vstring("generation_step")
 process.mix.digitizers = cms.PSet(process.theDigitizersValid)
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'POSTLS162_V6::All', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'POSTLS171_V15::All', '')
 
 process.generator = cms.EDProducer("FlatRandomPtGunProducer",
     PGunParameters = cms.PSet(
         MaxPt = cms.double(100.01),
         MinPt = cms.double(99.99),
         PartID = cms.vint32(-13),
-        MaxEta = cms.double(2.5),
+        MaxEta = cms.double(0.8),
         MaxPhi = cms.double(3.14159265359),
-        MinEta = cms.double(-2.5),
+        MinEta = cms.double(-0.8),
         MinPhi = cms.double(-3.14159265359)
     ),
     Verbosity = cms.untracked.int32(0),
