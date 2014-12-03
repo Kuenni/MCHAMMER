@@ -162,14 +162,8 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		for(std::vector<PCaloHit>::const_iterator caloHitIt = caloHits->begin();
 				caloHitIt != caloHits->end(); caloHitIt++){
 			HcalDetId tempId(caloHitIt->id());
-			//		std::cout << tempId.ieta()  << std::endl;
-			//		std::cout << tempId.iphi()  << std::endl;
 			if(tempId.subdet() == HcalSubdetector::HcalOuter){
-				std::cout << "Contains HO Id" << std::endl;
 				if(tempId == recHitIt->id() ){
-					std::cout << HcalDetId(caloHitIt->id()) << std::endl;
-					std::cout << recHitIt->id().rawId() << std::endl;
-					std::cout << std::endl;
 					histogramBuilder.fillEnergyCorrelationHistogram(caloHitIt->energy(),recHitIt->energy(),std::string("energyCorr"));
 
 				}
@@ -522,11 +516,11 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		histogramBuilder.fillTrigHistograms(singleMu3Trig,singleMu3Key.str());
 	if(doubleMu0Trig)
 		histogramBuilder.fillTrigHistograms(doubleMu0Trig,doubleMu0Key.str());
-	if(!doubleMu0Trig && singleMu3Trig){
+	if(!singleMu3Trig){
 		histogramBuilder.fillCountHistogram(std::string("NoDoubleMuWithSingleMu"));
 		histogramBuilder.fillMultiplicityHistogram(l1Muons->size(),std::string("NoDoubleMuWithSingleMu_L1Muon"));
-		histogramBuilder.fillL1MuonPtHistograms(l1Muons->at(0).pt(),std::string("NoDoubleMuWithSingleMu_L1Muon"));
-		histogramBuilder.fillEtaPhiHistograms(l1Muons->at(0).eta(),l1Muons->at(0).phi(),std::string("NoDoubleMuWithSingleMu_L1Muon"));
+//		histogramBuilder.fillL1MuonPtHistograms(l1Muons->at(0).pt(),std::string("NoDoubleMuWithSingleMu_L1Muon"));
+//		histogramBuilder.fillEtaPhiHistograms(l1Muons->at(0).eta(),l1Muons->at(0).phi(),std::string("NoDoubleMuWithSingleMu_L1Muon"));
 	}
 
 	//################################
@@ -539,7 +533,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			genIt != truthParticles->end(); genIt++){
 		//Check for muons in Full barrel only
 		if( ( abs(genIt->pdgId()) == 13 ) && ( abs(genIt->eta()) <= 0.8 ) ){
-			if(!doubleMu0Trig && singleMu3Trig){
+			if(!singleMu3Trig){
 				//Try to find a corresponding Gen Muon
 				float genEta = genIt->eta();
 				float genPhi = genIt->phi();
