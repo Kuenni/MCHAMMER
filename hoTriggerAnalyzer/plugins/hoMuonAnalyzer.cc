@@ -517,8 +517,8 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	if(doubleMu0Trig)
 		histogramBuilder.fillTrigHistograms(doubleMu0Trig,doubleMu0Key.str());
 	if(!singleMu3Trig){
-		histogramBuilder.fillCountHistogram(std::string("NoDoubleMuWithSingleMu"));
-		histogramBuilder.fillMultiplicityHistogram(l1Muons->size(),std::string("NoDoubleMuWithSingleMu_L1Muon"));
+		histogramBuilder.fillCountHistogram(std::string("NoSingleMu"));
+		histogramBuilder.fillMultiplicityHistogram(l1Muons->size(),std::string("NoSingleMu_L1Muon"));
 //		histogramBuilder.fillL1MuonPtHistograms(l1Muons->at(0).pt(),std::string("NoDoubleMuWithSingleMu_L1Muon"));
 //		histogramBuilder.fillEtaPhiHistograms(l1Muons->at(0).eta(),l1Muons->at(0).phi(),std::string("NoDoubleMuWithSingleMu_L1Muon"));
 	}
@@ -546,20 +546,20 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 					if(matchedRecHit){
 						double hoEta = caloGeo->getPosition(matchedRecHit->id()).eta();
 						double hoPhi = caloGeo->getPosition(matchedRecHit->id()).phi();
-						histogramBuilder.fillDeltaEtaDeltaPhiEnergyHistogram(genEta,hoEta,genPhi,hoPhi,matchedRecHit->energy(),std::string("NoDoubleMu"));
+						histogramBuilder.fillDeltaEtaDeltaPhiEnergyHistogram(genEta,hoEta,genPhi,hoPhi,matchedRecHit->energy(),std::string("NoSingleMu"));
 						//Is the energy above threshold
 						if(matchedRecHit->energy() >= threshold){
-							histogramBuilder.fillEnergyHistograms(matchedRecHit->energy(),std::string("NoDoubleMu"));
-							histogramBuilder.fillEnergyVsPosition(hoEta,hoPhi,matchedRecHit->energy(),std::string("NoDoubleMu"));
-							histogramBuilder.fillDeltaEtaDeltaPhiHistograms(genEta,hoEta,genPhi,hoPhi,std::string("NoDoubleMu"));
-							histogramBuilder.fillDeltaEtaDeltaPhiEnergyHistogram(genEta,hoEta,genPhi,hoPhi,matchedRecHit->energy(),std::string("NoDoubleMuAboveThr"));
+							histogramBuilder.fillEnergyHistograms(matchedRecHit->energy(),std::string("NoSingleMu"));
+							histogramBuilder.fillEnergyVsPosition(hoEta,hoPhi,matchedRecHit->energy(),std::string("NoSingleMu"));
+							histogramBuilder.fillDeltaEtaDeltaPhiHistograms(genEta,hoEta,genPhi,hoPhi,std::string("NoSingleMu"));
+							histogramBuilder.fillDeltaEtaDeltaPhiEnergyHistogram(genEta,hoEta,genPhi,hoPhi,matchedRecHit->energy(),std::string("NoSingleMuAboveThr"));
 							if (MuonHOAcceptance::inGeomAccept(genEta,genPhi/*,deltaR_Max,deltaR_Max*/)){
-								histogramBuilder.fillCountHistogram(std::string("L1MuonAboveThrInAcc"));
+								histogramBuilder.fillCountHistogram(std::string("NoSingleMuAboveThrInAcc"));
 								if (MuonHOAcceptance::inNotDeadGeom(genEta,genPhi/*,deltaR_Max,deltaR_Max*/)){
-									histogramBuilder.fillEnergyHistograms(matchedRecHit->energy(),std::string("NoDoubleMuFilt"));
-									histogramBuilder.fillEnergyVsPosition(hoEta,hoPhi,matchedRecHit->energy(),std::string("NoDoubleMuFilt"));
-									histogramBuilder.fillDeltaEtaDeltaPhiHistograms(genEta,hoEta,genPhi,hoPhi,std::string("NoDoubleMuFilt"));
-									histogramBuilder.fillDeltaEtaDeltaPhiEnergyHistogram(genEta,hoEta,genPhi,hoPhi,matchedRecHit->energy(),std::string("NoDoubleMuFilt"));
+									histogramBuilder.fillEnergyHistograms(matchedRecHit->energy(),std::string("NoSingleMuFilt"));
+									histogramBuilder.fillEnergyVsPosition(hoEta,hoPhi,matchedRecHit->energy(),std::string("NoSingleMuFilt"));
+									histogramBuilder.fillDeltaEtaDeltaPhiHistograms(genEta,hoEta,genPhi,hoPhi,std::string("NoSingleMuFilt"));
+									histogramBuilder.fillDeltaEtaDeltaPhiEnergyHistogram(genEta,hoEta,genPhi,hoPhi,matchedRecHit->energy(),std::string("NoSingleMuFilt"));
 								}
 							}
 						}
@@ -568,7 +568,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			}
 		}
 	}
-	histogramBuilder.fillMultiplicityHistogram(matchFailCounter,std::string("NoDoubleMu_MatchingFail"));
+	histogramBuilder.fillMultiplicityHistogram(matchFailCounter,std::string("NoSingleMu_MatchingFail"));
 
 }
 
