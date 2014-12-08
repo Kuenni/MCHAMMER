@@ -8,3 +8,4 @@ def setPlotStyle():
     gStyle.SetHistLineWidth(3)
     gStyle.SetPadTickX(1)
     gStyle.SetPadTickY(1)
+    gStyle.SetTextFont(62)
