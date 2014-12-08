@@ -13,7 +13,7 @@
 #include "math.h"
 
 /*
- * Wrap check calcuates the difference between two phi's,
+ * Wrap check calculates the difference between two phi's,
  * making sure they are not more than 2 pi apart.
  */
 
