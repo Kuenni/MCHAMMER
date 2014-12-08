@@ -308,8 +308,6 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	}
 	//get HO Rec Hits Above Threshold
 	string horecoT_key ="horecoAboveThreshold";
-	if(hasMuonsInAcceptance){
-	}
 
 	/**
 	 * Collect information of all HO Rec hits when there are
@@ -506,6 +504,27 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		myfile.open ("eventList_NoL1Muon.txt");
 		myfile << iEvent.id().run() << "\t" << iEvent.id().luminosityBlock() << "\t" << iEvent.id().event() << std::endl;
 		myfile.close();
+	} else{
+		for(reco::GenParticleCollection::const_iterator genIt = truthParticles->begin();
+				genIt != truthParticles->end(); genIt++){
+			float genEta = genIt->eta();
+			float genPhi = genIt->phi();
+			const HORecHit* matchedRecHit = HoMatcher::matchByEMaxDeltaR(genEta,genPhi,deltaR_Max,*hoRecoHits,*caloGeo);
+			if(matchedRecHit){
+				double hoEta = caloGeo->getPosition(matchedRecHit->id()).eta();
+				double hoPhi = caloGeo->getPosition(matchedRecHit->id()).phi();
+				histogramBuilder.fillDeltaEtaDeltaPhiEnergyHistogram(genEta,hoEta,genPhi,hoPhi,matchedRecHit->energy(),std::string("WithSingleMu"));
+				if(matchedRecHit->energy() >= threshold){
+					histogramBuilder.fillDeltaEtaDeltaPhiHistograms(genEta,hoEta,genPhi,hoPhi,std::string("WithSingleMuAboveThr"));
+					if (MuonHOAcceptance::inGeomAccept(genEta,genPhi/*,deltaR_Max,deltaR_Max*/)){
+						histogramBuilder.fillDeltaEtaDeltaPhiHistograms(genEta,hoEta,genPhi,hoPhi,std::string("WithSingleMuGeomAcc"));
+						if (MuonHOAcceptance::inNotDeadGeom(genEta,genPhi/*,deltaR_Max,deltaR_Max*/)){
+							histogramBuilder.fillDeltaEtaDeltaPhiHistograms(genEta,hoEta,genPhi,hoPhi,std::string("WithSingleMuNotDead"));
+						}
+					}
+				}
+			}
+		}
 	}
 
 	std::stringstream singleMu3Key;
