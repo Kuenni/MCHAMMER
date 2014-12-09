@@ -372,6 +372,10 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			if (MuonHOAcceptance::inGeomAccept(l1Muon_eta,l1Muon_phi/*,deltaR_Max,deltaR_Max*/)){
 				histogramBuilder.fillCountHistogram(std::string("L1MuonPresentHoMatchInAcc"));
 
+				if(matchedRecHit->energy() >= threshold ){
+					histogramBuilder.fillCountHistogram(std::string("L1MuonPresentHoMatchInAccThr"));
+				}
+
 				if (MuonHOAcceptance::inNotDeadGeom(l1Muon_eta,l1Muon_phi/*,deltaR_Max,deltaR_Max*/)){
 					histogramBuilder.fillCountHistogram(std::string("L1MuonPresentHoMatchInAccNotDead"));
 
