@@ -9,3 +9,5 @@ def setPlotStyle():
     gStyle.SetPadTickX(1)
     gStyle.SetPadTickY(1)
     gStyle.SetTextFont(62)
+    gStyle.SetLabelFont(62)
+    gStyle.SetTitleFont(62)
