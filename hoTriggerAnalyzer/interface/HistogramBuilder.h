@@ -16,6 +16,7 @@
 #include <TH1.h>
 #include <TH2.h>
 #include <TH3.h>
+#include <TTree.h>
 #include <map>
 #include <string>
 
@@ -85,6 +86,10 @@ class HistogramBuilder {
 
   std::map<std::string,TEfficiency*> _effMap;
   
+  std::map<std::string,TTree*> _treeDeltaEtaDeltaPhiEnergy;
+
+  std::map<std::string,TH1D**> _hArrDeltaEtaDeltaPhiEnergy;
+
 };
 
 #endif

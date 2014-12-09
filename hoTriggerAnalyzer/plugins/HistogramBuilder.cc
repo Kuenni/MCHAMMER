@@ -229,6 +229,7 @@ void HistogramBuilder::fillDeltaEtaDeltaPhiHistograms(float eta1, float eta2,
 				73, -3.1755, 3.1755);	//phi
 	}
 	_h2DeltaEtaDeltaPhi[key]->Fill(deltaEta, deltaPhi);
+
 } 
 
 /*
@@ -354,4 +355,46 @@ void HistogramBuilder::fillDeltaEtaDeltaPhiEnergyHistogram(float eta1, float eta
 				2000,0,100);
 	}
 	_h3DeltaEtaDeltaPhiEnergy[key]->Fill(deltaEta, deltaPhi, energy);
+
+
+	/**
+	 * This is done to track the deposited energies in a tile in delta eta delta phi coordinates.
+	 * With ths it should be possible to perform a landau fit to the energy instead of using the mean
+	 * which leads to a wrong Edep estimate.
+	 *
+	 * The coordinates are in iEta and iPhi relative to the central tile.
+	 *
+	 */
+	if(!_hArrDeltaEtaDeltaPhiEnergy.count(key)){
+		_hArrDeltaEtaDeltaPhiEnergy[key] = new TH1D*[49];
+		std::string histName;
+		for(int i = 0; i < 49; i++){
+			int iEta,iPhi;
+			std::string signStringEta,signStringPhi;
+			if(i == 24){
+				histName = Form("central_%s",key.c_str());
+			} else{
+				iEta = ( (i+1) % 7) - 4;
+				iPhi = ( (i+1) / 7) - 4;
+				signStringEta = ( iEta < 0 ) ? "M" : "P";
+				signStringPhi = ( iPhi < 0 ) ? "M" : "P";
+				iEta = abs(iEta);
+				iPhi = abs(iPhi);
+				histName = Form("eta%s%dPhi%s%d_%s",signStringEta.c_str(),iEta,signStringPhi.c_str(),iPhi,key.c_str());
+			}
+			std::string title;
+			if(i == 24){
+				title = Form("%s central Energy;Rec Hits / GeV;#",key.c_str());
+			} else {
+				title = Form("%s %s%d %s%d Energy;Rec Hits / GeV;#",key.c_str(),signStringEta.c_str(),iEta,signStringPhi.c_str(),iPhi);
+			}
+			_hArrDeltaEtaDeltaPhiEnergy[key][i] = etaPhiDir.make<TH1D>(histName.c_str(),title.c_str(),300,-5.0, 10.0);
+		}
+	}
+
+	//0.087 is the HO tile size in eta and phi
+	int iDeltaEta = (int) deltaEta/0.087;
+	int iDeltaPhi = (int) deltaPhi/0.087;
+	int histNumberInArray = ( iDeltaPhi + 3 )*7 + iDeltaEta + 3;
+	_hArrDeltaEtaDeltaPhiEnergy[key][histNumberInArray]->Fill(energy);
 }
