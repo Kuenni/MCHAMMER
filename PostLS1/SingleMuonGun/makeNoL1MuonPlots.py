@@ -13,6 +13,8 @@ PlotStyle.setPlotStyle()
 
 def doPlotCutflow(filename='L1MuonHistogram.root'):
 	
+	PlotStyle.setPlotStyle()
+	
 	if(DEBUG):
 		print 'Opening file:',filename
 	file = TFile.Open(filename)
@@ -75,8 +77,11 @@ def doPlotCutflow(filename='L1MuonHistogram.root'):
 		hist.GetXaxis().SetBinLabel(i+1,str(v))
 	
 	hist.SetStats(0)
+	hist.GetYaxis().SetTitle('rel. Fraction')
 	hist.GetYaxis().SetRangeUser(0.5,1.1
-								)	
+								)
+	hist.SetLabelFont(62)
+	hist.SetTitleFont(62)	
 	hist.Draw("")
 
 	paveText = TPaveText(0.51,0.75,0.9,0.9,'NDC')
@@ -93,23 +98,33 @@ def doPlotCutflow(filename='L1MuonHistogram.root'):
 	nTotal = histEvents.GetBinContent(2)
 	nL1 = histL1Muons.GetBinContent(2)
 	
-	nL1AndHo 				= histHo1.GetBinContent(2),
-#	nL1AndHoAcc				= histHo2.GetBinContent(2),
-#	nL1AndHoAccNotDead		= histHo3.GetBinContent(2),
-	nL1AndHoThr				= histThr1.GetBinContent(2),
-	nL1AndHoThrAcc			= histThr2.GetBinContent(2),
+	nL1AndHo 				= histHo1.GetBinContent(2)
+	nL1AndHoAcc				= histHo2.GetBinContent(2)
+	nL1AndHoAccNotDead		= histHo3.GetBinContent(2)
+	nL1AndHoThr				= histThr1.GetBinContent(2)
+	nL1AndHoThrAcc			= histThr2.GetBinContent(2)
 	nL1AndHoThrAccNotDead	= histThr3.GetBinContent(2)
 	
-	print 'nEvents:\t%d' % (nTotal)
-	print 'nL1:\t%d\t=>\t%.2f%%' % (nL1,nL1/nTotal*100)
-	print '%s' % (20*'#')
-	print 'L1AndHo:\t%d\t=>\t%.2f%%' % (nL1AndHo,nL1AndHo/nL1*100)
-#	print 'L1AndHoAcc:\t%d\t=>\t%.2f%%' % (nL1AndHoAcc,nL1AndHo/nL1*100)
-#	print 'L1AndHoAccNotDead:\t%d\t=>\t%.2f%%' % (nL1AndHoAccnotDead,nL1AndHo/nL1*100)
-	print '%s' % (20*'#')
-	print 'L1AndHoThr:\t%d\t=>\t%.2f%%' % (nL1AndHoThr,nL1AndHo/nL1*100)
-	print 'L1AndHoThrAcc:\t%d\t=>\t%.2f%%' % (nL1AndHoThrAcc,nL1AndHo/nL1*100)
-	print 'L1AndHoThrAccNotDead:\t%d\t=>\t%.2f%%' % (nL1AndHoThrAccNotDead,nL1AndHo/nL1*100)
+	print '%s' % (80*'#')
+	print '%s' % (80*'#')
+	
+	print '%25s%d' % ('nEvents:\t',nTotal)
+	print '%25s%d\t=>\t%.2f%%' % ('nL1:\t',nL1,nL1/nTotal*100)
+	
+	print '%s' % (80*'#')
+	
+	print '%25s%d\t=>\t%.2f%%' % ('L1AndHo:\t',nL1AndHo,nL1AndHo/nL1*100)
+	print '%25s%d\t=>\t%.2f%%' % ('L1AndHoAcc:\t',nL1AndHoAcc,nL1AndHoAcc/nL1*100)
+	print '%25s%d\t=>\t%.2f%%' % ('L1AndHoAccNotDead:\t',nL1AndHoAccNotDead,nL1AndHoAccNotDead/nL1*100)
+	
+	print '%s' % (80*'#')
+	
+	print '%25s%d\t=>\t%.2f%%' % ('L1AndHoThr:\t',nL1AndHoThr,nL1AndHoThr/nL1*100)
+	print '%25s%d\t=>\t%.2f%%' % ('L1AndHoThrAcc:\t',nL1AndHoThrAcc,nL1AndHoThrAcc/nL1*100)
+	print '%25s%d\t=>\t%.2f%%' % ('L1AndHoThrAccNotDead:\t',nL1AndHoThrAccNotDead,nL1AndHoThrAccNotDead/nL1*100)
+	
+	print '%s' % (80*'#')
+	print '%s' % (80*'#')
 											
 	return c
 
@@ -170,7 +185,9 @@ def doPlotEventCount(filename = 'L1MuonHistogram.root'):
 	
 	hist.SetStats(0)
 	hist.GetYaxis().SetTitle('#')
-#	hist.GetYaxis().SetRangeUser(0.5,1.1)	
+#	hist.GetYaxis().SetRangeUser(0.5,1.1)
+	hist.SetLabelFont(62)
+	hist.SetTitleFont(62)
 	hist.Draw("")
 
 	paveText = TPaveText(0.51,0.75,0.9,0.9,'NDC')
