@@ -395,6 +395,8 @@ void HistogramBuilder::fillDeltaEtaDeltaPhiEnergyHistogram(float eta1, float eta
 	//0.087 is the HO tile size in eta and phi
 	int iDeltaEta = (int) (deltaEta/0.0435);
 	int iDeltaPhi = (int) (deltaPhi/0.0435);
-	int histNumberInArray = ( iDeltaPhi + 3 )*7 + iDeltaEta + 3;
-	_hArrDeltaEtaDeltaPhiEnergy[key][histNumberInArray]->Fill(energy);
+	if(abs(iDeltaEta) < 4 && abs(iDeltaPhi) < 4){
+		int histNumberInArray = ( iDeltaPhi + 3 )*7 + iDeltaEta + 3;
+		_hArrDeltaEtaDeltaPhiEnergy[key][histNumberInArray]->Fill(energy);
+	}
 }
