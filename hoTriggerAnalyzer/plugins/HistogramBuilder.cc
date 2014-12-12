@@ -374,8 +374,8 @@ void HistogramBuilder::fillDeltaEtaDeltaPhiEnergyHistogram(float eta1, float eta
 			if(i == 24){
 				histName = Form("central_%s",key.c_str());
 			} else{
-				iEta = ( (i+1) % 7) - 4;
-				iPhi = ( (i+1) / 7) - 4;
+				iEta = ( (i) % 7) - 3;
+				iPhi = 3 - ( (i) / 7);
 				signStringEta = ( iEta < 0 ) ? "M" : "P";
 				signStringPhi = ( iPhi < 0 ) ? "M" : "P";
 				iEta = abs(iEta);
@@ -392,11 +392,36 @@ void HistogramBuilder::fillDeltaEtaDeltaPhiEnergyHistogram(float eta1, float eta
 		}
 	}
 
-	//0.087 is the HO tile size in eta and phi
-	int iDeltaEta = (int) (deltaEta/0.0435);
-	int iDeltaPhi = (int) (deltaPhi/0.0435);
+	/**
+	 * 0.087 is the tile size in eta and phi, but a shift by the half tile size is necessary,
+	 * since we are looking into relative coordinates from the center of the tile
+	 */
+	int iDeltaEta = 0;
+	int iDeltaPhi = 0;
+
+	//Calculate i delta eta
+	if( fabs(deltaEta) <= 0.0435){
+		iDeltaEta = 0;
+	} else{
+		iDeltaEta = 1 + int(fabs(deltaEta)/0.087 - 0.5);
+	}
+
+	//calculate i delta phi
+	if( fabs(deltaPhi) <= 0.0435){
+		iDeltaPhi = 0;
+	} else{
+		iDeltaPhi = 1 + int(fabs(deltaPhi)/0.087 - 0.5);
+	}
+
+	if(deltaEta != 0){
+		iDeltaEta = deltaEta / fabs(deltaEta)*iDeltaEta;
+	}
+
+	if(deltaPhi != 0)
+		iDeltaPhi = deltaPhi / fabs(deltaPhi)*iDeltaPhi;
+
 	if(abs(iDeltaEta) < 4 && abs(iDeltaPhi) < 4){
-		int histNumberInArray = ( iDeltaPhi + 3 )*7 + iDeltaEta + 3;
+		int histNumberInArray = ( 3 - iDeltaPhi )*7 + ( iDeltaEta + 3 );
 		_hArrDeltaEtaDeltaPhiEnergy[key][histNumberInArray]->Fill(energy);
 	}
 }
