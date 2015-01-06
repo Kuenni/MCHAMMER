@@ -425,3 +425,15 @@ void HistogramBuilder::fillDeltaEtaDeltaPhiEnergyHistogram(float eta1, float eta
 		_hArrDeltaEtaDeltaPhiEnergy[key][histNumberInArray]->Fill(energy);
 	}
 }
+
+/**
+ * Fill a histogram with a given BX ID for the given histogram key
+ */
+void HistogramBuilder::fillBxIdHistogram(int bxid, std::string key){
+	if(!_h1BxId.count(key)){
+		_h1BxId[key] = _fileService->make<TH1D>(Form("%s_BxId",key.c_str()),
+					Form("%s BX ID",key.c_str()),
+					21,-0.5,20.5);
+		}
+	_h1BxId[key]->Fill(bxid);
+}

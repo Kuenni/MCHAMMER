@@ -53,6 +53,8 @@ class HistogramBuilder {
   void fillEnergyVsPosition(double,double,double,std::string);
   void fillDeltaEtaDeltaPhiEnergyHistogram(float,float,float,float,float,std::string);
 
+  void fillBxIdHistogram(int,std::string);
+
  private:
 
   std::map<std::string,TH1F*> _h1L1MuonPt;
@@ -63,6 +65,8 @@ class HistogramBuilder {
   std::map<std::string,TH1D*> _h1DeltaVz;
   std::map<std::string,TH1D*> _h1Vz;
   
+  std::map<std::string,TH1D*> _h1BxId;
+
   std::map<std::string,TH1F*> _h1Eta;
   std::map<std::string,TH1F*> _h1Phi;
   std::map<std::string,TH2F*> _h2EtaPhiMap;
