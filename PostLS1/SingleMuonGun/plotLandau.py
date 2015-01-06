@@ -86,7 +86,7 @@ paveList = []
 lowStatisticsList = []
 boxList = []
 
-h3D = TH3D("histMpvs","MPV results;Relative i#eta;relative i#phi;Rec. E / GeV",7,-3.5,3.5,7,-3.5,3.5,20,0,4)
+h3D = TH3D("histMpvs","MPV results;Relative i#eta;Relative i#phi;Rec. E / GeV",7,-3.5,3.5,7,-3.5,3.5,20,0,4)
 
 
 for i,scenario in enumerate(scenarioNameList):
@@ -100,6 +100,8 @@ for i,scenario in enumerate(scenarioNameList):
 			histoList.append(localHist)
 			localHist.Draw()
 			localHist.SetStats(0)
+			paveText = TPaveText(0.4,0.6,0.9,0.9,'NDC')
+			paveText.AddText('%s: %.2f' % ('Mean',localHist.GetMean()))
 			if(localHist.GetEntries() > 3):
 				localFit = TF1('fit' + str(i*len(nameTrunkList)+j),"landau")
 				localFit.SetParameter(1,0.8)
@@ -112,15 +114,13 @@ for i,scenario in enumerate(scenarioNameList):
 					localI = j%5
 					h3D.Fill(localI - 2 , 2 - j/5 ,localFit.GetParameter(1))
 					if(localFit.GetNDF() < 4):
-						lowStatisticsList.append([localI - 2, 2 - j/5])
-				paveText = TPaveText(0.4,0.6,0.9,0.9,'NDC')
-				paveText.AddText('%s: %.2f' % ('Mean',localHist.GetMean()))
+						lowStatisticsList.append([localI - 2, 2 - j/5])		
 				paveText.AddText('%s: %.2f' % ('MPV',localFit.GetParameter(1)))
 				paveText.AddText('%s: %.2f/%d' % ('#Chi^{2}/NDF',localFit.GetChisquare(),localFit.GetNDF()))
-				paveText.SetBorderSize(1)
-				paveText.Draw()
-				paveList.append(paveText)
 				fitList.append(localFit)
+			paveText.SetBorderSize(1)
+			paveList.append(paveText)
+			paveText.Draw()
 		canvasList[i].Update()
 
 canvasList.append(TCanvas("canvasMpv","Canvas MPV",900,0,900,900))
@@ -145,3 +145,4 @@ boxList.append(drawHoBoxes(canvasList[3]))
 
 for c in canvasList:
 	c.Update()
+	c.SaveAs(c.GetName() + '.pdf')
