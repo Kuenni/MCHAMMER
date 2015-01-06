@@ -251,6 +251,10 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	for( unsigned int i = 0 ; i < l1Muons->size(); i++  ) {
 		histogramBuilder.fillCountHistogram(l1muon_key);
 		const l1extra::L1MuonParticle* bl1Muon = &(l1Muons->at(i));
+		ofstream myfile;
+		myfile.open ("L1MuonPt.txt",std::ios::app);
+		myfile << bl1Muon->pt() << std::endl;
+		myfile.close();
 		//Filter on l1muon objects in Barrel region only
 		if( abs(bl1Muon->eta()) <= 0.8 ){
 			hasMuonsInAcceptance = true;
@@ -505,7 +509,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		}
 		histogramBuilder.fillMultiplicityHistogram(recHitAbThrNoL1Counter,std::string("NoL1"));
 		ofstream myfile;
-		myfile.open ("eventList_NoL1Muon.txt");
+		myfile.open ("eventList_NoL1Muon.txt",std::ios::app);
 		myfile << iEvent.id().run() << "\t" << iEvent.id().luminosityBlock() << "\t" << iEvent.id().event() << std::endl;
 		myfile.close();
 	} else{
