@@ -54,6 +54,8 @@ class HistogramBuilder {
   void fillDeltaEtaDeltaPhiEnergyHistogram(float,float,float,float,float,std::string);
 
   void fillBxIdHistogram(int,std::string);
+  void fillTimeHistogram(double,std::string);
+  void fillDeltaTimeHistogram(double, int, std::string);
 
  private:
 
@@ -66,6 +68,9 @@ class HistogramBuilder {
   std::map<std::string,TH1D*> _h1Vz;
   
   std::map<std::string,TH1D*> _h1BxId;
+  std::map<std::string,TH1D*> _h1Time;
+  std::map<std::string,TH1D*> _h1DeltaTime;
+  std::map<std::string,TH2D*> _h2TimeCorrelation;
 
   std::map<std::string,TH1F*> _h1Eta;
   std::map<std::string,TH1F*> _h1Phi;

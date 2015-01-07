@@ -375,6 +375,8 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			hoEta = caloGeo->getPosition(matchedRecHit->detid()).eta();
 			hoPhi = caloGeo->getPosition(matchedRecHit->detid()).phi();
 			histogramBuilder.fillCountHistogram("L1MuonPresentHoMatch");
+			histogramBuilder.fillTimeHistogram(matchedRecHit->time(),std::string("L1MuonPresentHoMatch"));
+			histogramBuilder.fillDeltaTimeHistogram(matchedRecHit->time(),bl1Muon->bx(),std::string("L1MuonPresentHoMatch"));
 			histogramBuilder.fillBxIdHistogram(bl1Muon->bx(),std::string("L1MuonPresentHoMatch"));
 			if (MuonHOAcceptance::inGeomAccept(l1Muon_eta,l1Muon_phi/*,deltaR_Max,deltaR_Max*/)){
 				histogramBuilder.fillCountHistogram(std::string("L1MuonPresentHoMatchInAcc"));
@@ -422,6 +424,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				//Fill some counting histograms. Can be used for cut flow in efficiency
 				histogramBuilder.fillCountHistogram(std::string("L1MuonAboveThr"));
 				histogramBuilder.fillBxIdHistogram(bl1Muon->bx(),std::string("L1MuonAboveThr"));
+				histogramBuilder.fillDeltaTimeHistogram(matchedRecHit->time(),bl1Muon->bx(),std::string("L1MuonAboveThr"));
 				double hoEta,hoPhi;
 				hoEta = caloGeo->getPosition(matchedRecHit->detid()).eta();
 				hoPhi = caloGeo->getPosition(matchedRecHit->detid()).phi();
@@ -431,6 +434,8 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 					histogramBuilder.fillCountHistogram(std::string("L1MuonAboveThrInAcc"));
 					histogramBuilder.fillBxIdHistogram(bl1Muon->bx(),std::string("L1MuonAboveThrInAcc"));
 					if (MuonHOAcceptance::inNotDeadGeom(l1Muon_eta,l1Muon_phi/*,deltaR_Max,deltaR_Max*/)){
+						histogramBuilder.fillTimeHistogram(matchedRecHit->time(),std::string("L1MuonAboveThrInAccNotDead"));
+						histogramBuilder.fillDeltaTimeHistogram(matchedRecHit->time(),bl1Muon->bx(),std::string("L1MuonAboveThrInAccNotDead"));
 						histogramBuilder.fillCountHistogram(std::string("L1MuonAboveThrInAccNotDead"));
 						histogramBuilder.fillBxIdHistogram(bl1Muon->bx(),std::string("L1MuonAboveThrInAccNotDead"));
 						histogramBuilder.fillTrigHistograms(caloGeo->present(matchedRecHit->id()),std::string("caloGeoPresent_L1MuonHoMatchAboveThrFilt"));

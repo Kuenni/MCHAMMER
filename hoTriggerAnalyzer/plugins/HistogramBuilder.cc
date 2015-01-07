@@ -432,8 +432,41 @@ void HistogramBuilder::fillDeltaEtaDeltaPhiEnergyHistogram(float eta1, float eta
 void HistogramBuilder::fillBxIdHistogram(int bxid, std::string key){
 	if(!_h1BxId.count(key)){
 		_h1BxId[key] = _fileService->make<TH1D>(Form("%s_BxId",key.c_str()),
-					Form("%s BX ID",key.c_str()),
-					21,-0.5,20.5);
+					Form("%s BX ID;BX ID;#",key.c_str()),
+					26,-5.5,20.5);
 		}
 	_h1BxId[key]->Fill(bxid);
+}
+
+/**
+ * Fill a histogram with a given time in ns for the given histogram key
+ */
+void HistogramBuilder::fillTimeHistogram(double time, std::string key){
+	if(!_h1Time.count(key)){
+		_h1Time[key] = _fileService->make<TH1D>(Form("%s_Time",key.c_str()),
+					Form("%s Time;ns;#",key.c_str()),
+					26,-5.5,20.5);
+		}
+	_h1Time[key]->Fill(time);
+}
+
+/**
+ * Fill a histogram with the time difference between the HO Rec hit Time in ns and the
+ * L1MuonParticle bx, calculated in ns
+ */
+void HistogramBuilder::fillDeltaTimeHistogram(double time, int bx, std::string key){
+	if(!_h1DeltaTime.count(key)){
+		_h1DeltaTime[key] = _fileService->make<TH1D>(Form("%s_DeltaTime",key.c_str()),
+					Form("%s #DeltaTime;ns;#",key.c_str()),
+					201,-100.5,100.5);
+	}
+	_h1DeltaTime[key]->Fill(bx*25 - time);
+	if(!_h2TimeCorrelation.count(key)){
+		_h2TimeCorrelation[key] = _fileService->make<TH2D>(Form("%s_TimeCorrelation",key.c_str()),
+				Form("%s Time Correlation;HO time / ns;L1 Time / ns",key.c_str()),
+				200, -100.5,100.5,	//1ns bins
+				200, -100.5,100.5	//1ns bins
+				);
+	}
+	_h2TimeCorrelation[key]->Fill(time,bx*25);
 }
