@@ -240,7 +240,7 @@ void HistogramBuilder::fillL1MuonPtHistograms(float pt, std::string key){
 	if(!_h1L1MuonPt.count(key)){
 		float variableBinArray[] = {0,0.5,1,1.5,2,2.5,3,3.5,4,4.5,5,6,7,8,9,10,12,14,16,18,20,25,30,35,40,45,50,60,70,80,100,120,140,180};
 		_h1L1MuonPt[key] = _fileService->make<TH1F>(Form("%s_Pt",key.c_str()),
-				Form("%s Pt",key.c_str()),
+				Form("%s Pt;p_{T};#",key.c_str()),
 				33,
 				variableBinArray);
 	}
@@ -250,7 +250,7 @@ void HistogramBuilder::fillL1MuonPtHistograms(float pt, std::string key){
 void HistogramBuilder::fillPtHistogram(float pt, std::string key){
 	if(!_h1L1MuonPt.count(key)){
 		_h1L1MuonPt[key] = _fileService->make<TH1F>(Form("%s_Pt",key.c_str()),
-				Form("%s Pt",key.c_str()),
+				Form("%s Pt,p_{T},#",key.c_str()),
 				5000,0,500);
 	}
 	_h1L1MuonPt[key]->Fill(pt);
