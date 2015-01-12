@@ -1,6 +1,6 @@
 import os,sys
 from math import sqrt
-sys.path.append(os.path.abspath("/user/kuensken/ChrisAnelliCode/CMSSW_6_2_0_SLHC11/src/HoMuonTrigger/python"))
+sys.path.append(os.path.abspath("../../python"))
 
 from ROOT import TCanvas,ROOT,TFile,TLegend,TF1,TLine,gROOT,TPaveText
 
@@ -87,6 +87,9 @@ paveText.AddText('%s' % ('Central peak contains (filtered hist.)'))
 paveText.AddText('%.2f%% +/- %.2f%%' % (integralCenter/hDeltaTCleanHo.Integral()*100,calcSigma(integralCenter, hDeltaTCleanHo.Integral())*100))
 paveText.SetBorderSize(1)
 paveText.Draw()
+
+PlotStyle.labelCmsPrivateSimulation.Draw()
+
 c.Update()
 
 
