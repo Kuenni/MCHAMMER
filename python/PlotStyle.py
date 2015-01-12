@@ -7,6 +7,7 @@ colorRwthDarkBlue 	= TColor.GetColor("#00549F")
 labelCmsPrivateSimulation = TPaveText(0.1,0.901,0.4,0.93,"NDC")
 labelCmsPrivateSimulation.AddText("#font[62]{CMS private}, #font[72]{simulation}")
 labelCmsPrivateSimulation.SetBorderSize(1)
+labelCmsPrivateSimulation.SetFillColor(0) # 0 == White
 
 def setPlotStyle():
     gStyle.SetPadGridX(1)
