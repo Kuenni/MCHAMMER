@@ -10,8 +10,17 @@ struct GenMuonData{
 	bool inNotDeadGeom;
 	bool inSiPMGeom;
 
-	GenMuonData(double _eta, double _phi, double _pt, int _pdgId, bool _iga, bool _indg, bool _isg):eta(_eta),phi(_phi),pt(_pt),pdgId(_pdgId),inGeomAcceptance(_iga),inNotDeadGeom(_indg),inSiPMGeom(_isg){}
-	GenMuonData(){}
+	GenMuonData(double _eta, double _phi, double _pt, int _pdgId, bool _iga, bool _indg, bool _isg):
+		eta(_eta),phi(_phi),pt(_pt),pdgId(_pdgId),inGeomAcceptance(_iga),inNotDeadGeom(_indg),inSiPMGeom(_isg){}
+	GenMuonData(){
+		eta = 0;
+		phi = 0;
+		pt = -1;
+		pdgId = 0;
+		inGeomAcceptance = false;
+		inNotDeadGeom = false;
+		inSiPMGeom = false;
+	}
 };
 
 #endif

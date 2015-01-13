@@ -9,8 +9,12 @@ struct HoRecHitData{
 	double eta;
 	double phi;
 	double energy;
-	HoRecHitData(){}
 	HoRecHitData(double _eta, double _phi, double _energy):eta(_eta),phi(_phi),energy(_energy){}
+	HoRecHitData(){
+		eta = 0;
+		phi = 0;
+		energy = 0;
+	}
 };
 
 #endif

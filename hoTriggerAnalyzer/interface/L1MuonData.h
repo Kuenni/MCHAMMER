@@ -13,7 +13,16 @@ struct L1MuonData {
 	bool inGeomAcceptance;
 	bool inNotDeadGeom;
 	bool inSiPMGeom;
-	L1MuonData(double _eta, double _phi, double _pt, int _bx, bool iga, bool indg, bool isg):eta(_eta),phi(_phi),pt(_pt),bx(_bx),inGeomAcceptance(iga),inNotDeadGeom(indg),inSiPMGeom(isg){}
-	L1MuonData(){}
+	L1MuonData(double _eta, double _phi, double _pt, int _bx, bool iga, bool indg, bool isg):
+		eta(_eta),phi(_phi),pt(_pt),bx(_bx),inGeomAcceptance(iga),inNotDeadGeom(indg),inSiPMGeom(isg){}
+	L1MuonData(){
+		eta = 0;
+		phi = 0;
+		pt = -1;
+		bx = 0;
+		inGeomAcceptance = false;
+		inNotDeadGeom = false;
+		inSiPMGeom = false;
+	}
 };
 #endif
