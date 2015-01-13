@@ -33,6 +33,10 @@
 #include <string>
 #include <vector>
 
+#include "L1MuonData.h"
+#include "GenMuonData.h"
+#include "HoRecHitData.h"
+
 #include "HistogramBuilder.h"
 
 using namespace::std;
@@ -107,6 +111,19 @@ private:
   bool trigDecision;
   bool singleMu3Trig,doubleMu0Trig;
   bool debug;
+
+  /**
+   * Prepare a TTree and some vectors for storing the data.
+   * Analysis and adding of new plots should be faster, and cmssw would only needed
+   * to be rerun if a new data member is needed. The data in the vectors is stored in structs
+   * for the different objects (L1, HoRechit, Gen)
+   */
+
+  TTree* dataTree;
+
+  std::vector<L1MuonData>* l1MuonVector;
+  std::vector<HoRecHitData>* hoRecHitVector;
+  std::vector<GenMuonData>* genMuonVector;
 
   /**
    * Energy threshold for HO rec hits

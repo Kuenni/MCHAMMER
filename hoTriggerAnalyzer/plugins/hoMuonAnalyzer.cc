@@ -61,6 +61,7 @@
 
 #include "RecoMuon/MuonIdentification/interface/MuonHOAcceptance.h"
 #include "TMultiGraph.h"
+#include "TROOT.h"
 #include <iosfwd>
 
 #include "HoMuonTrigger/hoTriggerAnalyzer/interface/FilterPlugin.h"
@@ -91,6 +92,24 @@ hoMuonAnalyzer::hoMuonAnalyzer(const edm::ParameterSet& iConfig)/*:
 	doubleMu5TrigName = "L1_DoubleMu5 ";
 
 	defineTriggersOfInterest();
+
+
+	/**
+ 	 * Create the root tree for tuple storage. After that tell root to process the loader
+ 	 * script which will provide support for the vetors of structs in the tree
+ 	 */
+	dataTree = _fileService->make<TTree>("dataTree","Tree with L1, Gen, and HO data");
+
+	gROOT->ProcessLine(".L ./loader.C+");
+
+	l1MuonVector = new std::vector<L1MuonData>();
+	genMuonVector = new std::vector<GenMuonData>();
+	hoRecHitVector = new std::vector<HoRecHitData>();
+
+	dataTree->Branch("l1MuonData","vector<L1MuonData>",l1MuonVector);
+	dataTree->Branch("hoRecHitData","vector<HoRecHitData>",hoRecHitVector);
+	dataTree->Branch("genMuonData","vector<GenMuonData>",genMuonVector);
+
 }
 
 
@@ -132,6 +151,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	/*
 	 * Get Event Data and Event Setup
 	 */
+
 	iEvent.getByLabel(_genInput,truthParticles);
 
 	iEvent.getByLabel(_l1MuonInput, l1Muons);
@@ -175,8 +195,53 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	 * Get the track det match info running
 	 */
 	reco::GenParticleCollection::const_iterator genPart = truthParticles->begin();
-	GlobalPoint genvertex(genPart->vx(), genPart->vy(), genPart->vz());
-	GlobalVector genmomentum(genPart->px(), genPart->py(), genPart->pz());
+
+	/**
+ 	 * Loop over the collections for gen muons, l1muons and hoRechits
+ 	 * Fill the information in vectors of structs and write this data to
+ 	 * the root tree
+ 	 */
+	genMuonVector->clear();
+	for( genPart = truthParticles->begin() ; genPart != truthParticles->end(); genPart++){
+		genMuonVector->push_back(GenMuonData(
+			genPart->eta(),
+			genPart->phi(),
+			genPart->pt(),
+			genPart->pdgId(),
+			MuonHOAcceptance::inGeomAccept(genPart->eta(),genPart->phi()),
+			MuonHOAcceptance::inNotDeadGeom(genPart->eta(),genPart->phi()),
+			MuonHOAcceptance::inSiPMGeom(genPart->eta(),genPart->phi())
+		));
+	}
+
+	l1MuonVector->clear();
+	for( l1extra::L1MuonParticleCollection::const_iterator it = l1Muons->begin();
+		it != l1Muons->end() ; it++ ){
+		l1MuonVector->push_back(
+			L1MuonData(
+				it->eta(),
+				it->phi(),
+				it->pt(),
+				it->bx(),
+				MuonHOAcceptance::inGeomAccept(it->eta(),it->phi()),
+				MuonHOAcceptance::inNotDeadGeom(it->eta(),it->phi()),
+			        MuonHOAcceptance::inSiPMGeom(it->eta(),it->phi())
+			)
+		);
+	}
+
+	hoRecHitVector->clear();
+	for( auto it = hoRecoHits->begin(); it != hoRecoHits->end(); it++ ){
+		hoRecHitVector->push_back(
+			HoRecHitData(
+				caloGeo->getPosition(it->id()).eta(),
+				caloGeo->getPosition(it->id()).phi(),
+				it->energy()
+			)
+		);
+	}
+
+	dataTree->Fill();
 
 	//	assoc.useDefaultPropagator();
 	//
