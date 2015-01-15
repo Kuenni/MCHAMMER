@@ -236,7 +236,8 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			HoRecHitData(
 				caloGeo->getPosition(it->id()).eta(),
 				caloGeo->getPosition(it->id()).phi(),
-				it->energy()
+				it->energy(),
+				it->time()
 			)
 		);
 	}
