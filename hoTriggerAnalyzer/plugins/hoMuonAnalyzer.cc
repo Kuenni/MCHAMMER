@@ -95,9 +95,9 @@ hoMuonAnalyzer::hoMuonAnalyzer(const edm::ParameterSet& iConfig)/*:
 
 
 	/**
- 	 * Create the root tree for tuple storage. After that tell root to process the loader
- 	 * script which will provide support for the vetors of structs in the tree
- 	 */
+	 * Create the root tree for tuple storage. After that tell root to process the loader
+	 * script which will provide support for the vetors of structs in the tree
+	 */
 	dataTree = _fileService->make<TTree>("dataTree","Tree with L1, Gen, and HO data");
 
 	gROOT->ProcessLine(".L ./loader.C+");
@@ -197,48 +197,48 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	reco::GenParticleCollection::const_iterator genPart = truthParticles->begin();
 
 	/**
- 	 * Loop over the collections for gen muons, l1muons and hoRechits
- 	 * Fill the information in vectors of structs and write this data to
- 	 * the root tree
- 	 */
+	 * Loop over the collections for gen muons, l1muons and hoRechits
+	 * Fill the information in vectors of structs and write this data to
+	 * the root tree
+	 */
 	genMuonVector->clear();
 	for( genPart = truthParticles->begin() ; genPart != truthParticles->end(); genPart++){
 		genMuonVector->push_back(GenMuonData(
-			genPart->eta(),
-			genPart->phi(),
-			genPart->pt(),
-			genPart->pdgId(),
-			MuonHOAcceptance::inGeomAccept(genPart->eta(),genPart->phi()),
-			MuonHOAcceptance::inNotDeadGeom(genPart->eta(),genPart->phi()),
-			MuonHOAcceptance::inSiPMGeom(genPart->eta(),genPart->phi())
+				genPart->eta(),
+				genPart->phi(),
+				genPart->pt(),
+				genPart->pdgId(),
+				MuonHOAcceptance::inGeomAccept(genPart->eta(),genPart->phi()),
+				MuonHOAcceptance::inNotDeadGeom(genPart->eta(),genPart->phi()),
+				MuonHOAcceptance::inSiPMGeom(genPart->eta(),genPart->phi())
 		));
 	}
 
 	l1MuonVector->clear();
 	for( l1extra::L1MuonParticleCollection::const_iterator it = l1Muons->begin();
-		it != l1Muons->end() ; it++ ){
+			it != l1Muons->end() ; it++ ){
 		l1MuonVector->push_back(
-			L1MuonData(
-				it->eta(),
-				it->phi(),
-				it->pt(),
-				it->bx(),
-				MuonHOAcceptance::inGeomAccept(it->eta(),it->phi()),
-				MuonHOAcceptance::inNotDeadGeom(it->eta(),it->phi()),
-			        MuonHOAcceptance::inSiPMGeom(it->eta(),it->phi())
-			)
+				L1MuonData(
+						it->eta(),
+						it->phi(),
+						it->pt(),
+						it->bx(),
+						MuonHOAcceptance::inGeomAccept(it->eta(),it->phi()),
+						MuonHOAcceptance::inNotDeadGeom(it->eta(),it->phi()),
+						MuonHOAcceptance::inSiPMGeom(it->eta(),it->phi())
+				)
 		);
 	}
 
 	hoRecHitVector->clear();
 	for( auto it = hoRecoHits->begin(); it != hoRecoHits->end(); it++ ){
 		hoRecHitVector->push_back(
-			HoRecHitData(
-				caloGeo->getPosition(it->id()).eta(),
-				caloGeo->getPosition(it->id()).phi(),
-				it->energy(),
-				it->time()
-			)
+				HoRecHitData(
+						caloGeo->getPosition(it->id()).eta(),
+						caloGeo->getPosition(it->id()).phi(),
+						it->energy(),
+						it->time()
+				)
 		);
 	}
 
@@ -391,7 +391,9 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	int recHitAbThrInGeomCounter = 0;
 	auto hoRecoIt = hoRecoHits->begin();
 	for( ; hoRecoIt != hoRecoHits->end() ; hoRecoIt++){
+		histogramBuilder.fillTimeHistogram(hoRecoIt->time(),std::string("hoRecHits"));
 		if(hoRecoIt->energy() >= threshold){
+			histogramBuilder.fillTimeHistogram(hoRecoIt->time(),std::string("hoRecHitsAboveThr"));
 			recHitAbThrCounter++;
 			if(hasMuonsInAcceptance){
 				recHitAbThrInGeomCounter++;
@@ -496,6 +498,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				histogramBuilder.fillCountHistogram(std::string("L1MuonAboveThr"));
 				histogramBuilder.fillBxIdHistogram(bl1Muon->bx(),std::string("L1MuonAboveThr"));
 				histogramBuilder.fillDeltaTimeHistogram(matchedRecHit->time(),bl1Muon->bx(),std::string("L1MuonAboveThr"));
+				histogramBuilder.fillTimeHistogram(matchedRecHit->time(),std::string("L1MuonAboveThr"));
 				double hoEta,hoPhi;
 				hoEta = caloGeo->getPosition(matchedRecHit->detid()).eta();
 				hoPhi = caloGeo->getPosition(matchedRecHit->detid()).phi();
@@ -622,19 +625,11 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		}
 	}
 
-	std::stringstream singleMu3Key;
-	singleMu3Key << singleMu3TrigName;
-	std::stringstream doubleMu0Key;
-	doubleMu0Key << doubleMu0TrigName;
-	if(singleMu3Trig)
-		histogramBuilder.fillTrigHistograms(singleMu3Trig,singleMu3Key.str());
-	if(doubleMu0Trig)
-		histogramBuilder.fillTrigHistograms(doubleMu0Trig,doubleMu0Key.str());
 	if(!singleMu3Trig){
 		histogramBuilder.fillCountHistogram(std::string("NoSingleMu"));
 		histogramBuilder.fillMultiplicityHistogram(l1Muons->size(),std::string("NoSingleMu_L1Muon"));
-//		histogramBuilder.fillL1MuonPtHistograms(l1Muons->at(0).pt(),std::string("NoDoubleMuWithSingleMu_L1Muon"));
-//		histogramBuilder.fillEtaPhiHistograms(l1Muons->at(0).eta(),l1Muons->at(0).phi(),std::string("NoDoubleMuWithSingleMu_L1Muon"));
+		//		histogramBuilder.fillL1MuonPtHistograms(l1Muons->at(0).pt(),std::string("NoDoubleMuWithSingleMu_L1Muon"));
+		//		histogramBuilder.fillEtaPhiHistograms(l1Muons->at(0).eta(),l1Muons->at(0).phi(),std::string("NoDoubleMuWithSingleMu_L1Muon"));
 	}
 
 	//################################
@@ -651,6 +646,9 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				//Try to find a corresponding Gen Muon
 				float genEta = genIt->eta();
 				float genPhi = genIt->phi();
+				if(l1Muons->size()>0){
+					histogramBuilder.fillCountHistogram(std::string("NoTriggerButL1Muons"));
+				}
 				const l1extra::L1MuonParticle* l1Ref = getBestL1MuonMatch(genEta,genPhi);
 				//Inspect the cases where there was no matching to an L1Muon possible
 				if(!l1Ref){
@@ -664,6 +662,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 						histogramBuilder.fillEtaPhiHistograms(hoEta,hoPhi,std::string("NoSingleMu_Ho"));
 						histogramBuilder.fillDeltaEtaDeltaPhiEnergyHistogram(genEta,hoEta,genPhi,hoPhi,matchedRecHit->energy(),std::string("NoSingleMu"));
 						histogramBuilder.fillPtHistogram(genIt->pt(),std::string("NoSingleMuButHo"));
+						histogramBuilder.fillEfficiency(matchedRecHit->energy()>=threshold,genIt->pt(),"energyTurnOn");
 						//Is the energy above threshold
 						if(matchedRecHit->energy() >= threshold){
 							histogramBuilder.fillPtHistogram(genIt->pt(),std::string("NoSingleMuAboveThr"));
@@ -671,7 +670,9 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 							histogramBuilder.fillEnergyHistograms(matchedRecHit->energy(),std::string("NoSingleMu"));
 							histogramBuilder.fillEnergyVsPosition(hoEta,hoPhi,matchedRecHit->energy(),std::string("NoSingleMu"));
 							histogramBuilder.fillDeltaEtaDeltaPhiHistograms(genEta,hoEta,genPhi,hoPhi,std::string("NoSingleMu"));
+							histogramBuilder.fillTimeHistogram(matchedRecHit->time(),std::string("NoSingleMu"));
 							histogramBuilder.fillDeltaEtaDeltaPhiEnergyHistogram(genEta,hoEta,genPhi,hoPhi,matchedRecHit->energy(),std::string("NoSingleMuAboveThr"));
+							histogramBuilder.fillEfficiency(matchedRecHit->energy()>=threshold,genIt->pt(),"energyTurnOnAboveThr");
 							if (MuonHOAcceptance::inGeomAccept(genEta,genPhi/*,deltaR_Max,deltaR_Max*/)){
 								histogramBuilder.fillCountHistogram(std::string("NoSingleMuAboveThrInAcc"));
 								histogramBuilder.fillPtHistogram(genIt->pt(),std::string("NoSingleMuAboveThrInAcc"));
