@@ -1,6 +1,6 @@
 import os,sys
 from math import sqrt
-sys.path.append(os.path.abspath("/user/kuensken/ChrisAnelliCode/CMSSW_6_2_0_SLHC11/src/HoMuonTrigger/python"))
+sys.path.append(os.path.abspath("../../python"))
 
 from ROOT import TFile, TCanvas, TH1D, TLegend, TPaveText
 
@@ -53,7 +53,7 @@ def doPlotCutflow(filename='L1MuonHistogram.root'):
 	histThr3 = file.Get(tagThr3)
 
 	yValues = [
-#			histEvents.GetBinContent(2),
+			histEvents.GetBinContent(2),
 			histL1Muons.GetBinContent(2),
 			histHo1.GetBinContent(2),
 #			histHo2.GetBinContent(2),
@@ -64,11 +64,11 @@ def doPlotCutflow(filename='L1MuonHistogram.root'):
 			]
 	
 	xLabels = [
-	#		'Event count',
+			'Event count',
 			'L1Muon objects',
 			'HO match (No Thr.)',
-			'+ HO match > 0.2 GeV',
-			'+ HO acceptance'
+			'HO match > 0.2 GeV',
+	#		'+ HO acceptance'
 			]
 	
 	norm = yValues[0]
@@ -84,17 +84,33 @@ def doPlotCutflow(filename='L1MuonHistogram.root'):
 	
 	hist.SetStats(0)
 	hist.GetYaxis().SetTitle('rel. Fraction')
-	hist.GetYaxis().SetRangeUser(0.5,1.1
-								)
+	hist.GetYaxis().SetRangeUser(0.7,1.1)
+	hist.SetLineColor(PlotStyle.colorRwthDarkBlue)
 	hist.SetLabelFont(62)
 	hist.SetTitleFont(62)	
 	hist.Draw("")
 
+	histTrgCount = file.Get('hoMuonAnalyzer/count/L1_SingleMu3_Count')
+
+	hist2 = TH1D("l1TrgCount","PostLS1 Single #mu gun",len(xLabels),0,len(xLabels))
+	hist2.SetBinContent(1,histTrgCount.GetBinContent(2)/norm)
+	hist2.SetFillStyle(3002)
+	hist2.SetFillColor(PlotStyle.colorRwthMagenta)
+	hist2.SetLineColor(PlotStyle.colorRwthMagenta)
+	hist2.Draw("same")
+	
 	paveText = TPaveText(0.51,0.75,0.9,0.9,'NDC')
-	paveText.AddText('%s: %.2f%% +/- %.2f%%' % (xLabels[2],yValues[2]*100,calcSigma(yValues[2]*norm,norm)*100))
-	paveText.AddText('%s: %.2f%% +/- %.2f%%' % (xLabels[3],yValues[3]*100,calcSigma(yValues[3]*norm,norm)*100))
+	paveText.AddText('%s: %.2f%% #pm %.2f%%' % (xLabels[1],yValues[1]*100,calcSigma(yValues[1]*norm,norm)*100))
+	paveText.AddText('%s: %.2f%% #pm %.2f%%' % (xLabels[2],yValues[2]*100,calcSigma(yValues[2]*norm,norm)*100))
+	paveText.AddText('%s: %.2f%% #pm %.2f%%' % (xLabels[3],yValues[3]*100,calcSigma(yValues[3]*norm,norm)*100))
 	paveText.SetBorderSize(1)
 	paveText.Draw()
+	
+	legend = TLegend(0.1,0.8,0.45,0.9)
+	legend.AddEntry(hist2,"Fraction with L1 Single #mu Trg.","f")
+	legend.Draw()
+	
+	PlotStyle.labelCmsPrivateSimulation.Draw()
 	
 	c.Update()
 	c.SaveAs("cutflow.png")
@@ -192,6 +208,7 @@ def doPlotEventCount(filename = 'L1MuonHistogram.root'):
 		hist.GetXaxis().SetBinLabel(i+1,str(v))
 	
 	hist.SetStats(0)
+	hist.SetLineColor(PlotStyle.colorRwthDarkBlue)
 	hist.GetYaxis().SetTitle('#')
 #	hist.GetYaxis().SetRangeUser(0.5,1.1)
 	hist.SetLabelFont(62)
@@ -199,10 +216,13 @@ def doPlotEventCount(filename = 'L1MuonHistogram.root'):
 	hist.Draw("")
 
 	paveText = TPaveText(0.51,0.75,0.9,0.9,'NDC')
-	paveText.AddText('%s: %d => %.2f%% +/- %.2f%%' % (xLabels[0],yValues[0],yValues[0]/nEvents*100,calcSigma(yValues[0], nEvents)*100))
-	paveText.AddText('%s: %d => %.2f%% +/- %.2f%%' % (xLabels[1],yValues[1],yValues[1]/yValues[0]*100,calcSigma(yValues[1], yValues[0])*100))
+	paveText.AddText('%s: %d => %.2f%% #pm %.2f%%' % (xLabels[0],yValues[0],yValues[0]/nEvents*100,calcSigma(yValues[0], nEvents)*100))
+	paveText.AddText('%s: %d => %.2f%% #pm %.2f%%' % (xLabels[1],yValues[1],yValues[1]/yValues[0]*100,calcSigma(yValues[1], yValues[0])*100))
 	paveText.SetBorderSize(1)
 	paveText.Draw()
+	
+	PlotStyle.labelCmsPrivateSimulation.Draw()
+	
 	c.Update()
 
 	c.SaveAs("eventCount.png")
@@ -219,3 +239,4 @@ def main(filename = 'L1MuonHistogram.root'):
 	
 if __name__ == '__main__':
 	main()
+	raw_input('--> Enter')
