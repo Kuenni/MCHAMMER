@@ -1,7 +1,7 @@
 #!/usr/bin/python
 import os,sys
 
-sys.path.append(os.path.abspath("/user/kuensken/ChrisAnelliCode/CMSSW_6_2_0_SLHC11/src/HoMuonTrigger/python"))
+sys.path.append(os.path.abspath("../../python"))
 
 from plotEnergy import plotEnergy, plotEnergyVsEta, plotEnergyVsPhi
 from plotDeltaEtaDeltaPhi import plotDeltaEtaDeltaPhi
