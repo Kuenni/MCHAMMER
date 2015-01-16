@@ -1,6 +1,6 @@
 #!/usr/bin/python
-from ROOT import ROOT,gROOT,TCanvas,TFile,TH1D,TH2D,TLegend,THStack,TPaveText, TMarker
-import sys,os
+from ROOT import ROOT,gROOT,TCanvas,TFile,TH1D,TH2D,TLegend,THStack,TPaveText, TMarker,TLine
+import sys,os,math
 import PlotStyle
 
 DEBUG = 1
@@ -9,6 +9,8 @@ prefix = '[plotEfficiency] '
 markerpairs = []
 markerpairs = [	[20,24],[21,25],[22,26],[23,32],[34,28] ]
 
+def calcSigma(num,denom):
+	return math.sqrt(num/(denom*denom) + num*num/(pow(denom, 3)))
 
 def plotEfficiencyForPt(folder,pt):
 	if(DEBUG):
@@ -41,7 +43,7 @@ def plotEfficiencyForPt(folder,pt):
 	l1MuonAndHo = file.Get("hoMuonAnalyzer/efficiency/L1MuonPt" + str(pt) + "HoReco_Efficiency")
 	l1MuonAndHoAboveThr = file.Get("hoMuonAnalyzer/efficiency/L1MuonPt" + str(pt) + "HoRecoAboveThr_Efficiency")
 	
-	canv = TCanvas("efficiencyCanvas",'efficiencyCanvas',1200,1200)
+	canv = TCanvas("efficiencyCanvas" + str(pt),'efficiencyCanvas' + str(pt),1200,1200)
 	
 # 	frame = TH2D('frame','L1 Efficiency',1,5,150,1,0,1.1)
 # 	frame.SetStats(0)
@@ -68,16 +70,39 @@ def plotEfficiencyForPt(folder,pt):
 	canv.Update()
 	l1Muon.GetPaintedGraph().GetYaxis().SetTitleFont(62)
 	l1Muon.GetPaintedGraph().GetYaxis().SetLabelFont(62)
-	l1Muon.GetPaintedGraph().GetXaxis().SetRangeUser(0,40)
+	l1Muon.GetPaintedGraph().GetXaxis().SetRangeUser(0,50)
 	#.GetPaintedGraph()
 	l1Muon.SetTitle("Efficiency, p_{T} = " + str(pt) + " GeV;p_{T};Eff.")
 	canv.Update()
 
+	line = TLine(pt,0,pt,1)
+	line.SetLineColor(ROOT.kRed)
+	line.SetLineWidth(2)
+	line.Draw()
+
 	legend = TLegend(0.5,0.1,0.9,0.35)
 	legend.AddEntry(l1Muon,'L1 Efficiency','ep')
-#	legend.AddEntry(l1MuonAndHo,'L1 + HO hits','ep')
 	legend.AddEntry(l1MuonAndHoAboveThr,'L1 + HO hits > 0.2 GeV','ep')
+	legend.AddEntry(line,'Trg. threshold','e')
 	legend.Draw()
+	
+	integralL1 = 0
+	integralL1AndHo = 0
+	for i in range(0,pt+1):
+		integralL1 += l1Muon.GetPassedHistogram().GetBinContent(pt+1)
+		integralL1AndHo += l1MuonAndHoAboveThr.GetPassedHistogram().GetBinContent(pt+1)
+
+	paveText = TPaveText(0.5,0.35,0.9,0.4,'NDC')
+	if(not integralL1 == 0):
+		paveText.AddText('%s: %.2f%% #pm %.2f%%' % ('Reduction below threshold',100 - integralL1AndHo/integralL1*100,calcSigma(integralL1AndHo, integralL1)*100))
+		paveText.SetBorderSize(1)
+		paveText.Draw()
+	
+	print l1Muon.GetPassedHistogram().GetBinContent(2)
+	print l1Muon.GetPassedHistogram().GetBinContent(3)
+	print l1Muon.GetPassedHistogram().GetBinContent(4)	
+
+	PlotStyle.labelCmsPrivateSimulation.Draw()
 	
 	canv.SaveAs("plots/" + folder + "/efficiency" + str(pt) + ".png")
 	canv.SaveAs("plots/" + folder + "/efficiency" + str(pt) + ".pdf")
@@ -85,7 +110,7 @@ def plotEfficiencyForPt(folder,pt):
 	f = TFile.Open("plots/" + folder + "/efficiency" + str(pt) + ".root","RECREATE")
 	canv.Write()
 	f.Close()
-	return [l1Muon,l1MuonAndHoAboveThr]
+	return [l1Muon,l1MuonAndHoAboveThr,canv,legend,line,paveText]
 
 def plotEfficiency(folder):
 	histlist = []
@@ -120,4 +145,4 @@ def plotCombinedEfficiency():
 	canv.SaveAs('combinedEfficiency.png')	
 	canv.SaveAs('combinedEfficiency.pdf')
 	canv.SaveAs('combinedEfficiency.root')			
-	return canv,leg
+	return canv,leg,hl
