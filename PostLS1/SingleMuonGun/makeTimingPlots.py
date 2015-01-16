@@ -96,4 +96,34 @@ c.Update()
 c.SaveAs("deltaTime.png")
 c.SaveAs("deltaTime.pdf")
 
-	
+c2 = TCanvas("c2","BX ID",1200,1200)
+c2.SetLogy()
+
+hBxId = file.Get('hoMuonAnalyzer/L1MuonPresent_BxId')
+hBxIdAboveThr = file.Get('hoMuonAnalyzer/L1MuonAboveThr_BxId')
+hBxId.SetLineColor(PlotStyle.colorRwthDarkBlue)
+hBxId.SetLineWidth(3)
+hBxId.SetStats(0)
+hBxId.SetTitle("BX ID distribution")
+hBxId.GetXaxis().SetRangeUser(-2,5)
+#hBxId.SetFillColor(PlotStyle.colorRwthDarkBlue)
+#hBxId.SetFillStyle(3017)
+hBxIdAboveThr.SetFillStyle(3002)
+hBxIdAboveThr.SetFillColor(PlotStyle.colorRwthMagenta)
+hBxIdAboveThr.SetLineColor(PlotStyle.colorRwthMagenta)
+hBxIdAboveThr.SetLineWidth(2)
+
+hBxId.Draw()
+hBxIdAboveThr.Draw("same")
+
+legend2 = TLegend(0.45,0.8,0.9,0.9)
+legend2.AddEntry(hBxId,"L1Muon","f")
+legend2.AddEntry(hBxIdAboveThr,"L1Muon matched to HO > 0.2 GeV","f")
+legend2.Draw()
+
+PlotStyle.labelCmsPrivateSimulation.Draw()
+
+c2.SaveAs("bxId.png")
+c2.SaveAs("bxId.pdf")
+
+raw_input('-->')
