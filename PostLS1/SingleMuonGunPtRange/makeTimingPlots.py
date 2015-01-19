@@ -24,7 +24,7 @@ if(file == None):
 	print 'Error opening file:',filename
 
 hDeltaTAllHo = file.Get('hoMuonAnalyzer/L1MuonPresentHoMatch_DeltaTime')
-hDeltaTCleanHo = file.Get('hoMuonAnalyzer/L1MuonAboveThrInAccNotDead_DeltaTime')
+hDeltaTCleanHo = file.Get('hoMuonAnalyzer/L1MuonAboveThr_DeltaTime')
 
 c = TCanvas("c","Delta Time",1200,1200)
 c.SetLogy()
@@ -70,7 +70,7 @@ lineSecondMin.Draw()
 
 legend = TLegend(0.6,0.75,0.9,0.9)
 legend.AddEntry(hDeltaTAllHo,"L1Muon matched to any HO","le")
-legend.AddEntry(hDeltaTCleanHo,"L1Muon matched to filtered HO","le")
+legend.AddEntry(hDeltaTCleanHo,"L1Muon matched to HO > 0.2 GeV","le")
 legend.Draw()
 
 integralCenter = hDeltaTCleanHo.Integral(hDeltaTCleanHo.FindBin(fitFirstMin.GetMinimumX(-20,-10)),hDeltaTCleanHo.FindBin(fitSecondMin.GetMinimumX(10,20)))
@@ -89,7 +89,6 @@ paveText.SetBorderSize(1)
 paveText.Draw()
 
 PlotStyle.labelCmsPrivateSimulation.Draw()
-
 c.Update()
 
 
@@ -125,5 +124,45 @@ PlotStyle.labelCmsPrivateSimulation.Draw()
 
 c2.SaveAs("bxId.png")
 c2.SaveAs("bxId.pdf")
+
+
+c3 = TCanvas("c3","HO Time",1200,1200)
+c3.Divide(1,2)
+c3.cd(1)
+hHoTime = file.Get('hoMuonAnalyzer/hoRecHits_Time')
+hHoTimeAboveThr = file.Get('hoMuonAnalyzer/hoRecHitsAboveThr_Time')
+
+hHoTime.SetStats(0)
+hHoTime.SetTitle("Time distribution for all HO Rec Hits")
+hHoTime.SetLineColor(PlotStyle.colorRwthDarkBlue)
+hHoTime.SetLineWidth(3)
+hHoTime.Draw()
+PlotStyle.labelCmsPrivateSimulation.Draw()
+
+c3.cd(2)
+hHoTimeAboveThr.SetStats(0)
+hHoTimeAboveThr.SetTitle("Time distribution for HO Rec Hits > 0.2 GeV")
+hHoTimeAboveThr.SetLineColor(PlotStyle.colorRwthDarkBlue)
+hHoTimeAboveThr.SetLineWidth(3)
+hHoTimeAboveThr.Draw()
+PlotStyle.labelCmsPrivateSimulation.Draw()
+
+print 80*'#'
+print 'Integral of HO > 0.2 GeV time histogram:'
+print hHoTimeAboveThr.Integral()
+print 80*'#'
+
+fit = TF1("fit","gaus",-10,10)
+hHoTimeAboveThr.Fit(fit)
+
+pText = TPaveText(0.7,0.8,0.9,0.9,'NDC')
+pText.AddText('Mean: %.2f ns' % (fit.GetParameter(1)))
+pText.AddText('#sigma: %.2f ns' % (fit.GetParameter(2)))
+pText.SetBorderSize(1)
+pText.Draw()
+
+c3.Update()
+c3.SaveAs("hoTime.png")
+c3.SaveAs("hoTime.pdf")
 
 raw_input('-->')
