@@ -40,11 +40,7 @@ process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedRealistic8TeVCollision_cfi')
 process.load('GeneratorInterface.Core.genFilterSummary_cff')
-#process.load('Configuration.StandardSequences.SimIdeal_cff')
-#process.load('Configuration.StandardSequences.Digi_cff')
-#process.load('Configuration.StandardSequences.SimL1Emulator_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
-#process.load('Configuration.StandardSequences.L1Extra_cff')
 
 process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
     splitLevel = cms.untracked.int32(0),
@@ -72,19 +68,13 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
 
 from Configuration.AlCa.autoCond import autoCond
-process.GlobalTag.globaltag = autoCond['run2_mc'] #PRE_LS172_V15::All
-
-#process.GlobalTag = GlobalTag(process.GlobalTag, 'MCRUN2_72_V1', '')
-#process.GlobalTag = GlobalTag(process.GlobalTag, 'PRE_LS172_V15', '')
-#process.GlobalTag.globaltag = autoCond['run2_mc'] #PRE_LS172_V15::All
+process.GlobalTag.globaltag = autoCond['run2_mc'] #MCRUN2_72_V1
 
 process.hoMuonAnalyzer = cms.EDAnalyzer(
     'hoMuonAnalyzer',
     genSrc = cms.InputTag("genParticles"),
     l1MuonSrc=cms.InputTag("l1extraParticles"),
-    #stdMuSrc = cms.InputTag("standAloneMuons"),
     horecoSrc = cms.InputTag("horeco"),
-    #L1GtTmLInputTag = cms.InputTag("l1GtTriggerMenuLite")
     hltSumAODSrc = cms.InputTag("hltTriggerSummaryAOD"),
     l1MuonGenMatchSrc = cms.InputTag("l1MuonGenMatch"),
     hoEnergyThreshold = cms.double(0.2),
@@ -109,11 +99,7 @@ process.options = cms.untracked.PSet(
 process.horeco.digiLabel = cms.InputTag('simHcalDigis')
 
 #Path definitions
-#process.digitisation_step = cms.Path(process.pdigi)
-#process.digi2raw_step = cms.Path(process.DigiToRaw)
-#process.raw2digi_step = cms.Path(process.RawToDigi)
-#process.L1simulation_step = cms.Path(process.SimL1Emulator)
-#process.l1extra_step = cms.Path(process.L1Extra)
+
 process.horeco_step = cms.Path(process.horeco)
 process.l1MuonGenMatch_step = cms.Path(process.l1MuonGenMatch)
 process.demo_step = cms.Path(process.hoMuonAnalyzer)
@@ -122,19 +108,9 @@ process.FEVTDEBUGHLToutput_step = cms.EndPath(process.FEVTDEBUGHLToutput)
 
 #Schedule Definition
 process.schedule = cms.Schedule(
-#	process.L1simulation_step,
-#	process.l1extra_step,
+
 	process.horeco_step,
 	process.l1MuonGenMatch_step,
 	process.demo_step,
-#	process.FEVTDEBUGHLToutput_step
 	)
 
-
-# Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.postLS1Customs
-#from SLHCUpgradeSimulations.Configuration.postLS1Customs import customisePostLS1 
-
-#call to customisation function customisePostLS1 imported from SLHCUpgradeSimulations.Configuration.postLS1Customs
-#process = customisePostLS1(process)
-
-# End of customisation functions
