@@ -280,12 +280,15 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	/*
 	 * Fill a trig rate histogramm for the muons of the gen particles
 	 */
+	//Use this variable to store whether the event has GenMuons in acceptance
+	bool hasMuonsInAcceptance = false;
 	std::string gen_key = "gen";
 	int genMuonCounter = 0;
 	for(reco::GenParticleCollection::const_iterator genIt = truthParticles->begin();
 			genIt != truthParticles->end(); genIt++){
 		//Check for muons in Full barrel only
 		if( ( abs(genIt->pdgId()) == 13 ) && ( abs(genIt->eta()) <= 0.8 ) ){
+			hasMuonsInAcceptance = true;
 			genMuonCounter++;
 			histogramBuilder.fillPtHistogram(genIt->pt(),gen_key);
 			for (int i = 0; i < 200; i+=2) {
@@ -298,14 +301,12 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	}
 	histogramBuilder.fillMultiplicityHistogram(genMuonCounter,gen_key);
 
+	if(!hasMuonsInAcceptance)
+		return;
+
 	/*
 	 * Level 1 Muons
 	 */
-
-	//Use this variable to store whether the event has L1Muons in acceptance
-	//This can be used when inspecting the HO energy
-	bool hasMuonsInAcceptance = false;
-
 	string l1muon_key = "L1Muon";
 	histogramBuilder.fillMultiplicityHistogram(l1Muons->size(),l1muon_key);
 
@@ -317,52 +318,48 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	for( unsigned int i = 0 ; i < l1Muons->size(); i++  ) {
 		histogramBuilder.fillCountHistogram(l1muon_key);
 		const l1extra::L1MuonParticle* bl1Muon = &(l1Muons->at(i));
-		ofstream myfile;
-		myfile.open ("L1MuonPt.txt",std::ios::app);
-		myfile << bl1Muon->pt() << std::endl;
-		myfile.close();
-		//Filter on l1muon objects in Barrel region only
-		if( abs(bl1Muon->eta()) <= 0.8 ){
-			hasMuonsInAcceptance = true;
-			histogramBuilder.fillPdgIdHistogram(bl1Muon->pdgId(),l1muon_key);
-			histogramBuilder.fillVzHistogram(bl1Muon->vz(),l1muon_key);
-			const reco::GenParticle* genMatch = getBestGenMatch(bl1Muon->eta(),bl1Muon->phi());
-			if(genMatch){
-				histogramBuilder.fillDeltaVzHistogam( (genMatch->vz() - bl1Muon->vz()) ,l1muon_key);
-				histogramBuilder.fillPtCorrelationHistogram(genMatch->pt(),bl1Muon->pt(),l1muon_key);
+//		ofstream myfile;
+//		myfile.open ("L1MuonPt.txt",std::ios::app);
+//		myfile << bl1Muon->pt() << std::endl;
+//		myfile.close();
+		histogramBuilder.fillPdgIdHistogram(bl1Muon->pdgId(),l1muon_key);
+		histogramBuilder.fillVzHistogram(bl1Muon->vz(),l1muon_key);
+		const reco::GenParticle* genMatch = getBestGenMatch(bl1Muon->eta(),bl1Muon->phi());
+		if(genMatch){
+			histogramBuilder.fillDeltaVzHistogam( (genMatch->vz() - bl1Muon->vz()) ,l1muon_key);
+			histogramBuilder.fillPtCorrelationHistogram(genMatch->pt(),bl1Muon->pt(),l1muon_key);
+		}
+		/*
+		 * Fill histogram for different pt thresholds
+		 * CAREFUL!! THIS IS NOT A REAL RATE YET!!
+		 */
+		for (int j = 0; j < 200; j+=2) {
+			if(bl1Muon->pt() >= j){
+				histogramBuilder.fillTrigRateHistograms(j,l1muon_key);
 			}
-			/*
-			 * Fill histogram for different pt thresholds
-			 * CAREFUL!! THIS IS NOT A REAL RATE YET!!
-			 */
-			for (int j = 0; j < 200; j+=2) {
-				if(bl1Muon->pt() >= j){
-					histogramBuilder.fillTrigRateHistograms(j,l1muon_key);
-				}
-			}
+		}
 
-			const reco::GenParticle* bestGenMatch = getBestGenMatch(bl1Muon->eta(),bl1Muon->phi());
-			if(bestGenMatch){
-				//first argument is the condition for a muon trigger object to pass
-				//Second is the pt of the "real" particle
-				histogramBuilder.fillEfficiency(bl1Muon->pt()>=5,bestGenMatch->pt(),std::string("L1MuonPt5"));
-				histogramBuilder.fillEfficiency(bl1Muon->pt()>=10,bestGenMatch->pt(),std::string("L1MuonPt10"));
-				histogramBuilder.fillEfficiency(bl1Muon->pt()>=15,bestGenMatch->pt(),std::string("L1MuonPt15"));
-				histogramBuilder.fillEfficiency(bl1Muon->pt()>=20,bestGenMatch->pt(),std::string("L1MuonPt20"));
-				histogramBuilder.fillEfficiency(bl1Muon->pt()>=25,bestGenMatch->pt(),std::string("L1MuonPt25"));
-			}
-			histogramBuilder.fillL1MuonPtHistograms(bl1Muon->pt(), l1muon_key);
-			histogramBuilder.fillEtaPhiHistograms(bl1Muon->eta(), bl1Muon->phi(),
-					l1muon_key);
-			//For variable binning
-			listL1MuonPt.push_back(bl1Muon->pt());
-			edm::RefToBase<l1extra::L1MuonParticle> l1MuonCandiateRef(l1MuonView,i);
-			reco::GenParticleRef ref = (*l1MuonGenMatches)[l1MuonCandiateRef];
-			if(ref.isNonnull())
-				histogramBuilder.fillPdgIdHistogram(ref->pdgId(),l1muon_key);
-			else
-				histogramBuilder.fillPdgIdHistogram(0,l1muon_key);
-		}// eta <= 0.8
+		const reco::GenParticle* bestGenMatch = getBestGenMatch(bl1Muon->eta(),bl1Muon->phi());
+		if(bestGenMatch){
+			//first argument is the condition for a muon trigger object to pass
+			//Second is the pt of the "real" particle
+			histogramBuilder.fillEfficiency(bl1Muon->pt()>=5,bestGenMatch->pt(),std::string("L1MuonPt5"));
+			histogramBuilder.fillEfficiency(bl1Muon->pt()>=10,bestGenMatch->pt(),std::string("L1MuonPt10"));
+			histogramBuilder.fillEfficiency(bl1Muon->pt()>=15,bestGenMatch->pt(),std::string("L1MuonPt15"));
+			histogramBuilder.fillEfficiency(bl1Muon->pt()>=20,bestGenMatch->pt(),std::string("L1MuonPt20"));
+			histogramBuilder.fillEfficiency(bl1Muon->pt()>=25,bestGenMatch->pt(),std::string("L1MuonPt25"));
+		}
+		histogramBuilder.fillL1MuonPtHistograms(bl1Muon->pt(), l1muon_key);
+		histogramBuilder.fillEtaPhiHistograms(bl1Muon->eta(), bl1Muon->phi(),
+				l1muon_key);
+		//For variable binning
+		listL1MuonPt.push_back(bl1Muon->pt());
+		edm::RefToBase<l1extra::L1MuonParticle> l1MuonCandiateRef(l1MuonView,i);
+		reco::GenParticleRef ref = (*l1MuonGenMatches)[l1MuonCandiateRef];
+		if(ref.isNonnull())
+			histogramBuilder.fillPdgIdHistogram(ref->pdgId(),l1muon_key);
+		else
+			histogramBuilder.fillPdgIdHistogram(0,l1muon_key);
 	}
 
 
@@ -372,14 +369,10 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	 */
 	string horeco_key = "horeco";
 	/**
-	 * Fill the multiplicity histograms for HORecHits without cuts and
-	 * for events that contain L1 muons in the acceptance region
+	 * Fill the multiplicity histograms for HORecHits without cuts
 	 */
 	histogramBuilder.fillMultiplicityHistogram(hoRecoHits->size(),horeco_key);
-	//Also fill multiplicity for HO Rec hits that have muons in their acceptance area
-	if(hasMuonsInAcceptance){
-		histogramBuilder.fillMultiplicityHistogram(hoRecoHits->size(),std::string("horecoMuInAcc"));
-	}
+
 	//get HO Rec Hits Above Threshold
 	string horecoT_key ="horecoAboveThreshold";
 
@@ -388,27 +381,21 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	 * l1 muons in the acceptance region
 	 */
 	int recHitAbThrCounter = 0;
-	int recHitAbThrInGeomCounter = 0;
 	auto hoRecoIt = hoRecoHits->begin();
 	for( ; hoRecoIt != hoRecoHits->end() ; hoRecoIt++){
 		histogramBuilder.fillTimeHistogram(hoRecoIt->time(),std::string("hoRecHits"));
 		if(hoRecoIt->energy() >= threshold){
 			histogramBuilder.fillTimeHistogram(hoRecoIt->time(),std::string("hoRecHitsAboveThr"));
 			recHitAbThrCounter++;
-			if(hasMuonsInAcceptance){
-				recHitAbThrInGeomCounter++;
-			}
 		}
-		if(hasMuonsInAcceptance){
-			double ho_eta = caloGeo->getPosition(hoRecoIt->id()).eta();
-			double ho_phi = caloGeo->getPosition(hoRecoIt->id()).phi();
-			histogramBuilder.fillCountHistogram(horeco_key);
-			histogramBuilder.fillEnergyHistograms(hoRecoIt->energy(),horeco_key);
-			histogramBuilder.fillEtaPhiHistograms(ho_eta, ho_phi, horeco_key);
-		}
+		double ho_eta = caloGeo->getPosition(hoRecoIt->id()).eta();
+		double ho_phi = caloGeo->getPosition(hoRecoIt->id()).phi();
+		histogramBuilder.fillCountHistogram(horeco_key);
+		histogramBuilder.fillEnergyHistograms(hoRecoIt->energy(),horeco_key);
+		histogramBuilder.fillEtaPhiHistograms(ho_eta, ho_phi, horeco_key);
+
 	}
 	histogramBuilder.fillMultiplicityHistogram(recHitAbThrCounter,horecoT_key);
-	histogramBuilder.fillMultiplicityHistogram(recHitAbThrInGeomCounter,std::string("horecoAboveThresholdMuInAcc"));
 
 
 	/*
@@ -434,10 +421,6 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		//###########################################################
 		float l1Muon_eta = bl1Muon->eta();
 		float l1Muon_phi = bl1Muon->phi();
-		//Filter for full barrel region only
-		if( !( abs(bl1Muon->eta())<0.8 ) ){
-			continue;
-		}
 		histogramBuilder.fillCountHistogram(std::string("L1MuonPresent"));
 		histogramBuilder.fillBxIdHistogram(bl1Muon->bx(),std::string("L1MuonPresent"));
 		histogramBuilder.fillL1MuonPtHistograms(bl1Muon->pt(),std::string("L1MuonPresent"));
