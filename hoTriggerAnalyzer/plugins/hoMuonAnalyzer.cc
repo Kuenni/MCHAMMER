@@ -172,7 +172,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	iEvent.getByLabel(edm::InputTag("g4SimHits","HcalHits"),caloHits);
 
 	if (!caloHits.isValid()) {
-		std::cout << "no SimHits" << std::endl;
+		std::cout << coutPrefix << "no SimHits" << std::endl;
 		return;
 	}
 
