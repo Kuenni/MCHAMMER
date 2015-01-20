@@ -18,7 +18,7 @@
 //
 
 //hoMuonAnalyzer header file
-#include "HoMuonTrigger/hoTriggerAnalyzer/interface/hoMuonAnalyzer.h"
+#include "../interface/hoMuonAnalyzer.h"
 
 #include <DataFormats/CaloRecHit/interface/CaloRecHit.h>
 #include <DataFormats/Candidate/interface/LeafCandidate.h>
@@ -28,44 +28,47 @@
 #include <DataFormats/Common/interface/SortedCollection.h>
 #include <DataFormats/Common/interface/View.h>
 #include <DataFormats/DetId/interface/DetId.h>
-#include <DataFormats/GeometryVector/interface/GlobalPoint.h>
-#include <DataFormats/GeometryVector/interface/GlobalVector.h>
 #include <DataFormats/GeometryVector/interface/Phi.h>
 #include <DataFormats/GeometryVector/interface/PV3DBase.h>
 #include <DataFormats/HcalDetId/interface/HcalDetId.h>
+#include <DataFormats/HcalDetId/interface/HcalSubdetector.h>
 #include <DataFormats/HcalRecHit/interface/HcalRecHitCollections.h>
 #include <DataFormats/HcalRecHit/interface/HORecHit.h>
 #include <DataFormats/HepMCCandidate/interface/GenParticle.h>
 #include <DataFormats/L1Trigger/interface/L1MuonParticle.h>
 #include <DataFormats/Math/interface/deltaR.h>
+#include <DataFormats/Provenance/interface/EventID.h>
+#include <FWCore/Common/interface/EventBase.h>
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/EventSetup.h>
 #include <FWCore/Framework/interface/EventSetupRecord.h>
-#include "FWCore/Framework/interface/MakerMacros.h"
+#include <FWCore/Framework/interface/MakerMacros.h>
+#include <FWCore/Framework/src/Factory.h>
+#include <FWCore/Framework/src/WorkerMaker.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <FWCore/ParameterSet/interface/ParameterSetDescription.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescriptionFiller.h>
+#include <FWCore/ParameterSet/interface/ParameterSetDescriptionFillerPluginFactory.h>
+#include <FWCore/PluginManager/interface/PluginFactory.h>
 #include <Geometry/CaloGeometry/interface/CaloGeometry.h>
 #include <Geometry/Records/interface/CaloGeometryRecord.h>
-#include <Math/GenVector/PositionVector3D.h>
+#include <RecoMuon/MuonIdentification/interface/MuonHOAcceptance.h>
 #include <SimDataFormats/CaloHit/interface/PCaloHit.h>
 #include <SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h>
-#include <TrackingTools/TrackAssociator/interface/TrackDetMatchInfo.h>
+#include <TrackingTools/GeomPropagators/interface/Propagator.h>
+#include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
+#include <TROOT.h>
+#include <TTree.h>
 #include <cmath>
 #include <cstdlib>
+#include <fstream>
 #include <iostream>
 #include <iterator>
-#include <sstream>
 #include <utility>
-#include <fstream>
 
-#include "RecoMuon/MuonIdentification/interface/MuonHOAcceptance.h"
-#include "TMultiGraph.h"
-#include "TROOT.h"
-#include <iosfwd>
-
-#include "HoMuonTrigger/hoTriggerAnalyzer/interface/FilterPlugin.h"
-#include "HoMuonTrigger/hoTriggerAnalyzer/interface/HoMatcher.h"
+#include "../interface/FilterPlugin.h"
+#include "../interface/HoMatcher.h"
 
 using namespace::std;
 
@@ -175,6 +178,13 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		std::cout << coutPrefix << "no SimHits" << std::endl;
 		return;
 	}
+
+	ESHandle<Propagator> shProp;
+//	iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny", shProp);
+
+	ESHandle<MagneticField> theMagField;
+	iSetup.get<IdealMagneticFieldRecord>().get(theMagField );
+	SteppingHelixPropagator myHelix(&*theMagField,anyDirection);
 
 	//Generate the energy correlation plot
 	for(HORecHitCollection::const_iterator recHitIt = hoRecoHits->begin();
