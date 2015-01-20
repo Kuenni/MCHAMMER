@@ -72,7 +72,7 @@ using namespace::std;
 hoMuonAnalyzer::hoMuonAnalyzer(const edm::ParameterSet& iConfig)/*:
 				assocParams(iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters"))*/
 {
-
+	coutPrefix = std::string("[hoMuonAnalyzer] ");
 	//now do what ever initialization is needed
 
 	//Get Input Tags from the Configuration
@@ -715,10 +715,10 @@ bool hoMuonAnalyzer::processTriggerDecision(std::string algorithmName,const edm:
 		}
 
 	} else if (iErrorCode == 1) {
-		cout<< "trigger " << algorithmName << " does not exist in the L1 menu" << endl;
+		cout<< coutPrefix << "trigger " << algorithmName << " does not exist in the L1 menu" << endl;
 	} else {
 		// error - see error code
-		cout << "Error Code " << iErrorCode;
+		cout << coutPrefix << "Error Code " << iErrorCode;
 	}
 	return trigDecision;
 }
@@ -745,8 +745,8 @@ hoMuonAnalyzer::beginRun(const edm::Run& iRun,
 
 	bool useL1EventSetup = true;
 	bool useL1GtTriggerMenuLite = true;
-	cout << "getL1GtRunCache" << endl;
-	cout << "UseL1EventSetup: " << useL1EventSetup << "UseL1GtTriggerMenuLite :"
+	cout << coutPrefix << "getL1GtRunCache" << endl;
+	cout << coutPrefix << "UseL1EventSetup: " << useL1EventSetup << "UseL1GtTriggerMenuLite :"
 			<< useL1GtTriggerMenuLite << endl;
 	m_l1GtUtils.getL1GtRunCache(iRun, evSetup, useL1EventSetup, useL1GtTriggerMenuLite);
 
@@ -762,7 +762,7 @@ hoMuonAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& evSetup)
 	//Only interested in unique values
 	listL1MuonPt.sort();
 	listL1MuonPt.unique();  //NB it is called after sort
-	cout <<"The list contains " << listL1MuonPt.size() << "unique entries:";
+	cout << coutPrefix << "The list contains " << listL1MuonPt.size() << "unique entries:";
 	std::list<float>::iterator it;
 	for (it=listL1MuonPt.begin(); it!=listL1MuonPt.end(); ++it){
 		cout << ' ' << *it;

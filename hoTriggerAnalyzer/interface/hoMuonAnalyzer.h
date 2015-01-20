@@ -51,7 +51,6 @@ public:
   
   static void fillDescriptions(edm::ConfigurationDescriptions& 
 				   descriptions);
-  
 
 private:
   virtual void beginJob() override;
@@ -142,6 +141,8 @@ private:
 
   //toFigureOutL1VariableBinning
   std::list<float> listL1MuonPt;
+
+  std::string coutPrefix;
 
   //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
   //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
