@@ -384,17 +384,17 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	int recHitAbThrCounter = 0;
 	auto hoRecoIt = hoRecoHits->begin();
 	for( ; hoRecoIt != hoRecoHits->end() ; hoRecoIt++){
+		double ho_eta = caloGeo->getPosition(hoRecoIt->id()).eta();
+		double ho_phi = caloGeo->getPosition(hoRecoIt->id()).phi();
 		histogramBuilder.fillTimeHistogram(hoRecoIt->time(),std::string("hoRecHits"));
 		if(hoRecoIt->energy() >= threshold){
 			histogramBuilder.fillTimeHistogram(hoRecoIt->time(),std::string("hoRecHitsAboveThr"));
+			histogramBuilder.fillEtaPhiHistograms(ho_eta, ho_phi, std::string("hoRecHitsAboveThr"));
 			recHitAbThrCounter++;
 		}
-		double ho_eta = caloGeo->getPosition(hoRecoIt->id()).eta();
-		double ho_phi = caloGeo->getPosition(hoRecoIt->id()).phi();
 		histogramBuilder.fillCountHistogram(horeco_key);
 		histogramBuilder.fillEnergyHistograms(hoRecoIt->energy(),horeco_key);
 		histogramBuilder.fillEtaPhiHistograms(ho_eta, ho_phi, horeco_key);
-
 	}
 	histogramBuilder.fillMultiplicityHistogram(recHitAbThrCounter,horecoT_key);
 
@@ -447,7 +447,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				if (MuonHOAcceptance::inNotDeadGeom(l1Muon_eta,l1Muon_phi/*,deltaR_Max,deltaR_Max*/)){
 					histogramBuilder.fillCountHistogram(std::string("L1MuonPresentHoMatchInAccNotDead"));
 					histogramBuilder.fillBxIdHistogram(bl1Muon->bx(),std::string("L1MuonPresentHoMatchInAccNotDead"));
-					//This one is filled for the sake of completeness. The SiPM regions are hardcoded in the class!!
+					//This one is filled for the sake of completeness. The SiPM regions are hard-coded in the class!!
 					if (MuonHOAcceptance::inSiPMGeom(l1Muon_eta,l1Muon_phi/*,deltaR_Max,deltaR_Max*/)){
 						histogramBuilder.fillCountHistogram(std::string("L1MuonPresentHoMatchInAccNotDeadInSipm"));
 					}
