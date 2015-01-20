@@ -270,7 +270,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	 *
 	 */
 
-	histogramBuilder.fillCountHistogram("Events");
+	histogramBuilder.fillCountHistogram("ProcessedEvents");
 
 
 	//Try getting the event info for weights
@@ -291,10 +291,10 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			hasMuonsInAcceptance = true;
 			genMuonCounter++;
 			histogramBuilder.fillPtHistogram(genIt->pt(),gen_key);
+			histogramBuilder.fillEtaPhiHistograms(genIt->eta(),genIt->phi(),gen_key);
 			for (int i = 0; i < 200; i+=2) {
 				if(genIt->pt() >= i){
 					histogramBuilder.fillTrigRateHistograms(i,gen_key);
-					histogramBuilder.fillEtaPhiHistograms(genIt->eta(),genIt->phi(),gen_key);
 				}
 			}
 		}
@@ -304,6 +304,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	if(!hasMuonsInAcceptance)
 		return;
 
+	histogramBuilder.fillCountHistogram("Events");
 	/*
 	 * Level 1 Muons
 	 */
