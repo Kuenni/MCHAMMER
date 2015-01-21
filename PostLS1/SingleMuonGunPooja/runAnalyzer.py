@@ -23,10 +23,10 @@ readFiles.extend( [
 	#			'SingleMuonGun/SingleMuPlus_Fall14_FlatPt-3to140_PRE_LS172_V15_GEN_SIM_DIGI_RECO_L1/150118_230631/0000/'\
 	#			'SingleMuPlus_Fall14_FlatPt-3to140_PRE_LS172_V15_GEN_SIM_DIGI_RECO_L1_1.root'
 		
-		
-	'root://xrootd.unl.edu//store/user/psaxena/L1Trigger/HOUpgrade/Generation/SingleMuonGun/'\
-	'SingleMuMinus_Fall14_FlatPt-0to200_MCRUN2_72_V3_GEN_SIM_DIGI_RECO_L1/150120_133227/0000/'\
-	'SingleMuMinus_Fall14_FlatPt-0to200_MCRUN2_72_V1_GEN_SIM_DIGI_RECO_L1_11.root'	
+	'file:///user/kuensken/CMSSW/CMSSW_7_2_2_patch1/src/HoMuonTrigger/PostLS1/SingleMuonGunPooja/SingleMuMinus_Fall14_FlatPt-0to200_MCRUN2_72_V1_GEN_SIM_DIGI_RECO_L1_1.root'
+#	'root://xrootd.unl.edu//store/user/psaxena/L1Trigger/HOUpgrade/Generation/SingleMuonGun/'\
+#	'SingleMuMinus_Fall14_FlatPt-0to200_MCRUN2_72_V3_GEN_SIM_DIGI_RECO_L1/150120_133227/0000/'\
+#	'SingleMuMinus_Fall14_FlatPt-0to200_MCRUN2_72_V1_GEN_SIM_DIGI_RECO_L1_11.root'	
 	#			'/store/user/akunsken/SingleMuGunPt5to100PostLS1/SingleMuPt5to100_cfi_GEN_SIM_DIGI_DIGI2RAW_RAW2DIGI_L1_L1Reco_27_1_7pV.root'
      ] )
 
@@ -128,16 +128,10 @@ process.l1MuonGenMatch_step = cms.Path(process.l1MuonGenMatch)
 process.demo_step = cms.Path(process.hoMuonAnalyzer)
 process.FEVTDEBUGHLToutput_step = cms.EndPath(process.FEVTDEBUGHLToutput)
 
-process.anaSequence = cms.Sequence(process.genfilter*process.l1MuonGenMatch*process.horeco)
-
-process.p = cms.Path(process.genfilter*process.l1MuonGenMatch*process.horeco)
+process.p = cms.Path(process.genfilter*process.l1MuonGenMatch*process.horeco*process.hoMuonAnalyzer)
 
 #Schedule Definition
-#process.schedule = cms.Schedule(
-#							cms.Path(process.anaSequence)
-# 	process.genFilter_step*
-# 	process.horeco_step*
-# 	process.l1MuonGenMatch_step*
-# 	process.demo_step
-#	)
+process.schedule = cms.Schedule(
+	process.p
+	)
 
