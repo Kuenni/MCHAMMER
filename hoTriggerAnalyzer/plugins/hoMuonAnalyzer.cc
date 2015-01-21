@@ -233,18 +233,43 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		new FreeTrajectoryState(vertexPoint, mom ,charge , &(*theMagField));
 		TrackDetMatchInfo * muMatch = new TrackDetMatchInfo(assoc.associate(iEvent, iSetup, *freetrajectorystate_, assocParams));
 
-		if( muMatch->hoCrossedEnergy() == 0 && !MuonHOAcceptance::inGeomAccept(muMatch->trkGlobPosAtHO.eta(),muMatch->trkGlobPosAtHO.phi()) ){
-			std::cout << std::endl;
-			std::cout << coutPrefix << "X'ed HO Ids size: " << muMatch->crossedHOIds.size() << std::endl;
-			std::cout << coutPrefix << "X'ed E: " << muMatch->hoCrossedEnergy() << std::endl;
-			std::cout << coutPrefix << "HO E: " << muMatch->hoEnergy() << std::endl;
-			std::cout << coutPrefix << "HO tower E: " << muMatch->hoTowerEnergy() << std::endl;
-			std::cout << coutPrefix << "nXn E: " << muMatch->nXnEnergy(TrackDetMatchInfo::HORecHits) << std::endl;
-			std::cout << coutPrefix << "iga: " << MuonHOAcceptance::inGeomAccept(muMatch->trkGlobPosAtHO.eta(),muMatch->trkGlobPosAtHO.phi()) << std::endl;
-			std::cout << coutPrefix << "indg: " << MuonHOAcceptance::inNotDeadGeom(muMatch->trkGlobPosAtHO.eta(),muMatch->trkGlobPosAtHO.phi()) << std::endl;
-			std::cout << coutPrefix << "Gen pT: " << genPart->pt() << std::endl;
-			std::cout << coutPrefix << "Gen eta: " << genPart->eta() << std::endl;
-			std::cout << coutPrefix << "Gen phi: " << genPart->phi() << std::endl;
+		if( muMatch->hoCrossedEnergy() == 0 && MuonHOAcceptance::inGeomAccept(muMatch->trkGlobPosAtHO.eta(),muMatch->trkGlobPosAtHO.phi()) ){
+//			std::cout << std::endl;
+//			std::cout << coutPrefix << "X'ed HO Ids size: " << muMatch->crossedHOIds.size() << std::endl;
+//			std::cout << coutPrefix << "X'ed E: " << muMatch->hoCrossedEnergy() << std::endl;
+//			std::cout << coutPrefix << "HO E: " << muMatch->hoEnergy() << std::endl;
+//			std::cout << coutPrefix << "HO tower E: " << muMatch->hoTowerEnergy() << std::endl;
+//			std::cout << coutPrefix << "nXn E: " << muMatch->nXnEnergy(TrackDetMatchInfo::HORecHits) << std::endl;
+//			std::cout << coutPrefix << "iga: " << MuonHOAcceptance::inGeomAccept(muMatch->trkGlobPosAtHO.eta(),muMatch->trkGlobPosAtHO.phi()) << std::endl;
+//			std::cout << coutPrefix << "indg: " << MuonHOAcceptance::inNotDeadGeom(muMatch->trkGlobPosAtHO.eta(),muMatch->trkGlobPosAtHO.phi()) << std::endl;
+//			std::cout << coutPrefix << "Gen pT: " << genPart->pt() << std::endl;
+//			std::cout << coutPrefix << "Gen eta: " << genPart->eta() << std::endl;
+//			std::cout << coutPrefix << "Gen phi: " << genPart->phi() << std::endl;
+		}
+
+		const HORecHit* matchedRecHit = HoMatcher::matchByEMaxDeltaR(muMatch->trkGlobPosAtHO.eta(),muMatch->trkGlobPosAtHO.phi(),deltaR_Max,*hoRecoHits,*caloGeo);
+		if(matchedRecHit){
+			double ho_eta = caloGeo->getPosition(matchedRecHit->id()).eta();
+			double ho_phi = caloGeo->getPosition(matchedRecHit->id()).phi();
+
+			histogramBuilder.fillDeltaEtaDeltaPhiHistograms(
+				muMatch->trkGlobPosAtHO.eta(),
+				ho_eta,
+				muMatch->trkGlobPosAtHO.phi(),
+				ho_phi,
+				std::string("tdmiHo")
+			);
+			if(matchedRecHit->energy() > threshold){
+				histogramBuilder.fillDeltaEtaDeltaPhiHistograms(
+					muMatch->trkGlobPosAtHO.eta(),
+					ho_eta,
+					muMatch->trkGlobPosAtHO.phi(),
+					ho_phi,
+					std::string("tdmiHoAboveThr")
+				);
+			}
+		} else{
+			histogramBuilder.fillCountHistogram(std::string("tdmiMatchHoFail"));
 		}
 	}
 
