@@ -18,5 +18,7 @@
 <use name="DataFormats/GeometrySurface"/>
 <use name="TrackingTools/TrackAssociator"/>
 <use name="RecoMuon/MuonIdentification"/>
-
+<use name="TrackingTools/TrajectoryState"/>
+<use name="TrackingTools/TransientTrack"/>
+<use name="TrackingTools/Records"/>
 <flags EDM_PLUGIN="1"/>

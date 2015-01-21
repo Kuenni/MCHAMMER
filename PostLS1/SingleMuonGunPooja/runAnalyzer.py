@@ -22,8 +22,12 @@ readFiles.extend( [
 	#			'root://xrootd.unl.edu//store/user/psaxena/L1Trigger/HOUpgrade/Generation/SingleMuPlus_GT_run2_GEN_SIM_DIGI_RECO/'\
 	#			'SingleMuonGun/SingleMuPlus_Fall14_FlatPt-3to140_PRE_LS172_V15_GEN_SIM_DIGI_RECO_L1/150118_230631/0000/'\
 	#			'SingleMuPlus_Fall14_FlatPt-3to140_PRE_LS172_V15_GEN_SIM_DIGI_RECO_L1_1.root'
-				
-				'/store/user/akunsken/SingleMuGunPt5to100PostLS1/SingleMuPt5to100_cfi_GEN_SIM_DIGI_DIGI2RAW_RAW2DIGI_L1_L1Reco_27_1_7pV.root'
+		
+		
+	'root://xrootd.unl.edu//store/user/psaxena/L1Trigger/HOUpgrade/Generation/SingleMuonGun/'\
+	'SingleMuMinus_Fall14_FlatPt-0to200_MCRUN2_72_V3_GEN_SIM_DIGI_RECO_L1/150120_133227/0000/'\
+	'SingleMuMinus_Fall14_FlatPt-0to200_MCRUN2_72_V1_GEN_SIM_DIGI_RECO_L1_11.root'	
+	#			'/store/user/akunsken/SingleMuGunPt5to100PostLS1/SingleMuPt5to100_cfi_GEN_SIM_DIGI_DIGI2RAW_RAW2DIGI_L1_L1Reco_27_1_7pV.root'
      ] )
 
 
@@ -45,6 +49,8 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAny_cfi import *
 #process.load('TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAny_cfi')
 
+from TrackingTools.TrackAssociator.default_cfi import TrackAssociatorParameterBlock
+
 process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
     splitLevel = cms.untracked.int32(0),
     eventAutoFlushCompressedSize = cms.untracked.int32(1048576),
@@ -53,10 +59,10 @@ process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
         dataTier = cms.untracked.string('')
-    ),
-    SelectEvents = cms.untracked.PSet(
-        SelectEvents = cms.vstring('l1extra_step')
     )
+#    ,SelectEvents = cms.untracked.PSet(
+#        SelectEvents = cms.vstring('l1extra_step')
+#    )
 )
 
 #L1Extra
@@ -73,6 +79,10 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['run2_mc'] #MCRUN2_72_V1
 
+parameters = TrackAssociatorParameterBlock.TrackAssociatorParameters
+parameters.useEcal = False
+parameters.useHcal = False
+parameters.useMuon = False
 process.hoMuonAnalyzer = cms.EDAnalyzer(
     'hoMuonAnalyzer',
     genSrc = cms.InputTag("genParticles"),
@@ -83,7 +93,8 @@ process.hoMuonAnalyzer = cms.EDAnalyzer(
     hoEnergyThreshold = cms.double(0.2),
 	maxDeltaR = cms.double(0.3),
 	debug = cms.bool(True),
-	maxDeltaRL1MuonMatching = cms.double(1.)
+	maxDeltaRL1MuonMatching = cms.double(1.),
+	TrackAssociatorParameters=parameters
     )
 
 #Alternative matcher: TrivialDeltaRMatcher
@@ -98,22 +109,35 @@ process.options = cms.untracked.PSet(
 
 )
 
+process.genfilter = cms.EDFilter("MCSingleParticleFilter",
+#	Status = cms.untracked.vint32(1,1),
+	MinPt = cms.untracked.vdouble(5.0,5.0),
+	MinEta = cms.untracked.vdouble(-0.8,-0.8),
+	MaxEta = cms.untracked.vdouble(0.8,0.8),
+	ParticleID = cms.untracked.vint32(13,-13),
+	 )
+
+
 #Try using different source for hoReco
 process.horeco.digiLabel = cms.InputTag('simHcalDigis')
 
 #Path definitions
-
+process.genFilter_step = cms.Path(process.genfilter)
 process.horeco_step = cms.Path(process.horeco)
 process.l1MuonGenMatch_step = cms.Path(process.l1MuonGenMatch)
 process.demo_step = cms.Path(process.hoMuonAnalyzer)
 process.FEVTDEBUGHLToutput_step = cms.EndPath(process.FEVTDEBUGHLToutput)
 
+process.anaSequence = cms.Sequence(process.genfilter*process.l1MuonGenMatch*process.horeco)
+
+process.p = cms.Path(process.genfilter*process.l1MuonGenMatch*process.horeco)
 
 #Schedule Definition
-process.schedule = cms.Schedule(
-
-	process.horeco_step,
-	process.l1MuonGenMatch_step,
-	process.demo_step,
-	)
+#process.schedule = cms.Schedule(
+#							cms.Path(process.anaSequence)
+# 	process.genFilter_step*
+# 	process.horeco_step*
+# 	process.l1MuonGenMatch_step*
+# 	process.demo_step
+#	)
 

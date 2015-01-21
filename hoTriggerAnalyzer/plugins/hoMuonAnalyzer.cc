@@ -28,6 +28,9 @@
 #include <DataFormats/Common/interface/SortedCollection.h>
 #include <DataFormats/Common/interface/View.h>
 #include <DataFormats/DetId/interface/DetId.h>
+#include <DataFormats/GeometryVector/interface/GlobalPoint.h>
+#include <DataFormats/GeometryVector/interface/GlobalVector.h>
+#include "DataFormats/GeometryVector/interface/GlobalTag.h"
 #include <DataFormats/GeometryVector/interface/Phi.h>
 #include <DataFormats/GeometryVector/interface/PV3DBase.h>
 #include <DataFormats/HcalDetId/interface/HcalDetId.h>
@@ -38,6 +41,7 @@
 #include <DataFormats/L1Trigger/interface/L1MuonParticle.h>
 #include <DataFormats/Math/interface/deltaR.h>
 #include <DataFormats/Provenance/interface/EventID.h>
+#include <DataFormats/TrajectorySeed/interface/PropagationDirection.h>
 #include <FWCore/Common/interface/EventBase.h>
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/Event.h>
@@ -53,11 +57,15 @@
 #include <FWCore/PluginManager/interface/PluginFactory.h>
 #include <Geometry/CaloGeometry/interface/CaloGeometry.h>
 #include <Geometry/Records/interface/CaloGeometryRecord.h>
+#include <MagneticField/Records/interface/IdealMagneticFieldRecord.h>
+#include <Math/GenVector/DisplacementVector3D.h>
 #include <RecoMuon/MuonIdentification/interface/MuonHOAcceptance.h>
 #include <SimDataFormats/CaloHit/interface/PCaloHit.h>
 #include <SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h>
-#include <TrackingTools/GeomPropagators/interface/Propagator.h>
-#include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
+#include <TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h>
+#include <TrackingTools/TrackAssociator/interface/TrackDetMatchInfo.h>
+#include <TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h>
+#include <TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h>
 #include <TROOT.h>
 #include <TTree.h>
 #include <cmath>
@@ -89,6 +97,12 @@ hoMuonAnalyzer::hoMuonAnalyzer(const edm::ParameterSet& iConfig)/*:
 	threshold = iConfig.getParameter<double>("hoEnergyThreshold");
 	debug = iConfig.getParameter<bool>("debug");
 	deltaR_L1MuonMatching = iConfig.getParameter<double>("maxDeltaRL1MuonMatching");
+
+	assoc.useDefaultPropagator();
+
+	edm::ParameterSet parameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
+	edm::ConsumesCollector iC = consumesCollector();
+	assocParams.loadParameters( parameters, iC );
 
 	singleMu3TrigName = "L1_SingleMu3";
 	doubleMu0TrigName = "L1_DoubleMu0";
@@ -128,7 +142,8 @@ hoMuonAnalyzer::~hoMuonAnalyzer()
 
 
 //
-// member functions
+// member functions#include "DataFormats/GeometryVector/interface/GlobalTag.h"
+
 //
 
 // ------------ method called for each event  ------------
@@ -136,20 +151,8 @@ void
 hoMuonAnalyzer::analyze(const edm::Event& iEvent, 
 		const edm::EventSetup& iSetup)
 {
-	using namespace edm;
 
 	if (!MuonHOAcceptance::Inited()) MuonHOAcceptance::initIds(iSetup);
-
-	//	TFile* graphFile = TFile::Open("graphs.root","RECREATE");
-	//	TMultiGraph* deadRegions = MuonHOAcceptance::graphDeadRegions();
-	//	TMultiGraph* sipmRegions = MuonHOAcceptance::graphSiPMRegions();
-	//	deadRegions->Write();
-	//	sipmRegions->Write();
-	//	graphFile->Write();
-	//	graphFile->Close();
-	//
-	//	deadRegions = 0;
-	//	sipmRegions = 0;
 
 	/*
 	 * Get Event Data and Event Setup
@@ -159,19 +162,19 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 
 	iEvent.getByLabel(_l1MuonInput, l1Muons);
 
-	Handle<HORecHitCollection> hoRecoHits;
+	edm::Handle<HORecHitCollection> hoRecoHits;
 	iEvent.getByLabel(_horecoInput, hoRecoHits);
 
-	ESHandle<CaloGeometry> caloGeo;
+	edm::ESHandle<CaloGeometry> caloGeo;
 	iSetup.get<CaloGeometryRecord>().get(caloGeo);
 
 	edm::Handle<edm::View<l1extra::L1MuonParticle> > l1MuonView;
 	iEvent.getByLabel(_l1MuonInput,l1MuonView);
 
-	Handle<reco::GenParticleMatch> l1MuonGenMatches;
+	edm::Handle<reco::GenParticleMatch> l1MuonGenMatches;
 	iEvent.getByLabel(_l1MuonGenMatchInput,l1MuonGenMatches);
 
-	Handle<vector<PCaloHit>> caloHits;
+	edm::Handle<vector<PCaloHit>> caloHits;
 	iEvent.getByLabel(edm::InputTag("g4SimHits","HcalHits"),caloHits);
 
 	if (!caloHits.isValid()) {
@@ -179,10 +182,10 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		return;
 	}
 
-	ESHandle<Propagator> shProp;
+	edm::ESHandle<Propagator> shProp;
 //	iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny", shProp);
 
-	ESHandle<MagneticField> theMagField;
+	edm::ESHandle<MagneticField> theMagField;
 	iSetup.get<IdealMagneticFieldRecord>().get(theMagField );
 	SteppingHelixPropagator myHelix(&*theMagField,anyDirection);
 
@@ -222,6 +225,27 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				MuonHOAcceptance::inNotDeadGeom(genPart->eta(),genPart->phi()),
 				MuonHOAcceptance::inSiPMGeom(genPart->eta(),genPart->phi())
 		));
+
+		GlobalPoint vertexPoint(genPart->vertex().X(),genPart->vertex().Y(),genPart->vertex().Z());
+		GlobalVector mom (genPart->momentum().x(),genPart->momentum().y(),genPart->momentum().z());
+		int charge = genPart->charge();
+		const FreeTrajectoryState *freetrajectorystate_ =
+		new FreeTrajectoryState(vertexPoint, mom ,charge , &(*theMagField));
+		TrackDetMatchInfo * muMatch = new TrackDetMatchInfo(assoc.associate(iEvent, iSetup, *freetrajectorystate_, assocParams));
+
+		if( muMatch->hoCrossedEnergy() == 0 && !MuonHOAcceptance::inGeomAccept(muMatch->trkGlobPosAtHO.eta(),muMatch->trkGlobPosAtHO.phi()) ){
+			std::cout << std::endl;
+			std::cout << coutPrefix << "X'ed HO Ids size: " << muMatch->crossedHOIds.size() << std::endl;
+			std::cout << coutPrefix << "X'ed E: " << muMatch->hoCrossedEnergy() << std::endl;
+			std::cout << coutPrefix << "HO E: " << muMatch->hoEnergy() << std::endl;
+			std::cout << coutPrefix << "HO tower E: " << muMatch->hoTowerEnergy() << std::endl;
+			std::cout << coutPrefix << "nXn E: " << muMatch->nXnEnergy(TrackDetMatchInfo::HORecHits) << std::endl;
+			std::cout << coutPrefix << "iga: " << MuonHOAcceptance::inGeomAccept(muMatch->trkGlobPosAtHO.eta(),muMatch->trkGlobPosAtHO.phi()) << std::endl;
+			std::cout << coutPrefix << "indg: " << MuonHOAcceptance::inNotDeadGeom(muMatch->trkGlobPosAtHO.eta(),muMatch->trkGlobPosAtHO.phi()) << std::endl;
+			std::cout << coutPrefix << "Gen pT: " << genPart->pt() << std::endl;
+			std::cout << coutPrefix << "Gen eta: " << genPart->eta() << std::endl;
+			std::cout << coutPrefix << "Gen phi: " << genPart->phi() << std::endl;
+		}
 	}
 
 	l1MuonVector->clear();
@@ -284,7 +308,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 
 
 	//Try getting the event info for weights
-	Handle<GenEventInfoProduct> genEventInfo;
+	edm::Handle<GenEventInfoProduct> genEventInfo;
 	iEvent.getByLabel(edm::InputTag("generator"), genEventInfo);
 
 	/*

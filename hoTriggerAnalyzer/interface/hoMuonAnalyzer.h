@@ -21,7 +21,6 @@
 #include <DataFormats/HLTReco/interface/TriggerObject.h>
 #include <DataFormats/L1Trigger/interface/L1MuonParticleFwd.h>
 #include <FWCore/Framework/interface/EDAnalyzer.h>
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
 #include <FWCore/ServiceRegistry/interface/Service.h>
 #include <FWCore/Utilities/interface/InputTag.h>
@@ -33,11 +32,10 @@
 #include <string>
 #include <vector>
 
-#include "L1MuonData.h"
 #include "GenMuonData.h"
-#include "HoRecHitData.h"
-
 #include "HistogramBuilder.h"
+#include "HoRecHitData.h"
+#include "L1MuonData.h"
 
 using namespace::std;
 //
@@ -85,8 +83,8 @@ private:
 
   HistogramBuilder histogramBuilder;
 
-//  TrackDetectorAssociator assoc;
-//  TrackAssociatorParameters assocParams;
+  TrackDetectorAssociator assoc;
+  TrackAssociatorParameters assocParams;
 
   /*
    * Maps of selected hlt triggers to get the trigger decisions,
