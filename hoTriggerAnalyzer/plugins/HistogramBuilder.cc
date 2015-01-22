@@ -13,7 +13,7 @@
  */
 
 #include "TH1F.h"
-#include "TH2F.h"
+#include "TH2D.h"
 #include "HoMuonTrigger/hoTriggerAnalyzer/interface/FilterPlugin.h"
 
 /**
@@ -179,7 +179,7 @@ void HistogramBuilder::fillEtaPhiHistograms(float eta, float phi, std::string ke
 	_h1Phi[key]->Fill(phi);
 
 	if(!_h2EtaPhiMap.count(key)){
-		_h2EtaPhiMap[key] = etaPhiDir.make<TH2F>(Form("%s_EtaPhi",key.c_str()),
+		_h2EtaPhiMap[key] = etaPhiDir.make<TH2D>(Form("%s_EtaPhi",key.c_str()),
 				Form("%s_EtaPhi",key.c_str()),
 				720, -3.132, 3.132,
 				720, -3.132, 3.132);
@@ -224,7 +224,7 @@ void HistogramBuilder::fillDeltaEtaDeltaPhiHistograms(float eta1, float eta2,
 
 	//DeltaEta Delta Phi Histograms Fill
 	if(!_h2DeltaEtaDeltaPhi.count(key)){
-		_h2DeltaEtaDeltaPhi[key] = etaPhiDir.make<TH2F>(Form("%s_DeltaEtaDeltaPhi",key.c_str()),Form("%s #Delta#eta #Delta#Phi",key.c_str()),
+		_h2DeltaEtaDeltaPhi[key] = etaPhiDir.make<TH2D>(Form("%s_DeltaEtaDeltaPhi",key.c_str()),Form("%s #Delta#eta #Delta#Phi",key.c_str()),
 				51, -2.2185, 2.2185, 	//eta
 				73, -3.1755, 3.1755);	//phi
 	}

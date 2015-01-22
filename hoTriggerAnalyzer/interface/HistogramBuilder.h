@@ -74,11 +74,11 @@ class HistogramBuilder {
 
   std::map<std::string,TH1F*> _h1Eta;
   std::map<std::string,TH1F*> _h1Phi;
-  std::map<std::string,TH2F*> _h2EtaPhiMap;
+  std::map<std::string,TH2D*> _h2EtaPhiMap;
   
   std::map<std::string,TH1F*> _h1DeltaEta;                                      
   std::map<std::string,TH1F*> _h1DeltaPhi;                                      
-  std::map<std::string,TH2F*> _h2DeltaEtaDeltaPhi;                              
+  std::map<std::string,TH2D*> _h2DeltaEtaDeltaPhi;
   std::map<std::string,TH1F*> _h1Trig;
   std::map<std::string,TH1D*> _h1TrigRate;
   std::map<std::string,TH1F*> _h1Counter;
