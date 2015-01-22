@@ -97,10 +97,6 @@ def plotEfficiencyForPt(folder,pt):
 		paveText.AddText('%s: %.2f%% #pm %.2f%%' % ('Reduction below threshold',100 - integralL1AndHo/integralL1*100,calcSigma(integralL1AndHo, integralL1)*100))
 		paveText.SetBorderSize(1)
 		paveText.Draw()
-	
-	print l1Muon.GetPassedHistogram().GetBinContent(2)
-	print l1Muon.GetPassedHistogram().GetBinContent(3)
-	print l1Muon.GetPassedHistogram().GetBinContent(4)	
 
 	PlotStyle.labelCmsPrivateSimulation.Draw()
 	
