@@ -50,7 +50,7 @@ class HistogramBuilder {
   void fillPtHistogram(float,std::string);
   void fillVzHistogram(float,std::string);
   void fillEnergyCorrelationHistogram(double,double,std::string);
-  void fillEnergyVsPosition(double,double,double,std::string);
+  void fillEnergyVsPosition(double eta,double phi,double energy,std::string);
   void fillDeltaEtaDeltaPhiEnergyHistogram(float,float,float,float,float,std::string);
 
   void fillBxIdHistogram(int,std::string);

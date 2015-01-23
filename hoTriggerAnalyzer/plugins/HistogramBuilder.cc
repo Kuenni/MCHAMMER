@@ -342,6 +342,7 @@ void HistogramBuilder::fillDeltaEtaDeltaPhiEnergyHistogram(float eta1, float eta
 		float phi1, float phi2,float energy,
 		std::string key){
 	TFileDirectory etaPhiDir = _fileService->mkdir("etaPhi");
+	TFileDirectory etaPhiSubdir = _fileService->mkdir("etaPhi/energy1D");
 	float deltaEta, deltaPhi;
 	deltaEta = eta1 - eta2;
 	deltaPhi = FilterPlugin::wrapCheck(phi1, phi2);
@@ -388,7 +389,7 @@ void HistogramBuilder::fillDeltaEtaDeltaPhiEnergyHistogram(float eta1, float eta
 			} else {
 				title = Form("%s %s%d %s%d Energy;Rec Hits / GeV;#",key.c_str(),signStringEta.c_str(),iEta,signStringPhi.c_str(),iPhi);
 			}
-			_hArrDeltaEtaDeltaPhiEnergy[key][i] = etaPhiDir.make<TH1D>(histName.c_str(),title.c_str(),300,-5.0, 10.0);
+			_hArrDeltaEtaDeltaPhiEnergy[key][i] = etaPhiSubdir.make<TH1D>(histName.c_str(),title.c_str(),300,-5.0, 10.0);
 		}
 	}
 
