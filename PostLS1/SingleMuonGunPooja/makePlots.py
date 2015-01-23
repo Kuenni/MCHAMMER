@@ -78,7 +78,6 @@ histograms = []
 for s in histoNames:
 	histograms.append(plotDeltaEtaDeltaPhi('.',sourceHistogram = s))
 
-print histograms
 
 from ROOT import TCanvas
 '''
@@ -109,4 +108,3 @@ c = TCanvas("c","Above Thr",1200,600)
 histograms[2][0].Draw()
 '''
 cCombEff = plotCombinedEfficiency()
-print cCombEff
