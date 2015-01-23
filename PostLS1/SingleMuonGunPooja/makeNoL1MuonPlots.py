@@ -213,6 +213,7 @@ def doPlotEventCount(filename = 'L1MuonHistogram.root'):
 #	hist.GetYaxis().SetRangeUser(0.5,1.1)
 	hist.SetLabelFont(62)
 	hist.SetTitleFont(62)
+	hist.SetMinimum(0)
 	hist.Draw("")
 
 	paveText = TPaveText(0.51,0.75,0.9,0.9,'NDC')
