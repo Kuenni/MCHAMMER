@@ -1,5 +1,5 @@
 #!/usr/bin/python
-from ROOT import ROOT,gROOT,TCanvas,TFile,TH1D,TH2D,TLegend,THStack,TPaveText, TMarker,TLine
+from ROOT import ROOT,gROOT,TCanvas,TFile,TH1D,TH2D,TLegend,THStack,TPaveText, TMarker,TLine,gPad,TF1,TF2,TGraph,Double,TPad
 import sys,os,math
 import PlotStyle
 
@@ -45,12 +45,6 @@ def plotEfficiencyForPt(folder,pt):
 	
 	canv = TCanvas("efficiencyCanvas" + str(pt),'efficiencyCanvas' + str(pt),1200,1200)
 	
-# 	frame = TH2D('frame','L1 Efficiency',1,5,150,1,0,1.1)
-# 	frame.SetStats(0)
-# 	frame.GetXaxis().SetTitle('p_{T} / GeV')
-# 	frame.GetYaxis().SetTitle('Efficiency')
-# 	frame.Draw()
-	
 	l1Muon.SetMarkerStyle(markerpairs[pt/5 -1][0])
 	l1MuonAndHo.SetMarkerStyle(21)
 	l1MuonAndHoAboveThr.SetMarkerStyle(markerpairs[pt/5 -1][1])
@@ -63,6 +57,13 @@ def plotEfficiencyForPt(folder,pt):
 	l1MuonAndHo.SetLineColor(ROOT.kBlue)
 	l1MuonAndHoAboveThr.SetLineColor(PlotStyle.colorRwthMagenta)
 	
+	upperPad = TPad("upperPad", "upperPad", .005, .25, .995, .995);
+	lowerPad = TPad("lowerPad", "lowerPad", .005, .005, .995, .25);
+	upperPad.SetBottomMargin(0)
+	lowerPad.SetTopMargin(0)
+	upperPad.Draw()
+	lowerPad.Draw()
+	upperPad.cd()
 	l1Muon.Draw()
 #	l1MuonAndHo.Draw('same')
 	l1MuonAndHoAboveThr.Draw('same')
@@ -99,6 +100,36 @@ def plotEfficiencyForPt(folder,pt):
 		paveText.Draw()
 
 	PlotStyle.labelCmsPrivateSimulation.Draw()
+	
+	##### Try creating residuals
+	lowerPad.cd()
+	l1MuonGraph = l1Muon.GetPaintedGraph()
+	l1MuonAndHoAboveThrGraph = l1MuonAndHoAboveThr.GetPaintedGraph()
+
+	newGraph = TGraph()
+
+	x1 = Double(0)
+	y1 = Double(0)
+	x2 = Double(0)
+	y2 = Double(0)
+	
+	for i in range(0,50):
+		l1MuonGraph.GetPoint(i,x1,y1)
+		l1MuonAndHoAboveThrGraph.GetPoint(i,x2,y2)
+		newGraph.SetPoint(i,x1,(y1-y2)*100)
+	
+	
+	newGraph.SetMarkerStyle(20)
+	newGraph.GetYaxis().SetTitle("%")
+	newGraph.GetXaxis().SetRangeUser(0.5,50.1)
+
+	newGraph.Draw("ap")
+	line2 = TLine(0,0,50,0)
+	line2.SetLineColor(ROOT.kRed)
+	line2.SetLineWidth(2)
+	line2.Draw()
+	
+	##### Finally save the stuff
 	
 	canv.SaveAs("plots/" + folder + "/efficiency" + str(pt) + ".png")
 	canv.SaveAs("plots/" + folder + "/efficiency" + str(pt) + ".pdf")
