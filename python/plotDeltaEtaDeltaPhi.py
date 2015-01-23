@@ -1,19 +1,14 @@
 #!/usr/bin/python
-from ROOT import ROOT,gROOT,gStyle,TCanvas,TFile,TH1D,TH2D,TLegend,THStack,TPaveText,TBox
+from ROOT import ROOT,gROOT,gStyle,TCanvas,TFile,TH1D,TH2D,TH2F,TLegend,THStack,TPaveText,TBox
 import sys
 import os
+sys.path.append(os.path.abspath("../../python"))
 import PlotStyle
 import numpy as np
 
-sys.path.append(os.path.abspath("/user/kuensken/ChrisAnelliCode/CMSSW_6_2_0_SLHC11/src/HoMuonTrigger/python"))
 
 DEBUG = 1
 prefix = '[plotDeltaEtaDeltaPhi] '
-
-
-PlotStyle.setPlotStyle()
-gStyle.SetPalette(1)
-
 
 def drawHoBoxes(canvas):
     canvas.cd()
@@ -49,10 +44,14 @@ def plotDeltaEtaDeltaPhi(folder,sourceHistogram = 'L1MuonWithHoMatch_DeltaEtaDel
 	print prefix + 'Opening file:',filename
 
 	file = TFile.Open(filename)
-
+	PlotStyle.setPlotStyle()
 	h2dDeltaEtaDeltaPhi = file.Get("hoMuonAnalyzer/etaPhi/" + sourceHistogram)
-
-	canv = TCanvas("canvasDeltaEtaDeltaPhi",'canvasDeltaEtaDeltaPhi',1200,1200)
+	hEventCount = file.Get("hoMuonAnalyzer/count/Events_Count")
+	hNoTrgCount = file.Get("hoMuonAnalyzer/count/NoSingleMu_Count")
+	if(h2dDeltaEtaDeltaPhi == None):
+		print 'Could not get histogram %s from file %s'%("hoMuonAnalyzer/etaPhi/" + sourceHistogram,filename)
+	
+	canv = TCanvas("canvasDeltaEtaDeltaPhi" + sourceHistogram,'canvasDeltaEtaDeltaPhi',1200,1200)
 	canv.SetLogz()
 	h2dDeltaEtaDeltaPhi.GetXaxis().SetRangeUser(-.45,.45)
 	h2dDeltaEtaDeltaPhi.GetXaxis().SetTitle("#Delta#eta")
@@ -72,19 +71,25 @@ def plotDeltaEtaDeltaPhi(folder,sourceHistogram = 'L1MuonWithHoMatch_DeltaEtaDel
 	stats.SetY1NDC(.1)
 	stats.SetY2NDC(.25)
 
+	paveText = TPaveText(0.2,0.1,0.65,0.2,'NDC')
+	paveText.AddText('Total Events: %d' % (hEventCount.GetBinContent(2)))
+	paveText.AddText('Events with no Single #mu Trg: %d' % (hNoTrgCount.GetBinContent(2)))
+	paveText.SetBorderSize(1)
+	paveText.Draw()
+
+	PlotStyle.labelCmsPrivateSimulation.Draw()
+
 	legend = TLegend(0.7,0.8,0.9,0.9)
 	legend.AddEntry(boxList[0],"HO tile dimensions","le")
 	legend.Draw()
 
-	canv.Update();
-
 	canv.SaveAs("plots/" + folder + "/" + sourceHistogram + ".png")
 	canv.SaveAs("plots/" + folder + "/" + sourceHistogram + ".pdf")
+	canv.SaveAs("plots/" + folder + "/" + sourceHistogram + ".root")
 
-	f = TFile.Open("plots/" + folder + "/" + sourceHistogram + ".root","RECREATE")
-	canv.Write()
-	f.Close()
-	return canv
+	if(h2dDeltaEtaDeltaPhi == None):
+		print 'Why is the hist None?!'
+	return [h2dDeltaEtaDeltaPhi,canv,legend,boxList,stats,pal,paveText]
 
 #Plots the x-y-projection of the 3D-Histogram
 def plotDeltaEtaDeltaPhiEnergyProjection(folder,sourceHistogram = 'NoDoubleMuAboveThr_DeltaEtaDeltaPhiEnergy', sourceFile = 'L1MuonHistogram.root'):
@@ -107,10 +112,10 @@ def plotDeltaEtaDeltaPhiEnergyProjection(folder,sourceHistogram = 'NoDoubleMuAbo
 	print prefix + 'Opening file:',filename
 
 	file = TFile.Open(filename)
-	
+	PlotStyle.setPlotStyle()
+
 	sourceHisto = file.Get("hoMuonAnalyzer/etaPhi/" + sourceHistogram)
 	histo = sourceHisto.Project3DProfile('yx')
-
 	canv = TCanvas("canvasDeltaEtaDeltaPhiEnergy",'canvasDeltaEtaDeltaPhiEnergy',1200,1200)
 	histo.GetXaxis().SetRangeUser(-.45,.45)
 	histo.GetXaxis().SetTitle("#Delta#eta")
