@@ -1,4 +1,3 @@
-#!/usr/bin/python
 import os,sys
 
 sys.path.append(os.path.abspath("../../python"))
@@ -12,7 +11,7 @@ from plotEfficiency import plotEfficiency,plotCombinedEfficiency
 from plotMultiplicity import plotMultiplicity
 from plotPtCorrelation import plotPtCorrelation
 
-print 'File crabSiPMCalibPlots'
+from ROOT import TH2D,TH2F
 
 filename = 'L1MuonHistogram.root'
 
@@ -40,7 +39,12 @@ for s in toProcess:
 	print 'Doing Multiplicity...'
 	plotMultiplicity(s)
 
-print 'All done.'
+#c1 = None
+#c2 = None
+#c3 = None
+#cPhi1 = None
+#cPhi2 = None
+#cPhi3 = None
 
 """
 c1 = plotEnergyVsEta('.','L1MuonWithHoMatch_EnergyVsEta')
@@ -63,11 +67,46 @@ cPhi3.SetName('cPhi2')
 cPhi3.SaveAs('energyVsPhi_L1MuonAndHoAboveThrFilt.png')
 """
 
-c1 = None
-c2 = None
-c3 = None
-cPhi1 = None
-cPhi2 = None
-cPhi3 = None
+histoNames = ['tdmiHo_DeltaEtaDeltaPhi',
+			'tdmiHoAboveThr_DeltaEtaDeltaPhi',
+			'L1MuonWithHoMatch_DeltaEtaDeltaPhi',
+			'L1MuonWithHoMatchAboveThr_DeltaEtaDeltaPhi'
+			]
 
+histograms = []
+
+for s in histoNames:
+	histograms.append(plotDeltaEtaDeltaPhi('.',sourceHistogram = s))
+
+print histograms
+
+from ROOT import TCanvas
+'''
+c1 = TCanvas("c1","No Thr",1200,600)
+c1.Divide(2,1)
+c1.cd(1)
+histograms[2][0].Draw('colz')
+c1.cd(2)
+histograms[0][0].Draw('colz')
+c1.SaveAs("c1.pdf")
+c1.SaveAs("c1.root")
+c1.Update()
+
+
+c2 = TCanvas("c2","Above Thr",1200,600)
+c2.Divide(2,1)
+c2.cd(1)
+histograms[3][0].Draw('colz')
+c2.cd(2)
+histograms[1][0].Draw('colz')
+c2.SaveAs("c2.pdf")
+c2.SaveAs("c2.root")
+c2.Update()
 cCombEff = plotCombinedEfficiency()
+print cCombEff
+
+c = TCanvas("c","Above Thr",1200,600)
+histograms[2][0].Draw()
+'''
+cCombEff = plotCombinedEfficiency()
+print cCombEff
