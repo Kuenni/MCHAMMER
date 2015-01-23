@@ -23,3 +23,4 @@ def setPlotStyle():
 	gStyle.SetLegendBorderSize(1)
 	gStyle.SetLegendFont(62)
 	gStyle.SetFillColor(0)
+#	gStyle.SetPalette(1)
