@@ -234,20 +234,6 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		muMatchEta = muMatch->trkGlobPosAtHO.eta();
 		muMatchPhi = muMatch->trkGlobPosAtHO.phi();
 
-		if( muMatch->hoCrossedEnergy() == 0 && MuonHOAcceptance::inGeomAccept(muMatchEta,muMatchPhi) ){
-//			std::cout << std::endl;
-//			std::cout << coutPrefix << "X'ed HO Ids size: " << muMatch->crossedHOIds.size() << std::endl;
-//			std::cout << coutPrefix << "X'ed E: " << muMatch->hoCrossedEnergy() << std::endl;
-//			std::cout << coutPrefix << "HO E: " << muMatch->hoEnergy() << std::endl;
-//			std::cout << coutPrefix << "HO tower E: " << muMatch->hoTowerEnergy() << std::endl;
-//			std::cout << coutPrefix << "nXn E: " << muMatch->nXnEnergy(TrackDetMatchInfo::HORecHits) << std::endl;
-//			std::cout << coutPrefix << "iga: " << MuonHOAcceptance::inGeomAccept(muMatch->trkGlobPosAtHO.eta(),muMatch->trkGlobPosAtHO.phi()) << std::endl;
-//			std::cout << coutPrefix << "indg: " << MuonHOAcceptance::inNotDeadGeom(muMatch->trkGlobPosAtHO.eta(),muMatch->trkGlobPosAtHO.phi()) << std::endl;
-//			std::cout << coutPrefix << "Gen pT: " << genPart->pt() << std::endl;
-//			std::cout << coutPrefix << "Gen eta: " << genPart->eta() << std::endl;
-//			std::cout << coutPrefix << "Gen phi: " << genPart->phi() << std::endl;
-		}
-
 		const HORecHit* matchedRecHit = HoMatcher::matchByEMaxDeltaR(muMatch->trkGlobPosAtHO.eta(),muMatch->trkGlobPosAtHO.phi(),deltaR_Max,*hoRecoHits,*caloGeo);
 		//Found the Rec Hit with largest E
 		if(matchedRecHit){
@@ -346,6 +332,12 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	}
 
 	dataTree->Fill();
+
+	/**
+	 * ###########################
+	 * Done with filling the data into the trees
+	 * ###########################
+	 */
 
 	/*
 	 * Set Up Level 1 Global Trigger Utility
@@ -827,17 +819,18 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		/**
 		 * #######################
 		 * ######################
-		 * FIXME
-		 * FIXME
+		 * The following part serves for checking cases where there is a L1 Muon trigger
+		 * It's possible that some code is similar or the same as above. But for clarity reasons
+		 * the code below is used
 		 * #######################
 		 * ######################
 		 */
 		for(reco::GenParticleCollection::const_iterator genIt = truthParticles->begin();
 				genIt != truthParticles->end(); genIt++){
-			//Check for muons in Full barrel only
-			//Try to find a corresponding Gen Muon
 			float genEta = genIt->eta();
 			float genPhi = genIt->phi();
+
+			//Create the Track det match info
 			GlobalPoint vertexPoint(genIt->vertex().X(),genIt->vertex().Y(),genIt->vertex().Z());
 			GlobalVector mom (genIt->momentum().x(),genIt->momentum().y(),genIt->momentum().z());
 			int charge = genIt->charge();
@@ -846,6 +839,8 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 
 			double muMatchPhi = muMatch->trkGlobPosAtHO.phi();
 			double muMatchEta = muMatch->trkGlobPosAtHO.eta();
+
+			//Require the muon to hit the HO area
 			if(MuonHOAcceptance::inGeomAccept(muMatchEta,muMatchPhi)){
 
 				histogramBuilder.fillCountHistogram("SMuTrgTdmiInGA");
@@ -854,14 +849,30 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 					histogramBuilder.fillCountHistogram("SMuTrgFoundL1Match");
 					float l1Muon_eta = l1Ref->eta();
 					float l1Muon_phi = l1Ref->phi();
+					//Fill the efficiency for gen muons that were matched to an l1 object
+					//first argument is the condition for a muon trigger object to pass
+					//Second is the pt of the "real" particle
+					histogramBuilder.fillEfficiency(l1Ref->pt()>=5,genIt->pt(),std::string("SMuTrgL1AndGenMatch"));
+					histogramBuilder.fillEfficiency(l1Ref->pt()>=10,genIt->pt(),std::string("SMuTrgL1AndGenMatch"));
+					histogramBuilder.fillEfficiency(l1Ref->pt()>=15,genIt->pt(),std::string("SMuTrgL1AndGenMatch"));
+					histogramBuilder.fillEfficiency(l1Ref->pt()>=20,genIt->pt(),std::string("SMuTrgL1AndGenMatch"));
+					histogramBuilder.fillEfficiency(l1Ref->pt()>=25,genIt->pt(),std::string("SMuTrgL1AndGenMatch"));
+
 					const HORecHit* matchedRecHit = HoMatcher::matchByEMaxDeltaR(l1Muon_eta,l1Muon_phi,deltaR_Max,*hoRecoHits,*caloGeo);
+					//Check whether an HO match could be found by the delta R method
 					if(matchedRecHit){
 						histogramBuilder.fillCountHistogram("SMuTrgFoundHoMatch");
-						double hoEta,hoPhi;
-						hoEta = caloGeo->getPosition(matchedRecHit->detid()).eta();
-						hoPhi = caloGeo->getPosition(matchedRecHit->detid()).phi();
+//						double hoEta,hoPhi;
+//						hoEta = caloGeo->getPosition(matchedRecHit->detid()).eta();
+//						hoPhi = caloGeo->getPosition(matchedRecHit->detid()).phi();
+						//inspect the data where HO was above the threshold
 						if(matchedRecHit->energy() >= threshold){
 							histogramBuilder.fillCountHistogram("SMuTrgHoAboveThr");
+							histogramBuilder.fillEfficiency(l1Ref->pt()>=5,genIt->pt(),std::string("SMuTrgL1AndGenMatchHoAboveThr"));
+							histogramBuilder.fillEfficiency(l1Ref->pt()>=10,genIt->pt(),std::string("SMuTrgL1AndGenMatchHoAboveThr"));
+							histogramBuilder.fillEfficiency(l1Ref->pt()>=15,genIt->pt(),std::string("SMuTrgL1AndGenMatchHoAboveThr"));
+							histogramBuilder.fillEfficiency(l1Ref->pt()>=20,genIt->pt(),std::string("SMuTrgL1AndGenMatchHoAboveThr"));
+							histogramBuilder.fillEfficiency(l1Ref->pt()>=25,genIt->pt(),std::string("SMuTrgL1AndGenMatchHoAboveThr"));
 						}
 					}
 				}
