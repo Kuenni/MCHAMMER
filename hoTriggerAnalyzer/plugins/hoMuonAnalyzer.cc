@@ -703,6 +703,13 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		}//Gen particle loop
 	}
 
+	//#############################################################
+	//#############################################################
+	// NO SINGLE MU TRIGGER
+	//#############################################################
+	//#############################################################
+
+
 	if(!singleMu3Trig){
 		histogramBuilder.fillCountHistogram(std::string("NoSingleMu"));
 		histogramBuilder.fillMultiplicityHistogram(l1Muons->size(),std::string("NoSingleMu_L1Muon"));
@@ -712,20 +719,27 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		// Match Ho to gen info and try to recover mu trigger
 		//################################
 		//################################
-		int matchFailCounter = 0;
 		for(reco::GenParticleCollection::const_iterator genIt = truthParticles->begin();
 				genIt != truthParticles->end(); genIt++){
 			//Check for muons in Full barrel only
 			//Try to find a corresponding Gen Muon
 			float genEta = genIt->eta();
 			float genPhi = genIt->phi();
+
+			//Create the Track det match info
+			GlobalPoint vertexPoint(genIt->vertex().X(),genIt->vertex().Y(),genIt->vertex().Z());
+			GlobalVector mom (genIt->momentum().x(),genIt->momentum().y(),genIt->momentum().z());
+			int charge = genIt->charge();
+			const FreeTrajectoryState *freetrajectorystate_ = new FreeTrajectoryState(vertexPoint, mom ,charge , &(*theMagField));
+			TrackDetMatchInfo * muMatch = new TrackDetMatchInfo(assoc.associate(iEvent, iSetup, *freetrajectorystate_, assocParams));
+
+			double muMatchPhi = muMatch->trkGlobPosAtHO.phi();
+			double muMatchEta = muMatch->trkGlobPosAtHO.eta();
+
+
 			if(l1Muons->size()>0){
 				histogramBuilder.fillCountHistogram(std::string("NoTriggerButL1Muons"));
 			}
-	//		const l1extra::L1MuonParticle* l1Ref = getBestL1MuonMatch(genEta,genPhi);
-			//Inspect the cases where there was no matching to an L1Muon possible
-//			if(!l1Ref){//FIXME: inspect also the case where there were l1 objects
-			matchFailCounter++;
 			histogramBuilder.fillPtHistogram(genIt->pt(),std::string("NoSingleMu"));
 			const HORecHit* matchedRecHit = HoMatcher::matchByEMaxDeltaR(genEta,genPhi,deltaR_Max,*hoRecoHits,*caloGeo);
 			//Check whether matching to a rec hit was possible
@@ -766,7 +780,6 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				histogramBuilder.fillEtaPhiHistograms(genIt->eta(),genIt->phi(),std::string("NoSingleMuNoRecHit"));
 
 			}
-			//}//No Match to a l1 reference
 			/**
 			 * #############################################
 			 * # Use TrackDetMatchInfo to see where the gen particle ends up in HO. When selecting only events, where gen is in
@@ -813,8 +826,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				}
 			}
 		}//Loop over gen particles
-		histogramBuilder.fillMultiplicityHistogram(matchFailCounter,std::string("NoSingleMu_MatchingFail"));
-	}//Not single mu trg
+	}//<-- Not single mu trg
 	else {
 		/**
 		 * #######################
@@ -861,13 +873,13 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 					const HORecHit* matchedRecHit = HoMatcher::matchByEMaxDeltaR(l1Muon_eta,l1Muon_phi,deltaR_Max,*hoRecoHits,*caloGeo);
 					//Check whether an HO match could be found by the delta R method
 					if(matchedRecHit){
-						histogramBuilder.fillCountHistogram("SMuTrgFoundHoMatch");
+						histogramBuilder.fillCountHistogram("SMuTrgL1AndFoundHoMatch");
 //						double hoEta,hoPhi;
 //						hoEta = caloGeo->getPosition(matchedRecHit->detid()).eta();
 //						hoPhi = caloGeo->getPosition(matchedRecHit->detid()).phi();
 						//inspect the data where HO was above the threshold
 						if(matchedRecHit->energy() >= threshold){
-							histogramBuilder.fillCountHistogram("SMuTrgHoAboveThr");
+							histogramBuilder.fillCountHistogram("SMuTrgL1AndHoAboveThr");
 							histogramBuilder.fillEfficiency(l1Ref->pt()>=5,genIt->pt(),std::string("SMuTrgL1AndGenMatchHoAboveThr"));
 							histogramBuilder.fillEfficiency(l1Ref->pt()>=10,genIt->pt(),std::string("SMuTrgL1AndGenMatchHoAboveThr"));
 							histogramBuilder.fillEfficiency(l1Ref->pt()>=15,genIt->pt(),std::string("SMuTrgL1AndGenMatchHoAboveThr"));
@@ -925,9 +937,9 @@ hoMuonAnalyzer::beginRun(const edm::Run& iRun,
 
 	bool useL1EventSetup = true;
 	bool useL1GtTriggerMenuLite = true;
-	cout << coutPrefix << "getL1GtRunCache" << endl;
-	cout << coutPrefix << "UseL1EventSetup: " << useL1EventSetup << "UseL1GtTriggerMenuLite :"
-			<< useL1GtTriggerMenuLite << endl;
+	std::cout << coutPrefix << "getL1GtRunCache" << std::endl;
+	std::cout << coutPrefix << "UseL1EventSetup: " << useL1EventSetup << std::endl;
+	std::cout << coutPrefix << "UseL1GtTriggerMenuLite: " << useL1GtTriggerMenuLite << std::endl;
 	m_l1GtUtils.getL1GtRunCache(iRun, evSetup, useL1EventSetup, useL1GtTriggerMenuLite);
 
 }
