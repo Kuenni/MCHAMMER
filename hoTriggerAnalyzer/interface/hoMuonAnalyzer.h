@@ -68,6 +68,9 @@ private:
   const l1extra::L1MuonParticle* getMatchedL1Object(trigger::TriggerObject,edm::Handle<l1extra::L1MuonParticleCollection>);
   bool hasL1Match(trigger::TriggerObject,edm::Handle<l1extra::L1MuonParticleCollection>);
 
+  TrackDetMatchInfo* getTrackDetMatchInfo(reco::GenParticle,edm::ESHandle<MagneticField> theMagField,const edm::Event& iEvent,
+			const edm::EventSetup& iSetup);
+
   bool processTriggerDecision(string algorithmName,const edm::Event& );
 
   edm::Service<TFileService> _fileService;

@@ -668,6 +668,37 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			}
 		}
 		histogramBuilder.fillMultiplicityHistogram(recHitAbThrNoL1Counter,std::string("NoL1"));
+
+		for(reco::GenParticleCollection::const_iterator genIt = truthParticles->begin();
+				genIt != truthParticles->end(); genIt++){
+			//Check for muons in Full barrel only
+			//Try to find a corresponding Gen Muon
+			float genEta = genIt->eta();
+			float genPhi = genIt->phi();
+
+			/**
+			 * #############################################
+			 * # Use TrackDetMatchInfo to see where the gen particle ends up in HO. When selecting only events, where gen is in
+			 * # the geometric acceptance of HO, this gives a more realistic estimator for the number of recoverable
+			 * # Triggers
+			 * #############################################
+			 */
+			GlobalPoint vertexPoint(genIt->vertex().X(),genIt->vertex().Y(),genIt->vertex().Z());
+			GlobalVector mom (genIt->momentum().x(),genIt->momentum().y(),genIt->momentum().z());
+			int charge = genIt->charge();
+			const FreeTrajectoryState *freetrajectorystate_ = new FreeTrajectoryState(vertexPoint, mom ,charge , &(*theMagField));
+			TrackDetMatchInfo * muMatch = new TrackDetMatchInfo(assoc.associate(iEvent, iSetup, *freetrajectorystate_, assocParams));
+
+			double muMatchPhi = muMatch->trkGlobPosAtHO.phi();
+			double muMatchEta = muMatch->trkGlobPosAtHO.eta();
+			histogramBuilder.fillEtaPhiHistograms(genEta,genPhi,"NoL1GenAny");
+			histogramBuilder.fillEtaPhiHistograms(muMatchEta,muMatchPhi,"NoL1TdmiAny");
+			if(MuonHOAcceptance::inGeomAccept(muMatchEta,muMatchPhi)){
+				histogramBuilder.fillEtaPhiHistograms(genEta,genPhi,"NoL1GenInGA");
+				histogramBuilder.fillEtaPhiHistograms(muMatchEta,muMatchPhi,"NoL1TdmiInGA");
+			}
+		}
+
 //		ofstream myfile;
 //		myfile.open ("eventList_NoL1Muon.txt",std::ios::app);
 //		myfile << iEvent.id().run() << "\t" << iEvent.id().luminosityBlock() << "\t" << iEvent.id().event() << std::endl;
@@ -726,60 +757,6 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			float genEta = genIt->eta();
 			float genPhi = genIt->phi();
 
-			//Create the Track det match info
-			GlobalPoint vertexPoint(genIt->vertex().X(),genIt->vertex().Y(),genIt->vertex().Z());
-			GlobalVector mom (genIt->momentum().x(),genIt->momentum().y(),genIt->momentum().z());
-			int charge = genIt->charge();
-			const FreeTrajectoryState *freetrajectorystate_ = new FreeTrajectoryState(vertexPoint, mom ,charge , &(*theMagField));
-			TrackDetMatchInfo * muMatch = new TrackDetMatchInfo(assoc.associate(iEvent, iSetup, *freetrajectorystate_, assocParams));
-
-			double muMatchPhi = muMatch->trkGlobPosAtHO.phi();
-			double muMatchEta = muMatch->trkGlobPosAtHO.eta();
-
-
-			if(l1Muons->size()>0){
-				histogramBuilder.fillCountHistogram(std::string("NoTriggerButL1Muons"));
-			}
-			histogramBuilder.fillPtHistogram(genIt->pt(),std::string("NoSingleMu"));
-			const HORecHit* matchedRecHit = HoMatcher::matchByEMaxDeltaR(genEta,genPhi,deltaR_Max,*hoRecoHits,*caloGeo);
-			//Check whether matching to a rec hit was possible
-			if(matchedRecHit){
-				double hoEta = caloGeo->getPosition(matchedRecHit->id()).eta();
-				double hoPhi = caloGeo->getPosition(matchedRecHit->id()).phi();
-				histogramBuilder.fillEtaPhiHistograms(hoEta,hoPhi,std::string("NoSingleMu_Ho"));
-				histogramBuilder.fillDeltaEtaDeltaPhiEnergyHistogram(genEta,hoEta,genPhi,hoPhi,matchedRecHit->energy(),std::string("NoSingleMu"));
-				histogramBuilder.fillPtHistogram(genIt->pt(),std::string("NoSingleMuButHo"));
-				histogramBuilder.fillEfficiency(matchedRecHit->energy()>=threshold,genIt->pt(),"energyTurnOn");
-				//Is the energy above threshold
-				if(matchedRecHit->energy() >= threshold){
-					histogramBuilder.fillPtHistogram(genIt->pt(),std::string("NoSingleMuAboveThr"));
-					histogramBuilder.fillEtaPhiHistograms(hoEta,hoPhi,std::string("NoSingleMuAboveThr_Ho"));
-					histogramBuilder.fillEnergyHistograms(matchedRecHit->energy(),std::string("NoSingleMu"));
-					histogramBuilder.fillEnergyVsPosition(hoEta,hoPhi,matchedRecHit->energy(),std::string("NoSingleMu"));
-					histogramBuilder.fillDeltaEtaDeltaPhiHistograms(genEta,hoEta,genPhi,hoPhi,std::string("NoSingleMu"));
-					histogramBuilder.fillTimeHistogram(matchedRecHit->time(),std::string("NoSingleMu"));
-					histogramBuilder.fillDeltaEtaDeltaPhiEnergyHistogram(genEta,hoEta,genPhi,hoPhi,matchedRecHit->energy(),std::string("NoSingleMuAboveThr"));
-					histogramBuilder.fillEfficiency(matchedRecHit->energy()>=threshold,genIt->pt(),"energyTurnOnAboveThr");
-					if (MuonHOAcceptance::inGeomAccept(genEta,genPhi/*,deltaR_Max,deltaR_Max*/)){
-						histogramBuilder.fillCountHistogram(std::string("NoSingleMuAboveThrInAcc"));
-						histogramBuilder.fillPtHistogram(genIt->pt(),std::string("NoSingleMuAboveThrInAcc"));
-						histogramBuilder.fillEtaPhiHistograms(hoEta,hoPhi,std::string("NoSingleMuAboveThrInAcc_Ho"));
-						if (MuonHOAcceptance::inNotDeadGeom(genEta,genPhi/*,deltaR_Max,deltaR_Max*/)){
-							histogramBuilder.fillEtaPhiHistograms(hoEta,hoPhi,std::string("NoSingleMuAboveThrInAccNotDead_Ho"));
-							histogramBuilder.fillPtHistogram(genIt->pt(),std::string("NoSingleMuAboveThrInAccNotDead"));
-							histogramBuilder.fillEnergyHistograms(matchedRecHit->energy(),std::string("NoSingleMuFilt"));
-							histogramBuilder.fillEnergyVsPosition(hoEta,hoPhi,matchedRecHit->energy(),std::string("NoSingleMuFilt"));
-							histogramBuilder.fillDeltaEtaDeltaPhiHistograms(genEta,hoEta,genPhi,hoPhi,std::string("NoSingleMuFilt"));
-							histogramBuilder.fillDeltaEtaDeltaPhiEnergyHistogram(genEta,hoEta,genPhi,hoPhi,matchedRecHit->energy(),std::string("NoSingleMuFilt"));
-						}
-					}
-				}
-			}//If matched rechit
-			else{
-				histogramBuilder.fillPtHistogram(genIt->pt(),std::string("NoSingleMuNoRecHit"));
-				histogramBuilder.fillEtaPhiHistograms(genIt->eta(),genIt->phi(),std::string("NoSingleMuNoRecHit"));
-
-			}
 			/**
 			 * #############################################
 			 * # Use TrackDetMatchInfo to see where the gen particle ends up in HO. When selecting only events, where gen is in
@@ -796,10 +773,26 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			double muMatchPhi = muMatch->trkGlobPosAtHO.phi();
 			double muMatchEta = muMatch->trkGlobPosAtHO.eta();
 
+			//Studies depending on whether there are L1 Objects or not
+			if(l1Muons->size()>0){
+				histogramBuilder.fillCountHistogram(std::string("NoTriggerButL1Muons"));
+			}
+			else{
+				histogramBuilder.fillCountHistogram("NoTrgNoL1Any");
+				histogramBuilder.fillEtaPhiHistograms(genEta,genPhi,"NoTrgNoL1GenAny");
+				histogramBuilder.fillEtaPhiHistograms(muMatchEta,muMatchPhi,"NoTrgNoL1TdmiAny");
+				if(MuonHOAcceptance::inGeomAccept(muMatchEta,muMatchPhi)){
+					histogramBuilder.fillEtaPhiHistograms(genEta,genPhi,"NoTrgNoL1GenInGA");
+					histogramBuilder.fillEtaPhiHistograms(muMatchEta,muMatchPhi,"NoTrgNoL1TdmiInGA");
+				}
+			}
+			histogramBuilder.fillPtHistogram(genIt->pt(),std::string("NoSingleMu"));
+
 			histogramBuilder.fillEtaPhiHistograms(genEta,genPhi,std::string("NoTrgGenAny"));
 			histogramBuilder.fillEtaPhiHistograms(muMatchEta,muMatchPhi,std::string("NoTrgTdmiAny"));
 			//The muon needs to hit the HO geometric acceptance
 			if(MuonHOAcceptance::inGeomAccept(muMatchEta,muMatchPhi)){
+				histogramBuilder.fillEtaPhiHistograms(muMatchEta,muMatchPhi,"NoTrgTdmiInGA");
 				histogramBuilder.fillCountHistogram("NoTrgTdmiInGA");
 				histogramBuilder.fillEnergyVsPosition(muMatchEta,muMatchPhi,muMatch->hoCrossedEnergy(),std::string("NoTrgTdmiXedE"));
 				const HORecHit* matchedRecHit = HoMatcher::matchByEMaxDeltaR(muMatchEta,muMatchPhi,deltaR_Max,*hoRecoHits,*caloGeo);
@@ -824,6 +817,9 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 					histogramBuilder.fillCountHistogram(std::string("NoTrgHoMatchFail"));
 					histogramBuilder.fillEtaPhiHistograms(muMatchEta,muMatchPhi,std::string("NoTrgHoMatchFail"));
 				}
+			}//<-- in GA
+			else{
+				histogramBuilder.fillEtaPhiHistograms(muMatchEta,muMatchPhi,"NoTrgTdmiNotInGA");
 			}
 		}//Loop over gen particles
 	}//<-- Not single mu trg
@@ -890,7 +886,27 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				}
 			}
 		}//Gen loop
-	}
+
+		//##################################################
+		//##################################################
+		// Loop over L1 Muons for the "Oliver Style" efficiency
+		//##################################################
+		//##################################################
+		for( unsigned int i = 0 ; i < l1Muons->size(); i++ ){
+
+			const l1extra::L1MuonParticle* bl1Muon = &(l1Muons->at(i));
+
+			//first fill information for ho hits without energy threshold
+			//###########################################################
+			float l1Muon_eta = bl1Muon->eta();
+			float l1Muon_phi = bl1Muon->phi();
+
+			if(MuonHOAcceptance::inGeomAccept(l1Muon_eta,l1Muon_phi)){
+
+			}
+
+		}//<-- End of L1 loop
+	}//<-- End of Single mu trg
 }
 
 /**
@@ -1079,6 +1095,17 @@ void hoMuonAnalyzer::defineTriggersOfInterest(){
 	string l1SingleMuOpen_key = "hlt_l1SingleMuOpen";
 	hltNamesOfInterest.insert(std::pair<std::string,std::string>(l1SingleMuOpen_key,"HLT_L1SingleMuOpen_v7"));
 	hltFiltersOfInterest.insert(std::pair<std::string,edm::InputTag>(l1SingleMuOpen_key,edm::InputTag("hltL1MuOpenL1Filtered0","","HLT")));
+
+}
+
+TrackDetMatchInfo* hoMuonAnalyzer::getTrackDetMatchInfo(reco::GenParticle genPart,edm::ESHandle<MagneticField> theMagField,const edm::Event& iEvent,
+		const edm::EventSetup& iSetup){
+	//Create the Track det match info
+	GlobalPoint vertexPoint(genPart.vertex().X(),genPart.vertex().Y(),genPart.vertex().Z());
+	GlobalVector mom (genPart.momentum().x(),genPart.momentum().y(),genPart.momentum().z());
+	int charge = genPart.charge();
+	const FreeTrajectoryState *freetrajectorystate_ = new FreeTrajectoryState(vertexPoint, mom ,charge , &(*theMagField));
+	return new TrackDetMatchInfo(assoc.associate(iEvent, iSetup, *freetrajectorystate_, assocParams));
 
 }
 
