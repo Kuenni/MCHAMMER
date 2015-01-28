@@ -70,7 +70,7 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(1000000)
 )
 
 # Input source
@@ -88,7 +88,7 @@ process.noisesfromprep = cms.ESSource("PoolDBESSource",
 				      # connect = cms.string('sqlite_file:RPC_Eff2012_PhaseII_mc.db'),    
                                       # connect = cms.string('sqlite_file:RPC_Eff2012_256Strips_mc.db'),                                                    
                                       # connect = cms.string('sqlite_file:RPC_dataDrivenCondition_RPCEta2Upscope_mc.db'),   
-				      connect = cms.string('sqlite_fip:L1Trigger/L1IntegratedMuonTrigger/data/RPC_3108Rolls_BkgAtLumi1_14TeV_mc.db'),
+				      connect = cms.string('sqlite_fip:RPC_3108Rolls_BkgAtLumi1_14TeV_mc.db'),
                                       DBParameters = cms.PSet(
 		messageLevel = cms.untracked.int32(0),
 		authenticationPath = cms.untracked.string('.'),
