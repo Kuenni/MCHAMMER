@@ -182,9 +182,6 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		return;
 	}
 
-	edm::ESHandle<Propagator> shProp;
-//	iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny", shProp);
-
 	edm::ESHandle<MagneticField> theMagField;
 	iSetup.get<IdealMagneticFieldRecord>().get(theMagField );
 	SteppingHelixPropagator myHelix(&*theMagField,anyDirection);
@@ -221,18 +218,9 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				MuonHOAcceptance::inSiPMGeom(genPart->eta(),genPart->phi())
 		));
 
-		GlobalPoint vertexPoint(genPart->vertex().X(),genPart->vertex().Y(),genPart->vertex().Z());
-		GlobalVector mom (genPart->momentum().x(),genPart->momentum().y(),genPart->momentum().z());
-		int charge = genPart->charge();
-		const FreeTrajectoryState *freetrajectorystate_ =
-		new FreeTrajectoryState(vertexPoint, mom ,charge , &(*theMagField));
-		TrackDetMatchInfo * muMatch = new TrackDetMatchInfo(assoc.associate(iEvent, iSetup, *freetrajectorystate_, assocParams));
-
-		double muMatchEta = 0;
-		double muMatchPhi = 0;
-
-		muMatchEta = muMatch->trkGlobPosAtHO.eta();
-		muMatchPhi = muMatch->trkGlobPosAtHO.phi();
+		TrackDetMatchInfo * muMatch = getTrackDetMatchInfo(*genPart,theMagField,iEvent,iSetup);
+		double muMatchEta = muMatch->trkGlobPosAtHO.eta();
+		double muMatchPhi = muMatch->trkGlobPosAtHO.phi();
 
 		const HORecHit* matchedRecHit = HoMatcher::matchByEMaxDeltaR(muMatch->trkGlobPosAtHO.eta(),muMatch->trkGlobPosAtHO.phi(),deltaR_Max,*hoRecoHits,*caloGeo);
 		//Found the Rec Hit with largest E
@@ -403,10 +391,6 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	for( unsigned int i = 0 ; i < l1Muons->size(); i++  ) {
 		histogramBuilder.fillCountHistogram(l1muon_key);
 		const l1extra::L1MuonParticle* bl1Muon = &(l1Muons->at(i));
-//		ofstream myfile;
-//		myfile.open ("L1MuonPt.txt",std::ios::app);
-//		myfile << bl1Muon->pt() << std::endl;
-//		myfile.close();
 		histogramBuilder.fillPdgIdHistogram(bl1Muon->pdgId(),l1muon_key);
 		histogramBuilder.fillVzHistogram(bl1Muon->vz(),l1muon_key);
 		const reco::GenParticle* genMatch = getBestGenMatch(bl1Muon->eta(),bl1Muon->phi());
@@ -682,12 +666,8 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			 * # the geometric acceptance of HO, this gives a more realistic estimator for the number of recoverable
 			 * # Triggers
 			 * #############################################
-			 */
-			GlobalPoint vertexPoint(genIt->vertex().X(),genIt->vertex().Y(),genIt->vertex().Z());
-			GlobalVector mom (genIt->momentum().x(),genIt->momentum().y(),genIt->momentum().z());
-			int charge = genIt->charge();
-			const FreeTrajectoryState *freetrajectorystate_ = new FreeTrajectoryState(vertexPoint, mom ,charge , &(*theMagField));
-			TrackDetMatchInfo * muMatch = new TrackDetMatchInfo(assoc.associate(iEvent, iSetup, *freetrajectorystate_, assocParams));
+*/
+			TrackDetMatchInfo * muMatch = getTrackDetMatchInfo(*genIt,theMagField,iEvent,iSetup);
 
 			double muMatchPhi = muMatch->trkGlobPosAtHO.phi();
 			double muMatchEta = muMatch->trkGlobPosAtHO.eta();
@@ -699,10 +679,6 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			}
 		}
 
-//		ofstream myfile;
-//		myfile.open ("eventList_NoL1Muon.txt",std::ios::app);
-//		myfile << iEvent.id().run() << "\t" << iEvent.id().luminosityBlock() << "\t" << iEvent.id().event() << std::endl;
-//		myfile.close();
 	} else{
 		/**
 		 * #################################
@@ -764,12 +740,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			 * # Triggers
 			 * #############################################
 			 */
-			GlobalPoint vertexPoint(genIt->vertex().X(),genIt->vertex().Y(),genIt->vertex().Z());
-			GlobalVector mom (genIt->momentum().x(),genIt->momentum().y(),genIt->momentum().z());
-			int charge = genIt->charge();
-			const FreeTrajectoryState *freetrajectorystate_ = new FreeTrajectoryState(vertexPoint, mom ,charge , &(*theMagField));
-			TrackDetMatchInfo * muMatch = new TrackDetMatchInfo(assoc.associate(iEvent, iSetup, *freetrajectorystate_, assocParams));
-
+			TrackDetMatchInfo * muMatch = getTrackDetMatchInfo(*genIt,theMagField,iEvent,iSetup);
 			double muMatchPhi = muMatch->trkGlobPosAtHO.phi();
 			double muMatchEta = muMatch->trkGlobPosAtHO.eta();
 
@@ -838,13 +809,8 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			float genEta = genIt->eta();
 			float genPhi = genIt->phi();
 
-			//Create the Track det match info
-			GlobalPoint vertexPoint(genIt->vertex().X(),genIt->vertex().Y(),genIt->vertex().Z());
-			GlobalVector mom (genIt->momentum().x(),genIt->momentum().y(),genIt->momentum().z());
-			int charge = genIt->charge();
-			const FreeTrajectoryState *freetrajectorystate_ = new FreeTrajectoryState(vertexPoint, mom ,charge , &(*theMagField));
-			TrackDetMatchInfo * muMatch = new TrackDetMatchInfo(assoc.associate(iEvent, iSetup, *freetrajectorystate_, assocParams));
 
+			TrackDetMatchInfo * muMatch = getTrackDetMatchInfo(*genIt,theMagField,iEvent,iSetup);
 			double muMatchPhi = muMatch->trkGlobPosAtHO.phi();
 			double muMatchEta = muMatch->trkGlobPosAtHO.eta();
 
