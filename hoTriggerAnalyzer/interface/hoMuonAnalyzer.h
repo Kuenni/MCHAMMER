@@ -52,26 +52,22 @@ public:
 
 private:
   virtual void beginJob() override;
-  virtual void analyze(const edm::Event&, 
-		       const edm::EventSetup&) override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() override;
-  virtual void beginRun (const edm::Run& iRun, 
-			 const edm::EventSetup& evSetup);
-  virtual void endRun(const edm::Run& iRun, 
-		      const edm::EventSetup& evSetup);
+  virtual void beginRun (const edm::Run& iRun, const edm::EventSetup& evSetup);
+  virtual void endRun(const edm::Run& iRun, const edm::EventSetup& evSetup);
   
   void defineTriggersOfInterest();
 
   const reco::GenParticle* getBestGenMatch(float,float);
   const l1extra::L1MuonParticle* getBestL1MuonMatch(float,float);
-
   const l1extra::L1MuonParticle* getMatchedL1Object(trigger::TriggerObject,edm::Handle<l1extra::L1MuonParticleCollection>);
   bool hasL1Match(trigger::TriggerObject,edm::Handle<l1extra::L1MuonParticleCollection>);
 
   TrackDetMatchInfo* getTrackDetMatchInfo(reco::GenParticle,edm::ESHandle<MagneticField> theMagField,const edm::Event& iEvent,
 			const edm::EventSetup& iSetup);
-
   bool processTriggerDecision(string algorithmName,const edm::Event& );
+  void fillEfficiencyHistograms(double ptMeasured,double ptReal,std::string key);
 
   edm::Service<TFileService> _fileService;
 

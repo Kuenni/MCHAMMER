@@ -410,13 +410,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 
 		const reco::GenParticle* bestGenMatch = getBestGenMatch(bl1Muon->eta(),bl1Muon->phi());
 		if(bestGenMatch){
-			//first argument is the condition for a muon trigger object to pass
-			//Second is the pt of the "real" particle
-			histogramBuilder.fillEfficiency(bl1Muon->pt()>=5,bestGenMatch->pt(),std::string("L1MuonPt5"));
-			histogramBuilder.fillEfficiency(bl1Muon->pt()>=10,bestGenMatch->pt(),std::string("L1MuonPt10"));
-			histogramBuilder.fillEfficiency(bl1Muon->pt()>=15,bestGenMatch->pt(),std::string("L1MuonPt15"));
-			histogramBuilder.fillEfficiency(bl1Muon->pt()>=20,bestGenMatch->pt(),std::string("L1MuonPt20"));
-			histogramBuilder.fillEfficiency(bl1Muon->pt()>=25,bestGenMatch->pt(),std::string("L1MuonPt25"));
+			fillEfficiencyHistograms(bl1Muon->pt(),bestGenMatch->pt(),"L1MuonPt");
 		}
 		histogramBuilder.fillL1MuonPtHistograms(bl1Muon->pt(), l1muon_key);
 		histogramBuilder.fillEtaPhiHistograms(bl1Muon->eta(), bl1Muon->phi(),
@@ -533,13 +527,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			const reco::GenParticle* bestGenMatch = getBestGenMatch(bl1Muon->eta(),bl1Muon->phi());
 			if(bestGenMatch){
 				countGenMatches++;
-				//first argument is the condition for a muon trigger object to pass
-				//Second is the pt of the "real" particle
-				histogramBuilder.fillEfficiency(bl1Muon->pt()>=5,bestGenMatch->pt(),std::string("L1MuonPt5HoReco"));
-				histogramBuilder.fillEfficiency(bl1Muon->pt()>=10,bestGenMatch->pt(),std::string("L1MuonPt10HoReco"));
-				histogramBuilder.fillEfficiency(bl1Muon->pt()>=15,bestGenMatch->pt(),std::string("L1MuonPt15HoReco"));
-				histogramBuilder.fillEfficiency(bl1Muon->pt()>=20,bestGenMatch->pt(),std::string("L1MuonPt20HoReco"));
-				histogramBuilder.fillEfficiency(bl1Muon->pt()>=25,bestGenMatch->pt(),std::string("L1MuonPt25HoReco"));
+				fillEfficiencyHistograms(bl1Muon->pt(),bestGenMatch->pt(),"L1MuonHoReco");
 			}
 
 			//###########################################################
@@ -575,13 +563,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 
 						const reco::GenParticle* bestGenMatch = getBestGenMatch(bl1Muon->eta(),bl1Muon->phi());
 						if(bestGenMatch){
-							//first argument is the condition for a muon trigger object to pass
-							//Second is the pt of the "real" particle
-							histogramBuilder.fillEfficiency(bl1Muon->pt()>=5,bestGenMatch->pt(),std::string("L1MuonPt5HoRecoAboveThrFilt"));
-							histogramBuilder.fillEfficiency(bl1Muon->pt()>=10,bestGenMatch->pt(),std::string("L1MuonPt10HoRecoAboveThrFilt"));
-							histogramBuilder.fillEfficiency(bl1Muon->pt()>=15,bestGenMatch->pt(),std::string("L1MuonPt15HoRecoAboveThrFilt"));
-							histogramBuilder.fillEfficiency(bl1Muon->pt()>=20,bestGenMatch->pt(),std::string("L1MuonPt20HoRecoAboveThrFilt"));
-							histogramBuilder.fillEfficiency(bl1Muon->pt()>=25,bestGenMatch->pt(),std::string("L1MuonPt25HoRecoAboveThrFilt"));
+							fillEfficiencyHistograms(bl1Muon->pt(),bestGenMatch->pt(),"L1MuonHoRecoAboveThrFilt");
 						}
 
 						//This one is filled for the sake of completeness. The SiPM regions are hardcoded in the class!!
@@ -602,13 +584,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				}
 				const reco::GenParticle* bestGenMatch = getBestGenMatch(bl1Muon->eta(),bl1Muon->phi());
 				if(bestGenMatch){
-					//first argument is the condition for a muon trigger object to pass
-					//Second is the pt of the "real" particle
-					histogramBuilder.fillEfficiency(bl1Muon->pt()>=5,bestGenMatch->pt(),std::string("L1MuonPt5HoRecoAboveThr"));
-					histogramBuilder.fillEfficiency(bl1Muon->pt()>=10,bestGenMatch->pt(),std::string("L1MuonPt10HoRecoAboveThr"));
-					histogramBuilder.fillEfficiency(bl1Muon->pt()>=15,bestGenMatch->pt(),std::string("L1MuonPt15HoRecoAboveThr"));
-					histogramBuilder.fillEfficiency(bl1Muon->pt()>=20,bestGenMatch->pt(),std::string("L1MuonPt20HoRecoAboveThr"));
-					histogramBuilder.fillEfficiency(bl1Muon->pt()>=25,bestGenMatch->pt(),std::string("L1MuonPt25HoRecoAboveThr"));
+					fillEfficiencyHistograms(bl1Muon->pt(),bestGenMatch->pt(),"L1MuonHoRecoAboveThr");
 				}
 				//Try to find a corresponding Gen Muon
 				edm::RefToBase<l1extra::L1MuonParticle> l1MuonCandiateRef(l1MuonView,i);
@@ -809,7 +785,6 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			float genEta = genIt->eta();
 			float genPhi = genIt->phi();
 
-
 			TrackDetMatchInfo * muMatch = getTrackDetMatchInfo(*genIt,theMagField,iEvent,iSetup);
 			double muMatchPhi = muMatch->trkGlobPosAtHO.phi();
 			double muMatchEta = muMatch->trkGlobPosAtHO.eta();
@@ -823,15 +798,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 					histogramBuilder.fillCountHistogram("SMuTrgFoundL1Match");
 					float l1Muon_eta = l1Ref->eta();
 					float l1Muon_phi = l1Ref->phi();
-					//Fill the efficiency for gen muons that were matched to an l1 object
-					//first argument is the condition for a muon trigger object to pass
-					//Second is the pt of the "real" particle
-					histogramBuilder.fillEfficiency(l1Ref->pt()>=5,genIt->pt(),std::string("SMuTrgL1AndGenMatch"));
-					histogramBuilder.fillEfficiency(l1Ref->pt()>=10,genIt->pt(),std::string("SMuTrgL1AndGenMatch"));
-					histogramBuilder.fillEfficiency(l1Ref->pt()>=15,genIt->pt(),std::string("SMuTrgL1AndGenMatch"));
-					histogramBuilder.fillEfficiency(l1Ref->pt()>=20,genIt->pt(),std::string("SMuTrgL1AndGenMatch"));
-					histogramBuilder.fillEfficiency(l1Ref->pt()>=25,genIt->pt(),std::string("SMuTrgL1AndGenMatch"));
-
+					fillEfficiencyHistograms(l1Ref->pt(),genIt->pt(),"SMuTrgL1AndGenMatch");
 					const HORecHit* matchedRecHit = HoMatcher::matchByEMaxDeltaR(l1Muon_eta,l1Muon_phi,deltaR_Max,*hoRecoHits,*caloGeo);
 					//Check whether an HO match could be found by the delta R method
 					if(matchedRecHit){
@@ -842,11 +809,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 						//inspect the data where HO was above the threshold
 						if(matchedRecHit->energy() >= threshold){
 							histogramBuilder.fillCountHistogram("SMuTrgL1AndHoAboveThr");
-							histogramBuilder.fillEfficiency(l1Ref->pt()>=5,genIt->pt(),std::string("SMuTrgL1AndGenMatchHoAboveThr"));
-							histogramBuilder.fillEfficiency(l1Ref->pt()>=10,genIt->pt(),std::string("SMuTrgL1AndGenMatchHoAboveThr"));
-							histogramBuilder.fillEfficiency(l1Ref->pt()>=15,genIt->pt(),std::string("SMuTrgL1AndGenMatchHoAboveThr"));
-							histogramBuilder.fillEfficiency(l1Ref->pt()>=20,genIt->pt(),std::string("SMuTrgL1AndGenMatchHoAboveThr"));
-							histogramBuilder.fillEfficiency(l1Ref->pt()>=25,genIt->pt(),std::string("SMuTrgL1AndGenMatchHoAboveThr"));
+							fillEfficiencyHistograms(l1Ref->pt(),genIt->pt(),"SMuTrgL1AndGenMatchHoAboveThr");
 						}
 					}
 				}
@@ -874,6 +837,10 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		}//<-- End of L1 loop
 	}//<-- End of Single mu trg
 }
+//#############################
+// End of Analyze function
+//#############################
+
 
 /**
  * Small helper function to print the number of triggers for a certain algorithm name
@@ -1064,6 +1031,10 @@ void hoMuonAnalyzer::defineTriggersOfInterest(){
 
 }
 
+/**
+ * Gets the TrackDetMatchInfo for a Gen Particle by using its vertex, momentum and charge information
+ * Needs the magnetic field, the edm::event and the edm::setup of an event
+ */
 TrackDetMatchInfo* hoMuonAnalyzer::getTrackDetMatchInfo(reco::GenParticle genPart,edm::ESHandle<MagneticField> theMagField,const edm::Event& iEvent,
 		const edm::EventSetup& iSetup){
 	//Create the Track det match info
@@ -1072,7 +1043,18 @@ TrackDetMatchInfo* hoMuonAnalyzer::getTrackDetMatchInfo(reco::GenParticle genPar
 	int charge = genPart.charge();
 	const FreeTrajectoryState *freetrajectorystate_ = new FreeTrajectoryState(vertexPoint, mom ,charge , &(*theMagField));
 	return new TrackDetMatchInfo(assoc.associate(iEvent, iSetup, *freetrajectorystate_, assocParams));
+}
 
+/**
+ * Automatically call the histogram builder to fill the efficiency objects with different cut thresholds
+ * Needs the pt for evaluation of the efficiency (ptMeasured) and the real pT
+ */
+void hoMuonAnalyzer::fillEfficiencyHistograms(double ptMeasured, double ptReal,std::string key){
+	histogramBuilder.fillEfficiency(ptMeasured >= 5, ptReal, key + "Pt5");
+	histogramBuilder.fillEfficiency(ptMeasured >= 10, ptReal, key + "Pt10");
+	histogramBuilder.fillEfficiency(ptMeasured >= 15, ptReal, key + "Pt15");
+	histogramBuilder.fillEfficiency(ptMeasured >= 20, ptReal, key + "Pt20");
+	histogramBuilder.fillEfficiency(ptMeasured >= 25, ptReal, key + "Pt25");
 }
 
 //define this as a plug-in
