@@ -488,3 +488,16 @@ void HistogramBuilder::fillBxIdVsPt(int bxId, double pt, std::string key){
 	}
 	_h2BxIdVsPt[key]->Fill(pt,bxId);
 }
+
+/**
+ * Fill A TGraph for exact position in eta and phi in a scatterplot
+ */
+void HistogramBuilder::fillEtaPhiGraph(double eta, double phi, std::string key){
+	TFileDirectory graphDir = _fileService->mkdir("graphs");
+	if(!_grEtaPhi.count(key)){
+		_grEtaPhi[key] = graphDir.make<TGraph>();
+		_grEtaPhi[key]->SetTitle(key.c_str());
+		_grEtaPhi[key]->SetName(key.c_str());
+		}
+	_grEtaPhi[key]->SetPoint(_grEtaPhi[key]->GetN(),eta, phi);
+};
