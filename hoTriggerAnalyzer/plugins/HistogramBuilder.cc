@@ -471,3 +471,20 @@ void HistogramBuilder::fillDeltaTimeHistogram(double time, int bx, std::string k
 	}
 	_h2TimeCorrelation[key]->Fill(time,bx*25);
 }
+
+/**
+ * Fill a 2D histogram with BX id vs pt information
+ */
+void HistogramBuilder::fillBxIdVsPt(int bxId, double pt, std::string key){
+	TFileDirectory timeDir = _fileService->mkdir("time");
+
+	//Fill energy vs eta
+	if(!_h2BxIdVsPt.count(key)){
+		_h2BxIdVsPt[key] = timeDir.make<TH2D>(Form("%s_BxIdVsPt",key.c_str()),
+				Form("%s BX ID vs p_{T};p_{T} / GeV;BX ID",key.c_str()),
+				200,0,100, //0.5 GeV Bins
+				5,-2.5,2.5
+		);
+	}
+	_h2BxIdVsPt[key]->Fill(bxId,pt);
+}

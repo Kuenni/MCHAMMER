@@ -487,6 +487,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		float l1Muon_phi = bl1Muon->phi();
 		histogramBuilder.fillCountHistogram(std::string("L1MuonPresent"));
 		histogramBuilder.fillBxIdHistogram(bl1Muon->bx(),std::string("L1MuonPresent"));
+		histogramBuilder.fillBxIdVsPt(bl1Muon->bx(),bl1Muon->pt(),"L1MuonPresent");
 		histogramBuilder.fillL1MuonPtHistograms(bl1Muon->pt(),std::string("L1MuonPresent"));
 		const HORecHit* matchedRecHit = HoMatcher::matchByEMaxDeltaR(l1Muon_eta,l1Muon_phi,deltaR_Max,*hoRecoHits,*caloGeo);
 		if(matchedRecHit){
@@ -505,6 +506,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				//So far, the answer is no
 				if(matchedRecHit->energy() >= threshold ){
 					histogramBuilder.fillCountHistogram(std::string("L1MuonPresentHoMatchInAccThr"));
+
 				}
 
 				if (MuonHOAcceptance::inNotDeadGeom(l1Muon_eta,l1Muon_phi/*,deltaR_Max,deltaR_Max*/)){
@@ -541,6 +543,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				histogramBuilder.fillBxIdHistogram(bl1Muon->bx(),std::string("L1MuonAboveThr"));
 				histogramBuilder.fillDeltaTimeHistogram(matchedRecHit->time(),bl1Muon->bx(),std::string("L1MuonAboveThr"));
 				histogramBuilder.fillTimeHistogram(matchedRecHit->time(),std::string("L1MuonAboveThr"));
+				histogramBuilder.fillBxIdVsPt(bl1Muon->bx(),bl1Muon->pt(),"L1MuonAboveThr");
 				double hoEta,hoPhi;
 				hoEta = caloGeo->getPosition(matchedRecHit->detid()).eta();
 				hoPhi = caloGeo->getPosition(matchedRecHit->detid()).phi();
@@ -585,6 +588,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				const reco::GenParticle* bestGenMatch = getBestGenMatch(bl1Muon->eta(),bl1Muon->phi());
 				if(bestGenMatch){
 					fillEfficiencyHistograms(bl1Muon->pt(),bestGenMatch->pt(),"L1MuonHoRecoAboveThr");
+					histogramBuilder.fillBxIdVsPt(bl1Muon->bx(),bl1Muon->pt(),"L1MuonAboveThrGenMatch");
 				}
 				//Try to find a corresponding Gen Muon
 				edm::RefToBase<l1extra::L1MuonParticle> l1MuonCandiateRef(l1MuonView,i);

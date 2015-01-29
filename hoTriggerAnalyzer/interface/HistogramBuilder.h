@@ -53,7 +53,8 @@ class HistogramBuilder {
   void fillEnergyVsPosition(double eta,double phi,double energy,std::string);
   void fillDeltaEtaDeltaPhiEnergyHistogram(float,float,float,float,float,std::string);
 
-  void fillBxIdHistogram(int,std::string);
+  void fillBxIdHistogram(int bxId,std::string key);
+  void fillBxIdVsPt(int bxId,double pt,std::string key);
   void fillTimeHistogram(double,std::string);
   void fillDeltaTimeHistogram(double, int, std::string);
 
@@ -89,6 +90,7 @@ class HistogramBuilder {
   std::map<std::string,TH2D*> _h2EnergyVsEta;
   std::map<std::string,TH2D*> _h2EnergyEtaPhiEnergies;
   std::map<std::string,TH2D*> _h2EnergyEtaPhiCounter;
+  std::map<std::string,TH2D*> _h2BxIdVsPt;
 
   std::map<std::string,TH3D*> _h3EtaPhiEnergy;
   std::map<std::string,TH3D*> _h3DeltaEtaDeltaPhiEnergy;
