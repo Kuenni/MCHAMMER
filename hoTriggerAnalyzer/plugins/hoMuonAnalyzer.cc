@@ -152,9 +152,6 @@ void
 hoMuonAnalyzer::analyze(const edm::Event& iEvent, 
 		const edm::EventSetup& iSetup)
 {
-
-	if (!MuonHOAcceptance::Inited()) MuonHOAcceptance::initIds(iSetup);
-
 	/*
 	 * Get Event Data and Event Setup
 	 */
@@ -178,17 +175,18 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	edm::Handle<vector<PCaloHit>> caloHits;
 	iEvent.getByLabel(edm::InputTag("g4SimHits","HcalHits"),caloHits);
 
+	edm::ESHandle<MagneticField> theMagField;
+	iSetup.get<IdealMagneticFieldRecord>().get(theMagField );
+
+	HODetIdAssociator* hoDetIdAssociator = new HODetIdAssociator();
+	hoDetIdAssociator->setGeometry(&*caloGeo);
+
 	if (!caloHits.isValid()) {
 		std::cout << coutPrefix << "no SimHits" << std::endl;
 		return;
 	}
 
-	edm::ESHandle<MagneticField> theMagField;
-	iSetup.get<IdealMagneticFieldRecord>().get(theMagField );
-	SteppingHelixPropagator myHelix(&*theMagField,anyDirection);
-
-	HODetIdAssociator* hodia = new HODetIdAssociator();
-	hodia->setGeometry(&*caloGeo);
+	if (!MuonHOAcceptance::Inited()) MuonHOAcceptance::initIds(iSetup);
 
 	/**
 	 * Loop over the collections for gen muons, l1muons and hoRechits
@@ -211,27 +209,24 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		double muMatchEta = muMatch->trkGlobPosAtHO.eta();
 		double muMatchPhi = muMatch->trkGlobPosAtHO.phi();
 
-		const HORecHit* matchedRecHit = HoMatcher::matchByEMaxDeltaR(muMatch->trkGlobPosAtHO.eta(),muMatch->trkGlobPosAtHO.phi(),deltaR_Max,*hoRecoHits,*caloGeo);
-		//Found the Rec Hit with largest E
-		if(matchedRecHit){
-			double ho_eta = caloGeo->getPosition(matchedRecHit->id()).eta();
-			double ho_phi = caloGeo->getPosition(matchedRecHit->id()).phi();
+		//The mu match position is inside HO acceptance
+		if(MuonHOAcceptance::inGeomAccept(muMatchEta,muMatchPhi)){
 
-			histogramBuilder.fillDeltaEtaDeltaPhiHistograms(
-				muMatch->trkGlobPosAtHO.eta(),
-				ho_eta,
-				muMatch->trkGlobPosAtHO.phi(),
-				ho_phi,
-				std::string("tdmiHo")
-			);
-			//The mu match position is inside HO acceptance
-			if(MuonHOAcceptance::inGeomAccept(muMatchEta,muMatchPhi)){
+			histogramBuilder.fillCountHistogram(std::string("tdmiInGA"));
+			histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,std::string("tdmiInGA"));
+
+			const HORecHit* matchedRecHit = HoMatcher::matchByEMaxDeltaR(muMatch->trkGlobPosAtHO.eta()
+					,muMatch->trkGlobPosAtHO.phi(),deltaR_Max,*hoRecoHits,*caloGeo);
+			//Found the Rec Hit with largest E
+			if(matchedRecHit){
+				double ho_eta = caloGeo->getPosition(matchedRecHit->id()).eta();
+				double ho_phi = caloGeo->getPosition(matchedRecHit->id()).phi();
 				histogramBuilder.fillDeltaEtaDeltaPhiHistograms(
 						muMatch->trkGlobPosAtHO.eta(),
 						ho_eta,
 						muMatch->trkGlobPosAtHO.phi(),
 						ho_phi,
-						std::string("tdmiInGeomAcc")
+						std::string("tdmiHoMatch")
 				);
 				//Energy is above threshold
 				if(matchedRecHit->energy() > threshold){
@@ -270,14 +265,14 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 						);
 					}
 				}
+			} else{
+				/**
+				 * There could not be found a rec hit by delta R matching
+				 */
+				histogramBuilder.fillCountHistogram(std::string("tdmiMatchHoFail"));
+				histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,std::string("tdmiMatchHoFail"));
 			}
-		} else{
-			/**
-			 * There could not be found a rec hit by delta R matching
-			 */
-			histogramBuilder.fillCountHistogram(std::string("tdmiMatchHoFail"));
-			histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,std::string("tdmiMatchHoFail"));
-		}
+		}//<-- TDMI in GA
 	}
 
 	l1MuonVector->clear();
