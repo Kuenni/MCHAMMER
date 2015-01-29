@@ -486,5 +486,5 @@ void HistogramBuilder::fillBxIdVsPt(int bxId, double pt, std::string key){
 				5,-2.5,2.5
 		);
 	}
-	_h2BxIdVsPt[key]->Fill(bxId,pt);
+	_h2BxIdVsPt[key]->Fill(pt,bxId);
 }
