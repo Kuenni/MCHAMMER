@@ -64,6 +64,7 @@
 #include <SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h>
 #include <TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h>
 #include <TrackingTools/TrackAssociator/interface/TrackDetMatchInfo.h>
+#include <TrackingTools/TrackAssociator/plugins/HODetIdAssociator.h>
 #include <TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h>
 #include <TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h>
 #include <TROOT.h>
@@ -186,6 +187,8 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	iSetup.get<IdealMagneticFieldRecord>().get(theMagField );
 	SteppingHelixPropagator myHelix(&*theMagField,anyDirection);
 
+	HODetIdAssociator* hodia = new HODetIdAssociator();
+	hodia->setGeometry(&*caloGeo);
 	//Generate the energy correlation plot
 	for(HORecHitCollection::const_iterator recHitIt = hoRecoHits->begin();
 			recHitIt != hoRecoHits->end(); recHitIt++){
@@ -425,20 +428,8 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			histogramBuilder.fillPdgIdHistogram(0,l1muon_key);
 	}
 
-
-
-	/*
-	 * Multiplicities
-	 */
 	string horeco_key = "horeco";
-	/**
-	 * Fill the multiplicity histograms for HORecHits without cuts
-	 */
-	histogramBuilder.fillMultiplicityHistogram(hoRecoHits->size(),horeco_key);
-
-	//get HO Rec Hits Above Threshold
 	string horecoT_key ="horecoAboveThreshold";
-
 	/**
 	 * Collect information of all HO Rec hits when there are
 	 * l1 muons in the acceptance region
@@ -459,7 +450,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		histogramBuilder.fillEtaPhiHistograms(ho_eta, ho_phi, horeco_key);
 	}
 	histogramBuilder.fillMultiplicityHistogram(recHitAbThrCounter,horecoT_key);
-
+	histogramBuilder.fillMultiplicityHistogram(hoRecoHits->size(),horeco_key);
 
 	/*
 	 * L1 Trigger Decisions
@@ -489,6 +480,18 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		histogramBuilder.fillBxIdHistogram(bl1Muon->bx(),std::string("L1MuonPresent"));
 		histogramBuilder.fillBxIdVsPt(bl1Muon->bx(),bl1Muon->pt(),"L1MuonPresent");
 		histogramBuilder.fillL1MuonPtHistograms(bl1Muon->pt(),std::string("L1MuonPresent"));
+
+		//##################################################
+		//##################################################
+		// L1 Muons for the "Oliver Style" efficiency
+		//##################################################
+		//##################################################
+		if(MuonHOAcceptance::inGeomAccept(l1Muon_eta,l1Muon_phi)){
+			histogramBuilder.fillCountHistogram("L1MuonInGA_L1Dir");
+			//TODO write function to find central tile (and search 3x3 area around) with respect to the given direction
+			HcalDetId* id = new HcalDetId();
+		}
+
 		const HORecHit* matchedRecHit = HoMatcher::matchByEMaxDeltaR(l1Muon_eta,l1Muon_phi,deltaR_Max,*hoRecoHits,*caloGeo);
 		if(matchedRecHit){
 			double hoEta,hoPhi;
@@ -819,26 +822,6 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				}
 			}
 		}//Gen loop
-
-		//##################################################
-		//##################################################
-		// Loop over L1 Muons for the "Oliver Style" efficiency
-		//##################################################
-		//##################################################
-		for( unsigned int i = 0 ; i < l1Muons->size(); i++ ){
-
-			const l1extra::L1MuonParticle* bl1Muon = &(l1Muons->at(i));
-
-			//first fill information for ho hits without energy threshold
-			//###########################################################
-			float l1Muon_eta = bl1Muon->eta();
-			float l1Muon_phi = bl1Muon->phi();
-
-			if(MuonHOAcceptance::inGeomAccept(l1Muon_eta,l1Muon_phi)){
-
-			}
-
-		}//<-- End of L1 loop
 	}//<-- End of Single mu trg
 }
 //#############################
