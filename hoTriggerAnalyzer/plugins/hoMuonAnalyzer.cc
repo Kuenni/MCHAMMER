@@ -189,20 +189,6 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 
 	HODetIdAssociator* hodia = new HODetIdAssociator();
 	hodia->setGeometry(&*caloGeo);
-	//Generate the energy correlation plot
-	for(HORecHitCollection::const_iterator recHitIt = hoRecoHits->begin();
-			recHitIt != hoRecoHits->end(); recHitIt++){
-		for(std::vector<PCaloHit>::const_iterator caloHitIt = caloHits->begin();
-				caloHitIt != caloHits->end(); caloHitIt++){
-			HcalDetId tempId(caloHitIt->id());
-			if(tempId.subdet() == HcalSubdetector::HcalOuter){
-				if(tempId == recHitIt->id() ){
-					histogramBuilder.fillEnergyCorrelationHistogram(caloHitIt->energy(),recHitIt->energy(),std::string("energyCorr"));
-
-				}
-			}
-		}
-	}
 
 	/**
 	 * Loop over the collections for gen muons, l1muons and hoRechits
