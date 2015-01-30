@@ -514,3 +514,16 @@ void HistogramBuilder::fillCorrelationGraph(double xVal, double yVal, std::strin
 			}
 		_grCorrelation[key]->SetPoint(_grCorrelation[key]->GetN(),xVal, yVal);
 }
+
+/**
+ * Fill a TGraph with given x, y and key
+ */
+void HistogramBuilder::fillGraph(double x, double y, std::string key){
+	TFileDirectory graphDir = _fileService->mkdir("graphs");
+		if(!_graphs.count(key)){
+			_graphs[key] = graphDir.make<TGraph>();
+			_graphs[key]->SetTitle(key.c_str());
+			_graphs[key]->SetName(key.c_str());
+			}
+		_graphs[key]->SetPoint(_graphs[key]->GetN(),x, y);
+}
