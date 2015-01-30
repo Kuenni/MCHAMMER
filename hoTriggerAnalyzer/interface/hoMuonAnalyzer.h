@@ -27,6 +27,8 @@
 #include <L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h>
 #include <TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h>
 #include <TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h>
+#include <TrackingTools/TrackAssociator/plugins/HODetIdAssociator.h>
+
 #include <list>
 #include <map>
 #include <string>
@@ -36,6 +38,9 @@
 #include "HistogramBuilder.h"
 #include "HoRecHitData.h"
 #include "L1MuonData.h"
+
+#include "../interface/HoMatcher.h"
+
 
 using namespace::std;
 //
@@ -63,6 +68,8 @@ private:
   const l1extra::L1MuonParticle* getBestL1MuonMatch(float,float);
   const l1extra::L1MuonParticle* getMatchedL1Object(trigger::TriggerObject,edm::Handle<l1extra::L1MuonParticleCollection>);
   bool hasL1Match(trigger::TriggerObject,edm::Handle<l1extra::L1MuonParticleCollection>);
+  bool hasHoHitInGrid(GlobalPoint direction,int gridSize);
+  bool hasHoHitInGrid(double eta, double phi, std::vector<const HORecHit*> recHits, int gridsize);
 
   TrackDetMatchInfo* getTrackDetMatchInfo(reco::GenParticle,edm::ESHandle<MagneticField> theMagField,const edm::Event& iEvent,
 			const edm::EventSetup& iSetup);
@@ -79,11 +86,16 @@ private:
 
   edm::Handle<reco::GenParticleCollection> truthParticles;
   edm::Handle<l1extra::L1MuonParticleCollection> l1Muons;
+  edm::Handle<HORecHitCollection> hoRecoHits;
+
+  edm::ESHandle<DetIdAssociator> hoDetIdAssociator_;
 
   HistogramBuilder histogramBuilder;
 
   TrackDetectorAssociator assoc;
   TrackAssociatorParameters assocParams;
+
+  HoMatcher* hoMatcher;
 
   /*
    * Maps of selected hlt triggers to get the trigger decisions,

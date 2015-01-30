@@ -64,7 +64,6 @@
 #include <SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h>
 #include <TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h>
 #include <TrackingTools/TrackAssociator/interface/TrackDetMatchInfo.h>
-#include <TrackingTools/TrackAssociator/plugins/HODetIdAssociator.h>
 #include <TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h>
 #include <TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h>
 #include <TROOT.h>
@@ -77,7 +76,6 @@
 #include <utility>
 
 #include "../interface/FilterPlugin.h"
-#include "../interface/HoMatcher.h"
 
 using namespace::std;
 
@@ -160,7 +158,6 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 
 	iEvent.getByLabel(_l1MuonInput, l1Muons);
 
-	edm::Handle<HORecHitCollection> hoRecoHits;
 	iEvent.getByLabel(_horecoInput, hoRecoHits);
 
 	edm::ESHandle<CaloGeometry> caloGeo;
@@ -178,8 +175,16 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	edm::ESHandle<MagneticField> theMagField;
 	iSetup.get<IdealMagneticFieldRecord>().get(theMagField );
 
-	HODetIdAssociator* hoDetIdAssociator = new HODetIdAssociator();
-	hoDetIdAssociator->setGeometry(&*caloGeo);
+	iSetup.get<DetIdAssociatorRecord>().get("HODetIdAssociator", hoDetIdAssociator_);
+	if(!hoDetIdAssociator_.isValid()){
+		std::cout << coutPrefix << "HODetIdAssociator is not Valid!" << std::endl;
+	}
+
+	hoMatcher = new HoMatcher(*caloGeo);
+
+	//Try getting the event info for weights
+	edm::Handle<GenEventInfoProduct> genEventInfo;
+	iEvent.getByLabel(edm::InputTag("generator"), genEventInfo);
 
 	if (!caloHits.isValid()) {
 		std::cout << coutPrefix << "no SimHits" << std::endl;
@@ -215,8 +220,8 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			histogramBuilder.fillCountHistogram(std::string("tdmiInGA"));
 			histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,std::string("tdmiInGA"));
 
-			const HORecHit* matchedRecHit = HoMatcher::matchByEMaxDeltaR(muMatch->trkGlobPosAtHO.eta()
-					,muMatch->trkGlobPosAtHO.phi(),deltaR_Max,*hoRecoHits,*caloGeo);
+			const HORecHit* matchedRecHit = hoMatcher->matchByEMaxDeltaR(muMatch->trkGlobPosAtHO.eta()
+					,muMatch->trkGlobPosAtHO.phi(),deltaR_Max,*hoRecoHits);
 			//Found the Rec Hit with largest E
 			if(matchedRecHit){
 				double ho_eta = caloGeo->getPosition(matchedRecHit->id()).eta();
@@ -328,14 +333,9 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 
 	histogramBuilder.fillCountHistogram("ProcessedEvents");
 
-
-	//Try getting the event info for weights
-	edm::Handle<GenEventInfoProduct> genEventInfo;
-	iEvent.getByLabel(edm::InputTag("generator"), genEventInfo);
-
-	/*
-	 * Fill a trig rate histogramm for the muons of the gen particles
-	 */
+	//###############################
+	// BEGIN Loop over Gen Particles only
+	//###############################
 	//Use this variable to store whether the event has GenMuons in acceptance
 	bool hasMuonsInAcceptance = false;
 	std::string gen_key = "gen";
@@ -356,7 +356,9 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		}
 	}
 	histogramBuilder.fillMultiplicityHistogram(genMuonCounter,gen_key);
-
+	//###############################
+	// Loop over Gen Particles only DONE
+	//###############################
 	if(!hasMuonsInAcceptance)
 		return;
 
@@ -365,42 +367,22 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	 * Level 1 Muons
 	 */
 	string l1muon_key = "L1Muon";
-	histogramBuilder.fillMultiplicityHistogram(l1Muons->size(),l1muon_key);
 
-
+	/**
+	 * first loop over all L1 Muon objects. The contents of this Loop
+	 * may be moved to the larger loop over l1 objects later in the code
+	 */
 	//Define iterators
 	l1extra::L1MuonParticleCollection::const_iterator bl1Muon = l1Muons->begin();
 	l1extra::L1MuonParticleCollection::const_iterator el1Muon = l1Muons->end();
-
 	for( unsigned int i = 0 ; i < l1Muons->size(); i++  ) {
-		histogramBuilder.fillCountHistogram(l1muon_key);
 		const l1extra::L1MuonParticle* bl1Muon = &(l1Muons->at(i));
-		histogramBuilder.fillPdgIdHistogram(bl1Muon->pdgId(),l1muon_key);
-		histogramBuilder.fillVzHistogram(bl1Muon->vz(),l1muon_key);
 		const reco::GenParticle* genMatch = getBestGenMatch(bl1Muon->eta(),bl1Muon->phi());
 		if(genMatch){
 			histogramBuilder.fillDeltaVzHistogam( (genMatch->vz() - bl1Muon->vz()) ,l1muon_key);
 			histogramBuilder.fillPtCorrelationHistogram(genMatch->pt(),bl1Muon->pt(),l1muon_key);
+			fillEfficiencyHistograms(bl1Muon->pt(),genMatch->pt(),"L1MuonPt");
 		}
-		/*
-		 * Fill histogram for different pt thresholds
-		 * CAREFUL!! THIS IS NOT A REAL RATE YET!!
-		 */
-		for (int j = 0; j < 200; j+=2) {
-			if(bl1Muon->pt() >= j){
-				histogramBuilder.fillTrigRateHistograms(j,l1muon_key);
-			}
-		}
-
-		const reco::GenParticle* bestGenMatch = getBestGenMatch(bl1Muon->eta(),bl1Muon->phi());
-		if(bestGenMatch){
-			fillEfficiencyHistograms(bl1Muon->pt(),bestGenMatch->pt(),"L1MuonPt");
-		}
-		histogramBuilder.fillL1MuonPtHistograms(bl1Muon->pt(), l1muon_key);
-		histogramBuilder.fillEtaPhiGraph(bl1Muon->eta(), bl1Muon->phi(),
-				l1muon_key);
-		//For variable binning
-		listL1MuonPt.push_back(bl1Muon->pt());
 		edm::RefToBase<l1extra::L1MuonParticle> l1MuonCandiateRef(l1MuonView,i);
 		reco::GenParticleRef ref = (*l1MuonGenMatches)[l1MuonCandiateRef];
 		if(ref.isNonnull())
@@ -408,7 +390,13 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		else
 			histogramBuilder.fillPdgIdHistogram(0,l1muon_key);
 	}
+	//###############################
+	// Loop over L1MuonObjects DONE
+	//###############################
 
+	//###############################
+	// BEGIN Loop over HO Rec hits only
+	//###############################
 	string horeco_key = "horeco";
 	string horecoT_key ="horecoAboveThreshold";
 	/**
@@ -439,29 +427,37 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	singleMu3Trig = processTriggerDecision(singleMu3TrigName,iEvent);
 	doubleMu0Trig = processTriggerDecision(doubleMu0TrigName,iEvent);
 	//	processTriggerDecision(doubleMu5TrigName,iEvent);
+	//###############################
+	// Loop over HO Rec hits only DONE
+	//###############################
 
-
-	/*
-	 * L1 Muons and matched HO information
-	 */
 	int countGenMatches = 0;
 	string l1MuonWithHoMatch_key = "L1MuonWithHoMatch";
 	bl1Muon = l1Muons->begin();
 	el1Muon = l1Muons->end();
-
+	histogramBuilder.fillMultiplicityHistogram(l1Muons->size(),"L1MuonPresent");
 	for( unsigned int i = 0 ; i < l1Muons->size(); i++ ){
-
 		const l1extra::L1MuonParticle* bl1Muon = &(l1Muons->at(i));
-
-		//first fill information for ho hits without energy threshold
-		//###########################################################
 		float l1Muon_eta = bl1Muon->eta();
 		float l1Muon_phi = bl1Muon->phi();
 		histogramBuilder.fillCountHistogram(std::string("L1MuonPresent"));
 		histogramBuilder.fillBxIdHistogram(bl1Muon->bx(),std::string("L1MuonPresent"));
 		histogramBuilder.fillBxIdVsPt(bl1Muon->bx(),bl1Muon->pt(),"L1MuonPresent");
 		histogramBuilder.fillL1MuonPtHistograms(bl1Muon->pt(),std::string("L1MuonPresent"));
-
+		histogramBuilder.fillPdgIdHistogram(bl1Muon->pdgId(),l1muon_key);
+		histogramBuilder.fillVzHistogram(bl1Muon->vz(),l1muon_key);
+		histogramBuilder.fillEtaPhiGraph(bl1Muon->eta(), bl1Muon->phi(), l1muon_key);
+		//For variable binning
+		listL1MuonPt.push_back(bl1Muon->pt());
+		/*
+		 * Fill histogram for different pt thresholds
+		 * CAREFUL!! THIS IS NOT A REAL RATE YET!!
+		 */
+		for (int j = 0; j < 200; j+=2) {
+			if(bl1Muon->pt() >= j){
+				histogramBuilder.fillTrigRateHistograms(j,"L1MuonPresent");
+			}
+		}
 		//##################################################
 		//##################################################
 		// L1 Muons for the "Oliver Style" efficiency
@@ -470,10 +466,21 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		if(MuonHOAcceptance::inGeomAccept(l1Muon_eta,l1Muon_phi)){
 			histogramBuilder.fillCountHistogram("L1MuonInGA_L1Dir");
 			//TODO write function to find central tile (and search 3x3 area around) with respect to the given direction
-			HcalDetId* id = new HcalDetId();
+			GlobalPoint l1Direction(
+					bl1Muon->p4().X(),
+					bl1Muon->p4().Y(),
+					bl1Muon->p4().Z()
+					);
+			histogramBuilder.fillCorrelationGraph(l1Direction.eta(),l1Muon_eta,"Correlationp4AndL1Object");
+			if(hasHoHitInGrid(l1Direction,0)){
+				histogramBuilder.fillCountHistogram("L1MuonCentral");
+			}
+			if(hasHoHitInGrid(l1Direction,1)){
+				histogramBuilder.fillCountHistogram("L1Muon3x3");
+			}
 		}
 
-		const HORecHit* matchedRecHit = HoMatcher::matchByEMaxDeltaR(l1Muon_eta,l1Muon_phi,deltaR_Max,*hoRecoHits,*caloGeo);
+		const HORecHit* matchedRecHit = hoMatcher->matchByEMaxDeltaR(l1Muon_eta,l1Muon_phi,deltaR_Max,*hoRecoHits);
 		if(matchedRecHit){
 			double hoEta,hoPhi;
 			hoEta = caloGeo->getPosition(matchedRecHit->detid()).eta();
@@ -593,7 +600,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				histogramBuilder.fillEtaPhiGraph(bl1Muon->eta(), bl1Muon->phi(), std::string("L1MuonWithHoMatchAboveThr_L1Mu"));
 			}// E > thr.
 		}
-	}// For loop over all l1muons
+	}//<-- For loop over all l1muons
 	histogramBuilder.fillMultiplicityHistogram(countGenMatches,std::string("nL1WithGenMatch"));
 	//################################
 	//################################
@@ -630,7 +637,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			 * # the geometric acceptance of HO, this gives a more realistic estimator for the number of recoverable
 			 * # Triggers
 			 * #############################################
-*/
+			 */
 			TrackDetMatchInfo * muMatch = getTrackDetMatchInfo(*genIt,theMagField,iEvent,iSetup);
 
 			double muMatchPhi = muMatch->trkGlobPosAtHO.phi();
@@ -656,7 +663,24 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				genIt != truthParticles->end(); genIt++){
 			float genEta = genIt->eta();
 			float genPhi = genIt->phi();
-			const HORecHit* matchedRecHit = HoMatcher::matchByEMaxDeltaR(genEta,genPhi,deltaR_Max,*hoRecoHits,*caloGeo);
+
+			TrackDetMatchInfo * muMatch = getTrackDetMatchInfo(*genIt,theMagField,iEvent,iSetup);
+			double muMatchPhi = muMatch->trkGlobPosAtHO.phi();
+			double muMatchEta = muMatch->trkGlobPosAtHO.eta();
+
+			if(MuonHOAcceptance::inGeomAccept(muMatchEta,muMatchPhi)){
+				histogramBuilder.fillCountHistogram("TdmiInGA_TdmiDir");
+				//TODO write function to find central tile (and search 3x3 area around) with respect to the given direction
+				std::vector<const HORecHit*> crossedHoRecHits = muMatch->crossedHORecHits;
+				if(hasHoHitInGrid(muMatchEta,muMatchPhi,crossedHoRecHits,0)){
+					histogramBuilder.fillCountHistogram("TdmiCentral");
+				}
+				if(hasHoHitInGrid(muMatchEta,muMatchPhi,crossedHoRecHits,1)){
+					histogramBuilder.fillCountHistogram("Tdmi3x3");
+				}
+			}
+
+			const HORecHit* matchedRecHit = hoMatcher->matchByEMaxDeltaR(genEta,genPhi,deltaR_Max,*hoRecoHits);
 			if(matchedRecHit){
 				double hoEta = caloGeo->getPosition(matchedRecHit->id()).eta();
 				double hoPhi = caloGeo->getPosition(matchedRecHit->id()).phi();
@@ -730,7 +754,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"NoTrgTdmiInGA");
 				histogramBuilder.fillCountHistogram("NoTrgTdmiInGA");
 				histogramBuilder.fillEnergyVsPosition(muMatchEta,muMatchPhi,muMatch->hoCrossedEnergy(),std::string("NoTrgTdmiXedE"));
-				const HORecHit* matchedRecHit = HoMatcher::matchByEMaxDeltaR(muMatchEta,muMatchPhi,deltaR_Max,*hoRecoHits,*caloGeo);
+				const HORecHit* matchedRecHit = hoMatcher->matchByEMaxDeltaR(muMatchEta,muMatchPhi,deltaR_Max,*hoRecoHits);
 				//Where is the Rec hit in a delta R cone with the largest E?
 				//Did we find any?
 				if(matchedRecHit){
@@ -787,7 +811,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 					float l1Muon_eta = l1Ref->eta();
 					float l1Muon_phi = l1Ref->phi();
 					fillEfficiencyHistograms(l1Ref->pt(),genIt->pt(),"SMuTrgL1AndGenMatch");
-					const HORecHit* matchedRecHit = HoMatcher::matchByEMaxDeltaR(l1Muon_eta,l1Muon_phi,deltaR_Max,*hoRecoHits,*caloGeo);
+					const HORecHit* matchedRecHit = hoMatcher->matchByEMaxDeltaR(l1Muon_eta,l1Muon_phi,deltaR_Max,*hoRecoHits);
 					//Check whether an HO match could be found by the delta R method
 					if(matchedRecHit){
 						histogramBuilder.fillCountHistogram("SMuTrgL1AndFoundHoMatch");
@@ -871,12 +895,14 @@ hoMuonAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& evSetup)
 	//Only interested in unique values
 	listL1MuonPt.sort();
 	listL1MuonPt.unique();  //NB it is called after sort
-	cout << coutPrefix << "The list contains " << listL1MuonPt.size() << "unique entries:";
-	std::list<float>::iterator it;
-	for (it=listL1MuonPt.begin(); it!=listL1MuonPt.end(); ++it){
-		cout << ' ' << *it;
+	if(debug){
+		std::cout << coutPrefix << "The list contains " << listL1MuonPt.size() << "unique entries:";
+		std::list<float>::iterator it;
+		for (it=listL1MuonPt.begin(); it!=listL1MuonPt.end(); ++it){
+			std::cout << ' ' << *it;
+		}
+		std::cout << endl;
 	}
-	cout << endl;
 }
 
 
@@ -891,7 +917,7 @@ hoMuonAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 }
 
 /*############################
- * Helper Functions for Filter
+ * Helper Functions
  *############################
  */
 
@@ -1025,5 +1051,77 @@ void hoMuonAnalyzer::fillEfficiencyHistograms(double ptMeasured, double ptReal,s
 	histogramBuilder.fillEfficiency(ptMeasured >= 25, ptReal, key + "Pt25");
 }
 
+/**
+ * Find out whether a given direction, represented by a point (Thank You, CMSSW)
+ * points to an HORecHit with E > 0.2,
+ * The Gridsize determines the search area. So far the code is only designed for odd
+ * grid sizes, e.g.:
+ *
+ * 		Size: 0		Size: 1		Size: 2
+ *
+ * 								# # # # #
+ * 					# # #		# # # # #
+ * 			O		# O #		# # O # #
+ * 					# # #		# # # # #
+ * 								# # # # #
+ */
+bool hoMuonAnalyzer::hasHoHitInGrid(GlobalPoint direction, int gridSize){
+	if(gridSize < 0){
+		if(debug){
+			std::cout << coutPrefix << "Negative grid size in hasHoHitInGrid(GlobalPoint,int)! Returning false." << std::endl;
+		}
+		return false;
+	}
+	//Check for odd grid size
+	if(!gridSize%2 && gridSize!=0){
+		if(debug){
+			std::cout << coutPrefix << "GridSize in hasHoHitInGrid(GlobalPoint,int) is not odd! Reducing grid size by 1." << std::endl;
+		}
+		gridSize--;
+	}
+
+	//Loop over the det Ids close to the point
+	std::set<DetId> detIdSet = hoDetIdAssociator_->getDetIdsCloseToAPoint(direction,gridSize);
+	for(auto it = detIdSet.begin(); it != detIdSet.end(); it++){
+		//Find the corresponding DetId in the rec hits
+		for(auto itRecHits = hoRecoHits->begin(); itRecHits != hoRecoHits->end(); itRecHits++){
+			if(itRecHits->detid() == *it){
+				if(itRecHits->energy() > threshold)
+					return true;
+			}
+		}
+	}
+	return false;
+}
+/*
+ * Find out, whether HO sees a hit in a given grid
+ * The Gridsize determines the search area. So far the code is only designed for odd
+ * grid sizes, e.g.:
+ */
+bool hoMuonAnalyzer::hasHoHitInGrid(double eta, double phi, std::vector<const HORecHit*> recHits, int gridSize){
+	if(gridSize < 0){
+		if(debug){
+			std::cout << coutPrefix << "Negative grid size in hasHoHitInGrid(double,double,std::vector<HORecHit*>,int)! Returning false." << std::endl;
+		}
+		return false;
+	}
+	//Check for odd grid size
+	if(!gridSize%2 && gridSize!=0){
+		if(debug){
+			std::cout << coutPrefix << "GridSize in hasHoHitInGrid(double,double,std::vector<HORecHit*>,int) is not odd! Reducing grid size by 1." << std::endl;
+		}
+		gridSize--;
+	}
+//	std::vector<HORecHit*>::const_iterator
+	for( auto it = recHits.begin(); it != recHits.end(); it++){
+		int deltaIeta = hoMatcher->getDeltaIeta(eta,*it);
+		int deltaIphi = hoMatcher->getDeltaIphi(phi,*it);
+		if(deltaIeta <= gridSize && deltaIphi <= gridSize){
+			if((*it)->energy() >= threshold )
+				return true;
+		}
+	}
+	return false;
+}
 //define this as a plug-in
 DEFINE_FWK_MODULE(hoMuonAnalyzer);
