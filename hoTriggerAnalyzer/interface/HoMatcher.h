@@ -14,7 +14,7 @@
 
 class HoMatcher {
 public:
-	HoMatcher();
+	HoMatcher(CaloGeometry cg):caloGeometry(cg){};
 	virtual ~HoMatcher();
 
 	/**
@@ -22,8 +22,12 @@ public:
 	 * for a given eta and phi. Uses the calo geometry for calculating eta and phi
 	 * of the rec hits
 	 */
-	static const HORecHit* matchByEMaxDeltaR(double,double,double,HORecHitCollection,CaloGeometry);
-//	static HORecHit* matchByDeltaR(double,double,double,HORecHitCollection);
+	const HORecHit* matchByEMaxDeltaR(double,double,double,HORecHitCollection);
+	int getDeltaIeta(double eta, const HORecHit* recHit);
+	int getDeltaIphi(double phi, const HORecHit* rechit);
+	double getHoBinSize(){return 0.087;};
+private:
+	CaloGeometry caloGeometry;
 };
 
 #endif /* HOMATCHER_H_ */

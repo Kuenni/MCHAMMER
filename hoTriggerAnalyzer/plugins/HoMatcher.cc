@@ -8,22 +8,17 @@
 #include "HoMuonTrigger/hoTriggerAnalyzer/interface/HoMatcher.h"
 #include "HoMuonTrigger/hoTriggerAnalyzer/interface/FilterPlugin.h"
 
-HoMatcher::HoMatcher() {
-	// TODO Auto-generated constructor stub
-
-}
-
 HoMatcher::~HoMatcher() {
 	// TODO Auto-generated destructor stub
 }
 
-const HORecHit* HoMatcher::matchByEMaxDeltaR(double eta,double phi,double maxDeltaR,HORecHitCollection hoRecHits,CaloGeometry caloGeo){
+const HORecHit* HoMatcher::matchByEMaxDeltaR(double eta,double phi,double maxDeltaR,HORecHitCollection hoRecHits){
 	HORecHitCollection::const_iterator hoRecHitIt = hoRecHits.begin();
 	const HORecHit* matchedRecHit = 0;
 	//Loop over all rec hits
 	for( ; hoRecHitIt!=hoRecHits.end(); hoRecHitIt++ ){
-		double recHitEta = caloGeo.getPosition(hoRecHitIt->detid()).eta();
-		double recHitPhi = caloGeo.getPosition(hoRecHitIt->detid()).phi();
+		double recHitEta = caloGeometry.getPosition(hoRecHitIt->detid()).eta();
+		double recHitPhi = caloGeometry.getPosition(hoRecHitIt->detid()).phi();
 		if(FilterPlugin::isInsideDeltaR(eta,recHitEta,phi,recHitPhi,maxDeltaR)){
 			if(!matchedRecHit){
 				matchedRecHit = &(*hoRecHitIt);
@@ -36,4 +31,22 @@ const HORecHit* HoMatcher::matchByEMaxDeltaR(double eta,double phi,double maxDel
 		}
 	}
 	return matchedRecHit;
+}
+
+/**
+ * Get delta in iEta between given eta and given HORecHit
+ */
+int HoMatcher::getDeltaIeta(double eta, const HORecHit* recHit){
+	double hoEta = caloGeometry.getPosition(recHit->detid()).eta();
+	double deltaEta = hoEta - eta;
+	return (deltaEta >= 0) ? int(deltaEta/getHoBinSize() + getHoBinSize()/2.) : int(deltaEta/getHoBinSize() - getHoBinSize()/2.);
+}
+
+/**
+ * Get delta in iPhi between given phi and given HORecHit
+ */
+int HoMatcher::getDeltaIphi(double phi, const HORecHit* recHit){
+	double hoPhi = caloGeometry.getPosition(recHit->detid()).phi();
+	double deltaPhi = FilterPlugin::wrapCheck(hoPhi,phi);
+	return (deltaPhi >= 0) ? int(deltaPhi/getHoBinSize() + getHoBinSize()/2.) : int(deltaPhi/getHoBinSize() - getHoBinSize()/2.);
 }
