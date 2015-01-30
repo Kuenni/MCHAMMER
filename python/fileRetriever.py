@@ -15,6 +15,10 @@ parser.add_argument('--dcache-dir'
                     ,dest='dCacheDir'
                     ,type=str
                     ,help='Manually provide the dCache directory containing the data')
+parser.add_argument('--desy'
+                    ,dest='useDesy'
+                    ,action='store_true'
+                    ,help='Use a different server for copying to access data on DESY T2')
 parser.add_argument('--merge'
                     ,dest='merge'
                     ,action='store_true'
@@ -38,7 +42,14 @@ parser.add_argument('--all'
                     ,dest='all'
                     ,action='store_true'
                     ,help='Enable all of the options')
-
+parser.add_argument('-N'
+                    ,dest='nFilesToCopy'
+                    ,type=int
+                    ,help='Copy only n files from dest. dir')
+parser.add_argument('--target-dir'
+                    ,dest='targetDir'
+                    ,type=str
+                    ,help='Give a target dir for the copy operation. Merging will probably not work with this')
 args = parser.parse_args()
 
 
@@ -50,6 +61,10 @@ merge = args.merge
 removeOriginals = args.removeOriginals
 mergeList = args.mergeList
 mergeRootFiles = args.mergeRootFiles
+
+nFilesToCopy = args.nFilesToCopy
+targetDir = args.targetDir
+useDesy = args.useDesy
 
 move = args.move
 
@@ -66,6 +81,14 @@ else:
         parser.print_help()
         sys.exit(3)
 
+#define prefix for lcg copy from desy
+DESYSERVER = 'srm://dcache-se-cms.desy.de:8443/srm/managerv2?SFN='
+DESYT2PREFIX = 'srm://dcache-se-cms.desy.de:8443/srm/managerv2?SFN=/pnfs/desy.de/cms/tier2'
+RWTHSERVER = 'srm://grid-srm.physik.rwth-aachen.de:8443'
+RWTHT2PREFIX = 'srm://grid-srm.physik.rwth-aachen.de:8443/pnfs/physik.rwth-aachen.de/cms'
+#Get dev null for call later on
+DEVNULL = open(os.devnull, 'wb')
+
 #Find out, where the script is running
 sampleName = ''
 if(dCacheDir != None):
@@ -78,17 +101,16 @@ else:
     sampleName = curDirParts[-1]
     print 'Found program running in directory: ' + sampleName
 
-#Get dev null for call later on
-DEVNULL = open(os.devnull, 'wb')
 
-if copy:
+
+if copy and not useDesy:
     #define the username on the T2 Storage element
     USERNAME="akunsken"
     
     # Create output directory variable
-    STORAGE_SERVER="srm://grid-srm.physik.rwth-aachen.de:8443"
-    STORAGE_DIR="pnfs/physik.rwth-aachen.de/cms/store/user/" + USERNAME + "/" + sampleName
-    OUTPUT_DIR=STORAGE_SERVER + "/" + STORAGE_DIR
+    
+    RWTHSERVER="srm://grid-srm.physik.rwth-aachen.de:8443"
+    OUTPUT_DIR=RWTHT2PREFIX + "/store/user/" + USERNAME + "/" + sampleName + "/" + STORAGE_DIR
     print OUTPUT_DIR
     
     #Build command to check for dir on T2
@@ -130,11 +152,70 @@ if copy:
             continue
         print 'Copying file ' + sourceFile.split('/')[-1] + '\t[' + str(iterCounter) + '/' + str(nFiles) + ']'
         iterCounter += 1 
-        copyCmd = 'srmcp ' + STORAGE_SERVER + sourceFile + ' file://./rootfiles'
+        copyCmd = 'srmcp ' + RWTHSERVER + sourceFile + ' file://./rootfiles'
         ret = call(copyCmd, shell=True, stdout=DEVNULL,stderr=DEVNULL)
         if ret != 0:
              print 'Something went wrong on copying. Abort!'
              sys.exit(7)
+elif copy and useDesy:
+	if dCacheDir == None:
+		print "The --desy option requires a manually given path to the data!"
+		sys.exit(1)
+	sourceDir = DESYT2PREFIX + dCacheDir
+	#Build command to check for dir on T2
+	print 'Testing whether sample name directory exists on dcache...' 
+	cmd = "srmls " + sourceDir
+	
+	localTargetDir = None
+	if(targetDir != None):
+	   	localTargetDir = targetDir
+	else:
+		localTargetDir = './lcg-copied-files'
+		if not os.path.exists(localTargetDir):
+			os.mkdir(localTargetDir)
+    
+	#Get the list of files in the source directory
+	lsResults = open('dcacheFiles','w+')
+	ret = call(cmd, shell=True, stdout=lsResults,stderr=DEVNULL)
+	lsResults.seek(0)
+	
+	if ret != 0 :
+		print 'Fail! Check directory!'
+		sys.exit(1)
+	else:
+		print 'Success!'
+    
+	sourceFiles = []
+    
+    #create an array with just the paths to the sources
+	for line in lsResults:
+		lineStr = str(line)
+		if lineStr.count('.root'):
+			fileName = lineStr.split(' ')[-1].rstrip('\n')
+			sourceFiles.append(fileName)
+			print fileName
+			
+	nFiles = 0
+	if nFilesToCopy != None:
+		nFiles = nFilesToCopy
+	else:
+		nFiles = len(sourceFiles)
+	iterCounter = 1    
+	for sourceFile in sourceFiles:
+		if iterCounter > nFiles:
+			break
+		iterCounter += 1 
+		if os.path.exists(localTargetDir + '/' + sourceFile.split('/')[-1]):
+			print 'File ' + sourceFile.split('/')[-1] + ' exists. Skipping!'
+			continue
+		print 'Copying file ' + sourceFile.split('/')[-1] + '\t[' + str(iterCounter) + '/' + str(nFiles) + ']'
+		
+		copyCmd = 'lcg-cp ' + DESYSERVER + sourceFile + ' ' + localTargetDir + '/' + sourceFile.split('/')[-1]
+		print copyCmd
+		ret = call(copyCmd, shell=True, stdout=DEVNULL,stderr=DEVNULL)
+		if ret != 0:
+			print 'Something went wrong on copying. Abort!'
+			sys.exit(7)
 
 #If the merge option is required, the root input files are merged to one large root file
 mergedFileName = ''
