@@ -10,7 +10,7 @@ process.TFileService = cms.Service("TFileService",
                                    )
 
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 readFiles = cms.untracked.vstring()
 process.source = cms.Source("PoolSource",
@@ -19,8 +19,46 @@ process.source = cms.Source("PoolSource",
 )
 
 readFiles.extend( [
-				'file:///net/scratch_cms/institut_3b/kuensken/SingleMuMinus_Pt0-200_MCRUN2_72_V3/SingleMuMinus_Fall14_FlatPt-0to200_MCRUN2_72_V1_GEN_SIM_DIGI_RECO_L1_14.root'
-		   ] )
+				'file:///net/scratch_cms/institut_3b/kuensken/SingleMuMinus_Pt0-200_MCRUN2_72_V3/SingleMuMinus_Fall14_FlatPt-0to200_MCRUN2_72_V1_GEN_SIM_DIGI_RECO_L1_134.root',
+				'file:///net/scratch_cms/institut_3b/kuensken/SingleMuMinus_Pt0-200_MCRUN2_72_V3/SingleMuMinus_Fall14_FlatPt-0to200_MCRUN2_72_V1_GEN_SIM_DIGI_RECO_L1_14.root',
+				'file:///net/scratch_cms/institut_3b/kuensken/SingleMuMinus_Pt0-200_MCRUN2_72_V3/SingleMuMinus_Fall14_FlatPt-0to200_MCRUN2_72_V1_GEN_SIM_DIGI_RECO_L1_154.root',
+				'file:///net/scratch_cms/institut_3b/kuensken/SingleMuMinus_Pt0-200_MCRUN2_72_V3/SingleMuMinus_Fall14_FlatPt-0to200_MCRUN2_72_V1_GEN_SIM_DIGI_RECO_L1_196.root',
+				'file:///net/scratch_cms/institut_3b/kuensken/SingleMuMinus_Pt0-200_MCRUN2_72_V3/SingleMuMinus_Fall14_FlatPt-0to200_MCRUN2_72_V1_GEN_SIM_DIGI_RECO_L1_235.root',
+				'file:///net/scratch_cms/institut_3b/kuensken/SingleMuMinus_Pt0-200_MCRUN2_72_V3/SingleMuMinus_Fall14_FlatPt-0to200_MCRUN2_72_V1_GEN_SIM_DIGI_RECO_L1_261.root',
+				'file:///net/scratch_cms/institut_3b/kuensken/SingleMuMinus_Pt0-200_MCRUN2_72_V3/SingleMuMinus_Fall14_FlatPt-0to200_MCRUN2_72_V1_GEN_SIM_DIGI_RECO_L1_272.root',
+				'file:///net/scratch_cms/institut_3b/kuensken/SingleMuMinus_Pt0-200_MCRUN2_72_V3/SingleMuMinus_Fall14_FlatPt-0to200_MCRUN2_72_V1_GEN_SIM_DIGI_RECO_L1_288.root',
+				'file:///net/scratch_cms/institut_3b/kuensken/SingleMuMinus_Pt0-200_MCRUN2_72_V3/SingleMuMinus_Fall14_FlatPt-0to200_MCRUN2_72_V1_GEN_SIM_DIGI_RECO_L1_457.root',
+				'file:///net/scratch_cms/institut_3b/kuensken/SingleMuMinus_Pt0-200_MCRUN2_72_V3/SingleMuMinus_Fall14_FlatPt-0to200_MCRUN2_72_V1_GEN_SIM_DIGI_RECO_L1_481.root',
+				'file:///net/scratch_cms/institut_3b/kuensken/SingleMuMinus_Pt0-200_MCRUN2_72_V3/SingleMuMinus_Fall14_FlatPt-0to200_MCRUN2_72_V1_GEN_SIM_DIGI_RECO_L1_566.root',
+				'file:///net/scratch_cms/institut_3b/kuensken/SingleMuMinus_Pt0-200_MCRUN2_72_V3/SingleMuMinus_Fall14_FlatPt-0to200_MCRUN2_72_V1_GEN_SIM_DIGI_RECO_L1_56.root',
+				'file:///net/scratch_cms/institut_3b/kuensken/SingleMuMinus_Pt0-200_MCRUN2_72_V3/SingleMuMinus_Fall14_FlatPt-0to200_MCRUN2_72_V1_GEN_SIM_DIGI_RECO_L1_604.root',
+				'file:///net/scratch_cms/institut_3b/kuensken/SingleMuMinus_Pt0-200_MCRUN2_72_V3/SingleMuMinus_Fall14_FlatPt-0to200_MCRUN2_72_V1_GEN_SIM_DIGI_RECO_L1_610.root',
+				'file:///net/scratch_cms/institut_3b/kuensken/SingleMuMinus_Pt0-200_MCRUN2_72_V3/SingleMuMinus_Fall14_FlatPt-0to200_MCRUN2_72_V1_GEN_SIM_DIGI_RECO_L1_611.root',
+				'file:///net/scratch_cms/institut_3b/kuensken/SingleMuMinus_Pt0-200_MCRUN2_72_V3/SingleMuMinus_Fall14_FlatPt-0to200_MCRUN2_72_V1_GEN_SIM_DIGI_RECO_L1_620.root',
+				'file:///net/scratch_cms/institut_3b/kuensken/SingleMuMinus_Pt0-200_MCRUN2_72_V3/SingleMuMinus_Fall14_FlatPt-0to200_MCRUN2_72_V1_GEN_SIM_DIGI_RECO_L1_622.root',
+				'file:///net/scratch_cms/institut_3b/kuensken/SingleMuMinus_Pt0-200_MCRUN2_72_V3/SingleMuMinus_Fall14_FlatPt-0to200_MCRUN2_72_V1_GEN_SIM_DIGI_RECO_L1_639.root',
+				'file:///net/scratch_cms/institut_3b/kuensken/SingleMuMinus_Pt0-200_MCRUN2_72_V3/SingleMuMinus_Fall14_FlatPt-0to200_MCRUN2_72_V1_GEN_SIM_DIGI_RECO_L1_645.root',
+				'file:///net/scratch_cms/institut_3b/kuensken/SingleMuMinus_Pt0-200_MCRUN2_72_V3/SingleMuMinus_Fall14_FlatPt-0to200_MCRUN2_72_V1_GEN_SIM_DIGI_RECO_L1_660.root',
+				'file:///net/scratch_cms/institut_3b/kuensken/SingleMuMinus_Pt0-200_MCRUN2_72_V3/SingleMuMinus_Fall14_FlatPt-0to200_MCRUN2_72_V1_GEN_SIM_DIGI_RECO_L1_661.root',
+				'file:///net/scratch_cms/institut_3b/kuensken/SingleMuMinus_Pt0-200_MCRUN2_72_V3/SingleMuMinus_Fall14_FlatPt-0to200_MCRUN2_72_V1_GEN_SIM_DIGI_RECO_L1_684.root',
+				'file:///net/scratch_cms/institut_3b/kuensken/SingleMuMinus_Pt0-200_MCRUN2_72_V3/SingleMuMinus_Fall14_FlatPt-0to200_MCRUN2_72_V1_GEN_SIM_DIGI_RECO_L1_691.root',
+				'file:///net/scratch_cms/institut_3b/kuensken/SingleMuMinus_Pt0-200_MCRUN2_72_V3/SingleMuMinus_Fall14_FlatPt-0to200_MCRUN2_72_V1_GEN_SIM_DIGI_RECO_L1_694.root',
+				'file:///net/scratch_cms/institut_3b/kuensken/SingleMuMinus_Pt0-200_MCRUN2_72_V3/SingleMuMinus_Fall14_FlatPt-0to200_MCRUN2_72_V1_GEN_SIM_DIGI_RECO_L1_696.root',
+				'file:///net/scratch_cms/institut_3b/kuensken/SingleMuMinus_Pt0-200_MCRUN2_72_V3/SingleMuMinus_Fall14_FlatPt-0to200_MCRUN2_72_V1_GEN_SIM_DIGI_RECO_L1_697.root',
+				'file:///net/scratch_cms/institut_3b/kuensken/SingleMuMinus_Pt0-200_MCRUN2_72_V3/SingleMuMinus_Fall14_FlatPt-0to200_MCRUN2_72_V1_GEN_SIM_DIGI_RECO_L1_698.root',
+				'file:///net/scratch_cms/institut_3b/kuensken/SingleMuMinus_Pt0-200_MCRUN2_72_V3/SingleMuMinus_Fall14_FlatPt-0to200_MCRUN2_72_V1_GEN_SIM_DIGI_RECO_L1_700.root',
+				'file:///net/scratch_cms/institut_3b/kuensken/SingleMuMinus_Pt0-200_MCRUN2_72_V3/SingleMuMinus_Fall14_FlatPt-0to200_MCRUN2_72_V1_GEN_SIM_DIGI_RECO_L1_702.root',
+				'file:///net/scratch_cms/institut_3b/kuensken/SingleMuMinus_Pt0-200_MCRUN2_72_V3/SingleMuMinus_Fall14_FlatPt-0to200_MCRUN2_72_V1_GEN_SIM_DIGI_RECO_L1_704.root',
+				'file:///net/scratch_cms/institut_3b/kuensken/SingleMuMinus_Pt0-200_MCRUN2_72_V3/SingleMuMinus_Fall14_FlatPt-0to200_MCRUN2_72_V1_GEN_SIM_DIGI_RECO_L1_705.root',
+				'file:///net/scratch_cms/institut_3b/kuensken/SingleMuMinus_Pt0-200_MCRUN2_72_V3/SingleMuMinus_Fall14_FlatPt-0to200_MCRUN2_72_V1_GEN_SIM_DIGI_RECO_L1_716.root',
+				'file:///net/scratch_cms/institut_3b/kuensken/SingleMuMinus_Pt0-200_MCRUN2_72_V3/SingleMuMinus_Fall14_FlatPt-0to200_MCRUN2_72_V1_GEN_SIM_DIGI_RECO_L1_738.root',
+				'file:///net/scratch_cms/institut_3b/kuensken/SingleMuMinus_Pt0-200_MCRUN2_72_V3/SingleMuMinus_Fall14_FlatPt-0to200_MCRUN2_72_V1_GEN_SIM_DIGI_RECO_L1_755.root',
+				'file:///net/scratch_cms/institut_3b/kuensken/SingleMuMinus_Pt0-200_MCRUN2_72_V3/SingleMuMinus_Fall14_FlatPt-0to200_MCRUN2_72_V1_GEN_SIM_DIGI_RECO_L1_821.root',
+				'file:///net/scratch_cms/institut_3b/kuensken/SingleMuMinus_Pt0-200_MCRUN2_72_V3/SingleMuMinus_Fall14_FlatPt-0to200_MCRUN2_72_V1_GEN_SIM_DIGI_RECO_L1_898.root',
+				'file:///net/scratch_cms/institut_3b/kuensken/SingleMuMinus_Pt0-200_MCRUN2_72_V3/SingleMuMinus_Fall14_FlatPt-0to200_MCRUN2_72_V1_GEN_SIM_DIGI_RECO_L1_922.root',
+				'file:///net/scratch_cms/institut_3b/kuensken/SingleMuMinus_Pt0-200_MCRUN2_72_V3/SingleMuMinus_Fall14_FlatPt-0to200_MCRUN2_72_V1_GEN_SIM_DIGI_RECO_L1_955.root',
+				'file:///net/scratch_cms/institut_3b/kuensken/SingleMuMinus_Pt0-200_MCRUN2_72_V3/SingleMuMinus_Fall14_FlatPt-0to200_MCRUN2_72_V1_GEN_SIM_DIGI_RECO_L1_984.root'
+	   ] )
 
 #readFiles.extend([
 #				
