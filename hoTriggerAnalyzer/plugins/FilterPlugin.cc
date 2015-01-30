@@ -22,8 +22,7 @@ HORecHitCollection FilterPlugin::cleanHoRecHits(HORecHitCollection hoRecHits,dou
 		return returnCollection;
 }
 
-double FilterPlugin::wrapCheck(float phi1, float phi2){
-  //double M_PI = (double) 3.14;
+double FilterPlugin::wrapCheck(double phi1, double phi2){
   float delta_phi = phi1 - phi2;
   if(delta_phi < -M_PI){
     return (2*M_PI + delta_phi);
@@ -34,7 +33,7 @@ double FilterPlugin::wrapCheck(float phi1, float phi2){
   return delta_phi;
 };
 
-bool FilterPlugin::isInsideDeltaR(float eta1, float eta2, float phi1, float phi2, float deltaR_Max){
+bool FilterPlugin::isInsideDeltaR(double eta1, double eta2, double phi1, double phi2, double deltaR_Max){
 
 	float delta_eta, delta_phi;
 

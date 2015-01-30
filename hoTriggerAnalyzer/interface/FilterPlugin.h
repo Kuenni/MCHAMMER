@@ -18,8 +18,8 @@ class FilterPlugin {
   * Takes the difference of two phis, makes
   * sure they are not more than 2 pi.
   */
- static double wrapCheck(float phi1, float phi2);
- static bool isInsideDeltaR(float eta1, float eta2, float phi1, float phi2,float deltaR_Max);
+ static double wrapCheck(double phi1, double phi2);
+ static bool isInsideDeltaR(double eta1, double eta2, double phi1, double phi2,double deltaR_Max);
  private:
 
 
