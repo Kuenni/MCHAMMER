@@ -679,7 +679,10 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 					histogramBuilder.fillCountHistogram("Tdmi3x3");
 				}
 			}
-
+			const l1extra::L1MuonParticle* l1Part = getBestL1MuonMatch(muMatchEta,muMatchPhi);
+			double deltaEta = muMatchEta - l1Part->eta();
+			double deltaPhi = muMatchPhi - l1Part->phi();
+			histogramBuilder.fillGraph(deltaEta,deltaPhi,"deltaEtaDeltaPhiTdmiL1");
 			const HORecHit* matchedRecHit = hoMatcher->matchByEMaxDeltaR(genEta,genPhi,deltaR_Max,*hoRecoHits);
 			if(matchedRecHit){
 				double hoEta = caloGeo->getPosition(matchedRecHit->id()).eta();
@@ -981,7 +984,7 @@ const reco::GenParticle* hoMuonAnalyzer::getBestGenMatch(float eta, float phi){
  * Returns a pointer to the closest l1 muon particle of all particles that are closer
  * than delta R given by delta R max
  */
-const l1extra::L1MuonParticle* hoMuonAnalyzer::getBestL1MuonMatch(float eta, float phi){
+const l1extra::L1MuonParticle* hoMuonAnalyzer::getBestL1MuonMatch(double eta, double phi){
 	const l1extra::L1MuonParticle* bestL1 = 0;
 	float bestDR = 999.;
 	l1extra::L1MuonParticleCollection::const_iterator l1It = l1Muons->begin();

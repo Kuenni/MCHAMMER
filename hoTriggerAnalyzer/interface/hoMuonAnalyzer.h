@@ -65,7 +65,7 @@ private:
   void defineTriggersOfInterest();
 
   const reco::GenParticle* getBestGenMatch(float,float);
-  const l1extra::L1MuonParticle* getBestL1MuonMatch(float,float);
+  const l1extra::L1MuonParticle* getBestL1MuonMatch(double eta, double phi);
   const l1extra::L1MuonParticle* getMatchedL1Object(trigger::TriggerObject,edm::Handle<l1extra::L1MuonParticleCollection>);
   bool hasL1Match(trigger::TriggerObject,edm::Handle<l1extra::L1MuonParticleCollection>);
   bool hasHoHitInGrid(GlobalPoint direction,int gridSize);
