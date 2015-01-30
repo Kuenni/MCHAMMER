@@ -501,3 +501,16 @@ void HistogramBuilder::fillEtaPhiGraph(double eta, double phi, std::string key){
 		}
 	_grEtaPhi[key]->SetPoint(_grEtaPhi[key]->GetN(),eta, phi);
 };
+
+/**
+ * Fill a graph that is stored in the correlation subdirectory
+ */
+void HistogramBuilder::fillCorrelationGraph(double xVal, double yVal, std::string key){
+	TFileDirectory correlation = _fileService->mkdir("correlation");
+		if(!_grCorrelation.count(key)){
+			_grCorrelation[key] = correlation.make<TGraph>();
+			_grCorrelation[key]->SetTitle(key.c_str());
+			_grCorrelation[key]->SetName(key.c_str());
+			}
+		_grCorrelation[key]->SetPoint(_grCorrelation[key]->GetN(),xVal, yVal);
+}
