@@ -1,4 +1,5 @@
 from ROOT import gROOT,gStyle, TColor, TPaveText
+from math import sqrt
 
 colorRwthMagenta 	= TColor.GetColor("#E30066")
 colorRwthLightBlue 	= TColor.GetColor("#8EBAE5")
@@ -24,3 +25,6 @@ def setPlotStyle():
 	gStyle.SetLegendFont(62)
 	gStyle.SetFillColor(0)
 #	gStyle.SetPalette(1)
+
+def calcSigma(num,denom):
+	return sqrt(num/(denom*denom) + num*num/(pow(denom, 3)))
