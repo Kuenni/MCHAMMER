@@ -680,9 +680,11 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				}
 			}
 			const l1extra::L1MuonParticle* l1Part = getBestL1MuonMatch(muMatchEta,muMatchPhi);
-			double deltaEta = muMatchEta - l1Part->eta();
-			double deltaPhi = muMatchPhi - l1Part->phi();
-			histogramBuilder.fillGraph(deltaEta,deltaPhi,"deltaEtaDeltaPhiTdmiL1");
+			if(l1Part){
+				double deltaEta = muMatchEta - l1Part->eta();
+				double deltaPhi = muMatchPhi - l1Part->phi();
+				histogramBuilder.fillGraph(deltaEta,deltaPhi,"deltaEtaDeltaPhiTdmiL1");
+			}
 			const HORecHit* matchedRecHit = hoMatcher->matchByEMaxDeltaR(genEta,genPhi,deltaR_Max,*hoRecoHits);
 			if(matchedRecHit){
 				double hoEta = caloGeo->getPosition(matchedRecHit->id()).eta();
@@ -818,18 +820,54 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 					//Check whether an HO match could be found by the delta R method
 					if(matchedRecHit){
 						histogramBuilder.fillCountHistogram("SMuTrgL1AndFoundHoMatch");
-//						double hoEta,hoPhi;
-//						hoEta = caloGeo->getPosition(matchedRecHit->detid()).eta();
-//						hoPhi = caloGeo->getPosition(matchedRecHit->detid()).phi();
 						//inspect the data where HO was above the threshold
 						if(matchedRecHit->energy() >= threshold){
 							histogramBuilder.fillCountHistogram("SMuTrgL1AndHoAboveThr");
 							fillEfficiencyHistograms(l1Ref->pt(),genIt->pt(),"SMuTrgL1AndGenMatchHoAboveThr");
 						}
 					}
+				}//<-- Found L1 ref
+				else{
+					const HORecHit* matchedRecHit = hoMatcher->matchByEMaxDeltaR(muMatchEta,muMatchPhi,deltaR_Max,*hoRecoHits);
+					//Check whether an HO match could be found by the delta R method
+					if(matchedRecHit){
+						histogramBuilder.fillCountHistogram("SMuTrgAndFoundHoMatch");
+						//inspect the data where HO was above the threshold
+						if(matchedRecHit->energy() >= threshold){
+							histogramBuilder.fillCountHistogram("SMuTrgAndHoAboveThr");
+						}
+					}
 				}
 			}
 		}//Gen loop
+
+
+		//Loop over L1 Objects
+		//##################################################
+		//##################################################
+		// L1 Muons for the "Oliver Style" efficiency
+		//##################################################
+		//##################################################
+		for( unsigned int i = 0 ; i < l1Muons->size(); i++  ) {
+			const l1extra::L1MuonParticle* bl1Muon = &(l1Muons->at(i));
+			double l1Muon_eta = bl1Muon->eta();
+			double l1Muon_phi = bl1Muon->phi();
+			if(MuonHOAcceptance::inGeomAccept(l1Muon_eta,l1Muon_phi)){
+				histogramBuilder.fillCountHistogram("L1MuonSMuTrgInGA_L1Dir");
+				//TODO write function to find central tile (and search 3x3 area around) with respect to the given direction
+				GlobalPoint l1Direction(
+						bl1Muon->p4().X(),
+						bl1Muon->p4().Y(),
+						bl1Muon->p4().Z()
+				);
+				if(hasHoHitInGrid(l1Direction,0)){
+					histogramBuilder.fillCountHistogram("L1MuonSMuTrgCentral");
+				}
+				if(hasHoHitInGrid(l1Direction,1)){
+					histogramBuilder.fillCountHistogram("L1MuonSMuTrg3x3");
+				}
+			}
+		}
 	}//<-- End of Single mu trg
 }
 //#############################
@@ -1115,7 +1153,6 @@ bool hoMuonAnalyzer::hasHoHitInGrid(double eta, double phi, std::vector<const HO
 		}
 		gridSize--;
 	}
-//	std::vector<HORecHit*>::const_iterator
 	for( auto it = recHits.begin(); it != recHits.end(); it++){
 		int deltaIeta = hoMatcher->getDeltaIeta(eta,*it);
 		int deltaIphi = hoMatcher->getDeltaIphi(phi,*it);
