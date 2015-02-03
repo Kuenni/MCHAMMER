@@ -77,6 +77,9 @@
 
 #include "../interface/FilterPlugin.h"
 
+#include "TMultiGraph.h"
+#include "TCanvas.h"
+
 using namespace::std;
 
 hoMuonAnalyzer::hoMuonAnalyzer(const edm::ParameterSet& iConfig)/*:
@@ -180,6 +183,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		std::cout << coutPrefix << "HODetIdAssociator is not Valid!" << std::endl;
 	}
 
+
 	hoMatcher = new HoMatcher(*caloGeo);
 
 	//Try getting the event info for weights
@@ -192,6 +196,17 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	}
 
 	if (!MuonHOAcceptance::Inited()) MuonHOAcceptance::initIds(iSetup);
+
+//	MuonHOAcceptance* mhoa = new MuonHOAcceptance();
+//	std::cout << "Is inited: " << mhoa->Inited() << std::endl;
+//	mhoa->initIds(iSetup);
+//	TFile* f = new TFile("deadRegions.root","RECREATE");
+//	TCanvas* c  = new TCanvas();
+//	TMultiGraph* deadRegions = mhoa->graphDeadRegions();
+//	deadRegions->Draw("ap");
+//	c->Write();
+//	f->Write();
+//	f->Close();
 
 	/**
 	 * Loop over the collections for gen muons, l1muons and hoRechits
@@ -215,7 +230,8 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		double muMatchPhi = muMatch->trkGlobPosAtHO.phi();
 
 		//The mu match position is inside HO acceptance
-		if(MuonHOAcceptance::inGeomAccept(muMatchEta,muMatchPhi)){
+		if(MuonHOAcceptance::inGeomAccept(muMatchEta,muMatchPhi)
+			&& MuonHOAcceptance::inNotDeadGeom(muMatchEta,muMatchPhi)){
 
 			histogramBuilder.fillCountHistogram(std::string("tdmiInGA"));
 			histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,std::string("tdmiInGA"));
@@ -474,9 +490,15 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			histogramBuilder.fillCorrelationGraph(l1Direction.eta(),l1Muon_eta,"Correlationp4AndL1Object");
 			if(hasHoHitInGrid(l1Direction,0)){
 				histogramBuilder.fillCountHistogram("L1MuonCentral");
+				histogramBuilder.fillEfficiency(true,bl1Muon->pt(),"L1MuonCentral");
+			} else{
+				histogramBuilder.fillEfficiency(false,bl1Muon->pt(),"L1MuonCentral");
 			}
 			if(hasHoHitInGrid(l1Direction,1)){
 				histogramBuilder.fillCountHistogram("L1Muon3x3");
+				histogramBuilder.fillEfficiency(true,bl1Muon->pt(),"L1Muon3x3");
+			} else {
+				histogramBuilder.fillEfficiency(false,bl1Muon->pt(),"L1Muon3x3");
 			}
 		}
 
@@ -644,13 +666,14 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			double muMatchEta = muMatch->trkGlobPosAtHO.eta();
 			histogramBuilder.fillEtaPhiGraph(genEta,genPhi,"NoL1GenAny");
 			histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"NoL1TdmiAny");
-			if(MuonHOAcceptance::inGeomAccept(muMatchEta,muMatchPhi)){
+			if(MuonHOAcceptance::inGeomAccept(muMatchEta,muMatchPhi) && MuonHOAcceptance::inNotDeadGeom(muMatchEta,muMatchPhi)){
 				histogramBuilder.fillEtaPhiGraph(genEta,genPhi,"NoL1GenInGA");
 				histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"NoL1TdmiInGA");
 			}
 		}
 
-	} else{
+	}// <-- l1muons size == 0
+	else{
 		/**
 		 * #################################
 		 * # L1 Muon objects contain data
@@ -674,9 +697,17 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				std::vector<const HORecHit*> crossedHoRecHits = muMatch->crossedHORecHits;
 				if(hasHoHitInGrid(muMatchEta,muMatchPhi,crossedHoRecHits,0)){
 					histogramBuilder.fillCountHistogram("TdmiCentral");
+					histogramBuilder.fillEfficiency(true,genIt->pt(),"tdmiCentral");
+				} else {
+					histogramBuilder.fillEfficiency(false,genIt->pt(),"tdmiCentral");
+
 				}
 				if(hasHoHitInGrid(muMatchEta,muMatchPhi,crossedHoRecHits,1)){
 					histogramBuilder.fillCountHistogram("Tdmi3x3");
+					histogramBuilder.fillEfficiency(true,genIt->pt(),"tdmi3x3");
+				} else {
+					histogramBuilder.fillEfficiency(false,genIt->pt(),"tdmi3x3");
+
 				}
 			}
 			const l1extra::L1MuonParticle* l1Part = getBestL1MuonMatch(muMatchEta,muMatchPhi);
@@ -1028,14 +1059,12 @@ const l1extra::L1MuonParticle* hoMuonAnalyzer::getBestL1MuonMatch(double eta, do
 	l1extra::L1MuonParticleCollection::const_iterator l1It = l1Muons->begin();
 	l1extra::L1MuonParticleCollection::const_iterator l1End = l1Muons->end();
 	for(; l1It!=l1End; ++l1It) {
-		if (abs(l1It->pdgId()) == 13 ) {
-			float genPhi = l1It->phi();
-			float genEta = l1It->eta();
-			float dR = deltaR(eta,phi,genEta,genPhi);
-			if (dR < deltaR_L1MuonMatching && dR < bestDR) { // CB get it from CFG
-				bestDR = dR;
-				bestL1 = &(*l1It);
-			}
+		float genPhi = l1It->phi();
+		float genEta = l1It->eta();
+		float dR = deltaR(eta,phi,genEta,genPhi);
+		if (dR < deltaR_L1MuonMatching && dR < bestDR) { // CB get it from CFG
+			bestDR = dR;
+			bestL1 = &(*l1It);
 		}
 	}
 	return bestL1;
