@@ -6,7 +6,6 @@ import PlotStyle
 DEBUG = 1
 prefix = '[plotEfficiency] '
 
-markerpairs = []
 markerpairs = [	[20,24],[21,25],[22,26],[23,32],[34,28] ]
 
 def calcSigma(num,denom):
@@ -173,3 +172,43 @@ def plotCombinedEfficiency():
 	canv.SaveAs('combinedEfficiency.pdf')
 	canv.SaveAs('combinedEfficiency.root')			
 	return canv,leg,hl
+
+def plotEfficiencyPerHoTiles(dataSource = 'L1Muon',gridsize = 0):
+	gridType = ''
+	if (gridsize == 0) :
+		gridType = 'Central'
+	else:
+		gridType = '3x3'
+	
+	fullName = 'hoMuonAnalyzer/efficiency/' + dataSource + gridType + '_Efficiency'
+	
+	if( not os.path.exists('plots')):
+		os.mkdir('plots')
+	if( not os.path.exists('plots/effPerGrid')):
+		os.mkdir('plots/effPerGrid')
+	
+	c = TCanvas("eff" + dataSource + gridType, "Efficiency " + dataSource + " " + gridType)
+	
+	if(DEBUG):
+		print 'Getting eff. graph',fullName
+	file = TFile.Open("L1MuonHistogram.root")
+	
+	#Set plot style
+	PlotStyle.setPlotStyle()
+	
+	graph = file.Get(fullName)
+	
+	graph.SetMarkerStyle(20)
+	graph.SetMarkerColor(PlotStyle.colorRwthDarkBlue)
+	
+	graph.Draw()
+	c.Update()
+	graph.GetPaintedGraph().GetYaxis().SetTitleFont(62)
+	graph.GetPaintedGraph().GetYaxis().SetLabelFont(62)
+	graph.GetPaintedGraph().GetXaxis().SetRangeUser(0,50)
+	
+	c.Update()
+	c.SaveAs('plots/effPerGrid/'+dataSource+gridType+'.pdf')
+	
+	return [c,graph]
+	
