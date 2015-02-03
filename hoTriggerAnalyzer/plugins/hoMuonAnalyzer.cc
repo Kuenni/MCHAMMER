@@ -480,7 +480,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		// L1 Muons for the "Oliver Style" efficiency
 		//##################################################
 		//##################################################
-		if(MuonHOAcceptance::inGeomAccept(l1Muon_eta,l1Muon_phi)){
+		if(MuonHOAcceptance::inGeomAccept(l1Muon_eta,l1Muon_phi)&& !hoMatcher->isInChimney(l1Muon_eta,l1Muon_phi)){
 			histogramBuilder.fillCountHistogram("L1MuonInGA_L1Dir");
 			//TODO write function to find central tile (and search 3x3 area around) with respect to the given direction
 			GlobalPoint l1Direction(
@@ -512,7 +512,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			histogramBuilder.fillTimeHistogram(matchedRecHit->time(),std::string("L1MuonPresentHoMatch"));
 			histogramBuilder.fillDeltaTimeHistogram(matchedRecHit->time(),bl1Muon->bx(),std::string("L1MuonPresentHoMatch"));
 			histogramBuilder.fillBxIdHistogram(bl1Muon->bx(),std::string("L1MuonPresentHoMatch"));
-			if (MuonHOAcceptance::inGeomAccept(l1Muon_eta,l1Muon_phi/*,deltaR_Max,deltaR_Max*/)){
+			if (MuonHOAcceptance::inGeomAccept(l1Muon_eta,l1Muon_phi/*,deltaR_Max,deltaR_Max*/)&& !hoMatcher->isInChimney(l1Muon_eta,l1Muon_phi)){
 				histogramBuilder.fillCountHistogram(std::string("L1MuonPresentHoMatchInAcc"));
 				histogramBuilder.fillBxIdHistogram(bl1Muon->bx(),std::string("L1MuonPresentHoMatchInAcc"));
 
@@ -563,7 +563,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				hoPhi = caloGeo->getPosition(matchedRecHit->detid()).phi();
 				//Fill the HO information
 				//Fill the counters
-				if (MuonHOAcceptance::inGeomAccept(l1Muon_eta,l1Muon_phi/*,deltaR_Max,deltaR_Max*/)){
+				if (MuonHOAcceptance::inGeomAccept(l1Muon_eta,l1Muon_phi/*,deltaR_Max,deltaR_Max*/)&& !hoMatcher->isInChimney(l1Muon_eta,l1Muon_phi)){
 					histogramBuilder.fillCountHistogram(std::string("L1MuonAboveThrInAcc"));
 					histogramBuilder.fillBxIdHistogram(bl1Muon->bx(),std::string("L1MuonAboveThrInAcc"));
 					if (MuonHOAcceptance::inNotDeadGeom(l1Muon_eta,l1Muon_phi/*,deltaR_Max,deltaR_Max*/)){
@@ -667,7 +667,10 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			double muMatchEta = muMatch->trkGlobPosAtHO.eta();
 			histogramBuilder.fillEtaPhiGraph(genEta,genPhi,"NoL1GenAny");
 			histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"NoL1TdmiAny");
-			if(MuonHOAcceptance::inGeomAccept(muMatchEta,muMatchPhi) && MuonHOAcceptance::inNotDeadGeom(muMatchEta,muMatchPhi)){
+			if(MuonHOAcceptance::inGeomAccept(muMatchEta,muMatchPhi)
+				&& MuonHOAcceptance::inNotDeadGeom(muMatchEta,muMatchPhi)
+				&& !hoMatcher->isInChimney(muMatchEta,muMatchPhi)
+			){
 				histogramBuilder.fillEtaPhiGraph(genEta,genPhi,"NoL1GenInGA");
 				histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"NoL1TdmiInGA");
 			}
@@ -692,7 +695,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			double muMatchPhi = muMatch->trkGlobPosAtHO.phi();
 			double muMatchEta = muMatch->trkGlobPosAtHO.eta();
 
-			if(MuonHOAcceptance::inGeomAccept(muMatchEta,muMatchPhi)){
+			if(MuonHOAcceptance::inGeomAccept(muMatchEta,muMatchPhi)&& !hoMatcher->isInChimney(muMatchEta,muMatchPhi)){
 				histogramBuilder.fillCountHistogram("TdmiInGA_TdmiDir");
 				//TODO write function to find central tile (and search 3x3 area around) with respect to the given direction
 				std::vector<const HORecHit*> crossedHoRecHits = muMatch->crossedHORecHits;
@@ -736,7 +739,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				histogramBuilder.fillDeltaEtaDeltaPhiEnergyHistogram(genEta,hoEta,genPhi,hoPhi,matchedRecHit->energy(),std::string("WithSingleMu"));
 				if(matchedRecHit->energy() >= threshold){
 					histogramBuilder.fillDeltaEtaDeltaPhiHistograms(genEta,hoEta,genPhi,hoPhi,std::string("WithSingleMuAboveThr"));
-					if (MuonHOAcceptance::inGeomAccept(genEta,genPhi/*,deltaR_Max,deltaR_Max*/)){
+					if (MuonHOAcceptance::inGeomAccept(genEta,genPhi/*,deltaR_Max,deltaR_Max*/)&& !hoMatcher->isInChimney(genEta,genPhi)){
 						histogramBuilder.fillDeltaEtaDeltaPhiHistograms(genEta,hoEta,genPhi,hoPhi,std::string("WithSingleMuGeomAcc"));
 						if (MuonHOAcceptance::inNotDeadGeom(genEta,genPhi/*,deltaR_Max,deltaR_Max*/)){
 							histogramBuilder.fillDeltaEtaDeltaPhiHistograms(genEta,hoEta,genPhi,hoPhi,std::string("WithSingleMuNotDead"));
@@ -746,7 +749,6 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			}//Matched rec hit
 		}//Gen particle loop
 	}
-
 	//#############################################################
 	//#############################################################
 	// NO SINGLE MU TRIGGER
@@ -851,7 +853,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			double muMatchEta = muMatch->trkGlobPosAtHO.eta();
 
 			//Require the muon to hit the HO area
-			if(MuonHOAcceptance::inGeomAccept(muMatchEta,muMatchPhi)){
+			if(MuonHOAcceptance::inGeomAccept(muMatchEta,muMatchPhi)&& !hoMatcher->isInChimney(muMatchEta,muMatchPhi)){
 
 				histogramBuilder.fillCountHistogram("SMuTrgTdmiInGA");
 				const l1extra::L1MuonParticle* l1Ref = getBestL1MuonMatch(genEta,genPhi);
@@ -896,7 +898,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			const l1extra::L1MuonParticle* bl1Muon = &(l1Muons->at(i));
 			double l1Muon_eta = bl1Muon->eta();
 			double l1Muon_phi = bl1Muon->phi();
-			if(MuonHOAcceptance::inGeomAccept(l1Muon_eta,l1Muon_phi)){
+			if(MuonHOAcceptance::inGeomAccept(l1Muon_eta,l1Muon_phi)&& !hoMatcher->isInChimney(l1Muon_eta,l1Muon_phi)){
 				histogramBuilder.fillCountHistogram("L1MuonSMuTrgInGA_L1Dir");
 				//TODO write function to find central tile (and search 3x3 area around) with respect to the given direction
 				GlobalPoint l1Direction(
