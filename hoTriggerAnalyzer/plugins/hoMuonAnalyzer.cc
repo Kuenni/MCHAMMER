@@ -696,14 +696,26 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				histogramBuilder.fillCountHistogram("TdmiInGA_TdmiDir");
 				//TODO write function to find central tile (and search 3x3 area around) with respect to the given direction
 				std::vector<const HORecHit*> crossedHoRecHits = muMatch->crossedHORecHits;
-				if(hasHoHitInGrid(muMatchEta,muMatchPhi,crossedHoRecHits,0)){
+				if(	hasHoHitInGrid(GlobalPoint(
+						muMatch->trkGlobPosAtHO.X(),
+						muMatch->trkGlobPosAtHO.Y(),
+						muMatch->trkGlobPosAtHO.Z()
+					),0)
+						//hasHoHitInGrid(muMatchEta,muMatchPhi,crossedHoRecHits,0)
+						){
 					histogramBuilder.fillCountHistogram("TdmiCentral");
 					histogramBuilder.fillEfficiency(true,genIt->pt(),"tdmiCentral");
 				} else {
 					histogramBuilder.fillEfficiency(false,genIt->pt(),"tdmiCentral");
 
 				}
-				if(hasHoHitInGrid(muMatchEta,muMatchPhi,crossedHoRecHits,1)){
+				if( hasHoHitInGrid(GlobalPoint(
+						muMatch->trkGlobPosAtHO.X(),
+						muMatch->trkGlobPosAtHO.Y(),
+						muMatch->trkGlobPosAtHO.Z()
+					),1)
+					//hasHoHitInGrid(muMatchEta,muMatchPhi,crossedHoRecHits,1)
+					){
 					histogramBuilder.fillCountHistogram("Tdmi3x3");
 					histogramBuilder.fillEfficiency(true,genIt->pt(),"tdmi3x3");
 				} else {
