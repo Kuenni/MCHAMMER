@@ -50,3 +50,21 @@ int HoMatcher::getDeltaIphi(double phi, const HORecHit* recHit){
 	double deltaPhi = FilterPlugin::wrapCheck(hoPhi,phi);
 	return (deltaPhi >= 0) ? int(deltaPhi/getHoBinSize() + getHoBinSize()/2.) : int(deltaPhi/getHoBinSize() - getHoBinSize()/2.);
 }
+
+/**
+ * Evaluate, whether a given eta and phi coordinate is in the chimney position in HO
+ */
+bool HoMatcher::isInChimney(double eta, double phi){
+	if(fabs(eta) > etaLowerBound && fabs(eta) < etaUpperBound){
+		if(eta > 0){
+			if(phi > phiLowerBoundP && phi < phiUpperBoundP){
+				return true;
+			}
+		}else{
+			if(phi > phiLowerBoundM && phi < phiLowerBoundM){
+				return true;
+			}
+		}
+	}
+	return false;
+}

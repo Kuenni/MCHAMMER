@@ -26,8 +26,28 @@ public:
 	int getDeltaIeta(double eta, const HORecHit* recHit);
 	int getDeltaIphi(double phi, const HORecHit* rechit);
 	double getHoBinSize(){return 0.087;};
+	bool isInChimney(double eta, double phi);
+
 private:
 	CaloGeometry caloGeometry;
+
+	/**
+	 * Boundaries for the position of the chimney of HO. Calculated from n times the iEta
+	 * and iPhi coordinates given for the chimney
+	 *
+	 * ieta 5, iphi 18,19
+	 *
+	 * and
+	 *
+	 * ieta -5 11,12,13,14
+	 *
+	 */
+	const double etaUpperBound = 0.435;
+	const double etaLowerBound = 0.348;
+	const double phiUpperBoundP = 1.653;
+	const double phiLowerBoundP = 1.479;
+	const double phiUpperBoundM = 1.218;
+	const double phiLowerBoundM = 0.87;
 };
 
 #endif /* HOMATCHER_H_ */

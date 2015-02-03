@@ -231,7 +231,8 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 
 		//The mu match position is inside HO acceptance
 		if(MuonHOAcceptance::inGeomAccept(muMatchEta,muMatchPhi)
-			&& MuonHOAcceptance::inNotDeadGeom(muMatchEta,muMatchPhi)){
+			&& MuonHOAcceptance::inNotDeadGeom(muMatchEta,muMatchPhi)
+			&& !hoMatcher->isInChimney(muMatchEta,muMatchPhi)){
 
 			histogramBuilder.fillCountHistogram(std::string("tdmiInGA"));
 			histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,std::string("tdmiInGA"));
