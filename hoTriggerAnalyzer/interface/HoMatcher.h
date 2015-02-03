@@ -43,7 +43,7 @@ private:
 	 *
 	 */
 	const double etaUpperBound = 0.435;
-	const double etaLowerBound = 0.348;
+	const double etaLowerBound = 0.3425;
 	const double phiUpperBoundP = 1.653;
 	const double phiLowerBoundP = 1.479;
 	const double phiUpperBoundM = 1.218;
