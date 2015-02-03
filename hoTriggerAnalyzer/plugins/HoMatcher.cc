@@ -61,7 +61,7 @@ bool HoMatcher::isInChimney(double eta, double phi){
 				return true;
 			}
 		}else{
-			if(phi > phiLowerBoundM && phi < phiLowerBoundM){
+			if(phi > phiLowerBoundM && phi < phiUpperBoundM){
 				return true;
 			}
 		}
