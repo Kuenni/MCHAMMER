@@ -398,7 +398,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		if(genMatch){
 			histogramBuilder.fillDeltaVzHistogam( (genMatch->vz() - bl1Muon->vz()) ,l1muon_key);
 			histogramBuilder.fillPtCorrelationHistogram(genMatch->pt(),bl1Muon->pt(),l1muon_key);
-			fillEfficiencyHistograms(bl1Muon->pt(),genMatch->pt(),"L1MuonPt");
+			fillEfficiencyHistograms(bl1Muon->pt(),genMatch->pt(),"L1Muon");
 		}
 		edm::RefToBase<l1extra::L1MuonParticle> l1MuonCandiateRef(l1MuonView,i);
 		reco::GenParticleRef ref = (*l1MuonGenMatches)[l1MuonCandiateRef];
@@ -791,7 +791,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				histogramBuilder.fillCountHistogram("NoTrgNoL1Any");
 				histogramBuilder.fillEtaPhiGraph(genEta,genPhi,"NoTrgNoL1GenAny");
 				histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"NoTrgNoL1TdmiAny");
-				if(MuonHOAcceptance::inGeomAccept(muMatchEta,muMatchPhi)){
+				if(MuonHOAcceptance::inGeomAccept(muMatchEta,muMatchPhi) && !hoMatcher->isInChimney(muMatchEta,muMatchPhi)){
 					histogramBuilder.fillEtaPhiGraph(genEta,genPhi,"NoTrgNoL1GenInGA");
 					histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"NoTrgNoL1TdmiInGA");
 				}
@@ -801,7 +801,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			histogramBuilder.fillEtaPhiGraph(genEta,genPhi,std::string("NoTrgGenAny"));
 			histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,std::string("NoTrgTdmiAny"));
 			//The muon needs to hit the HO geometric acceptance
-			if(MuonHOAcceptance::inGeomAccept(muMatchEta,muMatchPhi)){
+			if(MuonHOAcceptance::inGeomAccept(muMatchEta,muMatchPhi) && !hoMatcher->isInChimney(muMatchEta,muMatchPhi)){
 				histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"NoTrgTdmiInGA");
 				histogramBuilder.fillCountHistogram("NoTrgTdmiInGA");
 				histogramBuilder.fillEnergyVsPosition(muMatchEta,muMatchPhi,muMatch->hoCrossedEnergy(),std::string("NoTrgTdmiXedE"));
@@ -809,11 +809,13 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				//Where is the Rec hit in a delta R cone with the largest E?
 				//Did we find any?
 				if(matchedRecHit){
+					histogramBuilder.fillCountHistogram("NoTrgTdmiInGAHoMatch");
 					double hoEta = caloGeo->getPosition(matchedRecHit->id()).eta();
 					double hoPhi = caloGeo->getPosition(matchedRecHit->id()).phi();
 					histogramBuilder.fillDeltaEtaDeltaPhiHistograms(muMatchEta,hoEta,muMatchPhi,hoPhi,std::string("NoTrgTdmi"));
 					//Apply energy cut on the matched RecHit
 					if(matchedRecHit->energy() >= threshold ){
+						histogramBuilder.fillCountHistogram("NoTrgTdmiInGAHoAboveThr");
 						histogramBuilder.fillDeltaEtaDeltaPhiHistograms(muMatchEta,hoEta,muMatchPhi,hoPhi,std::string("NoTrgTdmiAboveThr"));
 						histogramBuilder.fillDeltaEtaDeltaPhiHistograms(genEta,hoEta,genPhi,hoPhi,std::string("NoTrgGenAboveThr"));
 						histogramBuilder.fillEnergyVsPosition(muMatchEta,muMatchPhi,muMatch->hoCrossedEnergy(),std::string("NoTrgTdmiAboveThrXedE"));
