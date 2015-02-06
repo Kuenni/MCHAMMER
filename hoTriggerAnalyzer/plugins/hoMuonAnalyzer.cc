@@ -376,9 +376,9 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	//###############################
 	// Loop over Gen Particles only DONE
 	//###############################
-	if(!hasMuonsInAcceptance)
+	if(!hasMuonsInAcceptance){
 		return;
-
+	}
 	histogramBuilder.fillCountHistogram("Events");
 	/*
 	 * Level 1 Muons
@@ -482,6 +482,8 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		//##################################################
 		if(MuonHOAcceptance::inGeomAccept(l1Muon_eta,l1Muon_phi)&& !hoMatcher->isInChimney(l1Muon_eta,l1Muon_phi)){
 			histogramBuilder.fillCountHistogram("L1MuonInGA_L1Dir");
+			if(bl1Muon->bx() == 0)
+				histogramBuilder.fillCountHistogram("L1MuoninGaBx0");
 			//TODO write function to find central tile (and search 3x3 area around) with respect to the given direction
 			GlobalPoint l1Direction(
 					bl1Muon->p4().X(),
@@ -802,6 +804,11 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,std::string("NoTrgTdmiAny"));
 			//The muon needs to hit the HO geometric acceptance
 			if(MuonHOAcceptance::inGeomAccept(muMatchEta,muMatchPhi) && !hoMatcher->isInChimney(muMatchEta,muMatchPhi)){
+
+				//######
+				// TODO: Here, a check whether available l1 muon objects can be matched to HO is interesting
+				//######
+
 				histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"NoTrgTdmiInGA");
 				histogramBuilder.fillCountHistogram("NoTrgTdmiInGA");
 				histogramBuilder.fillEnergyVsPosition(muMatchEta,muMatchPhi,muMatch->hoCrossedEnergy(),std::string("NoTrgTdmiXedE"));
@@ -1141,8 +1148,7 @@ void hoMuonAnalyzer::fillEfficiencyHistograms(double ptMeasured, double ptReal,s
 /**
  * Find out whether a given direction, represented by a point (Thank You, CMSSW)
  * points to an HORecHit with E > 0.2,
- * The Gridsize determines the search area. So far the code is only designed for odd
- * grid sizes, e.g.:
+ * The Gridsize determines the search area, e.g.:
  *
  * 		Size: 0		Size: 1		Size: 2
  *
@@ -1158,13 +1164,6 @@ bool hoMuonAnalyzer::hasHoHitInGrid(GlobalPoint direction, int gridSize){
 			std::cout << coutPrefix << "Negative grid size in hasHoHitInGrid(GlobalPoint,int)! Returning false." << std::endl;
 		}
 		return false;
-	}
-	//Check for odd grid size
-	if(!gridSize%2 && gridSize!=0){
-		if(debug){
-			std::cout << coutPrefix << "GridSize in hasHoHitInGrid(GlobalPoint,int) is not odd! Reducing grid size by 1." << std::endl;
-		}
-		gridSize--;
 	}
 
 	//Loop over the det Ids close to the point
@@ -1191,13 +1190,6 @@ bool hoMuonAnalyzer::hasHoHitInGrid(double eta, double phi, std::vector<const HO
 			std::cout << coutPrefix << "Negative grid size in hasHoHitInGrid(double,double,std::vector<HORecHit*>,int)! Returning false." << std::endl;
 		}
 		return false;
-	}
-	//Check for odd grid size
-	if(!gridSize%2 && gridSize!=0){
-		if(debug){
-			std::cout << coutPrefix << "GridSize in hasHoHitInGrid(double,double,std::vector<HORecHit*>,int) is not odd! Reducing grid size by 1." << std::endl;
-		}
-		gridSize--;
 	}
 	for( auto it = recHits.begin(); it != recHits.end(); it++){
 		int deltaIeta = hoMatcher->getDeltaIeta(eta,*it);
