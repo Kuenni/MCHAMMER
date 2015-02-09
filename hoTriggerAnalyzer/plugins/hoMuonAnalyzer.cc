@@ -106,8 +106,8 @@ hoMuonAnalyzer::hoMuonAnalyzer(const edm::ParameterSet& iConfig)/*:
 	edm::ConsumesCollector iC = consumesCollector();
 	assocParams.loadParameters( parameters, iC );
 
-	singleMu3TrigName = "L1_SingleMu3";
-	doubleMu0TrigName = "L1_DoubleMu0";
+	singleMu3TrigName = "L1_SingleMuOpen";
+	doubleMu0TrigName = "L1_DoubleMu_10_Open";
 	doubleMu5TrigName = "L1_DoubleMu5 ";
 
 	defineTriggersOfInterest();
@@ -947,7 +947,8 @@ bool hoMuonAnalyzer::processTriggerDecision(std::string algorithmName,const edm:
 		cout<< coutPrefix << "trigger " << algorithmName << " does not exist in the L1 menu" << endl;
 	} else {
 		// error - see error code
-		cout << coutPrefix << "Error Code " << iErrorCode;
+		cout << coutPrefix << "Error Code " << iErrorCode << std::endl;
+		cout << coutPrefix << "Algorithm name: " << algorithmName << std::endl;
 	}
 	return trigDecision;
 }
