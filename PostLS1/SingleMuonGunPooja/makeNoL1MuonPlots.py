@@ -12,6 +12,11 @@ DEBUG = 1
 import PlotStyle
 PlotStyle.setPlotStyle()
 
+if( not os.path.exists('plots')):
+	os.mkdir('plots')
+if( not os.path.exists('plots/cutflow')):
+	os.mkdir('plots/cutflow')
+
 def calcSigma(num,denom):
 	return sqrt(num/(denom*denom) + num*num/(pow(denom, 3)))
 
@@ -113,9 +118,9 @@ def doPlotCutflow(filename='L1MuonHistogram.root'):
 	PlotStyle.labelCmsPrivateSimulation.Draw()
 	
 	c.Update()
-	c.SaveAs("cutflow.png")
-	c.SaveAs("cutflow.pdf")
-	c.SaveAs("cutflow.root")
+	c.SaveAs("plots/cutflow/cutflowL1.png")
+	c.SaveAs("plots/cutflow/cutflowL1.pdf")
+	c.SaveAs("plots/cutflow/cutflowL1.root")
 	
 	nTotal = histEvents.GetBinContent(2)
 	nL1 = histL1Muons.GetBinContent(2)

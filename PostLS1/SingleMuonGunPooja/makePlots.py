@@ -67,7 +67,7 @@ cPhi3.SetName('cPhi2')
 cPhi3.SaveAs('energyVsPhi_L1MuonAndHoAboveThrFilt.png')
 """
 
-histoNames = ['tdmiHo_DeltaEtaDeltaPhi',
+histoNames = ['tdmiHoMatch_DeltaEtaDeltaPhi',
 			'tdmiHoAboveThr_DeltaEtaDeltaPhi',
 			'L1MuonWithHoMatch_DeltaEtaDeltaPhi',
 			'L1MuonWithHoMatchAboveThr_DeltaEtaDeltaPhi'
@@ -76,7 +76,7 @@ histoNames = ['tdmiHo_DeltaEtaDeltaPhi',
 histograms = []
 
 for s in histoNames:
-	histograms.append(plotDeltaEtaDeltaPhi('.',sourceHistogram = s))
+	histograms.append(plotDeltaEtaDeltaPhi('.',sourceHistogram = s,storeSubdir='tdmiDeltaEtaDeltaPhi'))
 
 
 from ROOT import TCanvas

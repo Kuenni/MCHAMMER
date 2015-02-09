@@ -2,7 +2,7 @@ import os,sys
 from math import sqrt
 sys.path.append(os.path.abspath("../../python"))
 
-from ROOT import TCanvas,ROOT,TFile,TLegend,TF1,TLine,gROOT,TPaveText
+from ROOT import TCanvas,ROOT,TFile,TLegend,TF1,TLine,gROOT,TPaveText,TH1D
 
 DEBUG = 1
 
@@ -13,6 +13,11 @@ PlotStyle.setPlotStyle()
 
 def calcSigma(num,denom):
 	return sqrt(num/(denom*denom) + num*num/(pow(denom, 3)))
+
+if( not os.path.exists('plots')):
+	os.mkdir('plots')
+if( not os.path.exists('plots/timing')):
+	os.mkdir('plots/timing')
 
 # Plot the delta timing distribution for Ho
 # and the L1MuonObject
@@ -92,8 +97,8 @@ PlotStyle.labelCmsPrivateSimulation.Draw()
 c.Update()
 
 
-c.SaveAs("deltaTime.png")
-c.SaveAs("deltaTime.pdf")
+c.SaveAs("plots/timing/deltaTime.png")
+c.SaveAs("plots/timing/deltaTime.pdf")
 
 c2 = TCanvas("c2","BX ID",1200,1200)
 c2.SetLogy()
@@ -122,8 +127,8 @@ legend2.Draw()
 
 PlotStyle.labelCmsPrivateSimulation.Draw()
 
-c2.SaveAs("bxId.png")
-c2.SaveAs("bxId.pdf")
+c2.SaveAs("plots/timing/bxId.png")
+c2.SaveAs("plots/timing/bxId.pdf")
 
 
 c3 = TCanvas("c3","HO Time",1200,1200)
@@ -162,7 +167,18 @@ pText.SetBorderSize(1)
 pText.Draw()
 
 c3.Update()
-c3.SaveAs("hoTime.png")
-c3.SaveAs("hoTime.pdf")
+c3.SaveAs("plots/timing/hoTime.png")
+c3.SaveAs("plots/timing/hoTime.pdf")
+
+c4 = TCanvas("c4","BX L1Muon in ns",1200,1200)
+c4.SetLogy()
+hL1InNs = TH1D("hL1InNs","L1 Muon time in ns;time / ns;#",201,-100.5,100.5)
+for i in range(0,hBxId.GetNbinsX()):
+	x = hBxId.GetBinCenter(i)*25
+	y = hBxId.GetBinContent(i)
+	hL1InNs.SetBinContent(hL1InNs.FindBin(x),y)
+hL1InNs.SetStats(0)
+hL1InNs.Draw()
+c4.SaveAs("plots/timing/timeL1Only.pdf")
 
 raw_input('-->')
