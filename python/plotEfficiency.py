@@ -21,8 +21,8 @@ def plotEfficiencyForPt(folder,pt):
 		
 	if( not os.path.exists('plots')):
 		os.mkdir('plots')
-   	if( not os.path.exists('plots/' + folder)):
-		os.mkdir('plots/' + folder)
+   	if( not os.path.exists('plots/efficiency')):
+		os.mkdir('plots/efficiency')
 	
 	filename = folder + '/L1MuonHistogram.root'
 	if( not os.path.exists(filename)):
@@ -38,9 +38,9 @@ def plotEfficiencyForPt(folder,pt):
 	if(DEBUG):
 		print "Getting histogram: %s" % ("hoMuonAnalyzer/efficiency/L1MuonPt" + str(pt) + "_Efficiency")
 	
-	l1Muon = file.Get("hoMuonAnalyzer/efficiency/L1MuonPt" + str(pt) + "_Efficiency")
-	l1MuonAndHo = file.Get("hoMuonAnalyzer/efficiency/L1MuonPt" + str(pt) + "HoReco_Efficiency")
-	l1MuonAndHoAboveThr = file.Get("hoMuonAnalyzer/efficiency/L1MuonPt" + str(pt) + "HoRecoAboveThr_Efficiency")
+	l1Muon = file.Get("hoMuonAnalyzer/efficiency/L1MuonPtPt" + str(pt) + "_Efficiency")
+	l1MuonAndHo = file.Get("hoMuonAnalyzer/efficiency/L1MuonHoRecoPt" + str(pt) + "_Efficiency")
+	l1MuonAndHoAboveThr = file.Get("hoMuonAnalyzer/efficiency/L1MuonHoRecoAboveThrPt" + str(pt) + "_Efficiency")
 	
 	canv = TCanvas("efficiencyCanvas" + str(pt),'efficiencyCanvas' + str(pt),1200,1200)
 	
@@ -130,10 +130,10 @@ def plotEfficiencyForPt(folder,pt):
 	
 	##### Finally save the stuff
 	
-	canv.SaveAs("plots/" + folder + "/efficiency" + str(pt) + ".png")
-	canv.SaveAs("plots/" + folder + "/efficiency" + str(pt) + ".pdf")
+	canv.SaveAs("plots/efficiency/efficiency" + str(pt) + ".png")
+	canv.SaveAs("plots/efficiency/efficiency" + str(pt) + ".pdf")
 	
-	f = TFile.Open("plots/" + folder + "/efficiency" + str(pt) + ".root","RECREATE")
+	f = TFile.Open("plots/efficiency/efficiency" + str(pt) + ".root","RECREATE")
 	canv.Write()
 	f.Close()
 	return [l1Muon,l1MuonAndHoAboveThr,canv,legend,line,paveText]

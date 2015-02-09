@@ -24,7 +24,7 @@ def drawHoBoxes(canvas):
     return boxes
 
 #Create plot for delta eta and delta phi between two objects
-def plotDeltaEtaDeltaPhi(folder,sourceHistogram = 'L1MuonWithHoMatch_DeltaEtaDeltaPhi', sourceFile = 'L1MuonHistogram.root'):
+def plotDeltaEtaDeltaPhi(folder,sourceHistogram = 'L1MuonWithHoMatch_DeltaEtaDeltaPhi', sourceFile = 'L1MuonHistogram.root',storeSubdir = 'deltaEtaDeltaPhi'):
 
 	if(DEBUG):
 		print prefix + 'was called'
@@ -34,8 +34,8 @@ def plotDeltaEtaDeltaPhi(folder,sourceHistogram = 'L1MuonWithHoMatch_DeltaEtaDel
 		return
 	if( not os.path.exists('plots')):
 	    os.mkdir('plots')
-	if( not os.path.exists('plots/' + folder)):
-		os.mkdir('plots/' + folder)
+	if( not os.path.exists('plots/' + storeSubdir)):
+		os.mkdir('plots/' + storeSubdir)
         
 	filename = folder + '/' + sourceFile
 	if( not os.path.exists(filename)):
@@ -83,9 +83,9 @@ def plotDeltaEtaDeltaPhi(folder,sourceHistogram = 'L1MuonWithHoMatch_DeltaEtaDel
 	legend.AddEntry(boxList[0],"HO tile dimensions","le")
 	legend.Draw()
 
-	canv.SaveAs("plots/" + folder + "/" + sourceHistogram + ".png")
-	canv.SaveAs("plots/" + folder + "/" + sourceHistogram + ".pdf")
-	canv.SaveAs("plots/" + folder + "/" + sourceHistogram + ".root")
+	canv.SaveAs("plots/" + storeSubdir + "/" + sourceHistogram + ".png")
+	canv.SaveAs("plots/" + storeSubdir + "/" + sourceHistogram + ".pdf")
+	canv.SaveAs("plots/" + storeSubdir + "/" + sourceHistogram + ".root")
 
 	if(h2dDeltaEtaDeltaPhi == None):
 		print 'Why is the hist None?!'
