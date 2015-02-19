@@ -40,6 +40,7 @@
 #include "L1MuonData.h"
 
 #include "../interface/HoMatcher.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
 
 using namespace::std;
@@ -63,6 +64,8 @@ private:
   virtual void endRun(const edm::Run& iRun, const edm::EventSetup& evSetup);
   
   void defineTriggersOfInterest();
+
+  void printChannelQualities(const edm::EventSetup & iEvent);
 
   const reco::GenParticle* getBestGenMatch(float,float);
   const l1extra::L1MuonParticle* getBestL1MuonMatch(double eta, double phi);
@@ -119,7 +122,7 @@ private:
   bool trigDecision;
   bool singleMu3Trig,doubleMu0Trig;
   bool debug;
-
+  bool firstRun;
   /**
    * Prepare a TTree and some vectors for storing the data.
    * Analysis and adding of new plots should be faster, and cmssw would only needed

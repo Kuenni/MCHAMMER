@@ -60,6 +60,9 @@
 #include <MagneticField/Records/interface/IdealMagneticFieldRecord.h>
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <RecoMuon/MuonIdentification/interface/MuonHOAcceptance.h>
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputer.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputerRcd.h"
+
 #include <SimDataFormats/CaloHit/interface/PCaloHit.h>
 #include <SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h>
 #include <TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h>
@@ -80,6 +83,9 @@
 #include "TMultiGraph.h"
 #include "TCanvas.h"
 
+#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
+
+#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 using namespace::std;
 
 hoMuonAnalyzer::hoMuonAnalyzer(const edm::ParameterSet& iConfig)/*:
@@ -129,6 +135,8 @@ hoMuonAnalyzer::hoMuonAnalyzer(const edm::ParameterSet& iConfig)/*:
 	dataTree->Branch("hoRecHitData","vector<HoRecHitData>",hoRecHitVector);
 	dataTree->Branch("genMuonData","vector<GenMuonData>",genMuonVector);
 
+	firstRun = true;
+
 }
 
 
@@ -156,6 +164,11 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	/*
 	 * Get Event Data and Event Setup
 	 */
+
+	if(firstRun){
+		printChannelQualities(iSetup);
+		firstRun = false;
+	}
 
 	iEvent.getByLabel(_genInput,truthParticles);
 
@@ -1201,6 +1214,37 @@ bool hoMuonAnalyzer::hasHoHitInGrid(double eta, double phi, std::vector<const HO
 		}
 	}
 	return false;
+}
+
+/**
+ * Prints all channel qualities for HO into histogram which itself is stored
+ * in a root file
+ */
+void hoMuonAnalyzer::printChannelQualities(const edm::EventSetup& iSetup){
+	std::cout << coutPrefix << "Printing Channel qualities" << std::endl;
+	edm::ESHandle<HcalChannelQuality> p;
+	iSetup.get<HcalChannelQualityRcd>().get(p);
+	HcalChannelQuality *myqual = new HcalChannelQuality(*p.product());
+	edm::ESHandle<HcalSeverityLevelComputer> mycomputer;
+	iSetup.get<HcalSeverityLevelComputerRcd>().get(mycomputer);
+	const HcalSeverityLevelComputer *mySeverity = mycomputer.product();
+	int ieta, iphi;
+	TFile* channelStatusfile = new TFile("channelStatus.root","RECREATE");
+	TH2D* channelStatusHist = new TH2D("channelStatusHist","Channel status of HO",34,-16.5,16.5,73,-0.5,73.5);
+	for (ieta=-15; ieta <= 15; ieta++) {
+		if (ieta != 0) {
+			for (iphi = 1; iphi <= 72; iphi++) {
+				HcalDetId did(HcalOuter,ieta,iphi,4);
+				const HcalChannelStatus *mystatus = myqual->getValues(did.rawId());
+				channelStatusHist->SetBinContent(channelStatusHist->FindBin(ieta,iphi),mystatus->getValue());
+				if (mySeverity->dropChannel(mystatus->getValue())) {
+				}
+			}
+		}
+	}
+	channelStatusHist->Write();
+	channelStatusfile->Write();
+	channelStatusfile->Close();
 }
 //define this as a plug-in
 DEFINE_FWK_MODULE(hoMuonAnalyzer);
