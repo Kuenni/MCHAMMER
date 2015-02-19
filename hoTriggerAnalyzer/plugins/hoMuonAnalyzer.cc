@@ -736,9 +736,9 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 						muMatch->trkGlobPosAtHO.X(),
 						muMatch->trkGlobPosAtHO.Y(),
 						muMatch->trkGlobPosAtHO.Z()
-					),1)
-					//hasHoHitInGrid(muMatchEta,muMatchPhi,crossedHoRecHits,1)
-					){
+						)
+					,1)
+				){
 					histogramBuilder.fillCountHistogram("Tdmi3x3");
 					histogramBuilder.fillEfficiency(true,genIt->pt(),"tdmi3x3");
 				} else {
@@ -752,8 +752,8 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 						muMatch->trkGlobPosAtHO.X(),
 						muMatch->trkGlobPosAtHO.Y(),
 						muMatch->trkGlobPosAtHO.Z()
-				),2)
-						//hasHoHitInGrid(muMatchEta,muMatchPhi,crossedHoRecHits,1)
+						)
+					,2)
 				){
 					histogramBuilder.fillCountHistogram("Tdmi5x5");
 					histogramBuilder.fillEfficiency(true,genIt->pt(),"tdmi5x5");
@@ -1215,28 +1215,6 @@ bool hoMuonAnalyzer::hasHoHitInGrid(GlobalPoint direction, int gridSize){
 				if(itRecHits->energy() > threshold)
 					return true;
 			}
-		}
-	}
-	return false;
-}
-/*
- * Find out, whether HO sees a hit in a given grid
- * The Gridsize determines the search area. So far the code is only designed for odd
- * grid sizes, e.g.:
- */
-bool hoMuonAnalyzer::hasHoHitInGrid(double eta, double phi, std::vector<const HORecHit*> recHits, int gridSize){
-	if(gridSize < 0){
-		if(debug){
-			std::cout << coutPrefix << "Negative grid size in hasHoHitInGrid(double,double,std::vector<HORecHit*>,int)! Returning false." << std::endl;
-		}
-		return false;
-	}
-	for( auto it = recHits.begin(); it != recHits.end(); it++){
-		int deltaIeta = hoMatcher->getDeltaIeta(eta,*it);
-		int deltaIphi = hoMatcher->getDeltaIphi(phi,*it);
-		if(deltaIeta <= gridSize && deltaIphi <= gridSize){
-			if((*it)->energy() >= threshold )
-				return true;
 		}
 	}
 	return false;

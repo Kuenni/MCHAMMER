@@ -66,6 +66,7 @@ private:
   void defineTriggersOfInterest();
   void printChannelQualities(const edm::EventSetup & iEvent);
   void analyzeL1AndGenMatch(const edm::Event& iEvent,const edm::EventSetup& iSetup);
+  void analyzeNoSingleMuEvents(const edm::Event& iEvent,const edm::EventSetup& iSetup);
   void fillEfficiencyHistograms(double ptMeasured,double ptReal,std::string key);
 
   const reco::GenParticle* getBestGenMatch(float,float);
@@ -74,7 +75,6 @@ private:
 
   bool hasL1Match(trigger::TriggerObject,edm::Handle<l1extra::L1MuonParticleCollection>);
   bool hasHoHitInGrid(GlobalPoint direction,int gridSize);
-  bool hasHoHitInGrid(double eta, double phi, std::vector<const HORecHit*> recHits, int gridsize);
   bool processTriggerDecision(string algorithmName,const edm::Event& );
 
   TrackDetMatchInfo* getTrackDetMatchInfo(reco::GenParticle,const edm::Event& iEvent,const edm::EventSetup& iSetup);
