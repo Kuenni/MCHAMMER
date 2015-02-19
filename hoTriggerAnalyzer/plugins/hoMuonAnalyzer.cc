@@ -795,7 +795,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	if(!singleMu3Trig){
 		histogramBuilder.fillCountHistogram(std::string("NoSingleMu"));
 		histogramBuilder.fillMultiplicityHistogram(l1Muons->size(),std::string("NoSingleMu_L1Muon"));
-
+		analyzeNoSingleMuEvents(iEvent,iSetup);
 		//################################
 		//################################
 		// Match Ho to gen info and try to recover mu trigger
@@ -1310,6 +1310,70 @@ void hoMuonAnalyzer::analyzeL1AndGenMatch(const edm::Event& iEvent, const edm::E
 		} else {
 			histogramBuilder.fillEfficiency(false,l1Muon->pt(),"L1GenRef");
 			histogramBuilder.fillEtaPhiGraph(l1Muon->eta(),l1Muon->phi(),"L1GenRefFail");
+		}
+	}
+}
+
+/**
+ * Analyzer function for events with no single muon trigger.
+ * Tries to find l1 muons and match them to ho information
+ */
+void hoMuonAnalyzer::analyzeNoSingleMuEvents(const edm::Event& iEvent,const edm::EventSetup& iSetup){
+	for(int i = 0; i < l1Muons->size() ; i++){
+		const l1extra::L1MuonParticle* l1Muon = &(l1Muons->at(i));
+		edm::RefToBase<l1extra::L1MuonParticle> l1MuonCandiateRef(l1MuonView,i);
+		reco::GenParticleRef ref = (*l1MuonGenMatches)[l1MuonCandiateRef];
+		if(ref.isNonnull()){
+			histogramBuilder.fillEfficiency(true,l1Muon->pt(),"L1GenRefNoSingleMu");
+			//Once there is a gen ref, get the Track det match info
+			TrackDetMatchInfo * muMatch = getTrackDetMatchInfo(*ref,iEvent,iSetup);
+			double muMatchEta = muMatch->trkGlobPosAtHO.eta();
+			double muMatchPhi = muMatch->trkGlobPosAtHO.phi();
+			histogramBuilder.fillCountHistogram("L1GenRefNoSingleMu");
+			if(MuonHOAcceptance::inGeomAccept(muMatchEta,muMatchPhi)
+			&& MuonHOAcceptance::inNotDeadGeom(muMatchEta,muMatchPhi)
+			&& !hoMatcher->isInChimney(muMatchEta,muMatchPhi)){
+				histogramBuilder.fillCountHistogram("L1GenRefNoSingleMuInGa");
+				GlobalPoint l1Direction(
+						l1Muon->p4().X(),
+						l1Muon->p4().Y(),
+						l1Muon->p4().Z()
+				);
+				//#####
+				// Central tile
+				//#####
+				if(hasHoHitInGrid(l1Direction,0)){
+					histogramBuilder.fillCountHistogram("L1GenRefNoSingleMuInGaCentral");
+					histogramBuilder.fillEfficiency(true,ref->pt(),"L1GenRefNoSingleMuInGaCentral");
+				} else{
+					histogramBuilder.fillEfficiency(false,ref->pt(),"L1GenRefNoSingleMuInGaCentral");
+					histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"L1GenRefNoSingleMuInGaCentralFail");
+				}
+				//#####
+				// 3 x 3
+				//#####
+				if(hasHoHitInGrid(l1Direction,1)){
+					histogramBuilder.fillCountHistogram("L1GenRefNoSingleMuInGa3x3");
+					histogramBuilder.fillEfficiency(true,ref->pt(),"L1GenRefNoSingleMuInGa3x3");
+				} else {
+					histogramBuilder.fillEfficiency(false,ref->pt(),"L1GenRefNoSingleMuInGa3x3");
+					histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"L1GenRefNoSingleMuInGa3x3Fail");
+				}
+				//#####
+				// 5 x 5
+				//#####
+				if(hasHoHitInGrid(l1Direction,2)){
+					histogramBuilder.fillCountHistogram("L1GenRefNoSingleMuInGa5x5");
+					histogramBuilder.fillEfficiency(true,ref->pt(),"L1GenRefNoSingleMuInGa5x5");
+				} else {
+					histogramBuilder.fillEfficiency(false,ref->pt(),"L1GenRefNoSingleMuInGa5x5");
+					histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"L1GenRefNoSingleMuInGa5x5Fail");
+				}
+			}
+
+		} else {
+			histogramBuilder.fillEfficiency(false,l1Muon->pt(),"L1GenRefNoSingleMu");
+			histogramBuilder.fillEtaPhiGraph(l1Muon->eta(),l1Muon->phi(),"L1GenRefNoSingleMuFail");
 		}
 	}
 }
