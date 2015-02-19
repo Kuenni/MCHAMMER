@@ -913,8 +913,12 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			double muMatchPhi = muMatch->trkGlobPosAtHO.phi();
 			double muMatchEta = muMatch->trkGlobPosAtHO.eta();
 
+			if( MuonHOAcceptance::inGeomAccept(muMatchEta,muMatchPhi) && MuonHOAcceptance::inNotDeadGeom(muMatchEta,muMatchPhi) ){
+				histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"tdmiInGANotDead");
+			}
+
 			//Require the muon to hit the HO area
-			if(MuonHOAcceptance::inGeomAccept(muMatchEta,muMatchPhi)&& !hoMatcher->isInChimney(muMatchEta,muMatchPhi)){
+			if(MuonHOAcceptance::inGeomAccept(muMatchEta,muMatchPhi) && !hoMatcher->isInChimney(muMatchEta,muMatchPhi)){
 
 				histogramBuilder.fillCountHistogram("SMuTrgTdmiInGA");
 				const l1extra::L1MuonParticle* l1Ref = getBestL1MuonMatch(genEta,genPhi);
