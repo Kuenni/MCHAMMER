@@ -64,20 +64,20 @@ private:
   virtual void endRun(const edm::Run& iRun, const edm::EventSetup& evSetup);
   
   void defineTriggersOfInterest();
-
   void printChannelQualities(const edm::EventSetup & iEvent);
+  void analyzeL1AndGenMatch(const edm::Event& iEvent,const edm::EventSetup& iSetup);
+  void fillEfficiencyHistograms(double ptMeasured,double ptReal,std::string key);
 
   const reco::GenParticle* getBestGenMatch(float,float);
   const l1extra::L1MuonParticle* getBestL1MuonMatch(double eta, double phi);
   const l1extra::L1MuonParticle* getMatchedL1Object(trigger::TriggerObject,edm::Handle<l1extra::L1MuonParticleCollection>);
+
   bool hasL1Match(trigger::TriggerObject,edm::Handle<l1extra::L1MuonParticleCollection>);
   bool hasHoHitInGrid(GlobalPoint direction,int gridSize);
   bool hasHoHitInGrid(double eta, double phi, std::vector<const HORecHit*> recHits, int gridsize);
-
-  TrackDetMatchInfo* getTrackDetMatchInfo(reco::GenParticle,edm::ESHandle<MagneticField> theMagField,const edm::Event& iEvent,
-			const edm::EventSetup& iSetup);
   bool processTriggerDecision(string algorithmName,const edm::Event& );
-  void fillEfficiencyHistograms(double ptMeasured,double ptReal,std::string key);
+
+  TrackDetMatchInfo* getTrackDetMatchInfo(reco::GenParticle,const edm::Event& iEvent,const edm::EventSetup& iSetup);
 
   edm::Service<TFileService> _fileService;
 
@@ -90,8 +90,12 @@ private:
   edm::Handle<reco::GenParticleCollection> truthParticles;
   edm::Handle<l1extra::L1MuonParticleCollection> l1Muons;
   edm::Handle<HORecHitCollection> hoRecoHits;
+  edm::Handle<reco::GenParticleMatch> l1MuonGenMatches;
+  edm::Handle<edm::View<l1extra::L1MuonParticle> > l1MuonView;
 
+  edm::ESHandle<CaloGeometry> caloGeo;
   edm::ESHandle<DetIdAssociator> hoDetIdAssociator_;
+  edm::ESHandle<MagneticField> theMagField;
 
   HistogramBuilder histogramBuilder;
 

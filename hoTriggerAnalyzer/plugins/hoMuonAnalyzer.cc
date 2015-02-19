@@ -142,19 +142,7 @@ hoMuonAnalyzer::hoMuonAnalyzer(const edm::ParameterSet& iConfig)/*:
 
 hoMuonAnalyzer::~hoMuonAnalyzer()
 {
-
-	// do anything here that needs to be done at desctruction time
-	// (e.g. close files, deallocate resources etc.)
-
-	//f->Close();
-
 }
-
-
-//
-// member functions#include "DataFormats/GeometryVector/interface/GlobalTag.h"
-
-//
 
 // ------------ method called for each event  ------------
 void
@@ -176,19 +164,15 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 
 	iEvent.getByLabel(_horecoInput, hoRecoHits);
 
-	edm::ESHandle<CaloGeometry> caloGeo;
 	iSetup.get<CaloGeometryRecord>().get(caloGeo);
 
-	edm::Handle<edm::View<l1extra::L1MuonParticle> > l1MuonView;
 	iEvent.getByLabel(_l1MuonInput,l1MuonView);
 
-	edm::Handle<reco::GenParticleMatch> l1MuonGenMatches;
 	iEvent.getByLabel(_l1MuonGenMatchInput,l1MuonGenMatches);
 
 	edm::Handle<vector<PCaloHit>> caloHits;
 	iEvent.getByLabel(edm::InputTag("g4SimHits","HcalHits"),caloHits);
 
-	edm::ESHandle<MagneticField> theMagField;
 	iSetup.get<IdealMagneticFieldRecord>().get(theMagField );
 
 	iSetup.get<DetIdAssociatorRecord>().get("HODetIdAssociator", hoDetIdAssociator_);
@@ -238,7 +222,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				MuonHOAcceptance::inSiPMGeom(genPart->eta(),genPart->phi())
 		));
 
-		TrackDetMatchInfo * muMatch = getTrackDetMatchInfo(*genPart,theMagField,iEvent,iSetup);
+		TrackDetMatchInfo * muMatch = getTrackDetMatchInfo(*genPart,iEvent,iSetup);
 		double muMatchEta = muMatch->trkGlobPosAtHO.eta();
 		double muMatchPhi = muMatch->trkGlobPosAtHO.phi();
 
@@ -691,7 +675,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			 * # Triggers
 			 * #############################################
 			 */
-			TrackDetMatchInfo * muMatch = getTrackDetMatchInfo(*genIt,theMagField,iEvent,iSetup);
+			TrackDetMatchInfo * muMatch = getTrackDetMatchInfo(*genIt,iEvent,iSetup);
 
 			double muMatchPhi = muMatch->trkGlobPosAtHO.phi();
 			double muMatchEta = muMatch->trkGlobPosAtHO.eta();
@@ -721,7 +705,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			float genEta = genIt->eta();
 			float genPhi = genIt->phi();
 
-			TrackDetMatchInfo * muMatch = getTrackDetMatchInfo(*genIt,theMagField,iEvent,iSetup);
+			TrackDetMatchInfo * muMatch = getTrackDetMatchInfo(*genIt,iEvent,iSetup);
 			double muMatchPhi = muMatch->trkGlobPosAtHO.phi();
 			double muMatchEta = muMatch->trkGlobPosAtHO.eta();
 
@@ -831,7 +815,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			 * # Triggers
 			 * #############################################
 			 */
-			TrackDetMatchInfo * muMatch = getTrackDetMatchInfo(*genIt,theMagField,iEvent,iSetup);
+			TrackDetMatchInfo * muMatch = getTrackDetMatchInfo(*genIt,iEvent,iSetup);
 			double muMatchPhi = muMatch->trkGlobPosAtHO.phi();
 			double muMatchEta = muMatch->trkGlobPosAtHO.eta();
 
@@ -858,7 +842,6 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				//######
 				// TODO: Here, a check whether available l1 muon objects can be matched to HO is interesting
 				//######
-
 				histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"NoTrgTdmiInGA");
 				histogramBuilder.fillCountHistogram("NoTrgTdmiInGA");
 				histogramBuilder.fillEnergyVsPosition(muMatchEta,muMatchPhi,muMatch->hoCrossedEnergy(),std::string("NoTrgTdmiXedE"));
@@ -909,7 +892,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			float genEta = genIt->eta();
 			float genPhi = genIt->phi();
 
-			TrackDetMatchInfo * muMatch = getTrackDetMatchInfo(*genIt,theMagField,iEvent,iSetup);
+			TrackDetMatchInfo * muMatch = getTrackDetMatchInfo(*genIt,iEvent,iSetup);
 			double muMatchPhi = muMatch->trkGlobPosAtHO.phi();
 			double muMatchEta = muMatch->trkGlobPosAtHO.eta();
 
@@ -1180,7 +1163,7 @@ void hoMuonAnalyzer::defineTriggersOfInterest(){
  * Gets the TrackDetMatchInfo for a Gen Particle by using its vertex, momentum and charge information
  * Needs the magnetic field, the edm::event and the edm::setup of an event
  */
-TrackDetMatchInfo* hoMuonAnalyzer::getTrackDetMatchInfo(reco::GenParticle genPart,edm::ESHandle<MagneticField> theMagField,const edm::Event& iEvent,
+TrackDetMatchInfo* hoMuonAnalyzer::getTrackDetMatchInfo(reco::GenParticle genPart,const edm::Event& iEvent,
 		const edm::EventSetup& iSetup){
 	//Create the Track det match info
 	GlobalPoint vertexPoint(genPart.vertex().X(),genPart.vertex().Y(),genPart.vertex().Z());
@@ -1289,5 +1272,69 @@ void hoMuonAnalyzer::printChannelQualities(const edm::EventSetup& iSetup){
 	channelStatusfile->Write();
 	channelStatusfile->Close();
 }
+
+/**
+ * This function analyzes the information in the collection produced by the l1muon and gen matcher
+ */
+void hoMuonAnalyzer::analyzeL1AndGenMatch(const edm::Event& iEvent, const edm::EventSetup& iSetup){
+	for(int i = 0; i < l1Muons->size() ; i++){
+		const l1extra::L1MuonParticle* l1Muon = &(l1Muons->at(i));
+		edm::RefToBase<l1extra::L1MuonParticle> l1MuonCandiateRef(l1MuonView,i);
+		reco::GenParticleRef ref = (*l1MuonGenMatches)[l1MuonCandiateRef];
+		if(ref.isNonnull()){
+			histogramBuilder.fillEfficiency(true,l1Muon->pt(),"L1GenRef");
+			//Once there is a gen ref, get the Track det match info
+			TrackDetMatchInfo * muMatch = getTrackDetMatchInfo(*ref,iEvent,iSetup);
+			double muMatchEta = muMatch->trkGlobPosAtHO.eta();
+			double muMatchPhi = muMatch->trkGlobPosAtHO.phi();
+			histogramBuilder.fillCountHistogram("L1GenRef");
+			if(MuonHOAcceptance::inGeomAccept(muMatchEta,muMatchPhi)
+						&& MuonHOAcceptance::inNotDeadGeom(muMatchEta,muMatchPhi)
+						&& !hoMatcher->isInChimney(muMatchEta,muMatchPhi)){
+				histogramBuilder.fillCountHistogram("L1GenRefInGa");
+				GlobalPoint l1Direction(
+						l1Muon->p4().X(),
+						l1Muon->p4().Y(),
+						l1Muon->p4().Z()
+						);
+				//#####
+				// Central tile
+				//#####
+				if(hasHoHitInGrid(l1Direction,0)){
+					histogramBuilder.fillCountHistogram("L1GenRefInGaCentral");
+					histogramBuilder.fillEfficiency(true,ref->pt(),"L1GenRefInGaCentral");
+				} else{
+					histogramBuilder.fillEfficiency(false,ref->pt(),"L1GenRefInGaCentral");
+					histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"L1GenRefInGaCentralFail");
+				}
+				//#####
+				// 3 x 3
+				//#####
+				if(hasHoHitInGrid(l1Direction,1)){
+					histogramBuilder.fillCountHistogram("L1GenRefInGa3x3");
+					histogramBuilder.fillEfficiency(true,ref->pt(),"L1GenRefInGa3x3");
+				} else {
+					histogramBuilder.fillEfficiency(false,ref->pt(),"L1GenRefInGa3x3");
+					histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"L1GenRefInGa3x3Fail");
+				}
+				//#####
+				// 5 x 5
+				//#####
+				if(hasHoHitInGrid(l1Direction,2)){
+					histogramBuilder.fillCountHistogram("L1GenRefInGa5x5");
+					histogramBuilder.fillEfficiency(true,ref->pt(),"L1GenRefInGa5x5");
+				} else {
+					histogramBuilder.fillEfficiency(false,ref->pt(),"L1GenRefInGa5x5");
+					histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"L1GenRefInGa5x5Fail");
+				}
+			}
+
+		} else {
+			histogramBuilder.fillEfficiency(false,l1Muon->pt(),"L1GenRef");
+			histogramBuilder.fillEtaPhiGraph(l1Muon->eta(),l1Muon->phi(),"L1GenRefFail");
+		}
+	}
+}
+
 //define this as a plug-in
 DEFINE_FWK_MODULE(hoMuonAnalyzer);
