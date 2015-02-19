@@ -77,7 +77,7 @@ def doPlotCutflowTdmi(filename='L1MuonHistogram.root'):
 	hist.SetTitleFont(62)	
 	hist.Draw("")
 
-	histTrgCount = file.Get('hoMuonAnalyzer/count/L1_SingleMu3_Count')
+	histTrgCount = file.Get('hoMuonAnalyzer/count/L1_SingleMuOpen_Count')
 
 	hist2 = TH1D("l1TrgCount","PostLS1 Single #mu gun, using TDMI",len(xLabels),0,len(xLabels))
 	hist2.SetBinContent(1,histTrgCount.GetBinContent(2)/norm)
@@ -152,7 +152,7 @@ def doPlotEventCountTdmi(filename = 'L1MuonHistogram.root'):
 	if(file == None):
 		print 'Error opening file:',filename
 	histoNames = [
-				'hoMuonAnalyzer/L1_SingleMu3_Trig',
+				'hoMuonAnalyzer/L1_SingleMuOpen_Trig',
 				'hoMuonAnalyzer/etaPhi/NoSingleMu_DeltaEtaDeltaPhi',
 				'hoMuonAnalyzer/count/Events_Count'
 				]
