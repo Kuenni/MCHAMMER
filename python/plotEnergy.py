@@ -7,7 +7,7 @@ import numpy as np
 DEBUG = 1
 prefix = '[plotEnergy] '
 
-def plotEnergy(folder):
+def plotEnergy(folder, nameOfFile = 'L1MuonHistogram.root'):
 	if(folder == None):
 	    print 'Error! Filename as first argument needed.'
 	    return
@@ -17,7 +17,7 @@ def plotEnergy(folder):
 	if( not os.path.exists('plots/' + folder)):
 		os.mkdir('plots/' + folder)
 
-	filename = folder + '/L1MuonHistogram.root'
+	filename = folder + '/' + nameOfFile
 	if( not os.path.exists(filename)):
 		print 'Error! File ' + filename + ' does not exist!'
 		return
@@ -77,7 +77,7 @@ def plotEnergy(folder):
 	f = TFile.Open("plots/" + folder + "/energy.root","RECREATE")
 	canv.Write()
 	f.Close()
-	return canv
+	return [canv,ho,L1MuonAndHoMatch, L1MuonAndHoMatchAboveThr,L1MuonAndHoMatchAboveThrFilt]
 
 def plotEnergyVsEta(folder,sourceHistogram = 'L1MuonWithHoMatch_EnergyVsEta',filename = 'L1MuonHistogram.root'):
 	if(DEBUG):
