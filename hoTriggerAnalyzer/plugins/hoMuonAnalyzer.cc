@@ -504,17 +504,32 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 					bl1Muon->p4().Z()
 					);
 			histogramBuilder.fillCorrelationGraph(l1Direction.eta(),l1Muon_eta,"Correlationp4AndL1Object");
+			//#####
+			// Central tile
+			//#####
 			if(hasHoHitInGrid(l1Direction,0)){
 				histogramBuilder.fillCountHistogram("L1MuonCentral");
 				histogramBuilder.fillEfficiency(true,bl1Muon->pt(),"L1MuonCentral");
 			} else{
 				histogramBuilder.fillEfficiency(false,bl1Muon->pt(),"L1MuonCentral");
 			}
+			//#####
+			// 3 x 3
+			//#####
 			if(hasHoHitInGrid(l1Direction,1)){
 				histogramBuilder.fillCountHistogram("L1Muon3x3");
 				histogramBuilder.fillEfficiency(true,bl1Muon->pt(),"L1Muon3x3");
 			} else {
 				histogramBuilder.fillEfficiency(false,bl1Muon->pt(),"L1Muon3x3");
+			}
+			//#####
+			// 5 x 5
+			//#####
+			if(hasHoHitInGrid(l1Direction,2)){
+				histogramBuilder.fillCountHistogram("L1Muon5x5");
+				histogramBuilder.fillEfficiency(true,bl1Muon->pt(),"L1Muon5x5");
+			} else {
+				histogramBuilder.fillEfficiency(false,bl1Muon->pt(),"L1Muon5x5");
 			}
 		}
 
@@ -714,19 +729,25 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				histogramBuilder.fillCountHistogram("TdmiInGA_TdmiDir");
 				//TODO write function to find central tile (and search 3x3 area around) with respect to the given direction
 				std::vector<const HORecHit*> crossedHoRecHits = muMatch->crossedHORecHits;
-				if(	hasHoHitInGrid(GlobalPoint(
+				//#####
+				// Central tile
+				//#####
+				if(	hasHoHitInGrid(
+						GlobalPoint(
 						muMatch->trkGlobPosAtHO.X(),
 						muMatch->trkGlobPosAtHO.Y(),
 						muMatch->trkGlobPosAtHO.Z()
-					),0)
-						//hasHoHitInGrid(muMatchEta,muMatchPhi,crossedHoRecHits,0)
-						){
+						)
+					,0)
+				){
 					histogramBuilder.fillCountHistogram("TdmiCentral");
 					histogramBuilder.fillEfficiency(true,genIt->pt(),"tdmiCentral");
 				} else {
 					histogramBuilder.fillEfficiency(false,genIt->pt(),"tdmiCentral");
-
 				}
+				//#####
+				// 3 x 3
+				//#####
 				if( hasHoHitInGrid(GlobalPoint(
 						muMatch->trkGlobPosAtHO.X(),
 						muMatch->trkGlobPosAtHO.Y(),
@@ -738,6 +759,22 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 					histogramBuilder.fillEfficiency(true,genIt->pt(),"tdmi3x3");
 				} else {
 					histogramBuilder.fillEfficiency(false,genIt->pt(),"tdmi3x3");
+
+				}
+				//#####
+				// 5 x 5
+				//#####
+				if( hasHoHitInGrid(GlobalPoint(
+						muMatch->trkGlobPosAtHO.X(),
+						muMatch->trkGlobPosAtHO.Y(),
+						muMatch->trkGlobPosAtHO.Z()
+				),2)
+						//hasHoHitInGrid(muMatchEta,muMatchPhi,crossedHoRecHits,1)
+				){
+					histogramBuilder.fillCountHistogram("Tdmi5x5");
+					histogramBuilder.fillEfficiency(true,genIt->pt(),"tdmi5x5");
+				} else {
+					histogramBuilder.fillEfficiency(false,genIt->pt(),"tdmi5x5");
 
 				}
 			}
@@ -837,6 +874,8 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 					if(matchedRecHit->energy() >= threshold ){
 						histogramBuilder.fillCountHistogram("NoTrgTdmiInGAHoAboveThr");
 						histogramBuilder.fillDeltaEtaDeltaPhiHistograms(muMatchEta,hoEta,muMatchPhi,hoPhi,std::string("NoTrgTdmiAboveThr"));
+						histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"NoTrgTdmiAboveThr");
+						histogramBuilder.fillEtaPhiGraph(hoEta,hoPhi,"NoTrgTdmiAboveThrHoCoords");
 						histogramBuilder.fillDeltaEtaDeltaPhiHistograms(genEta,hoEta,genPhi,hoPhi,std::string("NoTrgGenAboveThr"));
 						histogramBuilder.fillEnergyVsPosition(muMatchEta,muMatchPhi,muMatch->hoCrossedEnergy(),std::string("NoTrgTdmiAboveThrXedE"));
 						histogramBuilder.fillEnergyVsPosition(hoEta,hoPhi,matchedRecHit->energy(),std::string("NoTrgTdmiAboveThrHoE"));
