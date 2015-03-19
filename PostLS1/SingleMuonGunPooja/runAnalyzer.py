@@ -9,7 +9,7 @@ process.TFileService = cms.Service("TFileService",
                                    fileName=cms.string('L1MuonHistogramPooja.root')
                                    )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000000) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 
 import FWCore.Utilities.FileUtils as FileUtils
