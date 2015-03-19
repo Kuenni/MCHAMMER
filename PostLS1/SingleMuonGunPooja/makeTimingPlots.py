@@ -41,12 +41,15 @@ hDeltaTAllHo.SetFillStyle(3017)
 hDeltaTAllHo.SetTitle("#Delta time")
 hDeltaTAllHo.SetStats(0)
 
-
-
 hDeltaTCleanHo.SetLineColor(8)
 hDeltaTCleanHo.SetFillColor(8)
 hDeltaTCleanHo.SetLineWidth(3)
 hDeltaTCleanHo.SetFillStyle(3002)
+
+#hDeltaTAllHo.Scale(1/hDeltaTAllHo.Integral())
+#hDeltaTCleanHo.Scale(1/hDeltaTCleanHo.Integral())
+
+print hDeltaTCleanHo.Integral(),hDeltaTAllHo.Integral()
 
 fitFirstMin = TF1("fitFirstMin","[0]+x*[1]+[2]*x**2")
 fitSecondMin = TF1("fitsecondMin","[0]+x*[1]+[2]*x**2",10,20)
@@ -55,6 +58,17 @@ hDeltaTCleanHo.Fit(fitFirstMin,"+q","",-20,-10)
 hDeltaTCleanHo.Fit(fitSecondMin,"R+q","")
 
 hDeltaTAllHo.Draw()
+legend = TLegend(0.6,0.75,0.9,0.9)
+legend.AddEntry(hDeltaTAllHo,"L1Muon matched to any HO","le")
+legend.Draw()
+
+label = PlotStyle.getLabelCmsPrivateSimulation()
+label.Draw()
+c.Update()
+
+c.SaveAs("plots/timing/deltaTimeAllHo.png")
+c.SaveAs("plots/timing/deltaTimeAllHo.pdf")
+
 hDeltaTCleanHo.Draw('same')
 
 fitFirstMin.SetRange(-50,50)
@@ -73,9 +87,9 @@ lineSecondMin.SetLineWidth(3)
 lineSecondMin.SetLineColor(ROOT.kRed)
 lineSecondMin.Draw()
 
-legend = TLegend(0.6,0.75,0.9,0.9)
-legend.AddEntry(hDeltaTAllHo,"L1Muon matched to any HO","le")
+
 legend.AddEntry(hDeltaTCleanHo,"L1Muon matched to HO > 0.2 GeV","le")
+legend.AddEntry(lineFirstMin,"Integral boundaries","e")
 legend.Draw()
 
 integralCenter = hDeltaTCleanHo.Integral(hDeltaTCleanHo.FindBin(fitFirstMin.GetMinimumX(-20,-10)),hDeltaTCleanHo.FindBin(fitSecondMin.GetMinimumX(10,20)))
@@ -93,7 +107,8 @@ paveText.AddText('%.2f%% +/- %.2f%%' % (integralCenter/hDeltaTCleanHo.Integral()
 paveText.SetBorderSize(1)
 paveText.Draw()
 
-PlotStyle.labelCmsPrivateSimulation.Draw()
+label = PlotStyle.getLabelCmsPrivateSimulation()
+label.Draw()
 c.Update()
 
 
@@ -117,15 +132,21 @@ hBxIdAboveThr.SetFillColor(PlotStyle.colorRwthMagenta)
 hBxIdAboveThr.SetLineColor(PlotStyle.colorRwthMagenta)
 hBxIdAboveThr.SetLineWidth(2)
 
+hBxId.Scale(1/hBxId.Integral())
+hBxIdAboveThr.Scale(1/hBxIdAboveThr.Integral())
+
+hBxId.GetYaxis().SetTitle("rel. fraction")
+
 hBxId.Draw()
-hBxIdAboveThr.Draw("same")
+#hBxIdAboveThr.Draw("same")
 
 legend2 = TLegend(0.45,0.8,0.9,0.9)
 legend2.AddEntry(hBxId,"L1Muon","f")
-legend2.AddEntry(hBxIdAboveThr,"L1Muon matched to HO > 0.2 GeV","f")
+#legend2.AddEntry(hBxIdAboveThr,"L1Muon matched to HO > 0.2 GeV","f")
 legend2.Draw()
 
-PlotStyle.labelCmsPrivateSimulation.Draw()
+label = PlotStyle.getLabelCmsPrivateSimulation()
+label.Draw()
 
 c2.SaveAs("plots/timing/bxId.png")
 c2.SaveAs("plots/timing/bxId.pdf")
@@ -142,7 +163,8 @@ hHoTime.SetTitle("Time distribution for all HO Rec Hits")
 hHoTime.SetLineColor(PlotStyle.colorRwthDarkBlue)
 hHoTime.SetLineWidth(3)
 hHoTime.Draw()
-PlotStyle.labelCmsPrivateSimulation.Draw()
+label = PlotStyle.getLabelCmsPrivateSimulation()
+label.Draw()
 
 c3.cd(2)
 hHoTimeAboveThr.SetStats(0)
@@ -150,7 +172,8 @@ hHoTimeAboveThr.SetTitle("Time distribution for HO Rec Hits > 0.2 GeV")
 hHoTimeAboveThr.SetLineColor(PlotStyle.colorRwthDarkBlue)
 hHoTimeAboveThr.SetLineWidth(3)
 hHoTimeAboveThr.Draw()
-PlotStyle.labelCmsPrivateSimulation.Draw()
+label = PlotStyle.getLabelCmsPrivateSimulation()
+label.Draw()
 
 print 80*'#'
 print 'Integral of HO > 0.2 GeV time histogram:'

@@ -95,7 +95,7 @@ def doPlotCutflow(filename='L1MuonHistogram.root'):
 	hist.SetTitleFont(62)	
 	hist.Draw("")
 
-	histTrgCount = file.Get('hoMuonAnalyzer/count/L1_SingleMu3_Count')
+	histTrgCount = file.Get('hoMuonAnalyzer/count/L1_SingleMuOpen_Count')
 
 	hist2 = TH1D("l1TrgCount","PostLS1 Single #mu gun",len(xLabels),0,len(xLabels))
 	hist2.SetBinContent(1,histTrgCount.GetBinContent(2)/norm)
@@ -115,7 +115,8 @@ def doPlotCutflow(filename='L1MuonHistogram.root'):
 	legend.AddEntry(hist2,"Fraction with L1 Single #mu Trg.","f")
 	legend.Draw()
 	
-	PlotStyle.labelCmsPrivateSimulation.Draw()
+	label = PlotStyle.getLabelCmsPrivateSimulation()
+	label.Draw()
 	
 	c.Update()
 	c.SaveAs("plots/cutflow/cutflowL1.png")
@@ -168,49 +169,69 @@ def doPlotDeltaEtaDeltaPhiEnergy(filename = 'L1MuonHistogram.root'):
 
 #Produce plots for different source histograms	
 def doPlotDeltaEtaDeltaPhi(filename = 'L1MuonHistogram.root'):
-	histoNames = ['L1MuonWithHoMatch_DeltaEtaDeltaPhi',
+	histoNames = [
+				'L1MuonWithHoMatch_DeltaEtaDeltaPhi',
 				'L1MuonWithHoMatchAboveThr_DeltaEtaDeltaPhi',
-				'L1MuonWithHoMatchAboveThrFilt_DeltaEtaDeltaPhi',
-				'NoSingleMu_DeltaEtaDeltaPhi',
-				'NoSingleMuFilt_DeltaEtaDeltaPhi'
+				#'L1MuonWithHoMatchAboveThrFilt_DeltaEtaDeltaPhi',
+				#'NoSingleMu_DeltaEtaDeltaPhi',
+				#'NoSingleMuFilt_DeltaEtaDeltaPhi'
+				'NoTrgTdmi_DeltaEtaDeltaPhi',
+				'NoTrgTdmiAboveThr_DeltaEtaDeltaPhi'
 				]
 	for s in histoNames:
 		plotDeltaEtaDeltaPhi('.',sourceHistogram = s)
 
-def doPlotEventCount(filename = 'L1MuonHistogram.root'):
+def doPlotCutflowNoL1(filename = 'L1MuonHistogram.root'):
 	if(DEBUG):
 		print 'Opening file:',filename
 	file = TFile.Open(filename)
 	if(file == None):
 		print 'Error opening file:',filename
 	histoNames = [
-				'hoMuonAnalyzer/L1_SingleMu3_Trig',
-				'hoMuonAnalyzer/etaPhi/NoSingleMu_DeltaEtaDeltaPhi',
+				'hoMuonAnalyzer/count/NoSingleMu_Count',
+				'hoMuonAnalyzer/count/NoSingleMuInGa_Count',
+				'hoMuonAnalyzer/count/NoSingleMuInGa5x5_Count',
+				'hoMuonAnalyzer/count/NoSingleMuInGa3x3_Count',
+				'hoMuonAnalyzer/count/NoSingleMuInGaCentral_Count',
 				'hoMuonAnalyzer/count/Events_Count'
 				]
 	
 	histograms = []
+	yValues = []
 	
 	for s in histoNames:
 		histograms.append(file.Get(s))
-
-	yValues = []
-	yValues.append(histograms[0].GetBinContent(1))
-	yValues.append(histograms[1].GetEntries())
-
-	nEvents = histograms[2].GetEntries()
+		yValues.append(histograms[-1].GetBinContent(2))
+	
+	nEvents = histograms[-1].GetEntries()
 
 	xLabels = [
-			'No Single #mu trigger',
-			'HO > 0.2 GeV matched to Gen'
+	 		'No Single #mu trigger',
+			'TDMI in GA',
+			'HO > 0.2 GeV in 5x5',
+			'HO > 0.2 GeV in 3x3',
+			'HO > 0.2 GeV in Central'
 			]
 	
 	c = TCanvas('eventCountCanvas','PostLS1 Single #mu gun',1200,1200)
 
-	hist = TH1D("eventCount","PostLS1 Single #mu gun",len(xLabels),0,len(xLabels))
+	hist = TH1D("eventCount","PostLS1 Single #mu gun",len(xLabels)-1,0,len(xLabels))
+	
+	paveText = TPaveText(0.51,0.75,0.9,0.9,'NDC')
+	paveText.AddText('%s: %d => %.2f%% #pm %.2f%%' % (xLabels[0],yValues[0],yValues[0]/nEvents*100,calcSigma(yValues[0], nEvents)*100))
+	paveText.AddText('%s: %d => %.2f%% #pm %.2f%%' % (xLabels[2],yValues[2],yValues[2]/yValues[1]*100,calcSigma(yValues[2], yValues[1])*100))
+	paveText.AddText('%s: %d => %.2f%% #pm %.2f%%' % (xLabels[4],yValues[4],yValues[4]/yValues[1]*100,calcSigma(yValues[4], yValues[1])*100))
+	paveText.SetBorderSize(1)
+	
+	print yValues[1]
+	
+	norm = yValues[1]
+	
 	for i,v in enumerate(xLabels):
-		hist.SetBinContent(i+1,yValues[i])
-		hist.GetXaxis().SetBinLabel(i+1,str(v))
+		if(i == 0):
+			continue
+		hist.SetBinContent(i,yValues[i]/norm)
+		hist.GetXaxis().SetBinLabel(i,str(v))
 	
 	hist.SetStats(0)
 	hist.SetLineColor(PlotStyle.colorRwthDarkBlue)
@@ -219,29 +240,92 @@ def doPlotEventCount(filename = 'L1MuonHistogram.root'):
 	hist.SetLabelFont(62)
 	hist.SetTitleFont(62)
 	hist.SetMinimum(0)
-	hist.Draw("")
+	
 
-	paveText = TPaveText(0.51,0.75,0.9,0.9,'NDC')
-	paveText.AddText('%s: %d => %.2f%% #pm %.2f%%' % (xLabels[0],yValues[0],yValues[0]/nEvents*100,calcSigma(yValues[0], nEvents)*100))
-	paveText.AddText('%s: %d => %.2f%% #pm %.2f%%' % (xLabels[1],yValues[1],yValues[1]/yValues[0]*100,calcSigma(yValues[1], yValues[0])*100))
-	paveText.SetBorderSize(1)
+	print yValues
+
+
+
+	hist.Draw("")
 	paveText.Draw()
-	
-	PlotStyle.labelCmsPrivateSimulation.Draw()
-	
+	label = PlotStyle.getLabelCmsPrivateSimulation()
+	label.Draw()
+		
 	c.Update()
 
-	c.SaveAs("eventCount.png")
-	c.SaveAs("eventCount.pdf")
-	c.SaveAs("eventCount.root")
+	c.SaveAs("plots/cutflow/cutflowTdmiNoTrg.png")
+	c.SaveAs("plots/cutflow/cutflowTdmiNoTrg.pdf")
+	c.SaveAs("plots/cutflow/cutflowTdmiNoTrg.root")
 
 	return c,hist
+
+def doPlotGenPt(filename):
+	PlotStyle.setPlotStyle()
+	
+	if(DEBUG):
+		print 'Opening file:',filename
+	file = TFile.Open(filename)
+	if(file == None):
+		print 'Error opening file:',filename
+
+	c = TCanvas('genPtCanvas','Gen Pt no Single #mu trg',1200,1200)
+
+	genPtHist = file.Get("hoMuonAnalyzer/NoSingleMu_Pt")
+	genPtHist.SetLineColor(PlotStyle.colorRwthDarkBlue)
+	genPtHist.SetLineWidth(2)
+	genPtHist.Rebin(32)
+	genPtHist.GetXaxis().SetRangeUser(0,200)
+	label = PlotStyle.getLabelCmsPrivateSimulation()
+	label.Draw()
+	
+	genPtHist.Draw('e1')
+	
+	c.Update()
+	
+	stats = genPtHist.GetListOfFunctions().FindObject("stats")
+	stats.SetX1NDC(.7)
+	stats.SetX2NDC(.9)
+	stats.SetY1NDC(.8)
+	stats.SetY2NDC(.9)
+	
+	label = PlotStyle.getLabelCmsPrivateSimulation()
+	label.Draw()
+	
+	c.SaveAs('plots/genPtNoSingleMuTrg.png')
+	c.SaveAs('plots/genPtNoSingleMuTrg.pdf')
+	
+	return
 
 def main(filename = 'L1MuonHistogram.root'):
 	doPlotCutflow(filename)
 	doPlotDeltaEtaDeltaPhi(filename)
-	doPlotDeltaEtaDeltaPhiEnergy(filename)
-	doPlotEventCount(filename)
+#	doPlotDeltaEtaDeltaPhiEnergy(filename)
+	doPlotCutflowNoL1(filename)
+	doPlotGenPt(filename)
+	
+	res = plotDeltaEtaDeltaPhi('.',sourceHistogram = 'NoTrgTdmiAboveThr_DeltaEtaDeltaPhi')
+	hist = res[0]
+	
+	nTotal = hist.Integral()
+	nCentral = hist.GetBinContent(hist.FindBin(0,0))
+	n3x3 = 0
+	n5x5 = 0
+	
+	for i in range(-1,2):
+		for j in range(-1,2):
+			n3x3 += hist.GetBinContent(hist.FindBin(0.087*i,0.087*j))
+			print hist.FindBin(0.087*i,0.087*j),0.087*i,0.087*j
+	for i in range(-2,3):
+		for j in range(-2,3):
+			n5x5 += hist.GetBinContent(hist.FindBin(0.087*i,0.087*j))
+	
+	print '#'*80
+	print 'No Single Mu Trigger, TDMI Matched to HO > 0.2 GeV'
+	print 'Total Events:', nTotal
+	print 'Central bin\t%d ==> %.2f%% +/- %.2f%%' % (nCentral,nCentral/nTotal*100,calcSigma(nCentral, nTotal)*100)
+	print '3 x 3 bins\t%d ==> %.2f%% +/- %.2f%%' % (n3x3,n3x3/nTotal*100,calcSigma(n3x3, nTotal)*100)
+	print '5 x 5 bins\t%d ==> %.2f%% +/- %.2f%%' % (n5x5,n5x5/nTotal*100,calcSigma(n5x5, nTotal)*100)
+	print '#'*80
 	
 if __name__ == '__main__':
 	main()

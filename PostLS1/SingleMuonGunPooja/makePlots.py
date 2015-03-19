@@ -19,7 +19,7 @@ if(len(sys.argv) > 1 ):
 	filename = sys.argv[1]
 
 toProcess = [
-    #         '.'
+             '.'
    #         ,'crab2023MinBias'
              ]
 
