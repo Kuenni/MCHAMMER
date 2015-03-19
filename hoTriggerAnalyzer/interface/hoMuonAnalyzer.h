@@ -66,7 +66,8 @@ private:
   void defineTriggersOfInterest();
   void printChannelQualities(const edm::EventSetup & iEvent);
   void analyzeL1AndGenMatch(const edm::Event& iEvent,const edm::EventSetup& iSetup);
-  void analyzeNoSingleMuEvents(const edm::Event& iEvent,const edm::EventSetup& iSetup);
+  void analyzeNoSingleMuEventsL1Loop(const edm::Event& iEvent,const edm::EventSetup& iSetup);
+  void analyzeNoSingleMuEventsGenLoop(const edm::Event& iEvent,const edm::EventSetup& iSetup);
   void fillEfficiencyHistograms(double ptMeasured,double ptReal,std::string key);
 
   const reco::GenParticle* getBestGenMatch(float,float);
