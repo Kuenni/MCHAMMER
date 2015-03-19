@@ -250,7 +250,7 @@ void HistogramBuilder::fillL1MuonPtHistograms(float pt, std::string key){
 void HistogramBuilder::fillPtHistogram(float pt, std::string key){
 	if(!_h1L1MuonPt.count(key)){
 		_h1L1MuonPt[key] = _fileService->make<TH1F>(Form("%s_Pt",key.c_str()),
-				Form("%s Pt,p_{T},#",key.c_str()),
+				Form("%s Pt;p_{T};#",key.c_str()),
 				5000,0,500);
 	}
 	_h1L1MuonPt[key]->Fill(pt);
