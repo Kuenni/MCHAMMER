@@ -29,7 +29,7 @@ def plotL1Rates(folder):
     
     file = TFile.Open(filename)
     
-    l1Muon_TrigRate = file.Get("hoMuonAnalyzer/L1Muon_TrigRate")
+    l1Muon_TrigRate = file.Get("hoMuonAnalyzer/L1MuonPresent_TrigRate")
     l1MuWithHoMatch_TrigRate = file.Get('hoMuonAnalyzer/L1MuonWithHoMatch'
    #     HORecowithMipMatch
         '_TrigRate')

@@ -38,7 +38,7 @@ def plotEfficiencyForPt(folder,pt):
 	if(DEBUG):
 		print "Getting histogram: %s" % ("hoMuonAnalyzer/efficiency/L1MuonPt" + str(pt) + "_Efficiency")
 	
-	l1Muon = file.Get("hoMuonAnalyzer/efficiency/L1MuonPtPt" + str(pt) + "_Efficiency")
+	l1Muon = file.Get("hoMuonAnalyzer/efficiency/L1MuonPt" + str(pt) + "_Efficiency")
 	l1MuonAndHo = file.Get("hoMuonAnalyzer/efficiency/L1MuonHoRecoPt" + str(pt) + "_Efficiency")
 	l1MuonAndHoAboveThr = file.Get("hoMuonAnalyzer/efficiency/L1MuonHoRecoAboveThrPt" + str(pt) + "_Efficiency")
 	
@@ -98,8 +98,8 @@ def plotEfficiencyForPt(folder,pt):
 		paveText.SetBorderSize(1)
 		paveText.Draw()
 
-	PlotStyle.labelCmsPrivateSimulation.Draw()
-	
+	label = PlotStyle.getLabelCmsPrivateSimulation()
+	label.Draw()	
 	##### Try creating residuals
 	lowerPad.cd()
 	l1MuonGraph = l1Muon.GetPaintedGraph()
@@ -136,7 +136,7 @@ def plotEfficiencyForPt(folder,pt):
 	f = TFile.Open("plots/efficiency/efficiency" + str(pt) + ".root","RECREATE")
 	canv.Write()
 	f.Close()
-	return [l1Muon,l1MuonAndHoAboveThr,canv,legend,line,paveText]
+	return [l1Muon,l1MuonAndHoAboveThr,canv,legend,line,paveText,label]
 
 def plotEfficiency(folder):
 	histlist = []
@@ -167,10 +167,18 @@ def plotCombinedEfficiency():
 		markers[i].SetMarkerSize(3)
 		leg.AddEntry(markers[i],"p_{T} = " + str((i+1)*5) + " GeV","p")
 	leg.Draw()
-	PlotStyle.labelCmsPrivateSimulation.Draw()
-	canv.SaveAs('combinedEfficiency.png')	
-	canv.SaveAs('combinedEfficiency.pdf')
-	canv.SaveAs('combinedEfficiency.root')			
+	
+	label = PlotStyle.getLabelCmsPrivateSimulation()
+	label.Draw()
+	
+	if( not os.path.exists('plots')):
+		os.mkdir('plots')
+   	if( not os.path.exists('plots/efficiency')):
+		os.mkdir('plots/efficiency')
+	
+	canv.SaveAs('plots/efficiency/combinedEfficiency.png')	
+	canv.SaveAs('plots/efficiency/combinedEfficiency.pdf')
+	canv.SaveAs('plots/efficiency/combinedEfficiency.root')			
 	return canv,leg,hl
 
 def plotEfficiencyPerHoTiles(dataSource = 'L1Muon',gridsize = 0):

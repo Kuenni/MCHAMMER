@@ -44,6 +44,7 @@ def plotEnergy(folder, nameOfFile = 'L1MuonHistogram.root'):
 
 	ho.SetLineColor(ROOT.kBlack)
 	ho.SetLineWidth(3)
+	ho.Scale(1/ho.Integral())
 	ho.Draw()
 	
 	legend = TLegend(0.5,0.65,0.9,0.9)
@@ -53,12 +54,14 @@ def plotEnergy(folder, nameOfFile = 'L1MuonHistogram.root'):
 	if(L1MuonAndHoMatch):
 		L1MuonAndHoMatch.SetLineColor(ROOT.kBlue)
 		L1MuonAndHoMatch.SetLineWidth(3)
+		L1MuonAndHoMatch.Scale(1/L1MuonAndHoMatch.Integral())
 		L1MuonAndHoMatch.Draw('same')
 		legend.AddEntry(L1MuonAndHoMatch,'L1Muon + HO match','l')
 		
 	if(L1MuonAndHoMatchAboveThr):
 		L1MuonAndHoMatchAboveThr.SetLineColor(ROOT.kRed)
 		L1MuonAndHoMatchAboveThr.SetLineWidth(3)
+		L1MuonAndHoMatchAboveThr.Scale(1/L1MuonAndHoMatchAboveThr.Integral())
 		L1MuonAndHoMatchAboveThr.Draw('same')
 		legend.AddEntry(L1MuonAndHoMatchAboveThr,'L1Muon + HO match > 0.2 GeV','l')
 
@@ -66,6 +69,7 @@ def plotEnergy(folder, nameOfFile = 'L1MuonHistogram.root'):
 	if(L1MuonAndHoMatchAboveThrFilt):
 		L1MuonAndHoMatchAboveThrFilt.SetLineColor(ROOT.kGreen)
 		L1MuonAndHoMatchAboveThrFilt.SetLineWidth(3)
+		L1MuonAndHoMatchAboveThrFilt.Scale(1/L1MuonAndHoMatchAboveThrFilt.Integral())
 		L1MuonAndHoMatchAboveThrFilt.Draw('same')
 		legend.AddEntry(L1MuonAndHoMatchAboveThrFilt,'L1Muon + HO match > 0.2 GeV (In Ho Geom.)','l')
 

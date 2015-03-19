@@ -25,7 +25,7 @@ def plotMultiplicity(folder):
 	#Set plot style
 	PlotStyle.setPlotStyle()
 
-	L1Muon = file.Get('hoMuonAnalyzer/L1Muon_Multiplicity')
+	L1Muon = file.Get('hoMuonAnalyzer/L1MuonPresent_Multiplicity')
 	ho = file.Get("hoMuonAnalyzer/horecoAboveThreshold_Multiplicity")
 
 	canv = TCanvas("multiplicityCanvas",'Multiplicity canvas',1200,1200)

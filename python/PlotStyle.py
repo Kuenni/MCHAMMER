@@ -5,10 +5,12 @@ colorRwthMagenta 	= TColor.GetColor("#E30066")
 colorRwthLightBlue 	= TColor.GetColor("#8EBAE5")
 colorRwthDarkBlue 	= TColor.GetColor("#00549F")
 
-labelCmsPrivateSimulation = TPaveText(0.6,0.901,0.9,0.93,"NDC")
-labelCmsPrivateSimulation.AddText("#font[62]{CMS private}, #font[72]{simulation}")
-labelCmsPrivateSimulation.SetBorderSize(1)
-labelCmsPrivateSimulation.SetFillColor(0) # 0 == White
+def getLabelCmsPrivateSimulation():
+	labelCmsPrivateSimulation = TPaveText(0.6,0.901,0.9,0.93,"NDC")
+	labelCmsPrivateSimulation.AddText("#font[62]{CMS private}, #font[72]{simulation}")
+	labelCmsPrivateSimulation.SetBorderSize(1)
+	labelCmsPrivateSimulation.SetFillColor(0) # 0 == White
+	return labelCmsPrivateSimulation
 
 chimney1 = TGraph()
 chimney1.SetPoint(0,.3425,1.48)

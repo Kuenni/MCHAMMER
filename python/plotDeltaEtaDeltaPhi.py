@@ -77,7 +77,8 @@ def plotDeltaEtaDeltaPhi(folder,sourceHistogram = 'L1MuonWithHoMatch_DeltaEtaDel
 	paveText.SetBorderSize(1)
 	paveText.Draw()
 
-	PlotStyle.labelCmsPrivateSimulation.Draw()
+	label = PlotStyle.getLabelCmsPrivateSimulation()
+	label.Draw()
 
 	legend = TLegend(0.7,0.8,0.9,0.9)
 	legend.AddEntry(boxList[0],"HO tile dimensions","le")
@@ -87,9 +88,7 @@ def plotDeltaEtaDeltaPhi(folder,sourceHistogram = 'L1MuonWithHoMatch_DeltaEtaDel
 	canv.SaveAs("plots/" + storeSubdir + "/" + sourceHistogram + ".pdf")
 	canv.SaveAs("plots/" + storeSubdir + "/" + sourceHistogram + ".root")
 
-	if(h2dDeltaEtaDeltaPhi == None):
-		print 'Why is the hist None?!'
-	return [h2dDeltaEtaDeltaPhi,canv,legend,boxList,stats,pal,paveText]
+	return [h2dDeltaEtaDeltaPhi,canv,legend,boxList,stats,pal,paveText,label]
 
 #Plots the x-y-projection of the 3D-Histogram
 def plotDeltaEtaDeltaPhiEnergyProjection(folder,sourceHistogram = 'NoDoubleMuAboveThr_DeltaEtaDeltaPhiEnergy', sourceFile = 'L1MuonHistogram.root'):
