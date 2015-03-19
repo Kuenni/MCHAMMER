@@ -449,6 +449,10 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	// Loop over HO Rec hits only DONE
 	//###############################
 
+	//###############################
+	// Loop over L1 Muons and match to HO
+	//###############################
+
 	int countGenMatches = 0;
 	string l1MuonWithHoMatch_key = "L1MuonWithHoMatch";
 	bl1Muon = l1Muons->begin();
@@ -1397,6 +1401,8 @@ void hoMuonAnalyzer::analyzeNoSingleMuEventsL1Loop(const edm::Event& iEvent,cons
 void hoMuonAnalyzer::analyzeNoSingleMuEventsGenLoop(const edm::Event& iEvent,const edm::EventSetup& iSetup){
 	for(reco::GenParticleCollection::const_iterator genIt = truthParticles->begin();
 			genIt != truthParticles->end(); genIt++){
+
+		histogramBuilder.fillPtHistogram(genIt->pt(),"NoSingleMuInGa");
 
 		//Once there is a gen ref, get the Track det match info
 		TrackDetMatchInfo * muMatch = getTrackDetMatchInfo(*genIt,iEvent,iSetup);
