@@ -402,8 +402,10 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			fillEfficiencyHistograms(bl1Muon->pt(),genMatch->pt(),"L1Muon");
 			if(bl1Muon->bx() != 0){
 				histogramBuilder.fillPtHistogram(genMatch->pt(),"BxWrongGenPt");
+				histogramBuilder.fillEtaPhiGraph(genMatch->eta(),genMatch->phi(),"BxWrongGen");
 			} else {
 				histogramBuilder.fillPtHistogram(genMatch->pt(),"BxRightGenPt");
+				histogramBuilder.fillEtaPhiGraph(genMatch->eta(),genMatch->phi(),"BxRightGen");
 			}
 		}
 		edm::RefToBase<l1extra::L1MuonParticle> l1MuonCandiateRef(l1MuonView,i);
