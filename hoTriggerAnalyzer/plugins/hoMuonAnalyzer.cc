@@ -400,6 +400,11 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			histogramBuilder.fillDeltaVzHistogam( (genMatch->vz() - bl1Muon->vz()) ,l1muon_key);
 			histogramBuilder.fillPtCorrelationHistogram(genMatch->pt(),bl1Muon->pt(),l1muon_key);
 			fillEfficiencyHistograms(bl1Muon->pt(),genMatch->pt(),"L1Muon");
+			if(bl1Muon->bx() != 0){
+				histogramBuilder.fillPtHistogram(genMatch->pt(),"BxWrongGenPt");
+			} else {
+				histogramBuilder.fillPtHistogram(genMatch->pt(),"BxRightGenPt");
+			}
 		}
 		edm::RefToBase<l1extra::L1MuonParticle> l1MuonCandiateRef(l1MuonView,i);
 		reco::GenParticleRef ref = (*l1MuonGenMatches)[l1MuonCandiateRef];
@@ -1402,7 +1407,7 @@ void hoMuonAnalyzer::analyzeNoSingleMuEventsGenLoop(const edm::Event& iEvent,con
 	for(reco::GenParticleCollection::const_iterator genIt = truthParticles->begin();
 			genIt != truthParticles->end(); genIt++){
 
-		histogramBuilder.fillPtHistogram(genIt->pt(),"NoSingleMuInGa");
+		histogramBuilder.fillPtHistogram(genIt->pt(),"NoSingleMu");
 
 		//Once there is a gen ref, get the Track det match info
 		TrackDetMatchInfo * muMatch = getTrackDetMatchInfo(*genIt,iEvent,iSetup);
