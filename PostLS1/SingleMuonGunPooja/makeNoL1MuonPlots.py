@@ -273,19 +273,20 @@ def doPlotGenPt(filename):
 	genPtHist = file.Get("hoMuonAnalyzer/NoSingleMu_Pt")
 	genPtHist.SetLineColor(PlotStyle.colorRwthDarkBlue)
 	genPtHist.SetLineWidth(2)
-	genPtHist.Rebin(32)
+	genPtHist.Rebin(50)
 	genPtHist.GetXaxis().SetRangeUser(0,200)
 	label = PlotStyle.getLabelCmsPrivateSimulation()
 	label.Draw()
 	
-	genPtHist.Draw('e1')
+	genPtHist.Draw()
 	
 	c.Update()
 	
 	stats = genPtHist.GetListOfFunctions().FindObject("stats")
+	stats.SetOptStat(10)
 	stats.SetX1NDC(.7)
 	stats.SetX2NDC(.9)
-	stats.SetY1NDC(.8)
+	stats.SetY1NDC(.85)
 	stats.SetY2NDC(.9)
 	
 	label = PlotStyle.getLabelCmsPrivateSimulation()
@@ -303,8 +304,8 @@ def main(filename = 'L1MuonHistogram.root'):
 	doPlotCutflowNoL1(filename)
 	doPlotGenPt(filename)
 	
-	res = plotDeltaEtaDeltaPhi('.',sourceHistogram = 'NoTrgTdmiAboveThr_DeltaEtaDeltaPhi')
-	hist = res[0]
+	file = TFile.Open(filename)
+	hist = file.Get("hoMuonAnalyzer/etaPhi/NoTrgTdmiAboveThr_DeltaEtaDeltaPhi")
 	
 	nTotal = hist.Integral()
 	nCentral = hist.GetBinContent(hist.FindBin(0,0))
