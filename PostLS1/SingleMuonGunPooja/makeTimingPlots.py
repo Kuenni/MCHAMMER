@@ -2,7 +2,7 @@ import os,sys
 from math import sqrt
 sys.path.append(os.path.abspath("../../python"))
 
-from ROOT import TCanvas,ROOT,TFile,TLegend,TF1,TLine,gROOT,TPaveText,TH1D
+from ROOT import TCanvas,ROOT,TFile,TLegend,TF1,TLine,gROOT,TPaveText,TH1D,THStack,Double
 
 DEBUG = 1
 
@@ -203,5 +203,138 @@ for i in range(0,hBxId.GetNbinsX()):
 hL1InNs.SetStats(0)
 hL1InNs.Draw()
 c4.SaveAs("plots/timing/timeL1Only.pdf")
+
+##BX right plotting pt
+canvasBxRightPt = TCanvas("cBxRightPt","cBxRightPt",1200,1200)
+canvasBxRightPt.cd().SetLeftMargin(0.15)
+hBxRightPt = file.Get('hoMuonAnalyzer/BxRightGenPt_Pt').Clone()
+PlotStyle.setPlotStyle()
+hBxRightPt.Rebin(50)
+hBxRightPt.GetXaxis().SetRangeUser(0,200)
+hBxRightPt.GetYaxis().SetTitle("normalized Entries / 5 GeV")
+hBxRightPt.GetXaxis().SetTitle("p_{T} Gen")
+hBxRightPt.GetYaxis().SetTitleOffset(2)
+hBxRightPt.SetTitle("Events with right BX ID vs. p_{T}")
+hBxRightPt.SetStats(0)
+hBxRightPt.SetLineWidth(2)
+hBxRightPt.Scale(1/hBxRightPt.Integral())
+hBxRightPt.Draw()
+label = PlotStyle.getLabelCmsPrivateSimulation()
+label.Draw()
+canvasBxRightPt.SaveAs('plots/timing/bxRightPt.pdf')
+
+##BX wrong plotting pt
+canvasBxWrongPt = TCanvas("cBxWrongPt","cBxWrongPt",1200,1200)
+canvasBxWrongPt.cd().SetLeftMargin(0.15)
+hBxWrongPt = file.Get('hoMuonAnalyzer/BxWrongGenPt_Pt').Clone()
+PlotStyle.setPlotStyle()
+hBxWrongPt.Rebin(50)
+hBxWrongPt.GetXaxis().SetRangeUser(0,200)
+hBxWrongPt.GetYaxis().SetTitle("normalized Entries / 5 GeV")
+hBxWrongPt.GetXaxis().SetTitle("p_{T} Gen")
+hBxWrongPt.GetYaxis().SetTitleOffset(2)
+hBxWrongPt.SetTitle("Events with wrong BX ID vs. p_{T}")
+hBxWrongPt.SetStats(0)
+hBxWrongPt.SetLineWidth(2)
+hBxWrongPt.Scale(1/hBxWrongPt.Integral())
+hBxWrongPt.DrawCopy()
+label = PlotStyle.getLabelCmsPrivateSimulation()
+label.Draw()
+canvasBxWrongPt.SaveAs('plots/timing/bxWrongPt.pdf')
+
+#Plot the histogram stack
+canvasStack = TCanvas("cStacked","cStacked",1200,1200)
+canvasStack.cd().SetLeftMargin(0.15)
+hWrong = file.Get('hoMuonAnalyzer/BxWrongGenPt_Pt')
+hRight = file.Get('hoMuonAnalyzer/BxRightGenPt_Pt')
+hRightFraction = TH1D('hRightFraction','',100,0,500)
+hWrongFraction = TH1D('hWrongFraction','',100,0,500)
+hWrong.Rebin(50)
+hRight.Rebin(50)
+#Fill the histograms with the bin wise fractions
+for i in range(0,hRight.GetNbinsX()):
+	nRight = hRight.GetBinContent(i+1)
+	nWrong = hWrong.GetBinContent(i+1)
+	if(nRight + nWrong == 0):
+		continue
+	hRightFraction.SetBinContent(i+1,nRight/(nRight+nWrong))
+	hWrongFraction.SetBinContent(i+1,nWrong/(nRight+nWrong))
+
+#Create the stack
+stack = THStack("hstack","Fractions of events for BX ID correct and wrong")
+nRight = hRight.Integral()
+nWrong = hWrong.Integral()
+nTotal = nRight + nWrong
+hRightFraction.SetLineColor(PlotStyle.colorRwthDarkBlue)
+hRightFraction.SetFillColor(PlotStyle.colorRwthDarkBlue)
+hRightFraction.SetFillStyle(3002)
+hWrongFraction.SetLineColor(PlotStyle.colorRwthMagenta)
+hWrongFraction.SetFillColor(PlotStyle.colorRwthMagenta)
+hWrongFraction.SetFillStyle(3002)
+stack.Add(hRightFraction)
+stack.Add(hWrongFraction)
+stack.Draw()
+stack.GetXaxis().SetRangeUser(0,201)
+stack.GetYaxis().SetTitle('rel. fraction / 5 GeV')
+stack.GetYaxis().SetTitleOffset(2)
+stack.GetXaxis().SetTitle('p_{T} Gen')
+stack.SetMinimum(0.9)
+stack.SetMaximum(1)
+legend = TLegend(0.6,0.75,0.9,0.9)
+legend.AddEntry(hRightFraction,"BX ID right","f")
+legend.AddEntry(hWrongFraction,"BX ID wrong","f")
+legend.Draw()
+label = PlotStyle.getLabelCmsPrivateSimulation()
+label.Draw()
+canvasStack.Update()
+canvasStack.SaveAs('plots/timing/bxStacked.pdf')
+canvasStack.SaveAs('plots/timing/bxStacked.root')
+
+#Plot eta and phi of wrong bx ids
+canvasEtaPhiBxWrong = TCanvas("canvasEtaPhiBxWrong","canvasEtaPhiBxWrong",1200,1200)
+
+etaPhiBxWrongNC = file.Get("hoMuonAnalyzer/graphs/BxWrongGen")
+etaPhiBxWrong = PlotStyle.convertToHcalCoords(etaPhiBxWrongNC)
+etaPhiBxWrong.GetXaxis().SetTitle("i#eta / a.u.")
+etaPhiBxWrong.GetYaxis().SetTitle("i#phi / a.u.")
+etaPhiBxWrong.SetMarkerStyle(6)
+etaPhiBxWrong.SetMarkerColor(PlotStyle.colorRwthDarkBlue)
+etaPhiBxWrong.SetTitle("#eta #phi plot of events with BX ID wrong")
+etaPhiBxWrong.Draw("AP")
+
+pText = TPaveText(0.7,0.85,0.9,0.9,'NDC')
+pText.AddText('Events with L1 objects: %d' % (nRight + nWrong))
+pText.AddText('Events in Plot: %d' % (etaPhiBxWrong.GetN()))
+pText.SetBorderSize(1)
+pText.Draw()
+
+chimney1Converted = PlotStyle.convertToHcalCoords(PlotStyle.chimney1)
+chimney2Converted = PlotStyle.convertToHcalCoords(PlotStyle.chimney2)
+chimney1Converted.SetLineColor(PlotStyle.colorRwthMagenta)
+chimney2Converted.SetLineColor(PlotStyle.colorRwthMagenta)
+chimney1Converted.Draw("same,l")
+chimney2Converted.Draw("same,l")
+
+labelCmsPrivateSimulation = PlotStyle.getLabelCmsPrivateSimulation()
+labelCmsPrivateSimulation.Draw()
+
+legend = TLegend(0.1,0.87,0.3,0.9)
+legend.AddEntry(chimney2Converted,"chimney","l")
+legend.Draw()
+
+canvasEtaPhiBxWrong.Update()
+canvasEtaPhiBxWrong.SaveAs("plots/timing/bxWrongEtaPhi.pdf")
+
+#Make eta histogram of the graph before
+canvasEtaBxWrong = TCanvas("canvasEtaBxWrong","canvasEtaBxWrong",1200,1200)
+histEtaBxWrong = TH1D("histEtaBxWrong","histEtaBxWrong;p_{t} Gen;# Events",20,-0.8,0.8)
+x = Double(0)
+y = Double(0)
+for i in range(0,etaPhiBxWrong.GetN()):
+	etaPhiBxWrongNC.GetPoint(i,x,y)
+	histEtaBxWrong.Fill(x)
+histEtaBxWrong.Draw()
+canvasEtaBxWrong.Update()
+canvasEtaBxWrong.SaveAs("plots/timing/bxWrongEta.pdf")
 
 raw_input('-->')
