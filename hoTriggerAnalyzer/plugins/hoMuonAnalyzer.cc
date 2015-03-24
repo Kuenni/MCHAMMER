@@ -401,10 +401,10 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			histogramBuilder.fillPtCorrelationHistogram(genMatch->pt(),bl1Muon->pt(),l1muon_key);
 			fillEfficiencyHistograms(bl1Muon->pt(),genMatch->pt(),"L1Muon");
 			if(bl1Muon->bx() != 0){
-				histogramBuilder.fillPtHistogram(genMatch->pt(),"BxWrongGenPt");
+				histogramBuilder.fillPtHistogram(genMatch->pt(),"BxWrongGen");
 				histogramBuilder.fillEtaPhiGraph(genMatch->eta(),genMatch->phi(),"BxWrongGen");
 			} else {
-				histogramBuilder.fillPtHistogram(genMatch->pt(),"BxRightGenPt");
+				histogramBuilder.fillPtHistogram(genMatch->pt(),"BxRightGen");
 				histogramBuilder.fillEtaPhiGraph(genMatch->eta(),genMatch->phi(),"BxRightGen");
 			}
 		}
