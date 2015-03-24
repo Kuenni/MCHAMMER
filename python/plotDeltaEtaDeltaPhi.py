@@ -1,5 +1,5 @@
 #!/usr/bin/python
-from ROOT import ROOT,gROOT,gStyle,TCanvas,TFile,TH1D,TH2D,TH2F,TLegend,THStack,TPaveText,TBox
+from ROOT import ROOT,gROOT,gStyle,TCanvas,TFile,TH1D,TH2D,TH2F,TLegend,THStack,TPaveText,TBox,SetOwnership
 import sys
 import os
 sys.path.append(os.path.abspath("../../python"))
@@ -87,7 +87,7 @@ def plotDeltaEtaDeltaPhi(folder,sourceHistogram = 'L1MuonWithHoMatch_DeltaEtaDel
 	canv.SaveAs("plots/" + storeSubdir + "/" + sourceHistogram + ".png")
 	canv.SaveAs("plots/" + storeSubdir + "/" + sourceHistogram + ".pdf")
 	canv.SaveAs("plots/" + storeSubdir + "/" + sourceHistogram + ".root")
-
+	SetOwnership(h2dDeltaEtaDeltaPhi,False)
 	return [h2dDeltaEtaDeltaPhi,canv,legend,boxList,stats,pal,paveText,label]
 
 #Plots the x-y-projection of the 3D-Histogram
