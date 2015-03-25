@@ -40,7 +40,7 @@ def plotEfficiencyForPt(folder,pt):
 	
 	l1Muon = file.Get("hoMuonAnalyzer/efficiency/L1MuonPt" + str(pt) + "_Efficiency")
 	l1MuonAndHo = file.Get("hoMuonAnalyzer/efficiency/L1MuonHoRecoPt" + str(pt) + "_Efficiency")
-	l1MuonAndHoAboveThr = file.Get("hoMuonAnalyzer/efficiency/L1MuonHoRecoAboveThrPt" + str(pt) + "_Efficiency")
+	l1MuonAndHoAboveThr = file.Get("hoMuonAnalyzer/efficiency/L1MuonAndHoAboveThrPt" + str(pt) + "_Efficiency")
 	
 	canv = TCanvas("efficiencyCanvas" + str(pt),'efficiencyCanvas' + str(pt),1200,1200)
 	
