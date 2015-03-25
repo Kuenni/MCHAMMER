@@ -20,6 +20,7 @@
 #include <DataFormats/HepMCCandidate/interface/GenParticleFwd.h>
 #include <DataFormats/HLTReco/interface/TriggerObject.h>
 #include <DataFormats/L1Trigger/interface/L1MuonParticleFwd.h>
+#include <DataFormats/MuonReco/interface/Muon.h>
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
 #include <FWCore/ServiceRegistry/interface/Service.h>
@@ -42,6 +43,7 @@
 #include "../interface/HoMatcher.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
+#include "DataFormats/DetId/interface/DetId.h"
 
 using namespace::std;
 //
@@ -68,6 +70,7 @@ private:
   void analyzeL1AndGenMatch(const edm::Event& iEvent,const edm::EventSetup& iSetup);
   void analyzeNoSingleMuEventsL1Loop(const edm::Event& iEvent,const edm::EventSetup& iSetup);
   void analyzeNoSingleMuEventsGenLoop(const edm::Event& iEvent,const edm::EventSetup& iSetup);
+  void analyzeEfficiencyWithGenLoop(const edm::Event& iEvent,const edm::EventSetup& iSetup);
   void fillEfficiencyHistograms(double ptMeasured,double ptReal,std::string key);
 
   const reco::GenParticle* getBestGenMatch(float,float);
@@ -93,6 +96,7 @@ private:
   edm::Handle<HORecHitCollection> hoRecoHits;
   edm::Handle<reco::GenParticleMatch> l1MuonGenMatches;
   edm::Handle<edm::View<l1extra::L1MuonParticle> > l1MuonView;
+  edm::Handle<reco::Muon> recoMuons;
 
   edm::ESHandle<CaloGeometry> caloGeo;
   edm::ESHandle<DetIdAssociator> hoDetIdAssociator_;

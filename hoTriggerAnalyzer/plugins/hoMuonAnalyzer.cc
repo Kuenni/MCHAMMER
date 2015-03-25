@@ -170,6 +170,8 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 
 	iEvent.getByLabel(_l1MuonGenMatchInput,l1MuonGenMatches);
 
+	iEvent.getByLabel(edm::InputTag("muons"),recoMuons);
+
 	edm::Handle<vector<PCaloHit>> caloHits;
 	iEvent.getByLabel(edm::InputTag("g4SimHits","HcalHits"),caloHits);
 
@@ -390,6 +392,8 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	 * first loop over all L1 Muon objects. The contents of this Loop
 	 * may be moved to the larger loop over l1 objects later in the code
 	 */
+	int successfulMatches = 0;
+	int failedMatches = 0;
 	//Define iterators
 	l1extra::L1MuonParticleCollection::const_iterator bl1Muon = l1Muons->begin();
 	l1extra::L1MuonParticleCollection::const_iterator el1Muon = l1Muons->end();
@@ -397,6 +401,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		const l1extra::L1MuonParticle* bl1Muon = &(l1Muons->at(i));
 		const reco::GenParticle* genMatch = getBestGenMatch(bl1Muon->eta(),bl1Muon->phi());
 		if(genMatch){
+			successfulMatches++;
 			histogramBuilder.fillDeltaVzHistogam( (genMatch->vz() - bl1Muon->vz()) ,l1muon_key);
 			histogramBuilder.fillPtCorrelationHistogram(genMatch->pt(),bl1Muon->pt(),l1muon_key);
 			fillEfficiencyHistograms(bl1Muon->pt(),genMatch->pt(),"L1Muon");
@@ -407,12 +412,17 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				histogramBuilder.fillPtHistogram(genMatch->pt(),"BxRightGen");
 				histogramBuilder.fillEtaPhiGraph(genMatch->eta(),genMatch->phi(),"BxRightGen");
 			}
-			//TODO: Build this to fix the strange behaviour of the efficiency plots
+			/* Built this to fix the strange behaviour of the efficiency plots.
+			 * Did not yet help completely. The reason for the strange behaviour is probably the fact,
+			 * that there may be more than one l1 muons that can be matched to the Gen particle
+			 */
 			const HORecHit* matchedRecHit = hoMatcher->matchByEMaxDeltaR(bl1Muon->eta(),bl1Muon->phi(),deltaR_Max,*hoRecoHits);
 			if(matchedRecHit){
 				if(matchedRecHit->energy() > threshold)
 					fillEfficiencyHistograms(bl1Muon->pt(),genMatch->pt(),"L1MuonAndHoAboveThr");
 			}
+		} else{
+			failedMatches++;
 		}
 		edm::RefToBase<l1extra::L1MuonParticle> l1MuonCandiateRef(l1MuonView,i);
 		reco::GenParticleRef ref = (*l1MuonGenMatches)[l1MuonCandiateRef];
@@ -420,6 +430,15 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			histogramBuilder.fillPdgIdHistogram(ref->pdgId(),l1muon_key);
 		else
 			histogramBuilder.fillPdgIdHistogram(0,l1muon_key);
+	}
+	/**
+	 * Count how often the matches to Gen were successful and how often they failed per Event.
+	 * Also Count how often all matchings failed
+	 */
+	histogramBuilder.fillMultiplicityHistogram(failedMatches,"failedL1ToGenMatches");
+	histogramBuilder.fillMultiplicityHistogram(successfulMatches,"successfulL1ToGenMatches");
+	if(failedMatches && !successfulMatches){
+		histogramBuilder.fillCountHistogram("allL1ToGenFailed");
 	}
 	//###############################
 	// Loop over L1MuonObjects DONE
@@ -1469,6 +1488,34 @@ void hoMuonAnalyzer::analyzeNoSingleMuEventsGenLoop(const edm::Event& iEvent,con
 
 	}
 
+}
+
+/**
+ * Use this function to make the efficiency plots with root's TEfficiency.
+ * TODO: Except for the tile matching the other efficiency plots can probably
+ * be removed from the code above
+ */
+void hoMuonAnalyzer::analyzeEfficiencyWithGenLoop(const edm::Event& iEvent,const edm::EventSetup& iSetup){
+	for(reco::GenParticleCollection::const_iterator genIt = truthParticles->begin();
+			genIt != truthParticles->end(); genIt++){
+		float genEta = genIt->eta();
+		float genPhi = genIt->phi();
+		const l1extra::L1MuonParticle* l1Part = getBestL1MuonMatch(genEta,genPhi);
+		if(l1Part){
+			fillEfficiencyHistograms(l1Part->pt(),genIt->pt(),"GenAndL1Muon");
+			/**
+			 * Find a rec hit that can be matched to the l1 particle. Use this information for the efficiency
+			 * plots. This time it is ensured that only as many entries as there are gen particles is used
+			 * This fixes double counting of ghost l1 muons
+			 */
+			const HORecHit* matchedRecHit = hoMatcher->matchByEMaxDeltaR(l1Part->eta(),l1Part->phi(),deltaR_Max,*hoRecoHits);
+			if(matchedRecHit){
+				if(matchedRecHit->energy() > threshold){
+					fillEfficiencyHistograms(l1Part->pt(),genIt->pt(),"GenAndL1MuonAndHoAboveThr");
+				}
+			}
+		}
+	}
 }
 
 //define this as a plug-in
