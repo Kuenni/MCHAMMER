@@ -383,6 +383,8 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		return;
 	}
 	histogramBuilder.fillCountHistogram("Events");
+	analyzeEfficiencyWithGenLoop(iEvent,iSetup);
+
 	/*
 	 * Level 1 Muons
 	 */
