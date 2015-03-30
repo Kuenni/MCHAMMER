@@ -406,6 +406,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			successfulMatches++;
 			histogramBuilder.fillDeltaVzHistogam( (genMatch->vz() - bl1Muon->vz()) ,l1muon_key);
 			histogramBuilder.fillPtCorrelationHistogram(genMatch->pt(),bl1Muon->pt(),l1muon_key);
+			histogramBuilder.fillEtaPhiGraph(genMatch->eta(),genMatch->phi(),"L1ToGen");
 			fillEfficiencyHistograms(bl1Muon->pt(),genMatch->pt(),"L1Muon");
 			if(bl1Muon->bx() != 0){
 				histogramBuilder.fillPtHistogram(genMatch->pt(),"BxWrongGen");
@@ -927,6 +928,11 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			}
 		}//Loop over gen particles
 	}//<-- Not single mu trg
+	//#############################################################
+	//#############################################################
+	// SINGLE MU TRIGGER FIRED
+	//#############################################################
+	//#############################################################
 	else {
 		/**
 		 * #######################
@@ -937,6 +943,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		 * #######################
 		 * ######################
 		 */
+		analyzeL1MuonsForGhosts(iEvent,iSetup);
 		for(reco::GenParticleCollection::const_iterator genIt = truthParticles->begin();
 				genIt != truthParticles->end(); genIt++){
 			float genEta = genIt->eta();
@@ -1518,6 +1525,105 @@ void hoMuonAnalyzer::analyzeEfficiencyWithGenLoop(const edm::Event& iEvent,const
 			}
 		}
 	}
+}
+
+/**
+ * Perform studies on ghost using reco information.
+ * Loop over L1 Muons and try to match them to recos and HO
+ */
+void hoMuonAnalyzer::analyzeL1MuonsForGhosts(const edm::Event& iEvent,const edm::EventSetup& iSetup){
+//	/**
+//	 * Use the L1 objects as seeds for ghost searches
+//	 */
+//
+//	typedef std::pair< const l1extra::L1MuonParticle*,double > L1DeltaRPair;
+//	typedef std::pair< double,const reco::GenParticle*> DeltaRGenPair;
+//	typedef std::pair< const l1extra::L1MuonParticle*,DeltaRGenPair> L1Match;
+//
+//	typedef std::map< const l1extra::L1MuonParticle*,DeltaRGenPair> L1MatchingMap;
+//
+//	std::vector<const reco::GenParticle*> gensToBeMatched;
+//	std::vector<const l1extra::L1MuonParticle*> availableL1;
+//	L1MatchingMap matchingMap;
+//
+//	for(reco::GenParticleCollection::const_iterator genIt = truthParticles->begin();
+//			genIt != truthParticles->end(); genIt++){
+//		gensToBeMatched.push_back(&(*genIt));
+//	}
+//
+//	for(l1extra::L1MuonParticleCollection::const_iterator l1It = l1Muons->begin();
+//			l1It != l1Muons->end(); l1It++){
+//		availableL1.push_back(&(*l1It));
+//		matchingMap[&(*l1It)] = DeltaRGenPair(999.,0);
+//	}
+//
+//	L1Match* bestDeltaR = 0;
+//
+//	for( std::vector<const reco::GenParticle*>::const_iterator gen = gensToBeMatched.begin() ;
+//			gen != gensToBeMatched.end() ; gen++ ){
+//		double bestDeltaR = 999.;
+//		const l1extra::L1MuonParticle* l1ref;
+//		for ( std::vector<const l1extra::L1MuonParticle*>::const_iterator l1 = availableL1.begin() ;
+//				l1 != availableL1.end() ; l1++ ){
+//			double newDeltaR = deltaR((*gen)->eta(),(*gen)->phi(),(*l1)->eta(),(*l1)->phi());
+//			if( newDeltaR < bestDeltaR ){
+//				if( newDeltaR < matchingMap[*l1].first ){
+//					bestDeltaR = newDeltaR;
+//					l1ref = *l1ref;
+//				}
+//			}
+//		}
+//		if( matchingMap[l1ref].second != 0 ){
+//			gensToBeMatched.push_back(matchingMap[l1ref].second);
+//		}
+//		matchingMap[l1ref] = DeltaRGenPair(bestDeltaR,*gen);
+//
+//	}
+//
+//
+//	L1GenPair* bestCombination;
+//	for(unsigned int i = 0; i < l1Muons->size() ; i++){
+//		const l1extra::L1MuonParticle* l1Muon = &(l1Muons->at(i));
+//		double dR = 999;
+//		const reco::Muon* lastStaMuon = 0;
+//		const reco::Muon* globalMuon = 0;
+//		/**
+//		 * Loop over all reco muons and find the best delta R match. Save refs to global
+//		 * muons and STA muons if there are any within a given delta R cone
+//		 */
+//		const reco::Muon* muon = 0;
+//		for ( unsigned int i = 0 ; i < recoMuons->size() ; i++) {
+//			muon = &(recoMuons->at(i));
+//			double newDeltaR = deltaR(l1Muon->eta(),l1Muon->phi(),muon->eta(),muon->phi());
+//			if( newDeltaR < threshold && newDeltaR < dR ){
+//				dR = newDeltaR;
+//				if( muon->isGlobalMuon() ){
+//					globalMuon = muon;
+//				} else {
+//					if( muon->isStandAloneMuon() ){
+//						lastStaMuon = &(*muon);
+//					}
+//				}
+//			}
+//		}
+//		//After the reco loop start inspecting the ghost cases
+//		if(globalMuon){
+//			//If there is a global muon, assume that this is not a ghost
+//			continue;
+//		} else{
+////			GlobalPoint l1Direction(
+////					l1Muon->p4().X(),
+////					l1Muon->p4().Y(),
+////					l1Muon->p4().Z()
+////			);
+//			if(lastStaMuon){
+//				//TODO: Fill in code that helps analyzing the cases where there is only a STA Muon
+//				//This is probably not a ghost scenario!
+//			} else{
+//
+//			}
+//		}
+//	}
 }
 
 //define this as a plug-in
