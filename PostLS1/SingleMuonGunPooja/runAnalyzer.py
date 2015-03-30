@@ -35,6 +35,15 @@ process.load('GeneratorInterface.Core.genFilterSummary_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.L1Reco_cff')
 
+#From github g. petrucciani code
+#process.load("PhysicsTools.PatAlgos.patSequences_cff")
+process.load("MuonAnalysis.MuonAssociators.muonL1Match_cfi")
+process.muonL1Match.preselection = cms.string("")
+#process.allLayer1Muons.trigPrimMatch = cms.VInputTag(
+#    cms.InputTag("muonL1Match"),
+#    cms.InputTag("muonL1Match","propagatedReco"),
+#)
+
 from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAny_cfi import *
 #process.load('TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAny_cfi')
 
@@ -119,11 +128,13 @@ process.l1MuonGenMatch_step = cms.Path(process.l1MuonGenMatch)
 process.demo_step = cms.Path(process.hoMuonAnalyzer)
 process.FEVTDEBUGHLToutput_step = cms.EndPath(process.FEVTDEBUGHLToutput)
 process.L1Reco_step = cms.Path(process.L1Reco)
+process.muonL1Match_step = cms.Path(process.muonL1Match)
 
 process.p = cms.Path(process.genfilter*
 					#*process.L1Reco*
 					process.l1MuonGenMatch*
 					process.horeco*
+					process.muonL1Match*
 					process.hoMuonAnalyzer)
 
 #Schedule Definition
