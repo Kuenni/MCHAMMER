@@ -207,7 +207,7 @@ c4.SaveAs("plots/timing/timeL1Only.pdf")
 ##BX right plotting pt
 canvasBxRightPt = TCanvas("cBxRightPt","cBxRightPt",1200,1200)
 canvasBxRightPt.cd().SetLeftMargin(0.15)
-hBxRightPt = file.Get('hoMuonAnalyzer/BxRightGenPt_Pt').Clone()
+hBxRightPt = file.Get('hoMuonAnalyzer/BxRightGen_Pt').Clone()
 PlotStyle.setPlotStyle()
 hBxRightPt.Rebin(50)
 hBxRightPt.GetXaxis().SetRangeUser(0,200)
@@ -226,7 +226,7 @@ canvasBxRightPt.SaveAs('plots/timing/bxRightPt.pdf')
 ##BX wrong plotting pt
 canvasBxWrongPt = TCanvas("cBxWrongPt","cBxWrongPt",1200,1200)
 canvasBxWrongPt.cd().SetLeftMargin(0.15)
-hBxWrongPt = file.Get('hoMuonAnalyzer/BxWrongGenPt_Pt').Clone()
+hBxWrongPt = file.Get('hoMuonAnalyzer/BxWrongGen_Pt').Clone()
 PlotStyle.setPlotStyle()
 hBxWrongPt.Rebin(50)
 hBxWrongPt.GetXaxis().SetRangeUser(0,200)
@@ -245,8 +245,8 @@ canvasBxWrongPt.SaveAs('plots/timing/bxWrongPt.pdf')
 #Plot the histogram stack
 canvasStack = TCanvas("cStacked","cStacked",1200,1200)
 canvasStack.cd().SetLeftMargin(0.15)
-hWrong = file.Get('hoMuonAnalyzer/BxWrongGenPt_Pt')
-hRight = file.Get('hoMuonAnalyzer/BxRightGenPt_Pt')
+hWrong = file.Get('hoMuonAnalyzer/BxWrongGen_Pt')
+hRight = file.Get('hoMuonAnalyzer/BxRightGen_Pt')
 hRightFraction = TH1D('hRightFraction','',100,0,500)
 hWrongFraction = TH1D('hWrongFraction','',100,0,500)
 hWrong.Rebin(50)
@@ -324,10 +324,12 @@ legend.Draw()
 
 canvasEtaPhiBxWrong.Update()
 canvasEtaPhiBxWrong.SaveAs("plots/timing/bxWrongEtaPhi.pdf")
+canvasEtaPhiBxWrong.SaveAs("plots/timing/bxWrongEtaPhi.png")
+
 
 #Make eta histogram of the graph before
 canvasEtaBxWrong = TCanvas("canvasEtaBxWrong","canvasEtaBxWrong",1200,1200)
-histEtaBxWrong = TH1D("histEtaBxWrong","histEtaBxWrong;p_{t} Gen;# Events",20,-0.8,0.8)
+histEtaBxWrong = TH1D("histEtaBxWrong","histEtaBxWrong;#eta Gen;# Events",20,-0.8,0.8)
 x = Double(0)
 y = Double(0)
 for i in range(0,etaPhiBxWrong.GetN()):
@@ -336,5 +338,35 @@ for i in range(0,etaPhiBxWrong.GetN()):
 histEtaBxWrong.Draw()
 canvasEtaBxWrong.Update()
 canvasEtaBxWrong.SaveAs("plots/timing/bxWrongEta.pdf")
+canvasEtaBxWrong.SaveAs("plots/timing/bxWrongEta.png")
+
+#
+# Create a binwise normalized histogram of eta
+#
+canvasEtaBxTotal = TCanvas("canvasEtaBxTotal","canvasEtaBxtotal",1200,1200)
+etaPhiTotalNC = file.Get("hoMuonAnalyzer/graphs/L1ToGen")
+histEtaBxTotal= TH1D("histEtaBxTotal","histEtaBxTotal;#eta Gen;entries / 0.08 #eta",20,-0.8,0.8)
+x = Double(0)
+y = Double(0)
+for i in range(0,etaPhiTotalNC.GetN()):
+	etaPhiTotalNC.GetPoint(i,x,y)
+	histEtaBxTotal.Fill(x)
+histEtaBxTotal.Draw()
+canvasEtaBxTotal.SaveAs("plots/timing/bxEtaTotal.png")
+
+canvasEtaBxWrongNorm = TCanvas("canvasEtaBxWrongNorm","canvasEtaBxWrongNorm",1200,1200)
+histEtaBxWrongNorm = TH1D("histEtaBxWrongNorm","Fraction of L1 with BX ID Wrong;#eta Gen;fraction / 0.08 #eta (%)",20,-0.8,0.8)
+histEtaBxWrongNorm.SetStats(0)
+histEtaBxWrongNorm.SetLineColor(PlotStyle.colorRwthDarkBlue)
+#fill the histogram bins
+for i in range(1,21):
+	w = histEtaBxWrong.GetBinContent(i)
+	t = histEtaBxTotal.GetBinContent(i)
+	print '%.2f / %.2f = %.2f' % (w,t,w/t*100)
+	histEtaBxWrongNorm.SetBinContent(i,w/t*100)
+histEtaBxWrongNorm.Draw()
+canvasEtaBxWrongNorm.Update()
+canvasEtaBxWrongNorm.SaveAs("plots/timing/bxWrongEtaNorm.pdf")
+canvasEtaBxWrongNorm.SaveAs("plots/timing/bxWrongEtaNorm.png")
 
 raw_input('-->')
