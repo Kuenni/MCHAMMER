@@ -886,7 +886,6 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 					histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"NoTrgNoL1TdmiInGA");
 				}
 			}
-			histogramBuilder.fillPtHistogram(genIt->pt(),"NoSingleMu");
 
 			histogramBuilder.fillEtaPhiGraph(genEta,genPhi,"NoTrgGenAny");
 			histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"NoTrgTdmiAny");
