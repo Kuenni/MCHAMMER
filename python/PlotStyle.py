@@ -18,7 +18,7 @@ chimney1.SetPoint(1,.3425,1.65)
 chimney1.SetPoint(2,.435,1.65)
 chimney1.SetPoint(3,.435,1.48)
 chimney1.SetPoint(4,.3425,1.48)
-chimney1.SetLineColor(ROOT.kRed)
+chimney1.SetLineColor(colorRwthMagenta)
 chimney1.SetLineWidth(2)
 
 chimney2 = TGraph()
@@ -27,7 +27,7 @@ chimney2.SetPoint(1,-.3425,1.22)
 chimney2.SetPoint(2,-.435,1.22)
 chimney2.SetPoint(3,-.435,0.87)
 chimney2.SetPoint(4,-.3425,0.87)
-chimney2.SetLineColor(ROOT.kRed)
+chimney2.SetLineColor(colorRwthMagenta)
 chimney2.SetLineWidth(2)
 
 #Converts a graph in eta and phi to hcal coordinates with ieta and iphi
