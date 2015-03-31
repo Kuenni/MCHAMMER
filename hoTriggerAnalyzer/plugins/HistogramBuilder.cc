@@ -535,7 +535,7 @@ void HistogramBuilder::fillEtaPhiPtHistogram(double eta, double phi, double pt, 
 	TFileDirectory etaPhiDir = _fileService->mkdir("etaPhi");
 	TFileDirectory etaPhiSubdir = _fileService->mkdir("etaPhi/3D");
 	if(!_h3EtaPhiPt.count(key)){
-		etaPhiSubdir.make<TH3D>(Form("%s_EtaPhiPt",key.c_str()),
+		_h3EtaPhiPt[key] = etaPhiSubdir.make<TH3D>(Form("%s_EtaPhiPt",key.c_str()),
 					Form("%s #eta #Phi p_{T};#eta;#phi;p_{T} / 5 GeV",key.c_str()),
 					40, -1.6, 1.6,	//0.08 Eta bins
 					80, -3.2, 3.2,	//0.08 Phi bins
