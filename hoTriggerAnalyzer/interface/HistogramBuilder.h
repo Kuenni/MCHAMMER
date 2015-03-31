@@ -60,6 +60,7 @@ class HistogramBuilder {
   void fillDeltaTimeHistogram(double, int, std::string);
   void fillCorrelationGraph(double xVal, double yVal, std::string key);
   void fillGraph(double x, double y, std::string key);
+  void fillEtaPhiPtHistogram(double eta, double phi, double pt, std::string key);
 
  private:
 
@@ -99,6 +100,7 @@ class HistogramBuilder {
 
   std::map<std::string,TH3D*> _h3EtaPhiEnergy;
   std::map<std::string,TH3D*> _h3DeltaEtaDeltaPhiEnergy;
+  std::map<std::string,TH3D*> _h3EtaPhiPt;
 
   std::map<std::string,TEfficiency*> _effMap;
   

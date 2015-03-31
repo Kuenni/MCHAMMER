@@ -407,10 +407,12 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			histogramBuilder.fillDeltaVzHistogam( (genMatch->vz() - bl1Muon->vz()) ,l1muon_key);
 			histogramBuilder.fillPtCorrelationHistogram(genMatch->pt(),bl1Muon->pt(),l1muon_key);
 			histogramBuilder.fillEtaPhiGraph(genMatch->eta(),genMatch->phi(),"L1ToGen");
+			histogramBuilder.fillEtaPhiPtHistogram(genMatch->eta(), genMatch->phi(),genMatch->pt(),"L1ToGen");
 			fillEfficiencyHistograms(bl1Muon->pt(),genMatch->pt(),"L1Muon");
 			if(bl1Muon->bx() != 0){
 				histogramBuilder.fillPtHistogram(genMatch->pt(),"BxWrongGen");
 				histogramBuilder.fillEtaPhiGraph(genMatch->eta(),genMatch->phi(),"BxWrongGen");
+				histogramBuilder.fillEtaPhiPtHistogram(genMatch->eta(), genMatch->phi(),genMatch->pt(),"BxWrongGen");
 				/**
 				 * Fill a multiplicity histogram with the detector index of the underlying GMT Cand
 				 * From L1MuGmtExtendedCand:
@@ -425,6 +427,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			} else {
 				histogramBuilder.fillPtHistogram(genMatch->pt(),"BxRightGen");
 				histogramBuilder.fillEtaPhiGraph(genMatch->eta(),genMatch->phi(),"BxRightGen");
+				histogramBuilder.fillEtaPhiPtHistogram(genMatch->eta(), genMatch->phi(),genMatch->pt(),"BxRightGen");
 			}
 			/* Built this to fix the strange behaviour of the efficiency plots.
 			 * Did not yet help completely. The reason for the strange behaviour is probably the fact,
@@ -911,6 +914,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 						histogramBuilder.fillCountHistogram("NoTrgTdmiInGAHoAboveThr");
 						histogramBuilder.fillDeltaEtaDeltaPhiHistograms(muMatchEta,hoEta,muMatchPhi,hoPhi,"NoTrgTdmiAboveThr");
 						histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"NoTrgTdmiAboveThr");
+						histogramBuilder.fillEtaPhiPtHistogram(muMatchEta,muMatchPhi,genIt->pt(),"NoTrgTdmiAboveThr");
 						histogramBuilder.fillEtaPhiGraph(hoEta,hoPhi,"NoTrgTdmiAboveThrHoCoords");
 						histogramBuilder.fillDeltaEtaDeltaPhiHistograms(genEta,hoEta,genPhi,hoPhi,"NoTrgGenAboveThr");
 						histogramBuilder.fillEnergyVsPosition(muMatchEta,muMatchPhi,muMatch->hoCrossedEnergy(),"NoTrgTdmiAboveThrXedE");
@@ -935,6 +939,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			}//<-- in GA
 			else{
 				histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"NoTrgTdmiNotInGA");
+				histogramBuilder.fillEtaPhiPtHistogram(muMatchEta,muMatchPhi,genIt->pt(),"NoTrgTdmiNotInGA");
 			}
 		}//Loop over gen particles
 	}//<-- Not single mu trg

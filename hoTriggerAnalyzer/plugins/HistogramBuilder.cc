@@ -527,3 +527,20 @@ void HistogramBuilder::fillGraph(double x, double y, std::string key){
 			}
 		_graphs[key]->SetPoint(_graphs[key]->GetN(),x, y);
 }
+
+/**
+ * Fill a 3D histogram with eta phi and pt information
+ */
+void HistogramBuilder::fillEtaPhiPtHistogram(double eta, double phi, double pt, std::string key){
+	TFileDirectory etaPhiDir = _fileService->mkdir("etaPhi");
+	TFileDirectory etaPhiSubdir = _fileService->mkdir("etaPhi/3D");
+	if(!_h3EtaPhiPt.count(key)){
+		etaPhiSubdir.make<TH3D>(Form("%s_EtaPhiPt",key.c_str()),
+					Form("%s #eta #Phi p_{T};#eta;#phi;p_{T} / 5 GeV",key.c_str()),
+					40, -1.6, 1.6,	//0.08 Eta bins
+					80, -3.2, 3.2,	//0.08 Phi bins
+					40,0,200);		//5 GeV p_T bins
+	}
+	_h3EtaPhiPt[key]->Fill(eta,phi,pt);
+
+}
