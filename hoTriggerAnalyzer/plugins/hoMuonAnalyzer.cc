@@ -847,7 +847,6 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 
 
 	if(!singleMu3Trig){
-		histogramBuilder.fillCountHistogram(std::string("NoSingleMu"));
 		histogramBuilder.fillMultiplicityHistogram(l1Muons->size(),std::string("NoSingleMu_L1Muon"));
 		analyzeNoSingleMuEventsL1Loop(iEvent,iSetup);
 		analyzeNoSingleMuEventsGenLoop(iEvent,iSetup);
