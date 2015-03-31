@@ -269,16 +269,21 @@ def doPlotGenPt(filename):
 		print 'Error opening file:',filename
 
 	c = TCanvas('genPtCanvas','Gen Pt no Single #mu trg',1200,1200)
-
+	c.cd().SetLeftMargin(0.15)
 	genPtHist = file.Get("hoMuonAnalyzer/NoSingleMu_Pt")
 	genPtHist.SetLineColor(PlotStyle.colorRwthDarkBlue)
-	genPtHist.SetLineWidth(2)
+	genPtHist.SetLineWidth(3)
 	genPtHist.Rebin(50)
+	genPtHist.Sumw2()
+	genPtHist.Scale(1/genPtHist.Integral())
 	genPtHist.GetXaxis().SetRangeUser(0,200)
+	genPtHist.GetYaxis().SetTitle('normalized entries / 5 GeV')
+	genPtHist.GetYaxis().SetTitleOffset(2)
+	genPtHist.GetXaxis().SetTitle('p_{T} Gen / GeV')
 	label = PlotStyle.getLabelCmsPrivateSimulation()
 	label.Draw()
 	
-	genPtHist.Draw()
+	genPtHist.Draw("ehist")
 	
 	c.Update()
 	
