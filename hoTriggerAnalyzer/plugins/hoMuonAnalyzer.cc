@@ -925,6 +925,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 					//inspect the crossed energy, when the matched Rec hit in the cone was below threshold
 					} else{
 						histogramBuilder.fillEnergyVsPosition(muMatchEta,muMatchPhi,muMatch->hoCrossedEnergy(),"NoTrgTdmiBelowThrXedE");
+						histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"NoTrgTdmiBelowThr");
 					}
 				//Count the events, where we could not match a Rec hit in the delta dR cone
 				} else{
