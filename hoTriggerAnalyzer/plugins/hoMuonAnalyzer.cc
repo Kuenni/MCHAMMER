@@ -91,7 +91,7 @@ using namespace::std;
 hoMuonAnalyzer::hoMuonAnalyzer(const edm::ParameterSet& iConfig)/*:
 				assocParams(iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters"))*/
 {
-	coutPrefix = std::string("[hoMuonAnalyzer] ");
+	coutPrefix = "[hoMuonAnalyzer] ";
 	//now do what ever initialization is needed
 
 	//Get Input Tags from the Configuration
@@ -237,8 +237,8 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			&& MuonHOAcceptance::inNotDeadGeom(muMatchEta,muMatchPhi)
 			&& !hoMatcher->isInChimney(muMatchEta,muMatchPhi)){
 
-			histogramBuilder.fillCountHistogram(std::string("tdmiInGA"));
-			histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,std::string("tdmiInGA"));
+			histogramBuilder.fillCountHistogram("tdmiInGA");
+			histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"tdmiInGA");
 
 			const HORecHit* matchedRecHit = hoMatcher->matchByEMaxDeltaR(muMatch->trkGlobPosAtHO.eta()
 					,muMatch->trkGlobPosAtHO.phi(),deltaR_Max,*hoRecoHits);
@@ -251,7 +251,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 						ho_eta,
 						muMatch->trkGlobPosAtHO.phi(),
 						ho_phi,
-						std::string("tdmiHoMatch")
+						"tdmiHoMatch"
 				);
 				//Energy is above threshold
 				if(matchedRecHit->energy() > threshold){
@@ -260,7 +260,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 							ho_eta,
 							muMatch->trkGlobPosAtHO.phi(),
 							ho_phi,
-							std::string("tdmiHoAboveThr")
+							"tdmiHoAboveThr"
 					);
 					//TDMI has energy entry > 0
 					if(muMatch->hoCrossedEnergy() > 0 ){
@@ -269,7 +269,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 								ho_eta,
 								muMatch->trkGlobPosAtHO.phi(),
 								ho_phi,
-								std::string("tdmiHoAboveThrGt0")
+								"tdmiHoAboveThrGt0"
 						);
 					} else{
 						/**
@@ -281,12 +281,12 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 								ho_eta,
 								muMatch->trkGlobPosAtHO.phi(),
 								ho_phi,
-								std::string("tdmiHoAboveThrEq0")
+								"tdmiHoAboveThrEq0"
 						);
 						histogramBuilder.fillEtaPhiGraph(
 								muMatch->trkGlobPosAtHO.eta(),
 								muMatch->trkGlobPosAtHO.phi(),
-								std::string("tdmiHoAboveThrEq0")
+								"tdmiHoAboveThrEq0"
 						);
 					}
 				}
@@ -294,8 +294,8 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				/**
 				 * There could not be found a rec hit by delta R matching
 				 */
-				histogramBuilder.fillCountHistogram(std::string("tdmiMatchHoFail"));
-				histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,std::string("tdmiMatchHoFail"));
+				histogramBuilder.fillCountHistogram("tdmiMatchHoFail");
+				histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"tdmiMatchHoFail");
 			}
 		}//<-- TDMI in GA
 	}
@@ -472,10 +472,10 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	for( ; hoRecoIt != hoRecoHits->end() ; hoRecoIt++){
 		double ho_eta = caloGeo->getPosition(hoRecoIt->id()).eta();
 		double ho_phi = caloGeo->getPosition(hoRecoIt->id()).phi();
-		histogramBuilder.fillTimeHistogram(hoRecoIt->time(),std::string("hoRecHits"));
+		histogramBuilder.fillTimeHistogram(hoRecoIt->time(),"hoRecHits");
 		if(hoRecoIt->energy() >= threshold){
-			histogramBuilder.fillTimeHistogram(hoRecoIt->time(),std::string("hoRecHitsAboveThr"));
-			histogramBuilder.fillEtaPhiHistograms(ho_eta, ho_phi, std::string("hoRecHitsAboveThr"));
+			histogramBuilder.fillTimeHistogram(hoRecoIt->time(),"hoRecHitsAboveThr");
+			histogramBuilder.fillEtaPhiHistograms(ho_eta, ho_phi,"hoRecHitsAboveThr");
 			recHitAbThrCounter++;
 		}
 		histogramBuilder.fillCountHistogram(horeco_key);
@@ -508,10 +508,10 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		const l1extra::L1MuonParticle* bl1Muon = &(l1Muons->at(i));
 		float l1Muon_eta = bl1Muon->eta();
 		float l1Muon_phi = bl1Muon->phi();
-		histogramBuilder.fillCountHistogram(std::string("L1MuonPresent"));
-		histogramBuilder.fillBxIdHistogram(bl1Muon->bx(),std::string("L1MuonPresent"));
+		histogramBuilder.fillCountHistogram("L1MuonPresent");
+		histogramBuilder.fillBxIdHistogram(bl1Muon->bx(),"L1MuonPresent");
 		histogramBuilder.fillBxIdVsPt(bl1Muon->bx(),bl1Muon->pt(),"L1MuonPresent");
-		histogramBuilder.fillL1MuonPtHistograms(bl1Muon->pt(),std::string("L1MuonPresent"));
+		histogramBuilder.fillL1MuonPtHistograms(bl1Muon->pt(),"L1MuonPresent");
 		histogramBuilder.fillPdgIdHistogram(bl1Muon->pdgId(),l1muon_key);
 		histogramBuilder.fillVzHistogram(bl1Muon->vz(),l1muon_key);
 		histogramBuilder.fillEtaPhiGraph(bl1Muon->eta(), bl1Muon->phi(), l1muon_key);
@@ -577,26 +577,26 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			hoEta = caloGeo->getPosition(matchedRecHit->detid()).eta();
 			hoPhi = caloGeo->getPosition(matchedRecHit->detid()).phi();
 			histogramBuilder.fillCountHistogram("L1MuonPresentHoMatch");
-			histogramBuilder.fillTimeHistogram(matchedRecHit->time(),std::string("L1MuonPresentHoMatch"));
-			histogramBuilder.fillDeltaTimeHistogram(matchedRecHit->time(),bl1Muon->bx(),std::string("L1MuonPresentHoMatch"));
-			histogramBuilder.fillBxIdHistogram(bl1Muon->bx(),std::string("L1MuonPresentHoMatch"));
+			histogramBuilder.fillTimeHistogram(matchedRecHit->time(),"L1MuonPresentHoMatch");
+			histogramBuilder.fillDeltaTimeHistogram(matchedRecHit->time(),bl1Muon->bx(),"L1MuonPresentHoMatch");
+			histogramBuilder.fillBxIdHistogram(bl1Muon->bx(),"L1MuonPresentHoMatch");
 			if (MuonHOAcceptance::inGeomAccept(l1Muon_eta,l1Muon_phi/*,deltaR_Max,deltaR_Max*/)&& !hoMatcher->isInChimney(l1Muon_eta,l1Muon_phi)){
-				histogramBuilder.fillCountHistogram(std::string("L1MuonPresentHoMatchInAcc"));
-				histogramBuilder.fillBxIdHistogram(bl1Muon->bx(),std::string("L1MuonPresentHoMatchInAcc"));
+				histogramBuilder.fillCountHistogram("L1MuonPresentHoMatchInAcc");
+				histogramBuilder.fillBxIdHistogram(bl1Muon->bx(),"L1MuonPresentHoMatchInAcc");
 
 				//This energy check is done to test, whether the results depend on the order of the cuts applied
 				//So far, the answer is no
 				if(matchedRecHit->energy() >= threshold ){
-					histogramBuilder.fillCountHistogram(std::string("L1MuonPresentHoMatchInAccThr"));
+					histogramBuilder.fillCountHistogram("L1MuonPresentHoMatchInAccThr");
 
 				}
 
 				if (MuonHOAcceptance::inNotDeadGeom(l1Muon_eta,l1Muon_phi/*,deltaR_Max,deltaR_Max*/)){
-					histogramBuilder.fillCountHistogram(std::string("L1MuonPresentHoMatchInAccNotDead"));
-					histogramBuilder.fillBxIdHistogram(bl1Muon->bx(),std::string("L1MuonPresentHoMatchInAccNotDead"));
+					histogramBuilder.fillCountHistogram("L1MuonPresentHoMatchInAccNotDead");
+					histogramBuilder.fillBxIdHistogram(bl1Muon->bx(),"L1MuonPresentHoMatchInAccNotDead");
 					//This one is filled for the sake of completeness. The SiPM regions are hard-coded in the class!!
 					if (MuonHOAcceptance::inSiPMGeom(l1Muon_eta,l1Muon_phi/*,deltaR_Max,deltaR_Max*/)){
-						histogramBuilder.fillCountHistogram(std::string("L1MuonPresentHoMatchInAccNotDeadInSipm"));
+						histogramBuilder.fillCountHistogram("L1MuonPresentHoMatchInAccNotDeadInSipm");
 					}
 				}
 			}
@@ -606,7 +606,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			histogramBuilder.fillEnergyVsPosition(hoEta,hoPhi,matchedRecHit->energy(),l1MuonWithHoMatch_key);
 			for (int i = 0; i < 200; i+=2) {
 				if(bl1Muon->pt() >= i)
-					histogramBuilder.fillTrigRateHistograms(i,std::string("L1MuonWithHoNoThr"));
+					histogramBuilder.fillTrigRateHistograms(i,"L1MuonWithHoNoThr");
 			}
 			const reco::GenParticle* bestGenMatch = getBestGenMatch(bl1Muon->eta(),bl1Muon->phi());
 			if(bestGenMatch){
@@ -621,10 +621,10 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			//###########################################################
 			if(matchedRecHit->energy() >= threshold){
 				//Fill some counting histograms. Can be used for cut flow in efficiency
-				histogramBuilder.fillCountHistogram(std::string("L1MuonAboveThr"));
-				histogramBuilder.fillBxIdHistogram(bl1Muon->bx(),std::string("L1MuonAboveThr"));
-				histogramBuilder.fillDeltaTimeHistogram(matchedRecHit->time(),bl1Muon->bx(),std::string("L1MuonAboveThr"));
-				histogramBuilder.fillTimeHistogram(matchedRecHit->time(),std::string("L1MuonAboveThr"));
+				histogramBuilder.fillCountHistogram("L1MuonAboveThr");
+				histogramBuilder.fillBxIdHistogram(bl1Muon->bx(),"L1MuonAboveThr");
+				histogramBuilder.fillDeltaTimeHistogram(matchedRecHit->time(),bl1Muon->bx(),"L1MuonAboveThr");
+				histogramBuilder.fillTimeHistogram(matchedRecHit->time(),"L1MuonAboveThr");
 				histogramBuilder.fillBxIdVsPt(bl1Muon->bx(),bl1Muon->pt(),"L1MuonAboveThr");
 				double hoEta,hoPhi;
 				hoEta = caloGeo->getPosition(matchedRecHit->detid()).eta();
@@ -632,19 +632,19 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				//Fill the HO information
 				//Fill the counters
 				if (MuonHOAcceptance::inGeomAccept(l1Muon_eta,l1Muon_phi/*,deltaR_Max,deltaR_Max*/)&& !hoMatcher->isInChimney(l1Muon_eta,l1Muon_phi)){
-					histogramBuilder.fillCountHistogram(std::string("L1MuonAboveThrInAcc"));
-					histogramBuilder.fillBxIdHistogram(bl1Muon->bx(),std::string("L1MuonAboveThrInAcc"));
+					histogramBuilder.fillCountHistogram("L1MuonAboveThrInAcc");
+					histogramBuilder.fillBxIdHistogram(bl1Muon->bx(),"L1MuonAboveThrInAcc");
 					if (MuonHOAcceptance::inNotDeadGeom(l1Muon_eta,l1Muon_phi/*,deltaR_Max,deltaR_Max*/)){
-						histogramBuilder.fillTimeHistogram(matchedRecHit->time(),std::string("L1MuonAboveThrInAccNotDead"));
-						histogramBuilder.fillDeltaTimeHistogram(matchedRecHit->time(),bl1Muon->bx(),std::string("L1MuonAboveThrInAccNotDead"));
-						histogramBuilder.fillCountHistogram(std::string("L1MuonAboveThrInAccNotDead"));
-						histogramBuilder.fillBxIdHistogram(bl1Muon->bx(),std::string("L1MuonAboveThrInAccNotDead"));
-						histogramBuilder.fillTrigHistograms(caloGeo->present(matchedRecHit->id()),std::string("caloGeoPresent_L1MuonHoMatchAboveThrFilt"));
-						histogramBuilder.fillEnergyHistograms(matchedRecHit->energy(),std::string("L1MuonWithHoMatchAboveThrFilt"));
-						histogramBuilder.fillEtaPhiHistograms(hoEta,hoPhi,std::string("L1MuonWithHoMatchAboveThrFilt_HO"));
-						histogramBuilder.fillDeltaEtaDeltaPhiHistograms(l1Muon_eta,hoEta,l1Muon_phi, hoPhi,std::string("L1MuonWithHoMatchAboveThrFilt"));
-						histogramBuilder.fillL1MuonPtHistograms(bl1Muon->pt(),std::string("L1MuonWithHoMatchAboveThrFilt"));
-						histogramBuilder.fillEnergyVsPosition(hoEta,hoPhi,matchedRecHit->energy(),std::string("L1MuonWithHoMatchAboveThrFilt"));
+						histogramBuilder.fillTimeHistogram(matchedRecHit->time(),"L1MuonAboveThrInAccNotDead");
+						histogramBuilder.fillDeltaTimeHistogram(matchedRecHit->time(),bl1Muon->bx(),"L1MuonAboveThrInAccNotDead");
+						histogramBuilder.fillCountHistogram("L1MuonAboveThrInAccNotDead");
+						histogramBuilder.fillBxIdHistogram(bl1Muon->bx(),"L1MuonAboveThrInAccNotDead");
+						histogramBuilder.fillTrigHistograms(caloGeo->present(matchedRecHit->id()),"caloGeoPresent_L1MuonHoMatchAboveThrFilt");
+						histogramBuilder.fillEnergyHistograms(matchedRecHit->energy(),"L1MuonWithHoMatchAboveThrFilt");
+						histogramBuilder.fillEtaPhiHistograms(hoEta,hoPhi,"L1MuonWithHoMatchAboveThrFilt_HO");
+						histogramBuilder.fillDeltaEtaDeltaPhiHistograms(l1Muon_eta,hoEta,l1Muon_phi, hoPhi,"L1MuonWithHoMatchAboveThrFilt");
+						histogramBuilder.fillL1MuonPtHistograms(bl1Muon->pt(),"L1MuonWithHoMatchAboveThrFilt");
+						histogramBuilder.fillEnergyVsPosition(hoEta,hoPhi,matchedRecHit->energy(),"L1MuonWithHoMatchAboveThrFilt");
 
 						const reco::GenParticle* bestGenMatch = getBestGenMatch(bl1Muon->eta(),bl1Muon->phi());
 						if(bestGenMatch){
@@ -653,15 +653,15 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 
 						//This one is filled for the sake of completeness. The SiPM regions are hardcoded in the class!!
 						if (MuonHOAcceptance::inSiPMGeom(l1Muon_eta,l1Muon_phi/*,deltaR_Max,deltaR_Max*/)){
-							histogramBuilder.fillCountHistogram(std::string("L1MuonAboveThrInAccNotDeadInSipm"));
+							histogramBuilder.fillCountHistogram("L1MuonAboveThrInAccNotDeadInSipm");
 						}
 					}
 				}
-				histogramBuilder.fillEnergyHistograms(matchedRecHit->energy(),std::string("L1MuonWithHoMatchAboveThr"));
-				histogramBuilder.fillEtaPhiHistograms(hoEta,hoPhi,std::string("L1MuonWithHoMatchAboveThr_HO"));
-				histogramBuilder.fillDeltaEtaDeltaPhiHistograms(l1Muon_eta,hoEta,l1Muon_phi, hoPhi,std::string("L1MuonWithHoMatchAboveThr"));
-				histogramBuilder.fillL1MuonPtHistograms(bl1Muon->pt(),std::string("L1MuonWithHoMatchAboveThr"));
-				histogramBuilder.fillEnergyVsPosition(hoEta,hoPhi,matchedRecHit->energy(),std::string("L1MuonWithHoMatchAboveThr"));
+				histogramBuilder.fillEnergyHistograms(matchedRecHit->energy(),"L1MuonWithHoMatchAboveThr");
+				histogramBuilder.fillEtaPhiHistograms(hoEta,hoPhi,"L1MuonWithHoMatchAboveThr_HO");
+				histogramBuilder.fillDeltaEtaDeltaPhiHistograms(l1Muon_eta,hoEta,l1Muon_phi, hoPhi,"L1MuonWithHoMatchAboveThr");
+				histogramBuilder.fillL1MuonPtHistograms(bl1Muon->pt(),"L1MuonWithHoMatchAboveThr");
+				histogramBuilder.fillEnergyVsPosition(hoEta,hoPhi,matchedRecHit->energy(),"L1MuonWithHoMatchAboveThr");
 				//Make the pseudo trig rate plot
 				for (int i = 0; i < 200; i+=2) {
 					if(bl1Muon->pt() >= i)
@@ -688,11 +688,11 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 					histogramBuilder.fillPdgIdHistogram(0,l1MuonWithHoMatch_key);
 				}
 				histogramBuilder.fillL1MuonPtHistograms(bl1Muon->pt(), l1MuonWithHoMatch_key);
-				histogramBuilder.fillEtaPhiGraph(bl1Muon->eta(), bl1Muon->phi(), std::string("L1MuonWithHoMatchAboveThr_L1Mu"));
+				histogramBuilder.fillEtaPhiGraph(bl1Muon->eta(), bl1Muon->phi(), "L1MuonWithHoMatchAboveThr_L1Mu");
 			}// E > thr.
 		}
 	}//<-- For loop over all l1muons
-	histogramBuilder.fillMultiplicityHistogram(countGenMatches,std::string("nL1WithGenMatch"));
+	histogramBuilder.fillMultiplicityHistogram(countGenMatches,"nL1WithGenMatch");
 	//################################
 	//################################
 	//		This is for the case where no L1Muon was found
@@ -708,12 +708,12 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				double ho_eta = caloGeo->getPosition(hoRecoIt->id()).eta();
 				double ho_phi = caloGeo->getPosition(hoRecoIt->id()).phi();
 				histogramBuilder.fillCountHistogram(horeco_key);
-				histogramBuilder.fillEnergyHistograms(hoRecoIt->energy(),std::string("NoL1"));
-				histogramBuilder.fillEtaPhiHistograms(ho_eta, ho_phi, std::string("NoL1"));
-				histogramBuilder.fillEnergyVsPosition(ho_eta,ho_phi,hoRecoIt->energy(),std::string("NoL1"));
+				histogramBuilder.fillEnergyHistograms(hoRecoIt->energy(),"NoL1");
+				histogramBuilder.fillEtaPhiHistograms(ho_eta, ho_phi, "NoL1");
+				histogramBuilder.fillEnergyVsPosition(ho_eta,ho_phi,hoRecoIt->energy(),"NoL1");
 			}
 		}
-		histogramBuilder.fillMultiplicityHistogram(recHitAbThrNoL1Counter,std::string("NoL1"));
+		histogramBuilder.fillMultiplicityHistogram(recHitAbThrNoL1Counter,"NoL1");
 
 		for(reco::GenParticleCollection::const_iterator genIt = truthParticles->begin();
 				genIt != truthParticles->end(); genIt++){
@@ -826,13 +826,13 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			if(matchedRecHit){
 				double hoEta = caloGeo->getPosition(matchedRecHit->id()).eta();
 				double hoPhi = caloGeo->getPosition(matchedRecHit->id()).phi();
-				histogramBuilder.fillDeltaEtaDeltaPhiEnergyHistogram(genEta,hoEta,genPhi,hoPhi,matchedRecHit->energy(),std::string("WithSingleMu"));
+				histogramBuilder.fillDeltaEtaDeltaPhiEnergyHistogram(genEta,hoEta,genPhi,hoPhi,matchedRecHit->energy(),"WithSingleMu");
 				if(matchedRecHit->energy() >= threshold){
-					histogramBuilder.fillDeltaEtaDeltaPhiHistograms(genEta,hoEta,genPhi,hoPhi,std::string("WithSingleMuAboveThr"));
+					histogramBuilder.fillDeltaEtaDeltaPhiHistograms(genEta,hoEta,genPhi,hoPhi,"WithSingleMuAboveThr");
 					if (MuonHOAcceptance::inGeomAccept(genEta,genPhi/*,deltaR_Max,deltaR_Max*/)&& !hoMatcher->isInChimney(genEta,genPhi)){
-						histogramBuilder.fillDeltaEtaDeltaPhiHistograms(genEta,hoEta,genPhi,hoPhi,std::string("WithSingleMuGeomAcc"));
+						histogramBuilder.fillDeltaEtaDeltaPhiHistograms(genEta,hoEta,genPhi,hoPhi,"WithSingleMuGeomAcc");
 						if (MuonHOAcceptance::inNotDeadGeom(genEta,genPhi/*,deltaR_Max,deltaR_Max*/)){
-							histogramBuilder.fillDeltaEtaDeltaPhiHistograms(genEta,hoEta,genPhi,hoPhi,std::string("WithSingleMuNotDead"));
+							histogramBuilder.fillDeltaEtaDeltaPhiHistograms(genEta,hoEta,genPhi,hoPhi,"WithSingleMuNotDead");
 						}
 					}
 				}
@@ -847,7 +847,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 
 
 	if(!singleMu3Trig){
-		histogramBuilder.fillMultiplicityHistogram(l1Muons->size(),std::string("NoSingleMu_L1Muon"));
+		histogramBuilder.fillMultiplicityHistogram(l1Muons->size(),"NoSingleMu_L1Muon");
 		analyzeNoSingleMuEventsL1Loop(iEvent,iSetup);
 		analyzeNoSingleMuEventsGenLoop(iEvent,iSetup);
 		//################################
@@ -875,7 +875,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 
 			//Studies depending on whether there are L1 Objects or not
 			if(l1Muons->size()>0){
-				histogramBuilder.fillCountHistogram(std::string("NoTriggerButL1Muons"));
+				histogramBuilder.fillCountHistogram("NoTriggerButL1Muons");
 			}
 			else{
 				histogramBuilder.fillCountHistogram("NoTrgNoL1Any");
@@ -886,10 +886,10 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 					histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"NoTrgNoL1TdmiInGA");
 				}
 			}
-			histogramBuilder.fillPtHistogram(genIt->pt(),std::string("NoSingleMu"));
+			histogramBuilder.fillPtHistogram(genIt->pt(),"NoSingleMu");
 
-			histogramBuilder.fillEtaPhiGraph(genEta,genPhi,std::string("NoTrgGenAny"));
-			histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,std::string("NoTrgTdmiAny"));
+			histogramBuilder.fillEtaPhiGraph(genEta,genPhi,"NoTrgGenAny");
+			histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"NoTrgTdmiAny");
 			//The muon needs to hit the HO geometric acceptance
 			if(MuonHOAcceptance::inGeomAccept(muMatchEta,muMatchPhi) && !hoMatcher->isInChimney(muMatchEta,muMatchPhi)){
 
@@ -898,7 +898,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				//######
 				histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"NoTrgTdmiInGA");
 				histogramBuilder.fillCountHistogram("NoTrgTdmiInGA");
-				histogramBuilder.fillEnergyVsPosition(muMatchEta,muMatchPhi,muMatch->hoCrossedEnergy(),std::string("NoTrgTdmiXedE"));
+				histogramBuilder.fillEnergyVsPosition(muMatchEta,muMatchPhi,muMatch->hoCrossedEnergy(),"NoTrgTdmiXedE");
 				const HORecHit* matchedRecHit = hoMatcher->matchByEMaxDeltaR(muMatchEta,muMatchPhi,deltaR_Max,*hoRecoHits);
 				//Where is the Rec hit in a delta R cone with the largest E?
 				//Did we find any?
@@ -906,16 +906,16 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 					histogramBuilder.fillCountHistogram("NoTrgTdmiInGAHoMatch");
 					double hoEta = caloGeo->getPosition(matchedRecHit->id()).eta();
 					double hoPhi = caloGeo->getPosition(matchedRecHit->id()).phi();
-					histogramBuilder.fillDeltaEtaDeltaPhiHistograms(muMatchEta,hoEta,muMatchPhi,hoPhi,std::string("NoTrgTdmi"));
+					histogramBuilder.fillDeltaEtaDeltaPhiHistograms(muMatchEta,hoEta,muMatchPhi,hoPhi,"NoTrgTdmi");
 					//Apply energy cut on the matched RecHit
 					if(matchedRecHit->energy() >= threshold ){
 						histogramBuilder.fillCountHistogram("NoTrgTdmiInGAHoAboveThr");
-						histogramBuilder.fillDeltaEtaDeltaPhiHistograms(muMatchEta,hoEta,muMatchPhi,hoPhi,std::string("NoTrgTdmiAboveThr"));
+						histogramBuilder.fillDeltaEtaDeltaPhiHistograms(muMatchEta,hoEta,muMatchPhi,hoPhi,"NoTrgTdmiAboveThr");
 						histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"NoTrgTdmiAboveThr");
 						histogramBuilder.fillEtaPhiGraph(hoEta,hoPhi,"NoTrgTdmiAboveThrHoCoords");
-						histogramBuilder.fillDeltaEtaDeltaPhiHistograms(genEta,hoEta,genPhi,hoPhi,std::string("NoTrgGenAboveThr"));
-						histogramBuilder.fillEnergyVsPosition(muMatchEta,muMatchPhi,muMatch->hoCrossedEnergy(),std::string("NoTrgTdmiAboveThrXedE"));
-						histogramBuilder.fillEnergyVsPosition(hoEta,hoPhi,matchedRecHit->energy(),std::string("NoTrgTdmiAboveThrHoE"));
+						histogramBuilder.fillDeltaEtaDeltaPhiHistograms(genEta,hoEta,genPhi,hoPhi,"NoTrgGenAboveThr");
+						histogramBuilder.fillEnergyVsPosition(muMatchEta,muMatchPhi,muMatch->hoCrossedEnergy(),"NoTrgTdmiAboveThrXedE");
+						histogramBuilder.fillEnergyVsPosition(hoEta,hoPhi,matchedRecHit->energy(),"NoTrgTdmiAboveThrHoE");
 						if( (muMatchEta > -0.35 && muMatchEta < -0.185) || (muMatchEta > 0.16 && muMatchEta < 0.3) ){
 							if( (muMatchPhi > 0.7 && muMatchPhi < 1.36) || (muMatchPhi > 1.2 && muMatchPhi < 1.9) ){
 								ofstream myfile;
@@ -925,12 +925,12 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 						}
 					//inspect the crossed energy, when the matched Rec hit in the cone was below threshold
 					} else{
-						histogramBuilder.fillEnergyVsPosition(muMatchEta,muMatchPhi,muMatch->hoCrossedEnergy(),std::string("NoTrgTdmiBelowThrXedE"));
+						histogramBuilder.fillEnergyVsPosition(muMatchEta,muMatchPhi,muMatch->hoCrossedEnergy(),"NoTrgTdmiBelowThrXedE");
 					}
 				//Count the events, where we could not match a Rec hit in the delta dR cone
 				} else{
-					histogramBuilder.fillCountHistogram(std::string("NoTrgHoMatchFail"));
-					histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,std::string("NoTrgHoMatchFail"));
+					histogramBuilder.fillCountHistogram("NoTrgHoMatchFail");
+					histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"NoTrgHoMatchFail");
 				}
 			}//<-- in GA
 			else{
