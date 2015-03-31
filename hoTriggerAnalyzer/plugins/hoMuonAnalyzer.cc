@@ -411,6 +411,17 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			if(bl1Muon->bx() != 0){
 				histogramBuilder.fillPtHistogram(genMatch->pt(),"BxWrongGen");
 				histogramBuilder.fillEtaPhiGraph(genMatch->eta(),genMatch->phi(),"BxWrongGen");
+				/**
+				 * Fill a multiplicity histogram with the detector index of the underlying GMT Cand
+				 * From L1MuGmtExtendedCand:
+				 * 1 RPC, 2 DT, 3 DT/RPC, 4 CSC, 5 CSC/RPC
+				 *
+				 * if (quality() == 7) // matched ?
+					return isFwd() ? 5 : 3;
+				   else
+					return isRPC() ? 1 : ( isFwd()? 4 : 2);
+				 */
+				histogramBuilder.fillMultiplicityHistogram(bl1Muon->gmtMuonCand().detector(),"detectorIndexBxWrong");
 			} else {
 				histogramBuilder.fillPtHistogram(genMatch->pt(),"BxRightGen");
 				histogramBuilder.fillEtaPhiGraph(genMatch->eta(),genMatch->phi(),"BxRightGen");
