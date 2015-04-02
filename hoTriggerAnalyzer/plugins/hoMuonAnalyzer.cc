@@ -428,6 +428,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				histogramBuilder.fillPtHistogram(genMatch->pt(),"BxRightGen");
 				histogramBuilder.fillEtaPhiGraph(genMatch->eta(),genMatch->phi(),"BxRightGen");
 				histogramBuilder.fillEtaPhiPtHistogram(genMatch->eta(), genMatch->phi(),genMatch->pt(),"BxRightGen");
+				histogramBuilder.fillMultiplicityHistogram(bl1Muon->gmtMuonCand().detector(),"detectorIndexBxRight");
 			}
 			/* Built this to fix the strange behaviour of the efficiency plots.
 			 * Did not yet help completely. The reason for the strange behaviour is probably the fact,
@@ -1524,7 +1525,8 @@ void hoMuonAnalyzer::analyzeEfficiencyWithGenLoop(const edm::Event& iEvent,const
 			genIt != truthParticles->end(); genIt++){
 		float genEta = genIt->eta();
 		float genPhi = genIt->phi();
-		const l1extra::L1MuonParticle* l1Part = getBestL1MuonMatch(genEta,genPhi);
+		const l1extra::L1MuonParticle* l1Part = 0;
+		l1Part = getBestL1MuonMatch(genEta,genPhi);
 		if(l1Part){
 			fillEfficiencyHistograms(l1Part->pt(),genIt->pt(),"GenAndL1Muon");
 			/**
@@ -1532,7 +1534,8 @@ void hoMuonAnalyzer::analyzeEfficiencyWithGenLoop(const edm::Event& iEvent,const
 			 * plots. This time it is ensured that only as many entries as there are gen particles is used
 			 * This fixes double counting of ghost l1 muons
 			 */
-			const HORecHit* matchedRecHit = hoMatcher->matchByEMaxDeltaR(l1Part->eta(),l1Part->phi(),deltaR_Max,*hoRecoHits);
+			const HORecHit* matchedRecHit = 0;
+			matchedRecHit = hoMatcher->matchByEMaxDeltaR(l1Part->eta(),l1Part->phi(),deltaR_Max,*hoRecoHits);
 			if(matchedRecHit){
 				if(matchedRecHit->energy() > threshold){
 					fillEfficiencyHistograms(l1Part->pt(),genIt->pt(),"GenAndL1MuonAndHoAboveThr");
