@@ -75,8 +75,8 @@ def setPlotStyle():
 	gStyle.SetTitleFont(62)
 	gStyle.SetLegendBorderSize(1)
 	gStyle.SetLegendFont(62)
-	gStyle.SetFillColor(0)
-#	gStyle.SetPalette(1)
+#	gStyle.SetFillColor(0)
+	gStyle.SetPalette(1)
 
 def calcSigma(num,denom):
 	return sqrt(num/(denom*denom) + num*num/(pow(denom, 3)))
