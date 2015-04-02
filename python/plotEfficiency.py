@@ -36,11 +36,13 @@ def plotEfficiencyForPt(folder,pt):
 	PlotStyle.setPlotStyle()
 	
 	if(DEBUG):
-		print "Getting histogram: %s" % ("hoMuonAnalyzer/efficiency/L1MuonPt" + str(pt) + "_Efficiency")
+		print prefix + "Getting histogram: %s" % ("hoMuonAnalyzer/efficiency/GenAndL1MuonPt" + str(pt) + "_Efficiency")
 	
-	l1Muon = file.Get("hoMuonAnalyzer/efficiency/L1MuonPt" + str(pt) + "_Efficiency")
+	l1Muon = file.Get("hoMuonAnalyzer/efficiency/GenAndL1MuonPt" + str(pt) + "_Efficiency")
 	l1MuonAndHo = file.Get("hoMuonAnalyzer/efficiency/L1MuonHoRecoPt" + str(pt) + "_Efficiency")
-	l1MuonAndHoAboveThr = file.Get("hoMuonAnalyzer/efficiency/L1MuonAndHoAboveThrPt" + str(pt) + "_Efficiency")
+	if(DEBUG):
+		print prefix + "Getting histogram: %s" % ("hoMuonAnalyzer/efficiency/GenAndL1MuonAndHoAboveThrPt" + str(pt) + "_Efficiency")
+	l1MuonAndHoAboveThr = file.Get("hoMuonAnalyzer/efficiency/GenAndL1MuonAndHoAboveThrPt" + str(pt) + "_Efficiency")
 	
 	canv = TCanvas("efficiencyCanvas" + str(pt),'efficiencyCanvas' + str(pt),1200,1200)
 	
