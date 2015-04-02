@@ -1,8 +1,9 @@
 import os,sys
 from math import sqrt
+from mercurial.phases import newheads
 sys.path.append(os.path.abspath("../../python"))
 
-from ROOT import TCanvas,ROOT,TFile,TLegend,TF1,TLine,gROOT,TPaveText,TH1D,THStack,Double
+from ROOT import TCanvas,ROOT,TFile,TLegend,TF1,TLine,gROOT,TPaveText,TH1D,THStack,Double,TH2D,THStack
 
 DEBUG = 1
 
@@ -348,6 +349,8 @@ def plotEtaPhiOfWrongBxId():
 
 def plotEtaOfWrongBxId():
 	#Make eta histogram of the graph before
+	etaPhiBxWrongNC = file.Get("hoMuonAnalyzer/graphs/BxWrongGen")
+	etaPhiBxWrong = PlotStyle.convertToHcalCoords(etaPhiBxWrongNC)
 	canvasEtaBxWrong = TCanvas("canvasEtaBxWrong","canvasEtaBxWrong",1200,1200)
 	histEtaBxWrong = TH1D("histEtaBxWrong","histEtaBxWrong;#eta Gen;# Events",20,-0.8,0.8)
 	x = Double(0)
@@ -391,7 +394,117 @@ def plotEtaOfWrongBxId():
 	canvasEtaBxWrongNorm.SaveAs("plots/timing/bxWrongEtaNorm.pdf")
 	canvasEtaBxWrongNorm.SaveAs("plots/timing/bxWrongEtaNorm.png")
 
-plotDeltaTime()
-res = plotHoTime()
+def plotDetectorContributionsToTiming():
+	#Prepare canvas
+	canvas = TCanvas("canvasDetectorContributions","detectorContributions",1200,600)
+	canvas.Divide(2,1)
+	canvas.cd(1).SetGridx(0)
+	canvas.cd(1).SetGridy(0)
+	canvas.cd(1).SetLogy()
 
+	#prepare histogram
+	hist = file.Get("hoMuonAnalyzer/detectorIndexBxWrong_Multiplicity")
+	hist.GetXaxis().SetRangeUser(0.5,5.5)
+	hist.SetLineColor(PlotStyle.colorRwthDarkBlue)
+	hist.SetFillColor(PlotStyle.colorRwthDarkBlue)
+	#Prepare the bin labels
+	x = ['RPC','DT','DT/RPC','CSC','CSC/RPC']
+	for i in range(1,6):
+		hist.GetXaxis().SetBinLabel(i+1,x[i-1])
+	hist.GetXaxis().SetLabelFont(62)
+	hist.GetYaxis().SetLabelFont(62)
+	hist.GetYaxis().SetTitleFont(62)
+	hist.Scale(1/hist.Integral())
+	hist.GetYaxis().SetTitle('rel. fraction')
+	hist.SetStats(0)
+	hist.SetTitle('Subdetectors in wrong L1 BX ID')
+	hist.Draw()
+	
+	#add label
+	label = PlotStyle.getLabelCmsPrivateSimulation()
+	label.Draw()
+	
+	canvas.cd(2).SetGridx(0)
+	canvas.cd(2).SetGridy(0)
+	canvas.cd(2).SetLogy()
+
+	#prepare second histogram
+	hist2 = file.Get("hoMuonAnalyzer/detectorIndexBxRight_Multiplicity")
+	hist2.GetXaxis().SetRangeUser(0.5,5.5)
+	hist2.SetLineColor(PlotStyle.colorRwthDarkBlue)
+	hist2.SetFillColor(PlotStyle.colorRwthDarkBlue)
+	#Prepare the bin labels
+	x = ['RPC','DT','DT/RPC','CSC','CSC/RPC']
+	for i in range(1,6):
+		hist2.GetXaxis().SetBinLabel(i+1,x[i-1])
+	hist2.GetXaxis().SetLabelFont(62)
+	hist2.GetYaxis().SetLabelFont(62)
+	hist2.GetYaxis().SetTitleFont(62)
+	hist2.Scale(1/hist2.Integral())
+	hist2.GetYaxis().SetTitle('rel. fraction')
+	hist2.SetStats(0)
+	hist2.SetTitle('Subdetectors in right L1 BX ID')
+	hist2.Draw()
+	
+	#add label
+	label2 = PlotStyle.getLabelCmsPrivateSimulation()
+	label2.Draw()
+	
+	canvas.Update()
+	canvas.SaveAs('plots/timing/bxWrongDetectorContributions.pdf')
+	canvas.SaveAs('plots/timing/bxWrongDetectorContributions.png')
+	
+	
+	
+	return canvas,hist,label
+
+def plotPtAndEtaOfWrongBxId():
+	#Prepare canvas
+	canvas = TCanvas("canvasEtaPtBxWrong","EtaPtBxWrong",1200,1200)
+
+	#prepare histogram
+	hist = file.Get("hoMuonAnalyzer/etaPhi/3D/BxWrongGen_EtaPhiPt")
+
+	stack = THStack(hist,"zx","2dStack","",1,21,1,201,"zx","")
+
+	histNew = TH2D("histPtEtaBxWrong","histPtEtaBxWrong",20,-0.8,0.8,40,0,200)
+	
+	for i in stack.GetHists():
+		total = 0;
+		print i.GetNbinsX(),i.GetNbinsY()
+		for j in range(0,i.GetNbinsX()+1):
+			for k in range(0,i.GetNbinsY()+1):
+				histNew.SetBinContent(j,k,histNew.GetBinContent(j,k) + i.GetBinContent(j,k))
+	
+	histNew.Draw('colz')
+
+# 	hist.SetLineColor(PlotStyle.colorRwthDarkBlue)
+# 	hist.SetFillColor(PlotStyle.colorRwthDarkBlue)
+	
+# 	hist.GetXaxis().SetLabelFont(62)
+# 	hist.GetYaxis().SetLabelFont(62)
+# 	hist.GetYaxis().SetTitleFont(62)
+# 	hist.Scale(1/hist.Integral())
+# 	hist.GetYaxis().SetTitle('rel. fraction')
+# 	hist.SetStats(0)
+# 	hist.SetTitle('Subdetectors in wrong L1 BX ID')
+	canvas.Update()
+	
+	#add label
+	label = PlotStyle.getLabelCmsPrivateSimulation()
+	label.Draw()
+	
+	canvas.Update()
+	canvas.SaveAs('plots/timing/bxWrongEtaPt.pdf')
+	canvas.SaveAs('plots/timing/bxWrongEtaPt.png')
+	return canvas,hist,label,stack,histNew
+
+#plotDeltaTime()
+#plotEtaOfWrongBxId()
+#plotEtaPhiOfWrongBxId()
+#plotFractionsOfBxId()
+#plotL1BxId()
+#res = plotHoTime()
+res2 = plotDetectorContributionsToTiming()
+#res3 = plotPtAndEtaOfWrongBxId()
 raw_input('-->')
