@@ -189,13 +189,16 @@ def plotHoAboveThr():
 
 def plotFailedHoMatchesNoTrg():
 	c = TCanvas("cFailedHoMatchesNoTrg","cFailedHoMatchesNoTrg",1200,1200)
-#	c.cd().SetRightMargin(0.15)
+	c.cd().SetRightMargin(0.25)
+	c.cd().SetLeftMargin(0.08)
 	
 	#Graph for in events not in geometric acceptance
 	grNotInGaNC = file.Get("hoMuonAnalyzer/graphs/NoTrgTdmiNotInGA")
 	grNotInGa = PlotStyle.convertToHcalCoords(grNotInGaNC)
 	grNotInGa.GetYaxis().SetTitle("i#phi / a.u.")
 	grNotInGa.GetXaxis().SetTitle("i#eta / a.u.")
+	grNotInGa.GetYaxis().SetTitleFont(62)
+	grNotInGa.GetYaxis().SetLabelFont(62)
 	grNotInGa.SetMarkerStyle(6)
 	grNotInGa.SetMarkerColor(PlotStyle.colorRwthDarkBlue)
 	grNotInGa.SetTitle("#eta #phi plot failed HO matches in no Single #mu Trg. events")
@@ -204,17 +207,17 @@ def plotFailedHoMatchesNoTrg():
 	#Graph for events where HO matching failed
 	grHoMatchFailNC = file.Get("hoMuonAnalyzer/graphs/NoTrgHoMatchFail")
 	grHoMatchFail = PlotStyle.convertToHcalCoords(grHoMatchFailNC)
-	grHoMatchFail.SetMarkerStyle(5)
-	grHoMatchFail.SetMarkerSize(3)
+	grHoMatchFail.SetMarkerStyle(21)
+	grHoMatchFail.SetMarkerSize(1)
 	grHoMatchFail.SetMarkerColor(ROOT.kRed)
 	grHoMatchFail.Draw("samep")
 	
 	#Graph of events with HO match below threshold
-	grHoBelowThrNC = file.Get("hoMuonAnalyzer/graphs/NoTrgHoMatchFail")
+	grHoBelowThrNC = file.Get("hoMuonAnalyzer/graphs/NoTrgTdmiBelowThr")
 	grHoBelowThr = PlotStyle.convertToHcalCoords(grHoBelowThrNC)
-	grHoBelowThr.SetMarkerStyle(25)
-	grHoBelowThr.SetMarkerSize(3)
-	grHoBelowThr.SetMarkerColor(ROOT.kRed)
+	grHoBelowThr.SetMarkerStyle(20)
+	grHoBelowThr.SetMarkerSize(1.2)
+	grHoBelowThr.SetMarkerColor(ROOT.kGreen + 3 )
 	grHoBelowThr.Draw("samep")
 	
 	#Draw chimneys
@@ -226,7 +229,7 @@ def plotFailedHoMatchesNoTrg():
 	chimney2Converted.Draw('same')
 	
 	#cms private label
-	label = PlotStyle.getLabelCmsPrivateSimulation()
+	label = TPaveText(PlotStyle.getLabelCmsPrivateSimulation(x1ndc=0.5,x2ndc=0.75))
 	label.Draw()
 	
 	#create extra marker for the legend
@@ -235,16 +238,28 @@ def plotFailedHoMatchesNoTrg():
 	marker.SetMarkerColor(PlotStyle.colorRwthDarkBlue)
 	
 	#legend
-	legend = TLegend(0.85,0.75,1,0.9)
+	legend = TLegend(0.75,0.8,0.99,0.9)
 	legend.AddEntry(chimney2Converted,"chimney","l")
 	legend.AddEntry(marker,'Not in GA','p')
 	legend.AddEntry(grHoMatchFail,'HO match fail','p')
 	legend.AddEntry(grHoBelowThr,'HO match < 0.2 GeV','p')
 	legend.Draw()
 	
+	nNotMatching = grHoMatchFail.GetN()
+	nNotInGa = grNotInGa.GetN()
+	nBelowThr = grHoBelowThr.GetN()
+	nTotal = nNotMatching + nNotInGa + nBelowThr
+	
+	print 80*'#'
+	print 'Not Matching:\t%5d/%d\t=> %5.2f%% +- %f%%' % (nNotMatching,nTotal,nNotMatching/float(nTotal)*100,PlotStyle.calcSigma(nNotMatching,float(nTotal)))
+	print 'Not in GA:\t%5d/%d\t=> %5.2f%% +- %f%%' % (nNotInGa,nTotal,nNotInGa/float(nTotal)*100,PlotStyle.calcSigma(nNotInGa,float(nTotal)))
+	print 'Below Thr:\t%5d/%d\t=> %5.2f%% +- %f%%' % (nBelowThr,nTotal,nBelowThr/float(nTotal)*100,PlotStyle.calcSigma(nBelowThr,float(nTotal)))
+	print 80*'#'
+	
 	c.Update()
 	c.SaveAs('plots/graphsEtaPhi/gNoTrgHoMatchingFailed.png')
-	return c,grNotInGa,label,chimney1Converted,chimney2Converted,legend
+	c.SaveAs('plots/graphsEtaPhi/gNoTrgHoMatchingFailed.pdf')
+	return c,grNotInGa,label,chimney1Converted,chimney2Converted,legend,grHoMatchFail,grHoBelowThr
 
 
 res = plotFailedHoMatchesNoTrg()
