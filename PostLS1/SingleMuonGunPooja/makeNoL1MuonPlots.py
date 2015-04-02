@@ -2,7 +2,7 @@ import os,sys
 from math import sqrt
 sys.path.append(os.path.abspath("../../python"))
 
-from ROOT import TFile, TCanvas, TH1D, TLegend, TPaveText
+from ROOT import TFile, TCanvas, TH1D, TLegend, TPaveText, THStack, TH2D, gStyle
 
 from plotEnergy import plotEnergyVsEtaPhi
 from plotDeltaEtaDeltaPhi import plotDeltaEtaDeltaPhiEnergyProjection,plotDeltaEtaDeltaPhi
@@ -302,37 +302,103 @@ def doPlotGenPt(filename):
 	
 	return
 
-def main(filename = 'L1MuonHistogram.root'):
-	doPlotCutflow(filename)
-	doPlotDeltaEtaDeltaPhi(filename)
+def doPlotEtaPtOfFailingMatches():
+	file = TFile.Open('L1MuonHistogram.root')
+	#Prepare canvas
+	canvas = TCanvas("canvasPtEtaHoMatchFail","PtEtaHoMatchFail",1200,1200)
+	canvas.cd().Draw()
+	#prepare histogram
+	hist = file.Get("hoMuonAnalyzer/etaPhi/3D/NoTrgTdmiNotInGA_EtaPhiPt")
+
+	stack = THStack(hist,"zx","2dStack","",1,21,1,201,"zx","")
+
+	#Create new histogram and add the histograms from the stack
+	histNew = TH2D("histPtEtaHoMatchFail","p_{T} vs. #eta distribution for events not in HO acceptance;#eta;p_{T} / 5 GeV;#",40,-1.6,1.6,40,0,200)
+	histNew.GetYaxis().SetTitleOffset(1.2)
+	for i in stack.GetHists():
+		histNew.Add(i)
+
+	gStyle.SetPalette(1)
+	histNew.SetStats(0)
+	histNew.Draw('COLZ')
+	canvas.Update()
+
+	palette = histNew.FindObject("palette")
+	palette.SetX1NDC(0.9)
+	palette.SetX2NDC(0.92)
+	#add label
+	label = PlotStyle.getLabelCmsPrivateSimulation()
+	label.Draw()
+	
+	canvas.Update()
+	canvas.SaveAs('plots/timing/NoL1NotInHoAcceptanceEtaPt.pdf')
+	canvas.SaveAs('plots/timing/NoL1NotInHoAcceptanceEtaPt.png')
+	return canvas,hist,stack,histNew,label,palette
+
+def doPlotEtaPtOfSuccessfulMatches():
+	file = TFile.Open('L1MuonHistogram.root')
+	#Prepare canvas
+	canvas = TCanvas("canvasPtEtaHoMatch","PtEtaHoMatch",1200,1200)
+	canvas.cd().Draw()
+	#prepare histogram
+	hist = file.Get("hoMuonAnalyzer/etaPhi/3D/NoTrgTdmiAboveThr_EtaPhiPt")
+
+	stack = THStack(hist,"zx","2dStack","",1,21,1,201,"zx","")
+
+	#Create new histogram and add the histograms from the stack
+	histNew = TH2D("histPtEtaHoMatch","p_{T} vs. #eta distribution;#eta;p_{T} / 5 GeV;#",40,-1.6,1.6,40,0,200)
+	histNew.GetYaxis().SetTitleOffset(1.2)
+	for i in stack.GetHists():
+		histNew.Add(i)
+
+	gStyle.SetPalette(1)
+	histNew.SetStats(0)
+	histNew.Draw('COLZ')
+	canvas.Update()
+
+	palette = histNew.FindObject("palette")
+	palette.SetX1NDC(0.9)
+	palette.SetX2NDC(0.92)
+	#add label
+	label = PlotStyle.getLabelCmsPrivateSimulation()
+	label.Draw()
+	
+	canvas.Update()
+	canvas.SaveAs('plots/timing/NoL1HoMatchEtaPt.pdf')
+	canvas.SaveAs('plots/timing/NoL1HoMatchEtaPt.png')
+	return canvas,hist,stack,histNew,label,palette
+
+filename = 'L1MuonHistogram.root'
+doPlotCutflow(filename)
+doPlotDeltaEtaDeltaPhi(filename)
 #	doPlotDeltaEtaDeltaPhiEnergy(filename)
-	doPlotCutflowNoL1(filename)
-	doPlotGenPt(filename)
-	
-	file = TFile.Open(filename)
-	hist = file.Get("hoMuonAnalyzer/etaPhi/NoTrgTdmiAboveThr_DeltaEtaDeltaPhi")
-	
-	nTotal = hist.Integral()
-	nCentral = hist.GetBinContent(hist.FindBin(0,0))
-	n3x3 = 0
-	n5x5 = 0
-	
-	for i in range(-1,2):
-		for j in range(-1,2):
-			n3x3 += hist.GetBinContent(hist.FindBin(0.087*i,0.087*j))
-			print hist.FindBin(0.087*i,0.087*j),0.087*i,0.087*j
-	for i in range(-2,3):
-		for j in range(-2,3):
-			n5x5 += hist.GetBinContent(hist.FindBin(0.087*i,0.087*j))
-	
-	print '#'*80
-	print 'No Single Mu Trigger, TDMI Matched to HO > 0.2 GeV'
-	print 'Total Events:', nTotal
-	print 'Central bin\t%d ==> %.2f%% +/- %.2f%%' % (nCentral,nCentral/nTotal*100,calcSigma(nCentral, nTotal)*100)
-	print '3 x 3 bins\t%d ==> %.2f%% +/- %.2f%%' % (n3x3,n3x3/nTotal*100,calcSigma(n3x3, nTotal)*100)
-	print '5 x 5 bins\t%d ==> %.2f%% +/- %.2f%%' % (n5x5,n5x5/nTotal*100,calcSigma(n5x5, nTotal)*100)
-	print '#'*80
-	
-if __name__ == '__main__':
-	main()
-	raw_input('--> Enter')
+doPlotCutflowNoL1(filename)
+doPlotGenPt(filename)
+
+file = TFile.Open(filename)
+hist = file.Get("hoMuonAnalyzer/etaPhi/NoTrgTdmiAboveThr_DeltaEtaDeltaPhi")
+
+nTotal = hist.Integral()
+nCentral = hist.GetBinContent(hist.FindBin(0,0))
+n3x3 = 0
+n5x5 = 0
+
+for i in range(-1,2):
+	for j in range(-1,2):
+		n3x3 += hist.GetBinContent(hist.FindBin(0.087*i,0.087*j))
+		print hist.FindBin(0.087*i,0.087*j),0.087*i,0.087*j
+for i in range(-2,3):
+	for j in range(-2,3):
+		n5x5 += hist.GetBinContent(hist.FindBin(0.087*i,0.087*j))
+
+print '#'*80
+print 'No Single Mu Trigger, TDMI Matched to HO > 0.2 GeV'
+print 'Total Events:', nTotal
+print 'Central bin\t%d ==> %.2f%% +/- %.2f%%' % (nCentral,nCentral/nTotal*100,calcSigma(nCentral, nTotal)*100)
+print '3 x 3 bins\t%d ==> %.2f%% +/- %.2f%%' % (n3x3,n3x3/nTotal*100,calcSigma(n3x3, nTotal)*100)
+print '5 x 5 bins\t%d ==> %.2f%% +/- %.2f%%' % (n5x5,n5x5/nTotal*100,calcSigma(n5x5, nTotal)*100)
+print '#'*80
+
+res = doPlotEtaPtOfFailingMatches()
+res2 = doPlotEtaPtOfSuccessfulMatches()
+raw_input('--> Enter')
