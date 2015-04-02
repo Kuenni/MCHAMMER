@@ -5,8 +5,8 @@ colorRwthMagenta 	= TColor.GetColor("#E30066")
 colorRwthLightBlue 	= TColor.GetColor("#8EBAE5")
 colorRwthDarkBlue 	= TColor.GetColor("#00549F")
 
-def getLabelCmsPrivateSimulation():
-	labelCmsPrivateSimulation = TPaveText(0.6,0.901,0.9,0.93,"NDC")
+def getLabelCmsPrivateSimulation( x1ndc = 0.6, y1ndc = 0.90, x2ndc = 0.9, y2ndc = 0.93):
+	labelCmsPrivateSimulation = TPaveText(x1ndc,y1ndc,x2ndc,y2ndc,"NDC")
 	labelCmsPrivateSimulation.AddText("#font[62]{CMS private}, #font[72]{simulation}")
 	labelCmsPrivateSimulation.SetBorderSize(1)
 	labelCmsPrivateSimulation.SetFillColor(0) # 0 == White
