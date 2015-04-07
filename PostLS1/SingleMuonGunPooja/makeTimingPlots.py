@@ -466,7 +466,7 @@ def plotPtAndEtaOfWrongBxId():
 	#prepare histogram
 	hist = file.Get("hoMuonAnalyzer/etaPhi/3D/BxWrongGen_EtaPhiPt")
 
-	stack = THStack(hist,"zx","2dStack","",1,21,1,201,"zx","")
+	stack = THStack(hist,"zx","2dStack","",1,200,1,20,"zx","")
 
 	#Create new histogram and add the histograms from the stack
 	histNew = TH2D("histPtEtaBxWrong","p_{T} vs. #eta distribution for wrong BX ID;#eta;p_{T} / 5 GeV;#",40,-1.6,1.6,40,0,200)
@@ -476,7 +476,7 @@ def plotPtAndEtaOfWrongBxId():
 
 	gStyle.SetPalette(1)
 	histNew.SetStats(0)
-	histNew.Draw('CONTZ')
+	histNew.Draw('COLZ')
 	canvas.Update()
 
 	palette = histNew.FindObject("palette")

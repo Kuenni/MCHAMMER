@@ -310,13 +310,19 @@ def doPlotEtaPtOfFailingMatches():
 	#prepare histogram
 	hist = file.Get("hoMuonAnalyzer/etaPhi/3D/NoTrgTdmiNotInGA_EtaPhiPt")
 
-	stack = THStack(hist,"zx","2dStack","",1,21,1,201,"zx","")
+	print hist.GetEntries()
+
+	stack = THStack(hist,"zx","2dStack","",1,200,1,20,"zx","")
 
 	#Create new histogram and add the histograms from the stack
 	histNew = TH2D("histPtEtaHoMatchFail","p_{T} vs. #eta distribution for events not in HO acceptance;#eta;p_{T} / 5 GeV;#",40,-1.6,1.6,40,0,200)
 	histNew.GetYaxis().SetTitleOffset(1.2)
+	histNew.Sumw2()
 	for i in stack.GetHists():
 		histNew.Add(i)
+		print i.GetEntries()
+
+	print histNew.GetEntries(),histNew.Integral()
 
 	gStyle.SetPalette(1)
 	histNew.SetStats(0)
@@ -331,9 +337,9 @@ def doPlotEtaPtOfFailingMatches():
 	label.Draw()
 	
 	canvas.Update()
-	canvas.SaveAs('plots/timing/NoL1NotInHoAcceptanceEtaPt.pdf')
-	canvas.SaveAs('plots/timing/NoL1NotInHoAcceptanceEtaPt.png')
-	return canvas,hist,stack,histNew,label,palette
+	canvas.SaveAs('plots/NoL1NotInHoAcceptanceEtaPt.pdf')
+	canvas.SaveAs('plots/NoL1NotInHoAcceptanceEtaPt.png')
+	return canvas,hist,stack,histNew,label,palette,file
 
 def doPlotEtaPtOfSuccessfulMatches():
 	file = TFile.Open('L1MuonHistogram.root')
@@ -343,7 +349,7 @@ def doPlotEtaPtOfSuccessfulMatches():
 	#prepare histogram
 	hist = file.Get("hoMuonAnalyzer/etaPhi/3D/NoTrgTdmiAboveThr_EtaPhiPt")
 
-	stack = THStack(hist,"zx","2dStack","",1,21,1,201,"zx","")
+	stack = THStack(hist,"zx","2dStack","",1,200,1,20,"zx","")
 
 	#Create new histogram and add the histograms from the stack
 	histNew = TH2D("histPtEtaHoMatch","p_{T} vs. #eta distribution;#eta;p_{T} / 5 GeV;#",40,-1.6,1.6,40,0,200)
@@ -364,9 +370,9 @@ def doPlotEtaPtOfSuccessfulMatches():
 	label.Draw()
 	
 	canvas.Update()
-	canvas.SaveAs('plots/timing/NoL1HoMatchEtaPt.pdf')
-	canvas.SaveAs('plots/timing/NoL1HoMatchEtaPt.png')
-	return canvas,hist,stack,histNew,label,palette
+	canvas.SaveAs('plots/NoL1HoMatchEtaPt.pdf')
+	canvas.SaveAs('plots/NoL1HoMatchEtaPt.png')
+	return canvas,hist,stack,histNew,label,palette,file
 
 filename = 'L1MuonHistogram.root'
 doPlotCutflow(filename)
