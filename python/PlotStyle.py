@@ -4,6 +4,9 @@ from math import sqrt,pi
 colorRwthMagenta 	= TColor.GetColor("#E30066")
 colorRwthLightBlue 	= TColor.GetColor("#8EBAE5")
 colorRwthDarkBlue 	= TColor.GetColor("#00549F")
+colorRwthTuerkis	= TColor.GetColor("#0098A1")
+colorRwthGruen		= TColor.GetColor("#57AB27")
+colorRwthRot		= TColor.GetColor("#CC071E")
 
 def getLabelCmsPrivateSimulation( x1ndc = 0.6, y1ndc = 0.90, x2ndc = 0.9, y2ndc = 0.93):
 	labelCmsPrivateSimulation = TPaveText(x1ndc,y1ndc,x2ndc,y2ndc,"NDC")
@@ -78,5 +81,10 @@ def setPlotStyle():
 #	gStyle.SetFillColor(0)
 	gStyle.SetPalette(1)
 
+def setupAxes(plot):
+	plot.GetXaxis().SetTitleFont(62)
+	plot.GetYaxis().SetTitleFont(62)
+	plot.GetXaxis().SetLabelFont(62)
+	plot.GetYaxis().SetLabelFont(62)
 def calcSigma(num,denom):
-	return sqrt(num/(denom*denom) + num*num/(pow(denom, 3)))
+	return sqrt(num/float(denom*denom) + num*num/float(pow(denom, 3)))
