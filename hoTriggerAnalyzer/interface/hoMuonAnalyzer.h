@@ -74,6 +74,8 @@ private:
   void analyzeEfficiencyWithGenLoop(const edm::Event& iEvent,const edm::EventSetup& iSetup);
   void analyzeL1MuonsForGhosts(const edm::Event& iEvent,const edm::EventSetup& iSetup);
   void fillEfficiencyHistograms(double ptMeasured,double ptReal,std::string key);
+  void fillHoGeomAcceptanceGraph(reco::GenParticle genParticle);
+  void analyzeHoDigiTiming(const edm::Event& iEvent);
 
   const reco::GenParticle* getBestGenMatch(float,float);
   const l1extra::L1MuonParticle* getBestL1MuonMatch(double eta, double phi);

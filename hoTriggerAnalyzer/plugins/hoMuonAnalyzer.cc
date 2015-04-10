@@ -86,6 +86,8 @@
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
+
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 using namespace::std;
 
 hoMuonAnalyzer::hoMuonAnalyzer(const edm::ParameterSet& iConfig)/*:
@@ -368,6 +370,8 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			genMuonCounter++;
 			histogramBuilder.fillPtHistogram(genIt->pt(),gen_key);
 			histogramBuilder.fillEtaPhiGraph(genIt->eta(),genIt->phi(),gen_key);
+			//For Ho geometric acceptance
+			fillHoGeomAcceptanceGraph(*genIt);
 			for (int i = 0; i < 200; i+=2) {
 				if(genIt->pt() >= i){
 					histogramBuilder.fillTrigRateHistograms(i,gen_key);
@@ -409,6 +413,9 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			histogramBuilder.fillEtaPhiGraph(genMatch->eta(),genMatch->phi(),"L1ToGen");
 			histogramBuilder.fillEtaPhiPtHistogram(genMatch->eta(), genMatch->phi(),genMatch->pt(),"L1ToGen");
 			fillEfficiencyHistograms(bl1Muon->pt(),genMatch->pt(),"L1Muon");
+			if(bl1Muon->gmtMuonCand().detector() == 2 /*DT only*/){
+				histogramBuilder.fillBxIdHistogram(bl1Muon->bx(),"BxDtOnly");
+			}
 			if(bl1Muon->bx() != 0){
 				histogramBuilder.fillPtHistogram(genMatch->pt(),"BxWrongGen");
 				histogramBuilder.fillEtaPhiGraph(genMatch->eta(),genMatch->phi(),"BxWrongGen");
@@ -508,11 +515,13 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	bl1Muon = l1Muons->begin();
 	el1Muon = l1Muons->end();
 	histogramBuilder.fillMultiplicityHistogram(l1Muons->size(),"L1MuonPresent");
+	if(l1Muons->size() > 0){
+		histogramBuilder.fillCountHistogram("L1MuonPresent");
+	}
 	for( unsigned int i = 0 ; i < l1Muons->size(); i++ ){
 		const l1extra::L1MuonParticle* bl1Muon = &(l1Muons->at(i));
 		float l1Muon_eta = bl1Muon->eta();
 		float l1Muon_phi = bl1Muon->phi();
-		histogramBuilder.fillCountHistogram("L1MuonPresent");
 		histogramBuilder.fillBxIdHistogram(bl1Muon->bx(),"L1MuonPresent");
 		histogramBuilder.fillBxIdVsPt(bl1Muon->bx(),bl1Muon->pt(),"L1MuonPresent");
 		histogramBuilder.fillL1MuonPtHistograms(bl1Muon->pt(),"L1MuonPresent");
@@ -931,11 +940,13 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 					} else{
 						histogramBuilder.fillEnergyVsPosition(muMatchEta,muMatchPhi,muMatch->hoCrossedEnergy(),"NoTrgTdmiBelowThrXedE");
 						histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"NoTrgTdmiBelowThr");
+						histogramBuilder.fillEtaPhiPtHistogram(muMatchEta,muMatchPhi,genIt->pt(),"NoTrgTdmiBelowThr");
 					}
 				//Count the events, where we could not match a Rec hit in the delta dR cone
 				} else{
 					histogramBuilder.fillCountHistogram("NoTrgHoMatchFail");
 					histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"NoTrgHoMatchFail");
+					histogramBuilder.fillEtaPhiPtHistogram(muMatchEta,muMatchPhi,genIt->pt(),"NoTrgHoMatchFail");
 				}
 			}//<-- in GA
 			else{
@@ -1032,6 +1043,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			}
 		}
 	}//<-- End of Single mu trg
+	analyzeHoDigiTiming(iEvent);
 }
 //#############################
 // End of Analyze function
@@ -1542,6 +1554,46 @@ void hoMuonAnalyzer::analyzeEfficiencyWithGenLoop(const edm::Event& iEvent,const
 				}
 			}
 		}
+	}
+}
+
+/**
+ * Fills an eta phi graph in case the gen particle is in the geometric
+ * acceptance of HO.
+ * Use a function for this to keep the code clean
+ */
+void hoMuonAnalyzer::fillHoGeomAcceptanceGraph(reco::GenParticle genPart){
+	if(MuonHOAcceptance::inGeomAccept(genPart.eta(),genPart.phi())
+				&& MuonHOAcceptance::inNotDeadGeom(genPart.eta(),genPart.phi())
+				&& !hoMatcher->isInChimney(genPart.eta(),genPart.phi())){
+		histogramBuilder.fillEtaPhiGraph(genPart.eta(),genPart.phi(),"HoGeomAcceptance");
+	}
+}
+
+/**
+ * The function contains the code that is used for studying the ho digi
+ * timing. The DIGI studies are more suited to assess the usability of HO
+ * than the RECO information
+ *
+ */
+void hoMuonAnalyzer::analyzeHoDigiTiming(const edm::Event& iEvent){
+	edm::Handle<HODigiCollection> hoDigis;
+	iEvent.getByLabel( edm::InputTag("simHcalDigis"), hoDigis);
+	if(!hoDigis.isValid()) std::cout << "No HO digis collection found" << std::endl;
+	auto dataFrame = hoDigis->begin();
+
+	//Loop over all ho digis
+	for(; dataFrame != hoDigis->end() ; ++dataFrame){
+		double adcSum = 0;
+		for (int i = 0 ; i < dataFrame->size() ; i++){
+			adcSum += dataFrame->sample(i).adc();
+		}
+		histogramBuilder.fillMultiplicityHistogram(adcSum,"hoDigiAdcSum");
+		histogramBuilder.fillMultiplicityHistogram(dataFrame->sample(4).adc(),"hoDigiAdcTS4");
+		int hoDigiBx =  4 - (dataFrame->presamples());
+		histogramBuilder.fillBxIdHistogram(hoDigiBx,"hoDigi");
+//		int ieta = (digi_i->id()).ieta();
+//		int iphi = (digi_i->id()).iphi();
 	}
 }
 
