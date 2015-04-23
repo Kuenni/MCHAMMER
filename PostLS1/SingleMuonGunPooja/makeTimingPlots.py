@@ -1,10 +1,8 @@
 import os,sys
 from math import sqrt
-from mercurial.phases import newheads
-print os.path.abspath("../../python")
 sys.path.append(os.path.abspath("../../python"))
 
-from ROOT import TCanvas,ROOT,TFile,TLegend,TF1,TLine,gROOT,TPaveText,TH1D,THStack,Double,TH2D,THStack,gStyle
+from ROOT import TCanvas,ROOT,TFile,TLegend,TF1,TLine,gROOT,TPaveText,TH1D,Double,TH2D,THStack,gStyle
 
 DEBUG = 1
 
@@ -168,27 +166,31 @@ def plotL1BxId():
 
 def plotHoTime():
 	c3 = TCanvas("c3","HO Time",1200,1200)
-	c3.Divide(1,2)
-	c3.cd(1).SetLogy()
-	label = PlotStyle.getLabelCmsPrivateSimulation()
-	label.Draw()
-	hHoTime = file.Get('hoMuonAnalyzer/hoRecHits_Time')
+	skipNoisePlot = True
+	if not skipNoisePlot:
+		c3.Divide(1,2)
+		c3.cd(1).SetLogy()
+		label = PlotStyle.getLabelCmsPrivateSimulation()
+		label.Draw()
+		hHoTime = file.Get('hoMuonAnalyzer/hoRecHits_Time')
+		
+		hHoTime.SetStats(0)
+		hHoTime.SetTitle("Time distribution for all HO Rec Hits")
+		hHoTime.SetLineColor(PlotStyle.colorRwthDarkBlue)
+		hHoTime.SetLineWidth(3)
+		hHoTime.Draw()
+		label = PlotStyle.getLabelCmsPrivateSimulation()
+		label.Draw()
+		
 	hHoTimeAboveThr = file.Get('hoMuonAnalyzer/hoRecHitsAboveThr_Time')
-	
-	hHoTime.SetStats(0)
-	hHoTime.SetTitle("Time distribution for all HO Rec Hits")
-	hHoTime.SetLineColor(PlotStyle.colorRwthDarkBlue)
-	hHoTime.SetLineWidth(3)
-	hHoTime.Draw()
-	label = PlotStyle.getLabelCmsPrivateSimulation()
-	label.Draw()
-	
 	c3.cd(2).SetLogy()
 	hHoTimeAboveThr.SetStats(0)
 	hHoTimeAboveThr.SetTitle("Time distribution for HO Rec Hits > 0.2 GeV")
 	hHoTimeAboveThr.SetLineColor(PlotStyle.colorRwthDarkBlue)
 	hHoTimeAboveThr.SetLineWidth(3)
+	PlotStyle.setupAxes(hHoTimeAboveThr)
 	hHoTimeAboveThr.Draw()
+	
 	label = PlotStyle.getLabelCmsPrivateSimulation()
 	label.Draw()
 	
@@ -212,11 +214,13 @@ def plotHoTime():
 	pText.AddText('Mean: %.2f ns' % (fit.GetParameter(1)))
 	pText.AddText('#sigma: %.2f ns' % (fit.GetParameter(2)))
 	pText.SetBorderSize(1)
+	pText.SetFillColor(0)
 	pText.Draw()
 	
 	c3.Update()
 	c3.SaveAs("plots/timing/hoTime.png")
 	c3.SaveAs("plots/timing/hoTime.pdf")
+	
 	return c3
 
 def plotFractionsOfBxId():
@@ -314,7 +318,9 @@ def plotEtaPhiOfWrongBxId():
 	hRight = file.Get('hoMuonAnalyzer/BxRightGen_Pt')
 	nRight = hRight.Integral()
 	nWrong = hWrong.Integral()
-		
+	
+	nEventsWithL1 = file.Get('hoMuonAnalyzer/count/L1MuonPresent_Count').GetBinContent(2)
+	
 	etaPhiBxWrongNC = file.Get("hoMuonAnalyzer/graphs/BxWrongGen")
 	etaPhiBxWrong = PlotStyle.convertToHcalCoords(etaPhiBxWrongNC)
 	etaPhiBxWrong.GetXaxis().SetTitle("i#eta / a.u.")
@@ -325,7 +331,7 @@ def plotEtaPhiOfWrongBxId():
 	etaPhiBxWrong.Draw("AP")
 	
 	pText = TPaveText(0.7,0.85,0.9,0.9,'NDC')
-	pText.AddText('Events with L1 objects: %d' % (nRight + nWrong))
+	pText.AddText('Events with L1 objects: %d' % (nEventsWithL1))
 	pText.AddText('Events in Plot: %d' % (etaPhiBxWrong.GetN()))
 	pText.SetBorderSize(1)
 	pText.Draw()
@@ -425,6 +431,24 @@ def plotDetectorContributionsToTiming():
 	label = PlotStyle.getLabelCmsPrivateSimulation()
 	label.Draw()
 	
+	#Make a histogram to grey out the CSC parts
+	histGrey = TH1D('greyHist','grey hist',2,3.5,5.5)
+	histGrey.SetBinContent(1,1)
+	histGrey.SetBinContent(2,1)
+	histGrey.SetFillStyle(3004)
+	histGrey.SetLineWidth(2)
+	histGrey.SetLineColor(1)
+	histGrey.SetFillColor(1)
+	histGrey.Draw('same')
+	
+	pText = TPaveText(0.7,0.33,0.79,0.62,"NDC")
+	tTextPointer = pText.AddText('Not in #eta range')
+	tTextPointer.SetTextAngle(90)
+	tTextPointer.SetTextSize(0.039)
+	pText.SetBorderSize(1)
+	pText.SetFillColor(0)
+	pText.Draw()
+	
 	canvas.cd(2).SetGridx(0)
 	canvas.cd(2).SetGridy(0)
 	canvas.cd(2).SetLogy()
@@ -451,13 +475,17 @@ def plotDetectorContributionsToTiming():
 	label2 = PlotStyle.getLabelCmsPrivateSimulation()
 	label2.Draw()
 	
+	histGrey.DrawCopy('same')
+	pText2 = pText.Clone("pText2")
+	pText2.Draw()
+	
 	canvas.Update()
 	canvas.SaveAs('plots/timing/bxWrongDetectorContributions.pdf')
 	canvas.SaveAs('plots/timing/bxWrongDetectorContributions.png')
 	
 	
 	
-	return canvas,hist,label
+	return canvas,hist,label,histGrey,pText,pText2,label2
 
 def plotPtAndEtaOfWrongBxId():
 	#Prepare canvas
@@ -466,7 +494,7 @@ def plotPtAndEtaOfWrongBxId():
 	#prepare histogram
 	hist = file.Get("hoMuonAnalyzer/etaPhi/3D/BxWrongGen_EtaPhiPt")
 
-	stack = THStack(hist,"zx","2dStack","",1,200,1,20,"zx","")
+	stack = THStack(hist,"zx","2dStack","",-1,-1,-1,-1,"zx","")
 
 	#Create new histogram and add the histograms from the stack
 	histNew = TH2D("histPtEtaBxWrong","p_{T} vs. #eta distribution for wrong BX ID;#eta;p_{T} / 5 GeV;#",40,-1.6,1.6,40,0,200)
@@ -491,12 +519,164 @@ def plotPtAndEtaOfWrongBxId():
 	canvas.SaveAs('plots/timing/bxWrongEtaPt.png')
 	return canvas,hist,stack,histNew,label
 
-#plotDeltaTime()
-#plotEtaOfWrongBxId()
-#plotEtaPhiOfWrongBxId()
-#plotFractionsOfBxId()
-#plotL1BxId()
-#res = plotHoTime()
-#res2 = plotDetectorContributionsToTiming()
+def plotPtAndPhiOfWrongBxId():
+	#Prepare canvas
+	canvas = TCanvas("canvasPtPhiBxWrong","PtPhiBxWrong",1200,1200)
+	canvas.cd().Draw()
+	#prepare histogram
+	hist = file.Get("hoMuonAnalyzer/etaPhi/3D/BxWrongGen_EtaPhiPt")
+
+	stack = THStack(hist,"zy","2dStack","",-1,-1,-1,-1,"zy","")
+
+	#Create new histogram and add the histograms from the stack
+	histNew = TH2D("histPtPhiBxWrong","p_{T} vs. #phi distribution for wrong BX ID;#phi;p_{T} / 5 GeV;#",80,-3.2,3.2,40,0,200)
+	histNew.GetYaxis().SetTitleOffset(1.2)
+	for i in stack.GetHists():
+		histNew.Add(i)
+
+	gStyle.SetPalette(1)
+	histNew.SetStats(0)
+	PlotStyle.setupAxes(histNew)
+	histNew.Draw('COLZ')
+	canvas.Update()
+
+	palette = histNew.FindObject("palette")
+	palette.SetX1NDC(0.9)
+	palette.SetX2NDC(0.92)
+	#add label
+	label = PlotStyle.getLabelCmsPrivateSimulation()
+	label.Draw()
+	
+	canvas.Update()
+	canvas.SaveAs('plots/timing/bxWrongPtPhi.pdf')
+	canvas.SaveAs('plots/timing/bxWrongPtPhi.png')
+	return canvas,hist,stack,histNew,label
+
+
+def plotImprovementInDt():
+	#Prepare canvas
+	PlotStyle.setPlotStyle()
+	canvas = TCanvas("canvasDtImprovement","DT improvement",1200,1200)
+	canvas.SetLogy()
+	histDt = file.Get("hoMuonAnalyzer/BxDtOnly_BxId")
+	
+	#Define variables for integrals
+	histHoTime = file.Get('hoMuonAnalyzer/hoRecHitsAboveThr_Time')
+	integralHoCorrect = histHoTime.Integral(histHoTime.FindBin(-12.5),histHoTime.FindBin(12.5))
+	integralHoTotal = histHoTime.Integral()
+	integralHoOutside = integralHoTotal - integralHoCorrect
+	hoFractionWrong = integralHoOutside/float(integralHoTotal)
+	hoFractionRight = integralHoCorrect/float(integralHoTotal)
+	
+	#Print some information
+	heading = 'Integrals of the Ho timing:'
+	print 80*'#'
+	print heading
+	print len(heading)*'-'
+	print 'Timing correct:\t%d\t=>\t%5.2f%% +/- %5.2f%%'%(integralHoCorrect,hoFractionRight*100,100*calcSigma(integralHoCorrect, integralHoTotal))
+	print 'Timing outside:\t%d\t=>\t%5.2f%% +/- %f%%'%(integralHoOutside,hoFractionWrong*100,100*calcSigma(integralHoOutside, integralHoTotal))
+	print 'Timing total:%d'%(integralHoTotal)
+	print
+	
+	#Define Variables for bx id counts
+	dtBx0 = histDt.GetBinContent(6)
+	dtBxM1 = histDt.GetBinContent(5)
+	dtBxP1 = histDt.GetBinContent(7)
+	dtBxTotal = dtBx0 + dtBxM1
+	dtFractionWrongM1 = dtBxM1/float(dtBxTotal)
+
+	#Print some information
+	heading = 'Bin contents for DT timing:'
+	print heading
+	print len(heading)*'-'
+	print 'BX ID 0:\t%d\t=>\t%5.2f%% +/- %5.2f%%'%(dtBx0,dtBx0/float(dtBxTotal)*100,calcSigma(dtBx0, dtBxTotal))
+	print 'BX ID -1:\t%d\t=>\t%5.2f%% +/- %5.2f%%'%(dtBxM1,dtFractionWrongM1*100,calcSigma(dtBxM1, dtBxTotal))
+	print 'BX ID total:\t%d' % (dtBxTotal)
+	print
+	
+	#Calculate corrected numbers
+	correctedBxIdM1 = dtBxM1 + hoFractionWrong*dtBx0/2. - hoFractionRight*dtBxM1
+	correctedBxId0 = dtBx0 - hoFractionWrong*dtBx0 + hoFractionRight*dtBxM1 + hoFractionRight*dtBxP1
+	correctedBxIdP1 = dtBxP1 + hoFractionWrong*dtBx0/2. - hoFractionRight*dtBxP1
+	correctedTotal = correctedBxIdM1 + correctedBxId0 + correctedBxIdP1
+	correctedRightFraction = correctedBxId0/float(correctedTotal)
+	
+	heading = 'DT After correction:'
+	print heading
+	print len(heading)*'-'
+	print 'BX -1:\t',int(correctedBxIdM1)
+	print 'BX 0:\t',int(correctedBxId0)
+	print 'BX +1:\t',int(correctedBxIdP1)
+	print 
+	#Fill corrected histogram
+	histNew = TH1D("histNew","BX ID in DT only triggers;BX ID;rel. fraction",6,-2.5,3.5)
+	histNew.SetBinContent(histNew.FindBin(-1),correctedBxIdM1)
+	histNew.SetBinContent(histNew.FindBin(0),correctedBxId0)
+	histNew.SetBinContent(histNew.FindBin(1),correctedBxIdP1)
+	histNew.SetLineColor(PlotStyle.colorRwthMagenta)
+	histNew.SetStats(0)
+	histNew.Scale(1/histNew.Integral())
+	histNew.SetLineStyle(9)
+	PlotStyle.setupAxes(histNew)
+	
+	histDt.GetXaxis().SetRangeUser(-3,3)
+	histDt.SetLineWidth(3)
+	histDt.Scale(1/histDt.Integral())
+	histDt.SetLineColor(PlotStyle.colorRwthDarkBlue)
+	
+	
+	histNew.Draw()
+	histDt.Draw('same')
+	histNew.Draw('same')
+	
+
+	#Add label
+	label = PlotStyle.getLabelCmsPrivateSimulation()
+	label.Draw()
+	
+	#Add legend
+	legend = TLegend(0.7,0.65,0.9,0.8)
+	legend.AddEntry(histDt,"DT Only","l")
+	legend.AddEntry(histNew,"DT shifted with HO","l")
+	legend.SetBorderSize(1)
+	legend.Draw()
+	
+	#Add text object
+	pText = TPaveText(0.52,0.8,0.9,0.9,'NDC')
+	pText.AddText('Fraction in BX ID 0: %6.3f%% #pm %6.3f%%' % (dtBx0/float(dtBxTotal)*100,calcSigma(dtBx0, dtBxTotal)))
+	pText.AddText('Fraction in BX ID 0 (HO corr.): %6.3f%% #pm %6.3f%%' % (correctedRightFraction*100,calcSigma(correctedBxId0, correctedTotal)))
+	pText.SetBorderSize(1)
+	pText.SetFillColor(0)
+	pText.Draw()
+	
+	pText2 = TPaveText(0.7,0.6,0.9,0.65,'NDC')
+	pText2.AddText('Entries: %d' % (histDt.GetEntries()))
+	pText2.SetBorderSize(1)
+	pText2.SetFillColor(0)
+	pText2.Draw()
+	
+	#Print again some information
+	heading = 'Fraction of correct BXID:'
+	print heading
+	print len(heading)*'-'
+	print 'Uncorrected:\t%5.2f%% #pm %f%%' % (dtBx0/float(dtBxTotal)*100,calcSigma(dtBx0, dtBxTotal))
+	print 'Corrected\t%5.2f%% #pm %f%%' % (correctedRightFraction*100,calcSigma(correctedBxId0, correctedTotal))
+	print 80*'#'
+	
+	canvas.Update()
+	canvas.SaveAs('plots/timing/correctedDt.pdf')
+	canvas.SaveAs('plots/timing/correctedDt.png')
+	canvas.SaveAs('plots/timing/correctedDt.root')
+	return canvas, histDt,histNew,label,legend,pText2,pText
+	
+plotDeltaTime()
+plotEtaOfWrongBxId()
+plotEtaPhiOfWrongBxId()
+plotFractionsOfBxId()
+plotL1BxId()
+res = plotHoTime()
+res2 = plotDetectorContributionsToTiming()
 res3 = plotPtAndEtaOfWrongBxId()
+res4 = plotImprovementInDt()
+res5 = plotPtAndPhiOfWrongBxId()
 raw_input('-->')
