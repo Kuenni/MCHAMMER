@@ -10,15 +10,13 @@ from plotDeltaEtaDeltaPhi import plotDeltaEtaDeltaPhiEnergyProjection,plotDeltaE
 DEBUG = 1
 
 import PlotStyle
+from PlotStyle import calcSigma
 PlotStyle.setPlotStyle()
 
 if( not os.path.exists('plots')):
 	os.mkdir('plots')
 if( not os.path.exists('plots/cutflow')):
 	os.mkdir('plots/cutflow')
-
-def calcSigma(num,denom):
-	return sqrt(num/(denom*denom) + num*num/(pow(denom, 3)))
 
 def doPlotCutflow(filename='L1MuonHistogram.root'):
 	
@@ -312,7 +310,7 @@ def doPlotEtaPtOfFailingMatches():
 
 	print hist.GetEntries()
 
-	stack = THStack(hist,"zx","2dStack","",1,200,1,20,"zx","")
+	stack = THStack(hist,"zx","2dStack","",-1,-1,-1,-1,"zx","")
 
 	#Create new histogram and add the histograms from the stack
 	histNew = TH2D("histPtEtaHoMatchFail","p_{T} vs. #eta distribution for events not in HO acceptance;#eta;p_{T} / 5 GeV;#",40,-1.6,1.6,40,0,200)
@@ -337,9 +335,47 @@ def doPlotEtaPtOfFailingMatches():
 	label.Draw()
 	
 	canvas.Update()
-	canvas.SaveAs('plots/NoL1NotInHoAcceptanceEtaPt.pdf')
-	canvas.SaveAs('plots/NoL1NotInHoAcceptanceEtaPt.png')
+	canvas.SaveAs('plots/NoL1NotInHoAcceptancePtEta.pdf')
+	canvas.SaveAs('plots/NoL1NotInHoAcceptancePtEta.png')
 	return canvas,hist,stack,histNew,label,palette,file
+
+def doPlotPhiPtOfFailingMatches():
+	file = TFile.Open('L1MuonHistogram.root')
+	#Prepare canvas
+	canvas = TCanvas("canvasPtPhiHoMatchFail","PtPhiHoMatchFail",1200,1200)
+	canvas.cd().Draw()
+	#prepare histogram
+	hist = file.Get("hoMuonAnalyzer/etaPhi/3D/NoTrgTdmiNotInGA_EtaPhiPt")
+
+	print hist.GetEntries()
+
+	stack = THStack(hist,"zy","2dStack","",-1,-1,-1,-1,"zy","")
+
+	#Create new histogram and add the histograms from the stack
+	histNew = TH2D("histPtEtaHoMatchFail","p_{T} vs. #phi distribution for events not in HO acceptance;#phi;p_{T} / 5 GeV;#",80, -3.2, 3.2,40,0,200)
+	histNew.GetYaxis().SetTitleOffset(1.2)
+	histNew.Sumw2()
+	for i in stack.GetHists():
+		histNew.Add(i)
+	
+	gStyle.SetPalette(1)
+	histNew.SetStats(0)
+	PlotStyle.setupAxes(histNew)
+	histNew.Draw('COLZ')
+	canvas.Update()
+
+	palette = histNew.FindObject("palette")
+	palette.SetX1NDC(0.9)
+	palette.SetX2NDC(0.92)
+	#add label
+	label = PlotStyle.getLabelCmsPrivateSimulation()
+	label.Draw()
+	
+	canvas.Update()
+	canvas.SaveAs('plots/NoL1NotInHoAcceptancePhiPt.pdf')
+	canvas.SaveAs('plots/NoL1NotInHoAcceptancePhiPt.png')
+	return canvas,hist,stack,histNew,label,palette,file
+
 
 def doPlotEtaPtOfSuccessfulMatches():
 	file = TFile.Open('L1MuonHistogram.root')
@@ -349,7 +385,7 @@ def doPlotEtaPtOfSuccessfulMatches():
 	#prepare histogram
 	hist = file.Get("hoMuonAnalyzer/etaPhi/3D/NoTrgTdmiAboveThr_EtaPhiPt")
 
-	stack = THStack(hist,"zx","2dStack","",1,200,1,20,"zx","")
+	stack = THStack(hist,"zx","2dStack","",-1,-1,-1,-1,"zx","")
 
 	#Create new histogram and add the histograms from the stack
 	histNew = TH2D("histPtEtaHoMatch","p_{T} vs. #eta distribution;#eta;p_{T} / 5 GeV;#",40,-1.6,1.6,40,0,200)
@@ -370,16 +406,11 @@ def doPlotEtaPtOfSuccessfulMatches():
 	label.Draw()
 	
 	canvas.Update()
-	canvas.SaveAs('plots/NoL1HoMatchEtaPt.pdf')
-	canvas.SaveAs('plots/NoL1HoMatchEtaPt.png')
+	canvas.SaveAs('plots/NoL1HoMatchPtEta.pdf')
+	canvas.SaveAs('plots/NoL1HoMatchPtEta.png')
 	return canvas,hist,stack,histNew,label,palette,file
 
 filename = 'L1MuonHistogram.root'
-doPlotCutflow(filename)
-doPlotDeltaEtaDeltaPhi(filename)
-#	doPlotDeltaEtaDeltaPhiEnergy(filename)
-doPlotCutflowNoL1(filename)
-doPlotGenPt(filename)
 
 file = TFile.Open(filename)
 hist = file.Get("hoMuonAnalyzer/etaPhi/NoTrgTdmiAboveThr_DeltaEtaDeltaPhi")
@@ -405,6 +436,12 @@ print '3 x 3 bins\t%d ==> %.2f%% +/- %.2f%%' % (n3x3,n3x3/nTotal*100,calcSigma(n
 print '5 x 5 bins\t%d ==> %.2f%% +/- %.2f%%' % (n5x5,n5x5/nTotal*100,calcSigma(n5x5, nTotal)*100)
 print '#'*80
 
+#doPlotCutflow(filename)
+#doPlotDeltaEtaDeltaPhi(filename)
+#	doPlotDeltaEtaDeltaPhiEnergy(filename)
+#doPlotCutflowNoL1(filename)
+#doPlotGenPt(filename)
 res = doPlotEtaPtOfFailingMatches()
-res2 = doPlotEtaPtOfSuccessfulMatches()
+#res2 = doPlotEtaPtOfSuccessfulMatches()
+res3 = doPlotPhiPtOfFailingMatches()
 raw_input('--> Enter')
