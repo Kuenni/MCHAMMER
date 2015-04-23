@@ -204,21 +204,21 @@ def plotFailedHoMatchesNoTrg():
 	grNotInGa.SetTitle("#eta #phi plot failed HO matches in no Single #mu Trg. events")
 	grNotInGa.Draw("AP")
 	
-	#Graph for events where HO matching failed
-	grHoMatchFailNC = file.Get("hoMuonAnalyzer/graphs/NoTrgHoMatchFail")
-	grHoMatchFail = PlotStyle.convertToHcalCoords(grHoMatchFailNC)
-	grHoMatchFail.SetMarkerStyle(21)
-	grHoMatchFail.SetMarkerSize(1)
-	grHoMatchFail.SetMarkerColor(ROOT.kRed)
-	grHoMatchFail.Draw("samep")
-	
 	#Graph of events with HO match below threshold
 	grHoBelowThrNC = file.Get("hoMuonAnalyzer/graphs/NoTrgTdmiBelowThr")
 	grHoBelowThr = PlotStyle.convertToHcalCoords(grHoBelowThrNC)
 	grHoBelowThr.SetMarkerStyle(20)
 	grHoBelowThr.SetMarkerSize(1.2)
-	grHoBelowThr.SetMarkerColor(ROOT.kGreen + 3 )
+	grHoBelowThr.SetMarkerColor( PlotStyle.colorRwthGruen )
 	grHoBelowThr.Draw("samep")
+	
+	#Graph for events where HO matching failed
+	grHoMatchFailNC = file.Get("hoMuonAnalyzer/graphs/NoTrgHoMatchFail")
+	grHoMatchFail = PlotStyle.convertToHcalCoords(grHoMatchFailNC)
+	grHoMatchFail.SetMarkerStyle(21)
+	grHoMatchFail.SetMarkerSize(1)
+	grHoMatchFail.SetMarkerColor( PlotStyle.colorRwthRot )
+	grHoMatchFail.Draw("samep")
 	
 	#Draw chimneys
 	chimney1Converted = PlotStyle.convertToHcalCoords(PlotStyle.chimney1)
