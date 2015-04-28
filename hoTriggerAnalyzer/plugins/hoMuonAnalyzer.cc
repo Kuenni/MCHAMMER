@@ -156,7 +156,9 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	 */
 
 	if(firstRun){
-		printChannelQualities(iSetup);
+		//for now we do not need the channel qualities any more
+		//Uncomment again, if needed
+//		printChannelQualities(iSetup);
 		firstRun = false;
 	}
 
@@ -1587,6 +1589,7 @@ void hoMuonAnalyzer::analyzeHoDigiTiming(const edm::Event& iEvent){
 		double adcSum = 0;
 		for (int i = 0 ; i < dataFrame->size() ; i++){
 			adcSum += dataFrame->sample(i).adc();
+			histogramBuilder.fillCorrelationHistogram(i,dataFrame->sample(i).adc(),"adc samples");
 		}
 		histogramBuilder.fillMultiplicityHistogram(adcSum,"hoDigiAdcSum");
 		histogramBuilder.fillMultiplicityHistogram(dataFrame->sample(4).adc(),"hoDigiAdcTS4");
