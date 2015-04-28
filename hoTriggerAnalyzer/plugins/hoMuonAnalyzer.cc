@@ -409,7 +409,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		if(genMatch){
 			successfulMatches++;
 			histogramBuilder.fillDeltaVzHistogam( (genMatch->vz() - bl1Muon->vz()) ,l1muon_key);
-			histogramBuilder.fillPtCorrelationHistogram(genMatch->pt(),bl1Muon->pt(),l1muon_key);
+			histogramBuilder.fillCorrelationHistogram(genMatch->pt(),bl1Muon->pt(),"L1MuonPt");
 			histogramBuilder.fillEtaPhiGraph(genMatch->eta(),genMatch->phi(),"L1ToGen");
 			histogramBuilder.fillEtaPhiPtHistogram(genMatch->eta(), genMatch->phi(),genMatch->pt(),"L1ToGen");
 			fillEfficiencyHistograms(bl1Muon->pt(),genMatch->pt(),"L1Muon");
