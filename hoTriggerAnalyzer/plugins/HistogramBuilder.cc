@@ -44,15 +44,13 @@ void HistogramBuilder::fillVzHistogram(float vz, std::string key){
 }
 
 /**
- * Fill a correlation histogram for Pt of two objects
+ * Fill a 2d histogram
  */
-void HistogramBuilder::fillPtCorrelationHistogram(float pt1, float pt2, std::string key){
-	if(!_h2PtCorrelation.count(key)){
-		_h2PtCorrelation[key] = _fileService->make<TH2D>(Form("%s_PtCorrelation",key.c_str()),
-				Form("%s P_{T} Correlation;p_{T}1;p_{T}2",key.c_str()),
-				500, 0,500,500,0,500);
-	}
-	_h2PtCorrelation[key]->Fill(pt1,pt2);
+void HistogramBuilder::fillCorrelationHistogram(double x, double y, std::string key){
+	TFileDirectory correlationDir = _fileService->mkdir( "correlation" );
+	correlationDir.make<TH2D>(Form("%s_Correlation",key.c_str()),
+					Form("%s Correlation;x;y",key.c_str()),
+					500, 0,500,500,0,500);
 }
 
 void HistogramBuilder::fillEfficiency(bool passed, float pt, std::string key){
