@@ -463,8 +463,9 @@ void HistogramBuilder::fillDeltaTimeHistogram(double time, int bx, std::string k
 					201,-100.5,100.5);
 	}
 	_h1DeltaTime[key]->Fill(bx*25 - time);
+	TFileDirectory correlationDir = _fileService->mkdir("correlation");
 	if(!_h2TimeCorrelation.count(key)){
-		_h2TimeCorrelation[key] = _fileService->make<TH2D>(Form("%s_TimeCorrelation",key.c_str()),
+		_h2TimeCorrelation[key] = correlationDir.make<TH2D>(Form("%s_TimeCorrelation",key.c_str()),
 				Form("%s Time Correlation;HO time / ns;L1 Time / ns",key.c_str()),
 				200, -100.5,100.5,	//1ns bins
 				200, -100.5,100.5	//1ns bins
