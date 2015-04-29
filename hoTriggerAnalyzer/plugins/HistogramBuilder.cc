@@ -467,8 +467,8 @@ void HistogramBuilder::fillDeltaTimeHistogram(double time, int bx, std::string k
 	if(!_h2TimeCorrelation.count(key)){
 		_h2TimeCorrelation[key] = correlationDir.make<TH2D>(Form("%s_TimeCorrelation",key.c_str()),
 				Form("%s Time Correlation;HO time / ns;L1 Time / ns",key.c_str()),
-				200, -100.5,100.5,	//1ns bins
-				200, -100.5,100.5	//1ns bins
+				201, -100.5,100.5,	//1ns bins
+				201, -100.5,100.5	//1ns bins
 				);
 	}
 	_h2TimeCorrelation[key]->Fill(time,bx*25);
