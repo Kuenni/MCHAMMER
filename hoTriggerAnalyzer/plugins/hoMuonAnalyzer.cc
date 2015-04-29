@@ -218,19 +218,22 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	 */
 	genMuonVector->clear();
 	for( reco::GenParticleCollection::const_iterator genPart = truthParticles->begin() ; genPart != truthParticles->end(); genPart++){
-		genMuonVector->push_back(GenMuonData(
-				genPart->eta(),
-				genPart->phi(),
-				genPart->pt(),
-				genPart->pdgId(),
-				MuonHOAcceptance::inGeomAccept(genPart->eta(),genPart->phi()),
-				MuonHOAcceptance::inNotDeadGeom(genPart->eta(),genPart->phi()),
-				MuonHOAcceptance::inSiPMGeom(genPart->eta(),genPart->phi())
-		));
 
 		TrackDetMatchInfo * muMatch = getTrackDetMatchInfo(*genPart,iEvent,iSetup);
 		double muMatchEta = muMatch->trkGlobPosAtHO.eta();
 		double muMatchPhi = muMatch->trkGlobPosAtHO.phi();
+
+		genMuonVector->push_back(GenMuonData(
+				genPart->eta(),
+				genPart->phi(),
+				muMatchEta,
+				muMatchPhi,
+				genPart->pt(),
+				genPart->pdgId(),
+				(MuonHOAcceptance::inGeomAccept(genPart->eta(),genPart->phi()) && !hoMatcher->isInChimney(genPart->eta(),genPart->phi())),
+				MuonHOAcceptance::inNotDeadGeom(genPart->eta(),genPart->phi()),
+				MuonHOAcceptance::inSiPMGeom(genPart->eta(),genPart->phi())
+		));
 
 		if( MuonHOAcceptance::inGeomAccept(muMatchEta,muMatchPhi) && MuonHOAcceptance::inNotDeadGeom(muMatchEta,muMatchPhi) ){
 			histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"tdmiInGaNotDead");
@@ -313,7 +316,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 						it->phi(),
 						it->pt(),
 						it->bx(),
-						MuonHOAcceptance::inGeomAccept(it->eta(),it->phi()),
+						(MuonHOAcceptance::inGeomAccept(it->eta(),it->phi() && !hoMatcher->isInChimney(it->eta(),it->phi()))),
 						MuonHOAcceptance::inNotDeadGeom(it->eta(),it->phi()),
 						MuonHOAcceptance::inSiPMGeom(it->eta(),it->phi())
 				)
@@ -641,6 +644,23 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				histogramBuilder.fillDeltaTimeHistogram(matchedRecHit->time(),bl1Muon->bx(),"L1MuonAboveThr");
 				histogramBuilder.fillTimeHistogram(matchedRecHit->time(),"L1MuonAboveThr");
 				histogramBuilder.fillBxIdVsPt(bl1Muon->bx(),bl1Muon->pt(),"L1MuonAboveThr");
+				//Make time correlation plots depending on the different detector subsystems
+				switch (bl1Muon->gmtMuonCand().detector()) {
+					//RPC
+					case 1:
+						histogramBuilder.fillDeltaTimeHistogram(matchedRecHit->time(),bl1Muon->bx(),"RpcHoAboveThr");
+						break;
+					//DT
+					case 2:
+						histogramBuilder.fillDeltaTimeHistogram(matchedRecHit->time(),bl1Muon->bx(),"DtHoAboveThr");
+						break;
+					//RPC/DT
+					case 3:
+						histogramBuilder.fillDeltaTimeHistogram(matchedRecHit->time(),bl1Muon->bx(),"RpcAndDtHoAboveThr");
+						break;
+					default:
+						break;
+				}
 				double hoEta,hoPhi;
 				hoEta = caloGeo->getPosition(matchedRecHit->detid()).eta();
 				hoPhi = caloGeo->getPosition(matchedRecHit->detid()).phi();
@@ -660,7 +680,24 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 						histogramBuilder.fillDeltaEtaDeltaPhiHistograms(l1Muon_eta,hoEta,l1Muon_phi, hoPhi,"L1MuonWithHoMatchAboveThrFilt");
 						histogramBuilder.fillL1MuonPtHistograms(bl1Muon->pt(),"L1MuonWithHoMatchAboveThrFilt");
 						histogramBuilder.fillEnergyVsPosition(hoEta,hoPhi,matchedRecHit->energy(),"L1MuonWithHoMatchAboveThrFilt");
-
+						//Make time correlation plots depending on the different detector subsystems
+						//This time for HO in GA only
+						switch (bl1Muon->gmtMuonCand().detector()) {
+							//RPC
+							case 1:
+								histogramBuilder.fillDeltaTimeHistogram(matchedRecHit->time(),bl1Muon->bx(),"RpcHoAboveThrFilt");
+								break;
+							//DT
+							case 2:
+								histogramBuilder.fillDeltaTimeHistogram(matchedRecHit->time(),bl1Muon->bx(),"DtHoAboveThrFilt");
+								break;
+							//RPC/DT
+							case 3:
+								histogramBuilder.fillDeltaTimeHistogram(matchedRecHit->time(),bl1Muon->bx(),"RpcAndDtHoAboveThrFilt");
+								break;
+							default:
+								break;
+						}
 						const reco::GenParticle* bestGenMatch = getBestGenMatch(bl1Muon->eta(),bl1Muon->phi());
 						if(bestGenMatch){
 							fillEfficiencyHistograms(bl1Muon->pt(),bestGenMatch->pt(),"L1MuonHoRecoAboveThrFilt");
