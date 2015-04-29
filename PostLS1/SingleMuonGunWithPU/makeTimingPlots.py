@@ -9,10 +9,10 @@ DEBUG = 1
 gROOT.Reset()
 
 import PlotStyle
-PlotStyle.setPlotStyle()
 
-def calcSigma(num,denom):
-	return sqrt(num/float(denom*denom) + num*num/float(pow(denom, 3)))
+from PlotStyle import calcSigma
+
+PlotStyle.setPlotStyle()
 
 if( not os.path.exists('plots')):
 	os.mkdir('plots')
