@@ -1624,20 +1624,20 @@ void hoMuonAnalyzer::analyzeHoDigiTiming(const edm::Event& iEvent){
 	//Loop over all ho digis
 	for(; dataFrame != hoDigis->end() ; ++dataFrame){
 		double adcSum = 0;
-		int maxTS = 0;
+		int maxAdcVal = 0;
 		int maxTSIdx = -1;
 		for (int i = 0 ; i < dataFrame->size() ; i++){
 			adcSum += dataFrame->sample(i).adc();
 			histogramBuilder.fillCorrelationHistogram(i,dataFrame->sample(i).adc(),"adc samples");
 			//Find TS with maximum ADC
-			if(dataFrame->sample(i).adc() > maxTS){
-				maxTS = dataFrame->sample(i).adc();
+			if(dataFrame->sample(i).adc() > maxAdcVal){
+				maxAdcVal = dataFrame->sample(i).adc();
 				maxTSIdx = i;
 			}
 		}
 		//Fill histogram with maximum TS ID
 		histogramBuilder.fillBxIdHistogram(maxTSIdx,"maxTimeSlice");
-		histogramBuilder.fillCorrelationHistogram(maxTSIdx,maxTS,"MaxTimeSliceVsAdc");
+		histogramBuilder.fillCorrelationHistogram(maxTSIdx,maxAdcVal,"MaxTimeSliceVsAdc");
 		histogramBuilder.fillMultiplicityHistogram(adcSum,"hoDigiAdcSum");
 		histogramBuilder.fillMultiplicityHistogram(dataFrame->sample(4).adc(),"hoDigiAdcTS4");
 		int hoDigiBx =  4 - (dataFrame->presamples());
