@@ -1,4 +1,4 @@
-from ROOT import gROOT,gStyle, TColor, TPaveText, TGraph, ROOT, Double, TBox
+from ROOT import gROOT,gStyle, TColor, TPaveText, TGraph, ROOT, Double, TBox, TH2D
 from math import sqrt,pi
 
 colorRwthMagenta 	= TColor.GetColor("#E30066")
@@ -81,10 +81,19 @@ def setPlotStyle():
 #	gStyle.SetFillColor(0)
 	gStyle.SetPalette(1)
 
+#Set all Axes to bold font
 def setupAxes(plot):
 	plot.GetXaxis().SetTitleFont(62)
 	plot.GetYaxis().SetTitleFont(62)
+	plot.GetZaxis().SetTitleFont(62)
 	plot.GetXaxis().SetLabelFont(62)
 	plot.GetYaxis().SetLabelFont(62)
+	plot.GetZaxis().SetLabelFont(62)
+	
+#Fucntion that returns a new TH2D with the axes already set up
+def getTH2D(name,title,nBinsX,xLow,xHigh,nBinsY,yLow,yHigh):
+	hist = TH2D(name,title,nBinsX,xLow,xHigh,nBinsY,yLow,yHigh)
+	setupAxes(hist)
+	return hist
 def calcSigma(num,denom):
 	return sqrt(num/float(denom*denom) + num*num/float(pow(denom, 3)))
