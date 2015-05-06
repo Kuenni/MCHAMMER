@@ -30,7 +30,7 @@ gROOT.ProcessLine(".L ./loader.C+");
 
 from matchingLibrary import calculateDeltaR, findBestHoMatchByEnergy, findBestHoMatchByDeltaR
 
-from PlotStyle import setPlotStyle,getTH2D
+from PlotStyle import setPlotStyle,getTH1D
 setPlotStyle()
 
 if( not os.path.exists('results')):
@@ -54,53 +54,37 @@ STEPSIZE_DELTA_R = 0.025
 STEPSIZE_E_THR = STEPSIZE_DELTA_R
 
 def analyzeByECone(deltaR = -1, eThr = -1):
-	deltaTimesArray = []
-	totalProgressCounter = 0
-	deltaRValues = None
-	if not ( deltaR >= 0 and eThr >= 0 ):
-		deltaRValues = np.arange(DELTA_R_START,DELTA_R_END,STEPSIZE_DELTA_R)
-		eThr = 0.2
-	else:
-		deltaRValues = [deltaR]
-
-	for deltaRMax in deltaRValues:
-		deltaTime = []
-		eventCounter = 0
-		
-		header = '| E Thr = %3.2f GeV. Delta R = %4.3f |' % (eThr,deltaRMax)
-		
-		print len(header)*'-'
-		print header
-		print len(header)*'-'
-		
-		for event in tree:
-			#Tell us about the progress
-			eventCounter += 1
-			totalProgressCounter += 1
-			if(eventCounter%1000 == 0):
-				sys.stdout.write( '\rprocessing event %7d ==> %6.2f%% done.' % (eventCounter,totalProgressCounter/float(tree.GetEntriesFast()*len(deltaRValues))*100))
-				sys.stdout.flush()
-			l1DataVector = event.l1MuonData
-			for l1Object in l1DataVector:
-				hoMatch = findBestHoMatchByEnergy(l1Object,event.hoRecHitData,deltaRMax)
-				if(hoMatch != None):
-					deltaTime.append(l1Object.bx*25. - hoMatch.time)
-		deltaTimesArray.append(deltaTime)
-		print
+	deltaTimes = []
+	eventCounter = 0
 	
-	histDeltaTimes = getTH2D("histDeltaTimes","#DeltaTime vs. #DeltaR;#DeltaR;#DeltaTime / ns",
-							len(deltaRValues) +1 ,DELTA_R_START + STEPSIZE_DELTA_R/2., DELTA_R_END + STEPSIZE_DELTA_R/2., 200,-100,100)
+	header = '| E Thr = %3.2f GeV. Delta R = %4.3f |' % (eThr,deltaR)
 	
-	for i,deltaRMax in enumerate(deltaRValues):
-		for deltaTime in deltaTimesArray[i]:
-			histDeltaTimes.Fill(deltaRMax,deltaTime)
-	canvas = TCanvas('canvasDeltaTimes','Delta Time vs. Delta R',1200,1200)
-	histDeltaTimes.SetStats(0)
-	histDeltaTimes.Draw('colz')
+	print len(header)*'-'
+	print header
+	print len(header)*'-'
+	
+	for event in tree:
+		#Tell us about the progress
+		eventCounter += 1
+		if(eventCounter%1000 == 0):
+			sys.stdout.write( '\rprocessing event %7d ==> %6.2f%% done.' % (eventCounter,eventCounter/float(tree.GetEntriesFast())*100))
+			sys.stdout.flush()
+		l1DataVector = event.l1MuonData
+		for l1Object in l1DataVector:
+			hoMatch = findBestHoMatchByEnergy(l1Object,event.hoRecHitData,deltaR)
+			if(hoMatch != None):
+				deltaTimes.append(l1Object.bx*25. - hoMatch.time)
+	print
+	
+	histDeltaTime = getTH1D("histDeltaTime","#DeltaTime;#DeltaR;#DeltaTime / ns", 200,-100,100)
+	
+	for deltaTime in deltaTimes:
+		histDeltaTime.Fill(deltaTime)
+	canvas = TCanvas('canvasDeltaTimes','Delta Time',1200,1200)
+	histDeltaTime.SetStats(0)
+	histDeltaTime.Draw()
 	
 	canvas.Update()
-	pal = histDeltaTimes.GetListOfFunctions().FindObject("palette")
-	pal.SetX2NDC(0.92)
 
 	print
 	print 'Done.'
@@ -113,58 +97,42 @@ def analyzeByECone(deltaR = -1, eThr = -1):
 	canvas.SaveAs(filenameTrunk + '.pdf')
 	canvas.SaveAs(filenameTrunk + '.root')
 	
-	return deltaTimesArray,deltaRValues,eThr
+	return deltaTimes,deltaR,eThr
 	
 
 def analyzeByDeltaR(deltaR = -1, eThr = -1):
-	deltaTimesArray = []
-	totalProgressCounter = 0
+
+	deltaTimes = []
+	eventCounter = 0
 	
-	eThrValues = None
-	if not ( deltaR >= 0 and eThr >= 0 ):
-		eThrValues = np.arange(E_THR_START,E_THR_END,STEPSIZE_E_THR)
-		deltaR = 0.3	
-	else:
-		eThrValues = [eThr]
+	header = '| Delta R = %4.3f. E Thr = %4.3fGeV |' % (deltaR,eThr)
 	
-	for eThr in eThrValues:
-		deltaTime = []
-		eventCounter = 0
-		
-		header = '| Delta R = %4.3f. E Thr = %4.3fGeV |' % (deltaR,eThr)
-		
-		print len(header)*'-'
-		print header
-		print len(header)*'-'
-		
-		for event in tree:
-			#Tell us about the progress
-			eventCounter += 1
-			totalProgressCounter += 1
-			if(eventCounter%1000 == 0):
-				sys.stdout.write( '\rprocessing event %7d ==> %6.2f%% done.' % (eventCounter,totalProgressCounter/float(tree.GetEntriesFast()*len(eThrValues))*100))
-				sys.stdout.flush()
-			l1DataVector = event.l1MuonData
-			for l1Object in l1DataVector:
-				hoMatch = findBestHoMatchByDeltaR(l1Object,event.hoRecHitData,eThr)
-				if(hoMatch != None):
-					deltaTime.append(l1Object.bx*25. - hoMatch.time)
-		deltaTimesArray.append(deltaTime)
-		print
+	print len(header)*'-'
+	print header
+	print len(header)*'-'
 	
-	histDeltaTimes = getTH2D("histDeltaTimes","#DeltaTime vs. E_{Thr};E_{Thr} / GeV;#DeltaTime / ns",
-							len(eThrValues) + 1 , E_THR_START - STEPSIZE_E_THR/2., E_THR_END + STEPSIZE_E_THR/2., 200,-100,100)
+	for event in tree:
+		#Tell us about the progress
+		eventCounter += 1
+		if(eventCounter%1000 == 0):
+			sys.stdout.write( '\rprocessing event %7d ==> %6.2f%% done.' % (eventCounter,eventCounter/float(tree.GetEntriesFast())*100))
+			sys.stdout.flush()
+		l1DataVector = event.l1MuonData
+		for l1Object in l1DataVector:
+			hoMatch = findBestHoMatchByDeltaR(l1Object,event.hoRecHitData,eThr)
+			if(hoMatch != None):
+				deltaTimes.append(l1Object.bx*25. - hoMatch.time)
+	print
 	
-	for i,eThr in enumerate(eThrValues):
-		for deltaTime in deltaTimesArray[i]:
-			histDeltaTimes.Fill(eThr,deltaTime)
+	histDeltaTime = getTH1D("histDeltaTimes","#DeltaTime;E_{Thr} / GeV;#DeltaTime / ns", 200,-100,100)
+	
+	for deltaTime in deltaTimes:
+			histDeltaTime.Fill(deltaTime)
 	canvas = TCanvas('canvasDeltaTimesEThr','Delta Time vs. E_{Thr}',1200,1200)
-	histDeltaTimes.SetStats(0)
-	histDeltaTimes.Draw('colz')
+	histDeltaTime.SetStats(0)
+	histDeltaTime.Draw()
 	
 	canvas.Update()
-	pal = histDeltaTimes.GetListOfFunctions().FindObject("palette")
-	pal.SetX2NDC(0.92)
 	
 	print 'Done.'
 	
@@ -176,28 +144,24 @@ def analyzeByDeltaR(deltaR = -1, eThr = -1):
 	canvas.SaveAs(filenameTrunk + '.pdf')
 	canvas.SaveAs(filenameTrunk + '.root')
 	
-	return deltaTimesArray,eThrValues,deltaR
+	return deltaTimes,deltaR,eThr
 	
-def analyzeDeltaRAndEThr():
-	#TODO: Scan 2d Parameter space
-	return
-
 deltaTimesArray = thresholdsArray = fixParameter = None
 
 if(options.byECone):
-	deltaTimesArray,thresholdsArray,fixParameter = analyzeByECone(options.deltaR,options.eThr)
+	deltaTimes,deltaR,eThr = analyzeByECone(options.deltaR,options.eThr)
 else:
-	deltaTimesArray,thresholdsArray,fixParameter = analyzeByDeltaR(options.deltaR,options.eThr)
+	deltaTimes,deltaR,eThr = analyzeByDeltaR(options.deltaR,options.eThr)
 
 nInsideTimeWindow = 0
 
-for i,eThr in enumerate(thresholdsArray):
-	for deltaTime in deltaTimesArray[i]:
-		if abs(deltaTime) < 12.5:
-			nInsideTimeWindow += 1
+for deltaTime in deltaTimes:
+	if abs(deltaTime) < 12.5:
+		nInsideTimeWindow += 1
 
 resultHeader = "Matching\tdeltaR\tEThr\tnInside\tnTotal\n"
-resultString = "%s\t%f\t%f\t%d\t%d\n" % ("byDeltaR" if options.byDeltaR else "byECone",options.deltaR,options.eThr,nInsideTimeWindow,len(deltaTimesArray[0]))
+resultString = "%s\t%f\t%f\t%d\t%d\n" % ("byDeltaR" if options.byDeltaR else "byECone",
+										options.deltaR,options.eThr,nInsideTimeWindow,len(deltaTimes))
 
 filename = 'results/%s-DeltaR%01d_%03d-EThr%01d_%03d.txt' % ('byDeltaR' if options.byDeltaR else 'byECone',
 												int(options.deltaR),int(options.deltaR*1000),
