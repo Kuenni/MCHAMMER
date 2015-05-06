@@ -3,7 +3,7 @@ sys.path.append(os.path.abspath("../../../python"))
 
 from ROOT import TCanvas,TH2D
 
-from PlotStyle import setPlotStyle
+from PlotStyle import setPlotStyle,getTH2D
 setPlotStyle()
 
 canvas = TCanvas("canvas","canvas",1200,1200)
