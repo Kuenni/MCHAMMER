@@ -1,4 +1,4 @@
-from ROOT import gROOT,gStyle, TColor, TPaveText, TGraph, ROOT, Double, TBox, TH2D
+from ROOT import gROOT,gStyle, TColor, TPaveText, TGraph, ROOT, Double, TBox, TH2D, TH1D
 from math import sqrt,pi
 
 colorRwthMagenta 	= TColor.GetColor("#E30066")
@@ -90,10 +90,17 @@ def setupAxes(plot):
 	plot.GetYaxis().SetLabelFont(62)
 	plot.GetZaxis().SetLabelFont(62)
 	
-#Fucntion that returns a new TH2D with the axes already set up
+#Function that returns a new TH2D with the axes already set up
 def getTH2D(name,title,nBinsX,xLow,xHigh,nBinsY,yLow,yHigh):
 	hist = TH2D(name,title,nBinsX,xLow,xHigh,nBinsY,yLow,yHigh)
 	setupAxes(hist)
 	return hist
+
+#Function that returns a new TH2D with the axes already set up
+def getTH1D(name,title,nBinsX,xLow,xHigh):
+	hist = TH1D(name,title,nBinsX,xLow,xHigh)
+	setupAxes(hist)
+	return hist
+
 def calcSigma(num,denom):
 	return sqrt(num/float(denom*denom) + num*num/float(pow(denom, 3)))
