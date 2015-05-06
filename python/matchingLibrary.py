@@ -24,7 +24,7 @@ def findBestHoMatchByDeltaR(l1Data,hoDataVector, eMin = -1. ):
 		hoPhi = hoDataVector[i].phi
 		deltaR = calculateDeltaR(l1Data.eta, l1Data.phi, hoEta, hoPhi)
 		#Check for energy threshold if given, else check only Delta R
-		if ( deltaR < bestDeltaR ) and ( ( hoDataVector[i]>eMin ) if eMin >= 0 else True ):
+		if ( deltaR < bestDeltaR ) and ( ( hoDataVector[i].energy > eMin ) if eMin >= 0 else True ):
 			bestDeltaR = deltaR
 			bestHoData = hoDataVector[i]
 	return bestHoData
