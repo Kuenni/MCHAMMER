@@ -62,6 +62,9 @@ print 'Creating job descriptions and submitting condor jobs:'
 if( not os.path.exists('jdlFiles')):
 	os.mkdir('jdlFiles')
 
+if( not os.path.exists('log')):
+	os.mkdir('log')
+
 for matchType in matchTypes:
 	for deltaR in deltaRList:
 		for eThr in eThrList:
