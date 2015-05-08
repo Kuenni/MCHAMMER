@@ -18,7 +18,8 @@ for filename in os.listdir('./results'):
             eThr 	= float(line[2])
             nCorrect = float(line[3])
             nTotal 	= float(line[4])
-            hist.Fill(deltaR,eThr,nCorrect/nTotal*100)
+            if(nTotal > 0):
+				hist.Fill(deltaR,eThr,nCorrect/nTotal*100)
 hist.SetStats(0)
 hist.Draw('colz')
 
