@@ -20,8 +20,30 @@ matchTypes 	= ["byDeltaR","byECone"]
 deltaRList 	= np.arange(DELTA_R_START,DELTA_R_END,DELTA_R_STEPSIZE)
 eThrList 	= np.arange(E_THR_START,E_THR_END,E_THR_STEPSIZE)
 
+
+# Prepare options from CLI
+from optparse import OptionParser
+
+parser = OptionParser()
+parser.add_option("--parameters", dest="parameters", help="Give a combination of parameters. Only this combination will be sent to condor."\
+				"The keys have to be deltaR,eThr and match. E.g. \"deltaR:<val>,eThr:<val>,match:<val>\""
+				,type="str",default = -1)
+parser.add_option("--dryRun", dest="dryRun",help="Run the script but do not actually submit to condor.",action="store_true",default=False)
+
+(options, args) = parser.parse_args()
+if options.parameters != -1:
+	parameterDict = dict((key,value) for key,value in( item.split(':') for item in options.parameters.split(',')))
+	print 'Using these parameters:'
+	print parameterDict
+	matchTypes = [parameterDict["match"]]
+	deltaRList = [float(parameterDict["deltaR"])]
+	eThrList = [float(parameterDict["eThr"])]
+else:
+	print 'Processing all'
+
 progressCounter = 0
 totalActionsCounter = len(matchTypes)*len(deltaRList)*len(eThrList)
+
 
 #First gather some necessary files from the top level directories
 
@@ -40,8 +62,6 @@ copy('../../../hoTriggerAnalyzer/interface/L1MuonData.h','additionalFiles/header
 copy('../../../hoTriggerAnalyzer/interface/HoRecHitData.h','additionalFiles/headers')
 print 'Copy L1MuonHistogram.root'
 copy('../L1MuonHistogram.root','additionalFiles')
-print 'Copy analyzeDeltaR.py'
-copy('../analyzeDeltaR.py','additionalFiles')
 
 print
 print 'Create loader.C'
@@ -57,7 +77,7 @@ for line in loaderC:
 	else:
 		newLoaderC.write(line)
 print
-print 'Creating job descriptions and submitting condor jobs:'
+print 'Creating job descriptions%s:' % ( ' and submitting condor jobs' if not options.dryRun else '' )
 
 if( not os.path.exists('jdlFiles')):
 	os.mkdir('jdlFiles')
@@ -84,11 +104,12 @@ for matchType in matchTypes:
 			infile.close()
 			outfile.close()
 			submitCommand = 'condor_submit ' + filename
-			ret = call(submitCommand, shell=True, stdout=open(os.devnull, 'wb'),stderr=open(os.devnull, 'wb'))
-			if ret != 0:
-				print
-				print 'Something went wrong on submitting. Abort!'
-				sys.exit(1)
+			if not options.dryRun:
+				ret = call(submitCommand, shell=True, stdout=open(os.devnull, 'wb'),stderr=open(os.devnull, 'wb'))
+				if ret != 0:
+					print
+					print 'Something went wrong on submitting. Abort!'
+					sys.exit(1)
 			nHashes = progressCounter*100/totalActionsCounter*80/100
 			progressbar = '\r[%s%s] %5.2f%% done.' % (nHashes*'#',(80-nHashes)*' ',progressCounter*100/float(totalActionsCounter))
 			sys.stdout.write(progressbar)
