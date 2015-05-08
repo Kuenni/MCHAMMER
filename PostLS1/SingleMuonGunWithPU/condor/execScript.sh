@@ -3,7 +3,6 @@ DELTA_R=$1
 E_THR=$2
 MATCH_TYPE=$3
 
-CONDOR_SCRATCH_DIR=/net/scratch_cms/institut_3b/kuensken/condor
 LOGDIR=log
 
 #First make sure the directory for logging exists
