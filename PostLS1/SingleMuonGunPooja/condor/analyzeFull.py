@@ -60,98 +60,6 @@ resultHeader = "deltaR\tEThr\tnInside\tnTotal\n"
 resultFile = open(resultFilename,'w')
 resultFile.write(resultHeader)
 
-#analyze timing for matching done by the highest energy in delta R cone
-def analyzeByECone(deltaR = -1, eThr = -1):
-	deltaTimes = []
-	eventCounter = 0
-	
-	header = '| E Thr = %4.3f GeV. Delta R = %4.3f |' % (eThr,deltaR)
-	
-	print len(header)*'-'
-	print header
-	print len(header)*'-'
-	
-	for event in tree:
-		#Tell us about the progress
-		eventCounter += 1
-		if(eventCounter%1000 == 0):
-			sys.stdout.write( '\rprocessing event %7d ==> %6.2f%% done.' % (eventCounter,eventCounter/float(tree.GetEntriesFast())*100))
-			sys.stdout.flush()
-		l1DataVector = event.l1MuonData
-		for l1Object in l1DataVector:
-			hoMatch = findBestHoMatchByEnergy(l1Object,event.hoRecHitData,deltaR)
-			if(hoMatch != None):
-				deltaTimes.append(l1Object.bx*25. - hoMatch.time)
-	print
-	
-	histDeltaTime = getTH1D("histDeltaTime","#DeltaTime;#DeltaR;#DeltaTime / ns", 200,-100,100)
-	
-	for deltaTime in deltaTimes:
-		histDeltaTime.Fill(deltaTime)
-	canvas = TCanvas('canvasDeltaTimes','Delta Time',1200,1200)
-	histDeltaTime.SetStats(0)
-	histDeltaTime.Draw()
-	
-	canvas.Update()
-
-	print
-	print 'Done.'
-	
-	filenameTrunk = 'results/plots/analyzeFullByECone-DeltaR%01d_%03d-EThr%01d_%03d_%s' % (int(deltaR),int(deltaR*1000),
-												int(eThr),int(eThr*1000),options.instance)
-	
-	canvas.SaveAs(filenameTrunk + '.png')
-	canvas.SaveAs(filenameTrunk + '.pdf')
-	canvas.SaveAs(filenameTrunk + '.root')
-	
-	return deltaTimes,deltaR,eThr
-	
-#analyze timing for matching done by the best delta R 
-def analyzeByDeltaR(deltaR = -1, eThr = -1):
-
-	deltaTimes = []
-	eventCounter = 0
-	
-	header = '| Delta R = %4.3f. E Thr = %4.3fGeV |' % (deltaR,eThr)
-	
-	print len(header)*'-'
-	print header
-	print len(header)*'-'
-	
-	for event in file.dataTree:
-		#Tell us about the progress
-		eventCounter += 1
-		if(eventCounter%1000 == 0):
-			sys.stdout.write( '\rprocessing event %7d ==> %6.2f%% done.' % (eventCounter,eventCounter/float(tree.GetEntriesFast())*100))
-			sys.stdout.flush()
-		l1DataVector = event.l1MuonData
-		for l1Object in l1DataVector:
-			hoMatch = findBestHoMatchByDeltaR(l1Object,event.hoRecHitData,eThr)
-			if(hoMatch != None):
-				deltaTimes.append(l1Object.bx*25. - hoMatch.time)
-	print
-	
-	histDeltaTime = getTH1D("histDeltaTimes","#DeltaTime;E_{Thr} / GeV;#DeltaTime / ns", 200,-100,100)
-	
-	for deltaTime in deltaTimes:
-			histDeltaTime.Fill(deltaTime)
-	canvas = TCanvas('canvasDeltaTimesEThr','Delta Time vs. E_{Thr}',1200,1200)
-	histDeltaTime.SetStats(0)
-	histDeltaTime.Draw()
-	
-	canvas.Update()
-	
-	print 'Done.'
-	
-	filenameTrunk = 'results/plots/analyzeFullByDeltaR-DeltaR%01d_%03d-EThr%01d_%03d_%s' % (int(deltaR),int(deltaR*1000),
-												int(eThr),int(eThr*1000),options.instance)
-	
-	canvas.SaveAs(filenameTrunk + '.png')
-	canvas.SaveAs(filenameTrunk + '.pdf')
-	canvas.SaveAs(filenameTrunk + '.root')
-	
-	return deltaTimes,deltaR,eThr
-
 #analyze timing for matching done by the best delta R 
 def analyze(deltaR = -1, eThr = -1):
 
@@ -172,7 +80,7 @@ def analyze(deltaR = -1, eThr = -1):
 			sys.stdout.flush()
 		l1DataVector = event.l1MuonData
 		for l1Object in l1DataVector:
-			hoMatch = findBestHoMatch(l1Object,event.hoRecHitData,eThr)
+			hoMatch = findBestHoMatch(l1Object,event.hoRecHitData,deltaR,eThr)
 			if(hoMatch != None):
 				deltaTimes.append(l1Object.bx*25. - hoMatch.time)
 	print
