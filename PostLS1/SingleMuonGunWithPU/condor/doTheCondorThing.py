@@ -60,8 +60,17 @@ print 'Copy headers for structs in ROOT'
 copy('../../../hoTriggerAnalyzer/interface/GenMuonData.h','additionalFiles/headers')
 copy('../../../hoTriggerAnalyzer/interface/L1MuonData.h','additionalFiles/headers')
 copy('../../../hoTriggerAnalyzer/interface/HoRecHitData.h','additionalFiles/headers')
-print 'Copy L1MuonHistogram.root'
-copy('../L1MuonHistogram.root','additionalFiles')
+if os.path.exists('additionalFiles/L1MuonHistogram.root'):
+	print 'L1MuonHistogram.root exists. Do you want to re-copy?'
+	while(True):
+		input = raw_input('Y/N?')
+		if input == 'Y':
+			print 'Copy L1MuonHistogram.root'
+			copy('../L1MuonHistogram.root','additionalFiles')
+			break
+		else:
+			break
+
 
 print
 print 'Create loader.C'
@@ -105,7 +114,7 @@ for matchType in matchTypes:
 			outfile.close()
 			submitCommand = 'condor_submit ' + filename
 			if not options.dryRun:
-				ret = call(submitCommand, shell=True, stdout=open(os.devnull, 'wb'),stderr=open(os.devnull, 'wb'))
+				ret = call(submitCommand, shell=True, stdout=open("condor_submit.out", 'a'),stderr=open("condor_submit.err", 'a'))
 				if ret != 0:
 					print
 					print 'Something went wrong on submitting. Abort!'
@@ -115,4 +124,4 @@ for matchType in matchTypes:
 			sys.stdout.write(progressbar)
 			sys.stdout.flush()
 print
-print 'Submitted %d condor jobs.' % (totalActionsCounter)
+print 'Submitted %d condor job(s).' % (totalActionsCounter)
