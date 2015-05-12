@@ -75,8 +75,9 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
 
 from Configuration.AlCa.autoCond import autoCond
-process.GlobalTag.globaltag = autoCond['run2_mc'] #MCRUN2_72_V1
+#process.GlobalTag.globaltag = autoCond['run2_mc'] #MCRUN2_72_V1 PHYS14_25_V1
 
+process.GlobalTag = GlobalTag(process.GlobalTag, 'PHYS14_25_V1::All', '')
 print process.GlobalTag.globaltag
 
 parameters = TrackAssociatorParameterBlock.TrackAssociatorParameters
