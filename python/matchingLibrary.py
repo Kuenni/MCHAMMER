@@ -43,3 +43,17 @@ def findBestHoMatchByEnergy(l1Data,hoDataVector, deltaRMax = -1. ):
 			bestHoData = hoDataVector[i]
 	return bestHoData
 
+#Find the best Ho match when testing both energy and delta R
+def findBestHoMatch(l1Data,hoDataVector, deltaRMax = -1., eMin = -1):
+	bestDeltaR = 999.
+	bestE = -1.
+	bestHoData = None
+	for i in range(0,len(hoDataVector)):
+		hoEta = hoDataVector[i].eta
+		hoPhi = hoDataVector[i].phi
+		deltaR = calculateDeltaR(l1Data.eta, l1Data.phi, hoEta, hoPhi)
+		if hoDataVector[i].energy > bestE and deltaR < deltaRMax and deltaR < bestDeltaR and hoDataVector[i].energy > eMin:
+			bestE = hoDataVector[i].energy
+			bestDeltaR = deltaR
+			bestHoData = hoDataVector[i]
+	return bestHoData
