@@ -2,13 +2,16 @@ executable   	= /user/kuensken/CMSSW/CMSSW_7_2_2_patch2/src/HoMuonTrigger/PostLS
 universe     	= vanilla
 Error        	= log/err.$(Process)_$(Cluster)
 Output       	= log/out.$(Process)_$(Cluster)
-Log          	= log/analyze-@MATCH_TYPE@-DeltaR@DELTA_R@-EThr@E_THR@_$(Cluster)_$(Process).log
+Log          	= log/analyze-Instance_%INSTANCE%_$(Cluster)_$(Process).log
 notification 	= Error
-transfer_input_files =  analyzeDeltaR.py, additionalFiles/L1MuonHistogram.root, additionalFiles/loader.C, additionalFiles/matchingLibrary.py, additionalFiles/headers, additionalFiles/PlotStyle.py
+transfer_input_files =  analyzeFull.py, additionalFiles/data/L1MuonHistogram_%INSTANCE%.root, additionalFiles/loader.C, additionalFiles/matchingLibrary.py, additionalFiles/headers, additionalFiles/PlotStyle.py
 transfer_output_files = results,log
 
 should_transfer_files = YES
 when_to_transfer_output = ON_EXIT
 
-arguments = @DELTA_R@ @E_THR@ @MATCH_TYPE@ 
+RequestMemory = 200
+RequestDisk = 20000
+
+arguments = %INSTANCE%
 queue 

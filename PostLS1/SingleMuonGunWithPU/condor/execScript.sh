@@ -1,7 +1,5 @@
 #!/bin/bash
-DELTA_R=$1
-E_THR=$2
-MATCH_TYPE=$3
+INSTANCE=$1
 
 LOGDIR=log
 
@@ -14,7 +12,7 @@ if [ ! $? -eq 0 ]; then
 fi
 
 #Then create a file for logging this job
-LOGFILE=$LOGDIR/`date +%y_%m_%d_%H_%M_%S`-${MATCH_TYPE}_DeltaR${DELTA_R}_EThr${E_THR}.log
+LOGFILE=$LOGDIR/`date +%y_%m_%d_%H_%M_%S`-INSTANCE_$INSTANCE.log
 touch $LOGFILE
 
 if [ ! -f $LOGFILE ]; then
@@ -39,7 +37,7 @@ source /usr/lib/root-5.34.25/bin/thisroot.sh
 echo >> $LOGFILE
 
 echo "Staring simulation now..." >> $LOGFILE
-if ./analyzeDeltaR.py --deltaR $DELTA_R --eThr $E_THR --$MATCH_TYPE; then
+if ./analyzeFull.py --instance $INSTANCE; then
 	echo "finished" >> $LOGFILE
 else
 	echo "Error occured during script execution" >> $LOGFILE
