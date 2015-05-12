@@ -44,7 +44,7 @@ def findBestHoMatchByEnergy(l1Data,hoDataVector, deltaRMax = -1. ):
 	return bestHoData
 
 #Find the best Ho match when testing both energy and delta R
-def findBestHoMatch(l1Data,hoDataVector, deltaRMax = -1., eMin = -1):
+def findBestHoMatch(l1Data,hoDataVector, deltaRMax, eMin):
 	bestDeltaR = 999.
 	bestE = -1.
 	bestHoData = None
