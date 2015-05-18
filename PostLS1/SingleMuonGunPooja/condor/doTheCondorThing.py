@@ -7,8 +7,6 @@ import numpy as np
 from subprocess import call
 from shutil import copy
 
-N_FILES = len(os.listdir('additionalFiles/data'))
-
 # Prepare options from CLI
 from optparse import OptionParser
 
@@ -29,7 +27,9 @@ if( not os.path.exists('additionalFiles')):
 	os.mkdir('additionalFiles')
 if( not os.path.exists('additionalFiles/headers')):
 	os.mkdir('additionalFiles/headers')
-
+if( not os.path.exists('additionalFiles/data')):
+	os.mkdir('additionalFiles/data')
+	
 print 'Copy PlotStyle.py'
 copy('../../../python/PlotStyle.py','additionalFiles')
 print 'Copy matchingLibrary.py'
@@ -47,7 +47,7 @@ while(True):
 		break
 	else:
 		break
-
+N_FILES = len(os.listdir('additionalFiles/data'))
 print
 print 'Create loader.C'
 loaderC = open('../loader.C','r')
@@ -70,7 +70,7 @@ if( not os.path.exists('jdlFiles')):
 if( not os.path.exists('log')):
 	os.mkdir('log')
 
-for i in range(0,250):
+for i in range(0,N_FILES):
 	progressCounter += 1
 	if(options.instance != -1):
 		i = int(options.instance)
