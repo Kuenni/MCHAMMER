@@ -41,7 +41,7 @@ if ./analyzeFull.py --instance $INSTANCE; then
 	echo "finished" >> $LOGFILE
 else
 	echo "Error occured during script execution" >> $LOGFILE
-	exit $?
+	exit 1
 fi
 echo "Files available in execution directory after execution:" >> $LOGFILE
 echo `ls -1` >> $LOGFILE
