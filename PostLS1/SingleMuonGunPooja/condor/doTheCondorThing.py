@@ -45,16 +45,6 @@ print 'Copy headers for structs in ROOT'
 copy('../../../hoTriggerAnalyzer/interface/GenMuonData.h','additionalFiles/headers')
 copy('../../../hoTriggerAnalyzer/interface/L1MuonData.h','additionalFiles/headers')
 copy('../../../hoTriggerAnalyzer/interface/HoRecHitData.h','additionalFiles/headers')
-print 'Do you want to re-split L1MuonHistogram?'
-while(True):
-	input = raw_input('Y/N?')
-	if input == 'Y':
-		print 'Splitting L1MuonHistogram.root'
-		call("./treeSplitter", shell=True)
-		break
-	else:
-		break
-N_FILES = len(os.listdir('additionalFiles/data'))
 print
 print 'Create loader.C'
 loaderC = open('../loader.C','r')
@@ -68,6 +58,18 @@ for line in loaderC:
 		newLoaderC.write('#include "headers/HoRecHitData.h"\n')
 	else:
 		newLoaderC.write(line)
+print 'Do you want to re-split L1MuonHistogram?'
+print
+while(True):
+	input = raw_input('Y/N?')
+	if input == 'Y' or input == 'y':
+		print 'Splitting L1MuonHistogram.root'
+		call("./treeSplitter", shell=True)
+		break
+	else:
+		break
+N_FILES = len(os.listdir('additionalFiles/data'))
+
 print
 print 'Creating job descriptions%s:' % ( ' and submitting condor jobs' if not options.dryRun else '' )
 
