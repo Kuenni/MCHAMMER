@@ -2,32 +2,22 @@
 #include "TTree.h"
 #include "TString.h"
 #include "TROOT.h"
+#include "TSystemDirectory.h"
 
-#include "headers/L1MuonData.h"
-#include "headers/GenMuonData.h"
-#include "headers/HoRecHitData.h"
+#include "additionalFiles/headers/L1MuonData.h"
+#include "additionalFiles/headers/GenMuonData.h"
+#include "additionalFiles/headers/HoRecHitData.h"
 
 #include <stdio.h>
 #include <iostream>
 
-static const int N_NEWFILES = 250;
+static const int N_EVTS_PER_FILE = 10000;
 
-void testFiles(){
-	std::cout << "Testing files" << std::endl;
-	for( int i = 0; i < N_NEWFILES; i++){
-		TFile* file =  TFile::Open(TString::Format("data/L1MuonHistogram_%d.root", i));
-		TTree* tree = (TTree*) file->Get("dataTree");
-
-		tree->GetEntries();
-		file->Close();
-	}
-	std::cout << "Files OK" << std::endl;
-}
 void splitTree(){
 
-	gROOT->ProcessLine(".L ./loader.C+");
+	gROOT->ProcessLine(".L ./additionalFiles/loader.C+");
 
-	TFile* oldFile = TFile::Open("L1MuonHistogram.root");
+	TFile* oldFile = TFile::Open("additionalFiles/L1MuonHistogram.root");
 	TTree* oldTree = (TTree*)oldFile->Get("hoMuonAnalyzer/dataTree");
 	std::vector<L1MuonData>* muonVector = 0;
 	std::vector<GenMuonData>* genVector = 0;
@@ -38,13 +28,13 @@ void splitTree(){
 	oldTree->SetBranchAddress("hoRecHitData",&recHitVector);
 
 	int totalEvents = oldTree->GetEntries();
-	int splitEventNumber = int(totalEvents/float(N_NEWFILES));
+	int splitEventNumber = N_EVTS_PER_FILE;
 	TFile* newFile = 0;
 	TTree* newTree = 0;
 	int counter = 0;
 	for (int i = 0; i < totalEvents; ++i) {
 		if (i % splitEventNumber == 0){
-			TString filename = TString::Format("data/L1MuonHistogram_%d.root", counter);
+			TString filename = TString::Format("additionalFiles/data/L1MuonHistogram_%d.root", counter);
 			if (newFile != 0){
 				if(i == 0){
 					std::cout << "This should not be possible..." << std::endl;
@@ -65,7 +55,6 @@ void splitTree(){
 	}
 	newTree->Write();
 	delete newFile;
-	testFiles();
 }
 
 int main(int argc, char** argv){
