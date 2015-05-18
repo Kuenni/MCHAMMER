@@ -10,19 +10,26 @@ from shutil import copy
 # Prepare options from CLI
 from optparse import OptionParser
 
+#Callback for the option list
+def get_comma_separated_args(option, opt, value, parser):
+    setattr(parser.values, option.dest, [int(i) for i in value.replace(' ','').split(',')])
+
 parser = OptionParser()
 parser.add_option("--instance", dest="instance", help="Process only the given sample.",type="str",default = -1)
 parser.add_option("--dryRun", dest="dryRun",help="Run the script but do not actually submit to condor.",action="store_true",default=False)
-
+parser.add_option('--instanceList',type='string',action='callback',callback=get_comma_separated_args,dest = 'instanceList')
 (options, args) = parser.parse_args()
 if options.instance != -1:
 	print 'Processing instance: %s' % options.instance
+elif options.instanceList != None:
+	print 'Processing instances:'
+	print options.instanceList
 else:
 	print 'Processing all'
 
 progressCounter = 0
 
-#First gather some necessary files from the top level directories
+#First gather somenecessary files from the top level directories
 if( not os.path.exists('additionalFiles')):
 	os.mkdir('additionalFiles')
 if( not os.path.exists('additionalFiles/headers')):
@@ -70,13 +77,20 @@ if( not os.path.exists('jdlFiles')):
 if( not os.path.exists('log')):
 	os.mkdir('log')
 
-for i in range(0,N_FILES):
+#Set the range of instances
+instanceRange = range(0,N_FILES)
+if options.instanceList != None:
+	instanceRange = options.instanceList
+	N_FILES = len(instanceRange)
+	
+for i in instanceRange:
 	progressCounter += 1
 	if(options.instance != -1):
 		i = int(options.instance)
 	infile = open('jobDescriptionTemplate.jdl','r')
 	filename = 'jdlFiles/analyzeDeltaTime_%d.jdl' % (i)
 	outfile = open(filename,'w')
+	#Generate jdl file
 	for line in infile.readlines():
 		line = line.replace('%INSTANCE%', str(i))
 		outfile.write(line)
@@ -89,6 +103,7 @@ for i in range(0,N_FILES):
 			print
 			print 'Something went wrong on submitting. Abort!'
 			sys.exit(1)
+	#If a single instance was requested, submit only that one
 	if options.instance != -1:
 		break
 	nHashes = progressCounter*100/N_FILES*80/100
