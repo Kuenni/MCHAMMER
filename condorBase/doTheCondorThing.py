@@ -1,6 +1,10 @@
 #!/usr/bin/python
 
 # Creates job descriptions and submits them to condor
+#
+# copy this file into a subdir of the directory where the CMSSW analyzer was run.
+# The script assumes that the result file is called L1MuonHistogram.root
+#
 
 import sys,os
 import numpy as np
