@@ -57,3 +57,17 @@ def findBestHoMatch(l1Data,hoDataVector, deltaRMax, eMin):
 			bestDeltaR = deltaR
 			bestHoData = hoDataVector[i]
 	return bestHoData
+
+#Find the best L1Match for a given gen particle
+def findBestL1Match(genData,l1DataVector,deltaRMax):
+	bestDeltaR = 999.
+	bestL1Data = None
+	for i in range(0,len(l1DataVector)):
+		l1Eta = l1DataVector[i].eta
+		l1Phi = l1DataVector[i].phi
+		deltaR = calculateDeltaR(genData.eta, genData.phi, l1Eta, l1Phi)
+		#Check for energy threshold if given, else check only Delta R
+		if deltaR < deltaRMax and deltaR < bestDeltaR :
+			bestDeltaR = deltaR
+			bestL1Data = l1DataVector[i]
+	return bestL1Data
