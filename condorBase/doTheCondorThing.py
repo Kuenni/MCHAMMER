@@ -51,14 +51,26 @@ copy('../../../hoTriggerAnalyzer/interface/L1MuonData.h','additionalFiles/header
 copy('../../../hoTriggerAnalyzer/interface/HoRecHitData.h','additionalFiles/headers')
 print 'Copy loader.C'
 copy('/user/kuensken/CMSSW/CMSSW_7_2_2_patch2/src/HoMuonTrigger/condorBase/loader.C','additionalFiles')
-print 'Copy analyzeFull.py'
-copy('/user/kuensken/CMSSW/CMSSW_7_2_2_patch2/src/HoMuonTrigger/condorBase/analyzeFull.py','.')
 print 'Copy liveDisplay.py'
 copy('/user/kuensken/CMSSW/CMSSW_7_2_2_patch2/src/HoMuonTrigger/condorBase/liveDisplay.py','.')
 print 'Copy treeSplitter'
 copy('/user/kuensken/CMSSW/CMSSW_7_2_2_patch2/src/HoMuonTrigger/condorBase/treeSplitter','.')
 
-
+print 'Do you want to copy analyzeFull.py?'
+while(True):
+	input = raw_input('Y/N?')
+	if input == 'Y' or input == 'y':
+		try:
+			copy('/user/kuensken/CMSSW/CMSSW_7_2_2_patch2/src/HoMuonTrigger/condorBase/analyzeFull.py','.')
+		except IOError,e:
+			print "Unable to copy file. %s" % e
+			sys.exit(1)
+		else:
+			print 'OK'
+		break
+	else:
+		break
+	
 print 'Do you want to copy L1MuonHistogram.root?'
 while(True):
 	input = raw_input('Y/N?')
