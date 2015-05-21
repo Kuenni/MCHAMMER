@@ -1,6 +1,6 @@
 executable   	= /user/kuensken/CMSSW/CMSSW_7_2_2_patch2/src/HoMuonTrigger/condorBase/execScript.sh
 universe     	= vanilla
-Error        	= log/err.$(Process)_$(Cluster)
+Error        	= log/err.%INSTANCE%
 Output       	= log/out.$(Process)_$(Cluster)
 Log          	= log/analyze-Instance_%INSTANCE%.log
 notification 	= Error
