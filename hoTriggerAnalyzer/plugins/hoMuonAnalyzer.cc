@@ -1623,6 +1623,14 @@ void hoMuonAnalyzer::analyzeHoDigiTiming(const edm::Event& iEvent){
 
 	//Loop over all ho digis
 	for(; dataFrame != hoDigis->end() ; ++dataFrame){
+		histogramBuilder.fillTimeHistogram(calculateHitTimeFromDigi(&*dataFrame),"hoTimeFromDigi");
+		if(isFrameAboveThr(&(*dataFrame))){
+			double digiEta = caloGeo->getPosition(dataFrame->id()).eta();
+			double digiPhi = caloGeo->getPosition(dataFrame->id()).phi();
+			const l1extra::L1MuonParticle* l1muon = getBestL1MuonMatch(digiEta,digiPhi);
+			if(l1muon)
+				histogramBuilder.fillDeltaTimeHistogram(calculateHitTimeFromDigi(&*dataFrame),l1muon->bx(),"hoTimeFromDigi");
+		}
 		double adcSum = 0;
 		int maxAdcVal = 0;
 		int maxTSIdx = -1;
@@ -1640,8 +1648,69 @@ void hoMuonAnalyzer::analyzeHoDigiTiming(const edm::Event& iEvent){
 		histogramBuilder.fillCorrelationHistogram(maxTSIdx,maxAdcVal,"MaxTimeSliceVsAdc");
 		histogramBuilder.fillMultiplicityHistogram(adcSum,"hoDigiAdcSum");
 		histogramBuilder.fillMultiplicityHistogram(dataFrame->sample(4).adc(),"hoDigiAdcTS4");
-		int hoDigiBx =  4 - (dataFrame->presamples());
-		histogramBuilder.fillBxIdHistogram(hoDigiBx,"hoDigi");
+	}
+}
+
+/**
+ * Returns the time slice number with the maximum ADC value in an HO Data Frame
+ */
+int hoMuonAnalyzer::findMaximumTimeSlice(const HODataFrame* dataFrame){
+	int maxSlice = -1;
+	int adcMax = -1;
+	for (int i = 0 ; i < dataFrame->size() ; i++){
+		if(adcMax < dataFrame->sample(i).adc()){
+			adcMax = dataFrame->sample(i).adc();
+			maxSlice = i;
+		}
+	}
+	return maxSlice;
+}
+
+/**
+ * Test wheter the data Frame is in the 4 TS ADC sum above a given threshold
+ * TODO: Make ADC Thr a parameter of the run config
+ */
+bool hoMuonAnalyzer::isFrameAboveThr(const HODataFrame* dataFrame){
+	int sliceMax = -1;
+	double adcSum = -1;
+	sliceMax = findMaximumTimeSlice(dataFrame);
+	if(sliceMax != -1){
+		if(sliceMax == 0){
+			adcSum = dataFrame->sample(0).adc() + dataFrame->sample(1).adc() + dataFrame->sample(2).adc();
+		} else {
+			adcSum = dataFrame->sample(0).adc() + dataFrame->sample(0).adc() + dataFrame->sample(1).adc() + dataFrame->sample(2).adc();
+		}
+	}
+	return adcSum >= ADC_THR;
+}
+
+/**
+ * Calculates the raw hit time for the digi using the amplitude weighted bin position
+ * as described in the paper about hcal timing reconstruction
+ */
+double hoMuonAnalyzer::calculateHitTimeFromDigi(const HODataFrame* dataFrame){
+	double hitTime = -1;
+	double weightedBinSum = 0;
+	double amplitudeSum = 0;
+	int sliceMax = findMaximumTimeSlice(dataFrame);
+	if( !sliceMax == -1 ){
+		//Maximum is at slice index 0
+		if( sliceMax == 0 ){
+			weightedBinSum = dataFrame->sample(0).adc() + 2*dataFrame->sample(1).adc();
+			amplitudeSum = ( dataFrame->sample(0).adc() + dataFrame->sample(1).adc() );
+		}
+		//Slice index of maximum is no problem
+		//Sum up the following two or until the end of data samples
+		else{
+			weightedBinSum = dataFrame->sample(sliceMax).adc() + 2*dataFrame->sample(sliceMax+1).adc();
+			amplitudeSum = dataFrame->sample(sliceMax-1).adc() + dataFrame->sample(sliceMax).adc() + dataFrame->sample(sliceMax+1).adc();
+		}
+		if(amplitudeSum != 0)
+			hitTime = weightedBinSum/amplitudeSum;
+		//subtract the presamples and convert from time slice number to ns
+		return (hitTime - dataFrame->presamples())*25;
+	} else {
+		return -9999;
 	}
 }
 

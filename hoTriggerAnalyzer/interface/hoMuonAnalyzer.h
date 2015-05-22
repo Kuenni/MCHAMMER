@@ -60,6 +60,9 @@ public:
 				   descriptions);
 
 private:
+  //Threshold for 4 TS HO Digi
+  static const double ADC_THR = 60;
+
   virtual void beginJob() override;
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() override;
@@ -84,6 +87,10 @@ private:
   bool hasL1Match(trigger::TriggerObject,edm::Handle<l1extra::L1MuonParticleCollection>);
   bool hasHoHitInGrid(GlobalPoint direction,int gridSize);
   bool processTriggerDecision(string algorithmName,const edm::Event& );
+
+  int findMaximumTimeSlice(const HODataFrame* dataFrame);
+  double calculateHitTimeFromDigi(const HODataFrame* dataFrame);
+  bool isFrameAboveThr(const HODataFrame* dataFrame);
 
   TrackDetMatchInfo* getTrackDetMatchInfo(reco::GenParticle,const edm::Event& iEvent,const edm::EventSetup& iSetup);
 
