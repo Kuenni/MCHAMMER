@@ -46,6 +46,7 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 
+#include "DataFormats/HcalDigi/interface/HODataFrame.h"
 using namespace::std;
 //
 // class declaration
@@ -60,8 +61,10 @@ public:
 				   descriptions);
 
 private:
+
+
   //Threshold for 4 TS HO Digi
-  static const double ADC_THR = 60;
+  const double ADC_THR = 60;
 
   virtual void beginJob() override;
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
