@@ -145,8 +145,9 @@ for i in instanceRange:
 	sys.stdout.flush()
 	
 print
-if options.instance == -1:
-	print 'Submitted %d condor jobs.' % (N_FILES)
-else:
-	print 'Submitted condor job with instance %s' % options.instance
+if not options.dryRun:
+	if options.instance == -1:
+		print 'Submitted %d condor jobs.' % (N_FILES)
+	else:
+		print 'Submitted condor job with instance %s' % options.instance
 	
