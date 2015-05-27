@@ -447,7 +447,7 @@ void HistogramBuilder::fillTimeHistogram(double time, std::string key){
 	if(!_h1Time.count(key)){
 		_h1Time[key] = _fileService->make<TH1D>(Form("%s_Time",key.c_str()),
 					Form("%s Time;ns;#",key.c_str()),
-					161,-80.5,80.5);
+					201,-200.5,200.5);
 		}
 	_h1Time[key]->Fill(time);
 }
