@@ -19,6 +19,10 @@ parser.add_argument('--desy'
                     ,dest='useDesy'
                     ,action='store_true'
                     ,help='Use a different server for copying to access data on DESY T2')
+parser.add_argument('--net-scratch'
+                    ,dest='useNetScratch'
+                    ,action='store_true'
+                    ,help='Use local /net/scratch dir as source folder')
 parser.add_argument('--merge'
                     ,dest='merge'
                     ,action='store_true'
@@ -50,6 +54,10 @@ parser.add_argument('--target-dir'
                     ,dest='targetDir'
                     ,type=str
                     ,help='Give a target dir for the copy operation. Merging will probably not work with this')
+parser.add_argument('--create-file-list'
+                    ,dest='createFileList'
+                    ,action='store_true'
+                    ,help='Create a text file with dcache content that can be processed by a CMSSW run config')
 args = parser.parse_args()
 
 
@@ -65,24 +73,26 @@ mergeRootFiles = args.mergeRootFiles
 nFilesToCopy = args.nFilesToCopy
 targetDir = args.targetDir
 useDesy = args.useDesy
+useNetScratch = args.useNetScratch
+
+createFileList = args.createFileList
 
 move = args.move
 
 all = args.all
-
 
 if all:
     copy = True
     merge = True
     move = True
 else:
-    if not (copy or merge or move):
+    if not (copy or merge or move or createFileList):
         print 'Error! Program requires at least one parameter!'
         parser.print_help()
         sys.exit(3)
 
 #define prefix for lcg copy from desy
-DESYSERVER = 'srm://dcache-se-cms.desy.de:8443/srm/managerv2?SFN='
+DESYSERVER = 'srm://dcache-se-cms.desy.de:8443'
 DESYT2PREFIX = 'srm://dcache-se-cms.desy.de:8443/srm/managerv2?SFN=/pnfs/desy.de/cms/tier2'
 RWTHSERVER = 'srm://grid-srm.physik.rwth-aachen.de:8443'
 RWTHT2PREFIX = 'srm://grid-srm.physik.rwth-aachen.de:8443/pnfs/physik.rwth-aachen.de/cms'
@@ -102,8 +112,58 @@ else:
     print 'Found program running in directory: ' + sampleName
 
 
+def createFileList():
+    print 'Creating filelist'
+    server = ''
+    if useDesy:
+        server = DESYT2PREFIX
+    elif useNetScratch:
+    	server=''
+    else:
+        server = RWTHSERVER
+    
+    sourceDir = server + sampleName
+        
+    #Build command to check for dir on T2
+    print 'Testing whether sample name directory exists on dcache...'
+    print 'Directory:',sourceDir
+    cmd = "srmls " + sourceDir
+    if useNetScratch:
+    	cmd = 'find ' + sourceDir + ' -name \"*.root\"'
+        
+    #Get the list of files in the source directory
+    lsResults = open('dcacheFiles','w+')
+    ret = call(cmd, shell=True, stdout=lsResults, stderr=DEVNULL)
+    lsResults.seek(0)
+    
+    if ret != 0 and not useNetScratch:
+        print 'Fail! Requested directory does not exist.'
+        sys.exit(1)
+    else:
+        print 'Success!'
 
-if copy and not useDesy:
+    cmsswRunSources = open('cmsswSourceFiles','w+')
+
+    XROOTPREFIX = 'root://xrootd.unl.edu/'
+    if(useNetScratch):
+		XROOTPREFIX = ''
+    for line in lsResults:
+    	print line
+        lineStr = str(line)
+        if lineStr.count('.root'):
+            fileName = lineStr.split(' ')[-1].rstrip('\n')
+            fileName = 'file://' + fileName
+            if(useDesy):
+            	fileName = fileName[fileName.index('/store'):]
+            cmsswRunSources.write(XROOTPREFIX + fileName + '\n')
+    return
+
+if createFileList:
+    createFileList()
+#    sys.exit(0)
+
+def copyDoNotUseDesy():
+    print "Copy, from RWTH T2"
     #define the username on the T2 Storage element
     USERNAME="akunsken"
     
@@ -157,7 +217,8 @@ if copy and not useDesy:
         if ret != 0:
              print 'Something went wrong on copying. Abort!'
              sys.exit(7)
-elif copy and useDesy:
+def copyUseDesy():
+	print "Copy, from DESY T2"
 	if dCacheDir == None:
 		print "The --desy option requires a manually given path to the data!"
 		sys.exit(1)
@@ -192,9 +253,7 @@ elif copy and useDesy:
 		lineStr = str(line)
 		if lineStr.count('.root'):
 			fileName = lineStr.split(' ')[-1].rstrip('\n')
-			sourceFiles.append(fileName)
-			print fileName
-			
+			sourceFiles.append(fileName)			
 	nFiles = 0
 	if nFilesToCopy != None:
 		nFiles = nFilesToCopy
@@ -219,7 +278,7 @@ elif copy and useDesy:
 
 #If the merge option is required, the root input files are merged to one large root file
 mergedFileName = ''
-if merge:
+def merge():
     #Look for a list of the files to merge
     if mergeList != None:
         if not os.path.exists(mergeList):
@@ -276,7 +335,7 @@ if merge:
             os.remove(line.split(':')[-1].replace('\n',""))
 
 #If the move option is selected, moce the merged root file to a directory on net_scratch
-if move:
+def move():
     netScratchPath = '/net/scratch_cms/institut_3b/kuensken/' + sampleName
     #Find, whether the target directory exists
     if not os.path.exists(netScratchPath):
@@ -294,9 +353,23 @@ if move:
     if ret != 0:
         print 'Something went wrong on moving file to net_scratch. Abort!'
         sys.exit(8)
+	return
 
-print 'All done.'
-
-
-
+def main():
+	print 'Main'
+	if createFileList:
+		createFileList()
+	if copy:
+		if useDesy:
+			copyUseDesy()
+		else:
+			copyDoNotUseDesy()
+	if merge:
+		merge()
+	if move:
+		move()
+	print 'All done.'
+	
+if __name__ == '__main__':
+	main()
     
