@@ -33,7 +33,7 @@ else:
 
 progressCounter = 0
 
-#First gather somenecessary files from the top level directories
+#First gather some necessary files from the top level directories
 if( not os.path.exists('additionalFiles')):
 	os.mkdir('additionalFiles')
 if( not os.path.exists('additionalFiles/headers')):
