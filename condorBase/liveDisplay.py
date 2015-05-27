@@ -1,3 +1,4 @@
+#!/usr/bin/python
 import os,sys
 sys.path.append(os.path.abspath("../../../python"))
 from time import sleep
@@ -5,6 +6,19 @@ from ROOT import TCanvas,TH2D,TPaveText
 
 from PlotStyle import setPlotStyle,getTH2D,getLabelCmsPrivateSimulation
 setPlotStyle()
+'''
+Colums in the analysis results file:
+
+deltaR	EThr	nTimeInside	nTimeTotal	nMatchedTruth	nTruthTotal	nEvents
+
+deltaR, EThr	-> The analysed parameter set
+nTimeInside 	-> The number of HO Rec Hits matched to L1 with a reconstructed Time in [-12.5,12.5] ns
+nTimeTotal		-> The total number of HO Rec Hits matched to an L1 object
+nMatchedTruth	-> The number of successfully matched L1 to both, GEN and HO Rec Hit
+nTruthTotal		-> The number of successfully matched L1 to GEN
+nEvents			-> The number of processed events in this file 
+
+'''
 
 def testResults():
 	instances = []
@@ -75,6 +89,8 @@ def plotTimeFraction():
 	
 	label = getLabelCmsPrivateSimulation()
 	label.Draw()
+	
+	hist.SaveAs('FractionTimeWindow.root')
 	
 	canvas.Update()
 	return canvas,hist,label
@@ -160,7 +176,7 @@ def plotL1Efficiency():
 	minimum = 100
 	for i in range(0,hist.GetNbinsX()):
 		for j in range (0,hist.GetNbinsY()):
-			if histTotal.GetBinContent(i,j) > 0:
+			if histEvents.GetBinContent(i,j) > 0:
 				fraction = histTotal.GetBinContent(i,j)/histEvents.GetBinContent(i,j)*100
 				hist.SetBinContent(i,j,fraction)
 				if fraction < minimum:
