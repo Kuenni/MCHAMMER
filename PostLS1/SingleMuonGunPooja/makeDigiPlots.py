@@ -203,7 +203,59 @@ def plotDigiDeltaTime():
 		
 	return canvas,label, histHoTime,histRecHitTime,legend
 
+# Study digi time vs eta
+def plotDigiVsEta():
+
+	canvas = TCanvas("canvasDigiEta","Simple Digi Eta",1200,1200)
+
+	hoDigiTime = file.Get('hoMuonAnalyzer/correlation/hoTimeFromDigiEta')
+	setupAxes(hoDigiTime)
+	hoDigiTime.GetXaxis().SetTitle('#eta')
+	hoDigiTime.GetYaxis().SetTitle('time / ns')
+	hoDigiTime.GetYaxis().SetTitleOffset(1.4)
+	hoDigiTime.SetMarkerStyle(5)
+	hoDigiTime.SetMarkerColor(colorRwthDarkBlue)
+	hoDigiTime.SetTitle('Simple time reco vs. #eta')
+	hoDigiTime.Draw('ap')
+
+	#Label for CMS private
+	label = getLabelCmsPrivateSimulation()
+	label.Draw()
+
+	canvas.Update()
+	
+	canvas.SaveAs('plots/timing/digiTimeVsEta.png')
+	
+	return canvas,hoDigiTime,label
+
+# Study digi time vs phi
+def plotDigiVsPhi():
+
+	canvas = TCanvas("canvasDigiPhi","Simple Digi Phi",1200,1200)
+
+	hoDigiTime = file.Get('hoMuonAnalyzer/correlation/hoTimeFromDigiPhi')
+	setupAxes(hoDigiTime)
+	hoDigiTime.GetXaxis().SetTitle('#phi')
+	hoDigiTime.GetYaxis().SetTitle('time / ns')
+	hoDigiTime.GetYaxis().SetTitleOffset(1.4)
+	hoDigiTime.SetMarkerStyle(5)
+	hoDigiTime.SetMarkerColor(colorRwthDarkBlue)
+	hoDigiTime.SetTitle('Simple time reco vs. #phi')
+	hoDigiTime.Draw('ap')
+
+	#Label for CMS private
+	label = getLabelCmsPrivateSimulation()
+	label.Draw()
+
+	canvas.Update()
+	
+	canvas.SaveAs('plots/timing/digiTimeVsphi.png')
+	
+	return canvas,hoDigiTime,label
+
 #res = plotDigiTest()
 #res = plotDigiTime()
-res2 = plotDigiDeltaTime()
+#res2 = plotDigiDeltaTime()
+res3 = plotDigiVsEta()
+res4 = plotDigiVsPhi()
 raw_input('-->')
