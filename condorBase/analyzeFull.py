@@ -91,8 +91,8 @@ def analyze(deltaR = -1, eThr = -1):
 	
 	print 'Done.'
 	
-	filenameTrunk = 'results/plots/analyzeFull-DeltaR%01d_%03d-EThr%01d_%03d_%s' % (int(deltaR),int(deltaR*1000),
-												int(eThr),int(eThr*1000),options.instance)
+# 	filenameTrunk = 'results/plots/analyzeFull-DeltaR%01d_%03d-EThr%01d_%03d_%s' % (int(deltaR),int(deltaR*1000),
+# 												int(eThr),int(eThr*1000),options.instance)
 	
 # 	canvas.SaveAs(filenameTrunk + '.png')
 # 	canvas.SaveAs(filenameTrunk + '.pdf')
