@@ -85,11 +85,14 @@ def setPlotStyle():
 def setupAxes(plot):
 	plot.GetXaxis().SetTitleFont(62)
 	plot.GetYaxis().SetTitleFont(62)
-	plot.GetZaxis().SetTitleFont(62)
 	plot.GetXaxis().SetLabelFont(62)
 	plot.GetYaxis().SetLabelFont(62)
-	plot.GetZaxis().SetLabelFont(62)
 	
+	# Check for the function. Otherwise it crashes with TGraphs
+	if hasattr(plot, 'GetZaxis'):
+		plot.GetZaxis().SetTitleFont(62)
+		plot.GetZaxis().SetLabelFont(62)
+
 #Function that returns a new TH2D with the axes already set up
 def getTH2D(name,title,nBinsX,xLow,xHigh,nBinsY,yLow,yHigh):
 	hist = TH2D(name,title,nBinsX,xLow,xHigh,nBinsY,yLow,yHigh)
