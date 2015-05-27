@@ -2,7 +2,9 @@
 # using: 
 # Revision: 1.381.2.7 
 # Source: /local/reps/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
-# with command line options: SingleMuFlatLogPt_100MeVto2TeV_cfi.py -s GEN,SIM,DIGI,L1 --conditions START53_V7A::All --eventcontent FEVTDEBUG --no_exec
+# with command line options: 
+#cmsDriver.py SingleMuFlatLogPt_100MeVto2TeV_cfi.py --step=GEN,SIM,DIGI,L1,DIGI2RAW,RAW2DIGI,L1Reco,RECO --conditions MCRUN2_72_V1::All --customise=SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1 --eventcontent FEVTDEBUG --no_exec
+
 import FWCore.ParameterSet.Config as cms
 process = cms.Process('L1')
 
@@ -25,23 +27,23 @@ globalTag = "MCRUN2_72_V3A::All"
 # the present DTTF goes up to |eta|<1.04, the BarrelTF will go roughly up to
 # |eta|<0.9, here putting 1.05 as limit to include scattering of muons 
 # before reaching the muon chambers
-minEta = -1.26
-maxEta =  1.26
+minEta = -0.80
+maxEta =  0.80
 
 # The phi range for GEN muon production
 # presently set to study the performance of one single sector plus neighbours
-minPhi = - 3.14159265359/6.
-maxPhi =   3.14159265359/6.
+minPhi = - 3.14159265359
+maxPhi =   3.14159265359
 
 # The pT range for GEN muon production
 # presently set using limits of pt for muons to reach the barrel spectrometer
 # and the present DTTF pT scale overflow
-minPt = 3
-maxPt = 140
+minPt = 3.0
+maxPt = 200
 
 # The sign of the muon
 # -1 for mu- and +1 for mu+
-muonCharge = +1
+muonCharge = -1
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -54,13 +56,11 @@ process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 process.load('Configuration.Geometry.GeometryExtended2015Reco_cff')
 process.load('Configuration.Geometry.GeometryExtended2015_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
-#process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
-#process.load('Configuration.StandardSequences.GeometrySimDB_cff')
-#process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedRealistic8TeVCollision_cfi')
 process.load('GeneratorInterface.Core.genFilterSummary_cff')
 process.load('Configuration.StandardSequences.SimIdeal_cff')
+process.load('Configuration.StandardSequences.L1Reco_cff')
 process.load('Configuration.StandardSequences.Digi_cff')
 process.load('Configuration.StandardSequences.SimL1Emulator_cff')
 process.load('Configuration.StandardSequences.DigiToRaw_cff')
@@ -68,9 +68,10 @@ process.load('Configuration.StandardSequences.RawToDigi_cff')
 process.load('Configuration.StandardSequences.L1Extra_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.load('Configuration.StandardSequences.Reconstruction_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000000)
+    input = cms.untracked.int32(100)
 )
 
 # Input source
@@ -84,10 +85,6 @@ process.options = cms.untracked.PSet(
 # source: https://github.com/pietverwilligen/MyCmsDriverCommands/blob/master/ConfigFileSnippets/RPC_Digitization_ReadLocalConditions.py 
 from CondCore.DBCommon.CondDBSetup_cfi import *
 process.noisesfromprep = cms.ESSource("PoolDBESSource",
-                                      # connect = cms.string('sqlite_file:RPC_Phase2UpgradeStudies_mc.db'),                                                      
-				      # connect = cms.string('sqlite_file:RPC_Eff2012_PhaseII_mc.db'),    
-                                      # connect = cms.string('sqlite_file:RPC_Eff2012_256Strips_mc.db'),                                                    
-                                      # connect = cms.string('sqlite_file:RPC_dataDrivenCondition_RPCEta2Upscope_mc.db'),   
 				      connect = cms.string('sqlite_fip:RPC_3108Rolls_BkgAtLumi1_14TeV_mc.db'),
                                       DBParameters = cms.PSet(
 		messageLevel = cms.untracked.int32(0),
@@ -98,10 +95,6 @@ process.noisesfromprep = cms.ESSource("PoolDBESSource",
                                       toGet = cms.VPSet(cms.PSet(
 			record = cms.string('RPCStripNoisesRcd'),
 			label = cms.untracked.string("noisesfromprep"),
-			# tag = cms.string('RPC_Phase2UpgradeStudies_mc')
-			# tag = cms.string('RPC_Eff2012_PhaseII_mc')
-			# tag = cms.string('RPC_Eff2012_256Strips_mc') 
-			# tag = cms.string('RPC_dataDrivenCondition_RPCEta2Upscope_mc')  
 			tag = cms.string('RPC_3108Rolls_BkgAtLumi1_14TeV_mc')
 			)
                                                         )
@@ -114,12 +107,8 @@ if muonCharge > 0 :
 else :
         chargeTag='Minus'
 
-#configTag = 'SingleMu' + chargeTag + '_FlatPt_' + str(minPt) + 'to' + str(maxPt) \
-#    + '_eta' + str(minEta) + 'to' + str(maxEta) + '_phi' + str(int(minPhi*100)/100.) \
-#    + 'to' + str(int(maxPhi*100)/100.)
-
-configTag = 'SingleMu' + chargeTag + '_Fall14_FlatPt-' + str(minPt) + 'to' + str(maxPt) \
-       + '_PRE_LS172_V15'
+configTag = 'SingleMu' + chargeTag + '_Winter15_FlatPt-0' + 'to' + str(maxPt) \
+       + '_MCRUN2_72_V1'
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
@@ -134,7 +123,7 @@ process.FEVTDEBUGoutput = cms.OutputModule("PoolOutputModule",
   splitLevel = cms.untracked.int32(0),
   eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
   outputCommands = process.FEVTDEBUGEventContent.outputCommands,
-  fileName = cms.untracked.string(configTag+'_GEN_SIM_DIGI_RECO_L1.root'),
+  fileName = cms.untracked.string('SingleMuPt3to200_cfi_GEN_SIM_DIGI_DIGI2RAW_RAW2DIGI_L1_L1Reco_Reco.root'),
   dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
         dataTier = cms.untracked.string('')
@@ -154,13 +143,13 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 
 # http://cmslxr.fnal.gov/lxr/source/Configuration/AlCa/python/autoCond.py?view=markup
 from Configuration.AlCa.autoCond import autoCond
-process.GlobalTag.globaltag = autoCond['run2_mc'] #PRE_LS172_V15::All
+process.GlobalTag.globaltag = autoCond['run2_mc'] #MCRUN2_72_V1::All
 
 process.generator = cms.EDProducer("FlatRandomPtGunProducer",
   PGunParameters = cms.PSet(
         MinPt  = cms.double(minPt),
 	MaxPt  = cms.double(maxPt),
-        PartID = cms.vint32(-13 * muonCharge),        
+        PartID = cms.vint32(13 * muonCharge),        
         MaxPhi = cms.double(maxPhi),
 	MinPhi = cms.double(minPhi),
 	MaxEta = cms.double(maxEta),
@@ -180,33 +169,12 @@ process.digitisation_step = cms.Path(process.pdigi)
 process.L1simulation_step = cms.Path(process.SimL1Emulator)
 process.digi2raw_step     = cms.Path(process.DigiToRaw)
 process.raw2digi_step     = cms.Path(process.RawToDigi)
-process.L1extra_step      = cms.Path(process.L1Extra)
-process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
-process.endjob_step = cms.EndPath(process.endOfProcess)
-process.FEVTDEBUGoutput_step = cms.EndPath(process.FEVTDEBUGoutput)
-
-
-#outCommands = cms.untracked.vstring('drop *')
-#outCommands.append('keep *_simMuonDTDigis_*_*')
-#outCommands.append('keep *_simMuonRPCDigis_*_*')
-#outCommands.append('keep *_simMuonCSCDigis_*_*')
-#outCommands.append('keep HOData*_simHcalDigis_*_*')
-#outCommands.append('keep *_genParticles_*_*')
-#outCommands.append('keep *_simCsctfTrackDigis_*_*')
-#outCommands.append('keep *_simDttfDigis_*_*')
-#outCommands.append('keep *_simGmtDigis_*_*')
-#outCommands.append('keep *_simRpcTriggerDigis_*_*')
-#outCommands.append('keep *_simDtTriggerPrimitiveDigis_*_*')
-#outCommands.append('keep *_simCscTriggerPrimitiveDigis_*_*')
-#outCommands.append('keep *_L1ITMuTriggerPrimitives_*_*')
-#outCommands.append('keep *_MBLTProducer_*_*')
-#outCommands.append('keep *_MBTracksProducer_*_*')
-#outCommands.append('keep *_L1ITMuonBarrelPrimitiveProducer_*_*')
-#outCommands.append('keep *_*Converter_*_*')
-#outCommands.append('keep *_*Matcher_*_*')
-#
-#process.FEVTDEBUGoutput.outputCommands = outCommands
-#
+process.reconstruction_step    = cms.Path(process.reconstruction)
+process.L1extra_step           = cms.Path(process.L1Extra)
+process.L1Reco_step = cms.Path(process.L1Reco)
+process.genfiltersummary_step  = cms.EndPath(process.genFilterSummary)
+process.endjob_step            = cms.EndPath(process.endOfProcess)
+process.FEVTDEBUGoutput_step   = cms.EndPath(process.FEVTDEBUGoutput)
 
 # Schedule definition
 process.schedule = cms.Schedule(process.generation_step,
@@ -216,6 +184,8 @@ process.schedule = cms.Schedule(process.generation_step,
 				process.L1simulation_step,
 				process.digi2raw_step,
 				process.raw2digi_step,
+				process.reconstruction_step,
+				process.L1Reco_step,
 				process.L1extra_step,
 				process.endjob_step,
 				process.FEVTDEBUGoutput_step
@@ -225,3 +195,10 @@ process.schedule = cms.Schedule(process.generation_step,
 for path in process.paths:
 	getattr(process,path)._seq = process.generator * getattr(process,path)._seq 
 
+# customisation of the process.                                                                                                                                                                             
+
+# Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.postLS1Customs                                                                                                 
+from SLHCUpgradeSimulations.Configuration.postLS1Customs import customisePostLS1
+
+#call to customisation function customisePostLS1 imported from SLHCUpgradeSimulations.Configuration.postLS1Customs                                                                                           
+process = customisePostLS1(process)
