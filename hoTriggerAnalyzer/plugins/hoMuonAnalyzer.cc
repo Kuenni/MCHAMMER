@@ -1623,10 +1623,18 @@ void hoMuonAnalyzer::analyzeHoDigiTiming(const edm::Event& iEvent){
 
 	//Loop over all ho digis
 	for(; dataFrame != hoDigis->end() ; ++dataFrame){
-		histogramBuilder.fillTimeHistogram(calculateHitTimeFromDigi(&*dataFrame),"hoTimeFromDigi");
+		double hitTime = calculateHitTimeFromDigi(&*dataFrame);
+		histogramBuilder.fillTimeHistogram(hitTime,"hoTimeFromDigi");
 		if(isFrameAboveThr(&(*dataFrame))){
 			double digiEta = caloGeo->getPosition(dataFrame->id()).eta();
 			double digiPhi = caloGeo->getPosition(dataFrame->id()).phi();
+			histogramBuilder.fillTimeHistogram(hitTime,"hoTimeFromDigiAboveThr");
+			histogramBuilder.fillCorrelationGraph(digiEta,hitTime,"hoTimeFromDigiEta");
+			histogramBuilder.fillCorrelationGraph(digiPhi,hitTime,"hoTimeFromDigiPhi");
+			const HORecHit* recHit = findHoRecHitById(dataFrame->id());
+			if(recHit){
+				histogramBuilder.fillCorrelationGraph(hitTime,recHit->time(),"hoTimeRecHitVsDigi");
+			}
 			const l1extra::L1MuonParticle* l1muon = getBestL1MuonMatch(digiEta,digiPhi);
 			if(l1muon)
 				histogramBuilder.fillDeltaTimeHistogram(calculateHitTimeFromDigi(&*dataFrame),l1muon->bx(),"hoTimeFromDigi");
@@ -1649,6 +1657,19 @@ void hoMuonAnalyzer::analyzeHoDigiTiming(const edm::Event& iEvent){
 		histogramBuilder.fillMultiplicityHistogram(adcSum,"hoDigiAdcSum");
 		histogramBuilder.fillMultiplicityHistogram(dataFrame->sample(4).adc(),"hoDigiAdcTS4");
 	}
+}
+
+/**
+ * Search in the rec hit collection for a hit with the given detId
+ */
+const HORecHit* hoMuonAnalyzer::findHoRecHitById(DetId id){
+	auto hoRecoIt = hoRecoHits->begin();
+	for( ; hoRecoIt != hoRecoHits->end() ; hoRecoIt++){
+		if(hoRecoIt->detid() == id){
+			return &*hoRecoIt;
+		}
+	}
+	return 0;
 }
 
 /**
@@ -1678,7 +1699,7 @@ bool hoMuonAnalyzer::isFrameAboveThr(const HODataFrame* dataFrame){
 		if(sliceMax == 0){
 			adcSum = dataFrame->sample(0).adc() + dataFrame->sample(1).adc() + dataFrame->sample(2).adc();
 		} else {
-			adcSum = dataFrame->sample(0).adc() + dataFrame->sample(0).adc() + dataFrame->sample(1).adc() + dataFrame->sample(2).adc();
+			adcSum = dataFrame->sample(sliceMax - 1).adc() + dataFrame->sample(sliceMax).adc() + dataFrame->sample(sliceMax + 1).adc() + dataFrame->sample(sliceMax + 2).adc();
 		}
 	}
 	return adcSum >= ADC_THR;
@@ -1693,17 +1714,20 @@ double hoMuonAnalyzer::calculateHitTimeFromDigi(const HODataFrame* dataFrame){
 	double weightedBinSum = 0;
 	double amplitudeSum = 0;
 	int sliceMax = findMaximumTimeSlice(dataFrame);
-	if( !sliceMax == -1 ){
+	if( sliceMax != -1 ){
 		//Maximum is at slice index 0
 		if( sliceMax == 0 ){
-			weightedBinSum = dataFrame->sample(0).adc() + 2*dataFrame->sample(1).adc();
+			weightedBinSum = dataFrame->sample(1).adc();
 			amplitudeSum = ( dataFrame->sample(0).adc() + dataFrame->sample(1).adc() );
 		}
 		//Slice index of maximum is no problem
 		//Sum up the following two or until the end of data samples
 		else{
-			weightedBinSum = dataFrame->sample(sliceMax).adc() + 2*dataFrame->sample(sliceMax+1).adc();
-			amplitudeSum = dataFrame->sample(sliceMax-1).adc() + dataFrame->sample(sliceMax).adc() + dataFrame->sample(sliceMax+1).adc();
+			weightedBinSum = dataFrame->sample(sliceMax-1).adc()*(sliceMax-1) + dataFrame->sample(sliceMax).adc()*sliceMax
+					+ (sliceMax+1)*dataFrame->sample(sliceMax+1).adc();
+
+			amplitudeSum = dataFrame->sample(sliceMax-1).adc() + dataFrame->sample(sliceMax).adc()
+					+ dataFrame->sample(sliceMax+1).adc();
 		}
 		if(amplitudeSum != 0)
 			hitTime = weightedBinSum/amplitudeSum;

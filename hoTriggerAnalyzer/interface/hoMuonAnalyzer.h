@@ -95,6 +95,8 @@ private:
   double calculateHitTimeFromDigi(const HODataFrame* dataFrame);
   bool isFrameAboveThr(const HODataFrame* dataFrame);
 
+  const HORecHit* findHoRecHitById(DetId id);
+
   TrackDetMatchInfo* getTrackDetMatchInfo(reco::GenParticle,const edm::Event& iEvent,const edm::EventSetup& iSetup);
 
   edm::Service<TFileService> _fileService;
