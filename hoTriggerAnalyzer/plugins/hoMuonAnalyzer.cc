@@ -177,6 +177,8 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 
 	iEvent.getByLabel(edm::InputTag("muons"),recoMuons);
 
+	iEvent.getByLabel( edm::InputTag("simHcalDigis"), hoDigis);
+
 	edm::Handle<vector<PCaloHit>> caloHits;
 	iEvent.getByLabel(edm::InputTag("g4SimHits","HcalHits"),caloHits);
 
@@ -326,12 +328,18 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 
 	hoRecHitVector->clear();
 	for( auto it = hoRecoHits->begin(); it != hoRecoHits->end(); it++ ){
+		int* adcSamples = new int[10];
+		const HODataFrame* dataFrame = findHoDigiById(it->detid());
+		for(int i = 0; i < std::min(10,dataFrame->size()); i++){
+			adcSamples[i] = dataFrame->sample(i).adc();
+		}
 		hoRecHitVector->push_back(
 				HoRecHitData(
 						caloGeo->getPosition(it->id()).eta(),
 						caloGeo->getPosition(it->id()).phi(),
 						it->energy(),
-						it->time()
+						it->time(),
+						adcSamples
 				)
 		);
 	}
@@ -1620,8 +1628,6 @@ void hoMuonAnalyzer::analyzeHoDigiTiming(const edm::Event& iEvent){
 
 	std::map<HcalDetId,int> idCounterMap;
 
-	edm::Handle<HODigiCollection> hoDigis;
-	iEvent.getByLabel( edm::InputTag("simHcalDigis"), hoDigis);
 	if(!hoDigis.isValid()) std::cout << "No HO digis collection found" << std::endl;
 	auto dataFrame = hoDigis->begin();
 
@@ -1679,6 +1685,19 @@ const HORecHit* hoMuonAnalyzer::findHoRecHitById(DetId id){
 	for( ; hoRecoIt != hoRecoHits->end() ; hoRecoIt++){
 		if(hoRecoIt->detid() == id){
 			return &*hoRecoIt;
+		}
+	}
+	return 0;
+}
+
+/**
+ * Search in the digi collection for a hit with the given detId
+ */
+const HODataFrame* hoMuonAnalyzer::findHoDigiById(DetId id){
+	auto hoDigiIt = hoDigis->begin();
+	for( ; hoDigiIt != hoDigis->end() ; hoDigiIt++){
+		if(hoDigiIt->id() == id){
+			return &*hoDigiIt;
 		}
 	}
 	return 0;

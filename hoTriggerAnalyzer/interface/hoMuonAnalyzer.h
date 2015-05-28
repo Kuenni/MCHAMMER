@@ -31,6 +31,7 @@
 #include <TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h>
 #include <TrackingTools/TrackAssociator/plugins/HODetIdAssociator.h>
 
+
 #include <list>
 #include <map>
 #include <string>
@@ -47,6 +48,8 @@
 #include "DataFormats/DetId/interface/DetId.h"
 
 #include "DataFormats/HcalDigi/interface/HODataFrame.h"
+
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 using namespace::std;
 //
 // class declaration
@@ -98,6 +101,7 @@ private:
   float timeshift_ns_hbheho(float wpksamp);
 
   const HORecHit* findHoRecHitById(DetId id);
+  const HODataFrame* findHoDigiById(DetId id);
 
   TrackDetMatchInfo* getTrackDetMatchInfo(reco::GenParticle,const edm::Event& iEvent,const edm::EventSetup& iSetup);
 
@@ -112,6 +116,7 @@ private:
   edm::Handle<reco::GenParticleCollection> truthParticles;
   edm::Handle<l1extra::L1MuonParticleCollection> l1Muons;
   edm::Handle<HORecHitCollection> hoRecoHits;
+  edm::Handle<HODigiCollection> hoDigis;
   edm::Handle<reco::GenParticleMatch> l1MuonGenMatches;
   edm::Handle<edm::View<l1extra::L1MuonParticle> > l1MuonView;
   edm::Handle<reco::MuonCollection> recoMuons;
