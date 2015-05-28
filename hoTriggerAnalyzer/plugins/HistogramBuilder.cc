@@ -522,12 +522,25 @@ void HistogramBuilder::fillCorrelationGraph(double xVal, double yVal, std::strin
  */
 void HistogramBuilder::fillGraph(double x, double y, std::string key){
 	TFileDirectory graphDir = _fileService->mkdir("graphs");
-		if(!_graphs.count(key)){
-			_graphs[key] = graphDir.make<TGraph>();
-			_graphs[key]->SetTitle(key.c_str());
-			_graphs[key]->SetName(key.c_str());
-			}
-		_graphs[key]->SetPoint(_graphs[key]->GetN(),x, y);
+	if(!_graphs.count(key)){
+		_graphs[key] = graphDir.make<TGraph>();
+		_graphs[key]->SetTitle(key.c_str());
+		_graphs[key]->SetName(key.c_str());
+	}
+	_graphs[key]->SetPoint(_graphs[key]->GetN(),x, y);
+}
+
+/**
+ * Fill a TGraph2D with given x, y, z and key
+ */
+void HistogramBuilder::fillGraph2D(double x, double y, double z, std::string key){
+	TFileDirectory graphDir = _fileService->mkdir("graphs2d");
+	if(!_graphs2d.count(key)){
+		_graphs2d[key] = graphDir.make<TGraph2D>();
+		_graphs2d[key]->SetTitle(key.c_str());
+		_graphs2d[key]->SetName(key.c_str());
+	}
+	_graphs2d[key]->SetPoint(_graphs2d[key]->GetN(),x, y, z);
 }
 
 /**

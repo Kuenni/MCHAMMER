@@ -18,6 +18,7 @@
 #include <TH3.h>
 #include <TTree.h>
 #include <TGraph.h>
+#include <TGraph2D.h>
 #include <map>
 #include <string>
 
@@ -50,6 +51,7 @@ class HistogramBuilder {
   void fillEtaPhiHistograms(float eta, float phi, std::string key);
   void fillEtaPhiPtHistogram(double eta, double phi, double pt, std::string key);
   void fillGraph(double x, double y, std::string key);
+  void fillGraph2D(double x, double y, double z, std::string key);
   void fillHltIndexHistogram(int hltIndex, std::string key);
   void fillL1MuonPtHistograms(float pt, std::string key);
   void fillMultiplicityHistogram(int , std::string );
@@ -96,6 +98,7 @@ class HistogramBuilder {
   std::map<std::string,TGraph*> _grEtaPhi;
   std::map<std::string,TGraph*> _grCorrelation;
   std::map<std::string,TGraph*> _graphs;
+  std::map<std::string,TGraph2D*> _graphs2d;
 
   std::map<std::string,TH3D*> _h3EtaPhiEnergy;
   std::map<std::string,TH3D*> _h3DeltaEtaDeltaPhiEnergy;
