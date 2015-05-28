@@ -250,6 +250,8 @@ def plotProduct():
 	label = getLabelCmsPrivateSimulation()
 	label.Draw()
 	
+	hist.SaveAs('product.root')
+	
 	canvas.Update()	
 	return canvas,hist,label
 
