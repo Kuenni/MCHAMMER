@@ -253,9 +253,34 @@ def plotDigiVsPhi():
 	
 	return canvas,hoDigiTime,label
 
+def plotRecHitVsDigiTime():
+	canvas = TCanvas("canvasRecHitVsDigi","RecHitTime Vs Simple Digi",1200,1200)
+
+	hoDigiTime = file.Get('hoMuonAnalyzer/correlation/hoTimeRecHitVsDigi')
+	setupAxes(hoDigiTime)
+
+	hoDigiTime.GetXaxis().SetTitle('digi time / ns')
+	hoDigiTime.GetYaxis().SetTitle('rec hit time / ns')
+	hoDigiTime.GetYaxis().SetTitleOffset(1.2)
+	hoDigiTime.SetMarkerStyle(6)
+	hoDigiTime.SetMarkerColor(colorRwthDarkBlue)
+	hoDigiTime.SetTitle('HORecHit time vs. simple digi time estimation')
+	hoDigiTime.Draw('ap')
+
+	#Label for CMS private
+	label = getLabelCmsPrivateSimulation()
+	label.Draw()
+
+	canvas.Update()
+	
+	canvas.SaveAs('plots/timing/digiTimeVsRecHitTime.png')
+
+	return canvas, label, hoDigiTime
+
 #res = plotDigiTest()
 #res = plotDigiTime()
 #res2 = plotDigiDeltaTime()
-res3 = plotDigiVsEta()
-res4 = plotDigiVsPhi()
+#res3 = plotDigiVsEta()
+#res4 = plotDigiVsPhi()
+res5 = plotRecHitVsDigiTime()
 raw_input('-->')
