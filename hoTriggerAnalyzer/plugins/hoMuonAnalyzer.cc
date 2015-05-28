@@ -1617,6 +1617,9 @@ void hoMuonAnalyzer::fillHoGeomAcceptanceGraph(reco::GenParticle genPart){
  *
  */
 void hoMuonAnalyzer::analyzeHoDigiTiming(const edm::Event& iEvent){
+
+	std::map<HcalDetId,int> idCounterMap;
+
 	edm::Handle<HODigiCollection> hoDigis;
 	iEvent.getByLabel( edm::InputTag("simHcalDigis"), hoDigis);
 	if(!hoDigis.isValid()) std::cout << "No HO digis collection found" << std::endl;
@@ -1626,6 +1629,7 @@ void hoMuonAnalyzer::analyzeHoDigiTiming(const edm::Event& iEvent){
 	for(; dataFrame != hoDigis->end() ; ++dataFrame){
 		double hitTime = calculateHitTimeFromDigi(&*dataFrame);
 		histogramBuilder.fillTimeHistogram(hitTime,"hoTimeFromDigi");
+		idCounterMap[dataFrame->id()] += 1;
 		if(isFrameAboveThr(&(*dataFrame))){
 			double digiEta = caloGeo->getPosition(dataFrame->id()).eta();
 			double digiPhi = caloGeo->getPosition(dataFrame->id()).phi();
@@ -1635,6 +1639,7 @@ void hoMuonAnalyzer::analyzeHoDigiTiming(const edm::Event& iEvent){
 			const HORecHit* recHit = findHoRecHitById(dataFrame->id());
 			if(recHit){
 				histogramBuilder.fillCorrelationGraph(hitTime,recHit->time(),"hoTimeRecHitVsDigi");
+				histogramBuilder.fillGraph2D(digiEta,digiPhi,recHit->time() - hitTime,"etaPhiDeltaHoTime");
 			}
 			const l1extra::L1MuonParticle* l1muon = getBestL1MuonMatch(digiEta,digiPhi);
 			if(l1muon)
@@ -1659,6 +1664,10 @@ void hoMuonAnalyzer::analyzeHoDigiTiming(const edm::Event& iEvent){
 		if( maxTSIdx != -1 ){
 			histogramBuilder.fillMultiplicityHistogram(get4TsAdcSum(&*dataFrame,maxTSIdx),"hoDigi4TsSum");
 		}
+	}//Loop over data frames
+	//Fill a histogram with the number of occurences for the given Det ID
+	for(auto iterator = idCounterMap.begin(); iterator != idCounterMap.end(); iterator++){
+		histogramBuilder.fillCorrelationGraph(iterator->first.rawId(),iterator->second,"detIdInDigiCounter");
 	}
 }
 
