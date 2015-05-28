@@ -1640,22 +1640,24 @@ void hoMuonAnalyzer::analyzeHoDigiTiming(const edm::Event& iEvent){
 				histogramBuilder.fillDeltaTimeHistogram(calculateHitTimeFromDigi(&*dataFrame),l1muon->bx(),"hoTimeFromDigi");
 		}
 		double adcSum = 0;
+		int maxTSIdx = findMaximumTimeSlice(&*dataFrame);
 		int maxAdcVal = 0;
-		int maxTSIdx = -1;
+
+		if(maxTSIdx != -1)
+			maxAdcVal = dataFrame->sample(maxTSIdx).adc();
+
 		for (int i = 0 ; i < dataFrame->size() ; i++){
 			adcSum += dataFrame->sample(i).adc();
 			histogramBuilder.fillCorrelationHistogram(i,dataFrame->sample(i).adc(),"adc samples");
-			//Find TS with maximum ADC
-			if(dataFrame->sample(i).adc() > maxAdcVal){
-				maxAdcVal = dataFrame->sample(i).adc();
-				maxTSIdx = i;
-			}
 		}
 		//Fill histogram with maximum TS ID
 		histogramBuilder.fillBxIdHistogram(maxTSIdx,"maxTimeSlice");
 		histogramBuilder.fillCorrelationHistogram(maxTSIdx,maxAdcVal,"MaxTimeSliceVsAdc");
 		histogramBuilder.fillMultiplicityHistogram(adcSum,"hoDigiAdcSum");
 		histogramBuilder.fillMultiplicityHistogram(dataFrame->sample(4).adc(),"hoDigiAdcTS4");
+		if( maxTSIdx != -1 ){
+			histogramBuilder.fillMultiplicityHistogram(get4TsAdcSum(&*dataFrame,maxTSIdx),"hoDigi4TsSum");
+		}
 	}
 }
 
@@ -1670,6 +1672,20 @@ const HORecHit* hoMuonAnalyzer::findHoRecHitById(DetId id){
 		}
 	}
 	return 0;
+}
+
+/**
+ * Calculate the 4 TS Sum for an HO data frame around the max adc Sample
+ */
+int hoMuonAnalyzer::get4TsAdcSum(const HODataFrame* dataFrame, int sliceMax){
+	int adcSum = 0;
+	//Define start for the loop. Do not go below 0 index
+	int index = (sliceMax - 1) < 0 ? 0 : sliceMax - 1;
+	//Run the loop until +2 TS or end of frame
+	for( ; index <= std::min(sliceMax + 2,dataFrame->size() - 1) ; index++){
+		adcSum += dataFrame->sample(index).adc();
+	}
+	return adcSum;
 }
 
 /**
@@ -1688,8 +1704,9 @@ int hoMuonAnalyzer::findMaximumTimeSlice(const HODataFrame* dataFrame){
 }
 
 /**
- * Test wheter the data Frame is in the 4 TS ADC sum above a given threshold
+ * Test whether the data Frame is in the 4 TS ADC sum above a given threshold
  * TODO: Make ADC Thr a parameter of the run config
+ * TODO: Catch the case where slice max is >= N-Samples - 2
  */
 bool hoMuonAnalyzer::isFrameAboveThr(const HODataFrame* dataFrame){
 	int sliceMax = -1;
@@ -1707,7 +1724,7 @@ bool hoMuonAnalyzer::isFrameAboveThr(const HODataFrame* dataFrame){
 
 /**
  * Calculates the raw hit time for the digi using the amplitude weighted bin position
- * as described in the paper about hcal timing reconstruction
+ * as described in the paper about hcal timing reconstruction CMS-IN 2008/011
  */
 double hoMuonAnalyzer::calculateHitTimeFromDigi(const HODataFrame* dataFrame){
 	double hitTime = -1;
@@ -1721,7 +1738,7 @@ double hoMuonAnalyzer::calculateHitTimeFromDigi(const HODataFrame* dataFrame){
 			amplitudeSum = ( dataFrame->sample(0).adc() + dataFrame->sample(1).adc() );
 		}
 		//Slice index of maximum is no problem
-		//Sum up the following two or until the end of data samples
+		//TODO: Sum up the following two or until the end of data samples
 		else{
 			weightedBinSum = dataFrame->sample(sliceMax-1).adc()*(sliceMax-1) + dataFrame->sample(sliceMax).adc()*sliceMax
 					+ (sliceMax+1)*dataFrame->sample(sliceMax+1).adc();

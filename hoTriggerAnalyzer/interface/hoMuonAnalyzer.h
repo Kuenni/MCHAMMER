@@ -94,6 +94,7 @@ private:
   int findMaximumTimeSlice(const HODataFrame* dataFrame);
   double calculateHitTimeFromDigi(const HODataFrame* dataFrame);
   bool isFrameAboveThr(const HODataFrame* dataFrame);
+  int get4TsAdcSum(const HODataFrame* dataFrame, int sliceMax);
 
   const HORecHit* findHoRecHitById(DetId id);
 
