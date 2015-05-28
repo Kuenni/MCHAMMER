@@ -95,6 +95,7 @@ private:
   double calculateHitTimeFromDigi(const HODataFrame* dataFrame);
   bool isFrameAboveThr(const HODataFrame* dataFrame);
   int get4TsAdcSum(const HODataFrame* dataFrame, int sliceMax);
+  float timeshift_ns_hbheho(float wpksamp);
 
   const HORecHit* findHoRecHitById(DetId id);
 

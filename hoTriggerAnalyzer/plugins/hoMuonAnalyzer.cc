@@ -62,6 +62,7 @@
 #include <RecoMuon/MuonIdentification/interface/MuonHOAcceptance.h>
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputer.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputerRcd.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalSimpleRecAlgo.h"
 
 #include <SimDataFormats/CaloHit/interface/PCaloHit.h>
 #include <SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h>
@@ -1728,31 +1729,122 @@ bool hoMuonAnalyzer::isFrameAboveThr(const HODataFrame* dataFrame){
  */
 double hoMuonAnalyzer::calculateHitTimeFromDigi(const HODataFrame* dataFrame){
 	double hitTime = -1;
-	double weightedBinSum = 0;
-	double amplitudeSum = 0;
 	int sliceMax = findMaximumTimeSlice(dataFrame);
 	if( sliceMax != -1 ){
-		//Maximum is at slice index 0
-		if( sliceMax == 0 ){
-			weightedBinSum = dataFrame->sample(1).adc();
-			amplitudeSum = ( dataFrame->sample(0).adc() + dataFrame->sample(1).adc() );
-		}
-		//Slice index of maximum is no problem
-		//TODO: Sum up the following two or until the end of data samples
-		else{
-			weightedBinSum = dataFrame->sample(sliceMax-1).adc()*(sliceMax-1) + dataFrame->sample(sliceMax).adc()*sliceMax
-					+ (sliceMax+1)*dataFrame->sample(sliceMax+1).adc();
+		int sliceM1 = 0;
+		int sliceP1 = 0;
+		int maxA	= dataFrame->sample(sliceMax).adc();
 
-			amplitudeSum = dataFrame->sample(sliceMax-1).adc() + dataFrame->sample(sliceMax).adc()
-					+ dataFrame->sample(sliceMax+1).adc();
+		if (sliceMax -1 >= 0){
+			sliceM1 = dataFrame->sample(sliceMax - 1).adc();
 		}
-		if(amplitudeSum != 0)
-			hitTime = weightedBinSum/amplitudeSum;
-		//subtract the presamples and convert from time slice number to ns
-		return (hitTime - dataFrame->presamples())*25;
+		if (sliceMax + 1 < dataFrame->size()){
+			sliceP1 = dataFrame->sample(sliceMax + 1).adc();
+		}
+		//Calculate sum of weights
+		float wpksamp = (sliceM1 + maxA + sliceP1);
+		if (wpksamp!=0){
+			//calculate weighted position of max, assuming maxA in slice 1
+			wpksamp=(maxA + 2.0*sliceP1) / wpksamp;
+		}
+		//subtract the pre-samples and convert from time slice number to ns
+		//Add time shift
+		hitTime = (sliceMax - dataFrame->presamples())*25.0 + timeshift_ns_hbheho(wpksamp);
+		return hitTime;
 	} else {
 		return -9999;
 	}
+}
+
+// timeshift implementation
+// Copied from HcalSimpleRecAlgo
+static const float wpksamp0_hbheho = 0.5;
+static const int   num_bins_hbheho = 61;
+
+/*
+ * My interpretation of the commented columns:
+ * The first is the weighted bin position.
+ * The second is the range for the given value.
+ */
+static const float actual_ns_hbheho[num_bins_hbheho] = {
+-5.44000, // 0.500, 0.000-0.017
+-4.84250, // 0.517, 0.017-0.033
+-4.26500, // 0.533, 0.033-0.050
+-3.71000, // 0.550, 0.050-0.067
+-3.18000, // 0.567, 0.067-0.083
+-2.66250, // 0.583, 0.083-0.100
+-2.17250, // 0.600, 0.100-0.117
+-1.69000, // 0.617, 0.117-0.133
+-1.23000, // 0.633, 0.133-0.150
+-0.78000, // 0.650, 0.150-0.167
+-0.34250, // 0.667, 0.167-0.183
+ 0.08250, // 0.683, 0.183-0.200
+ 0.50250, // 0.700, 0.200-0.217
+ 0.90500, // 0.717, 0.217-0.233
+ 1.30500, // 0.733, 0.233-0.250
+ 1.69500, // 0.750, 0.250-0.267
+ 2.07750, // 0.767, 0.267-0.283
+ 2.45750, // 0.783, 0.283-0.300
+ 2.82500, // 0.800, 0.300-0.317
+ 3.19250, // 0.817, 0.317-0.333
+ 3.55750, // 0.833, 0.333-0.350
+ 3.91750, // 0.850, 0.350-0.367
+ 4.27500, // 0.867, 0.367-0.383
+ 4.63000, // 0.883, 0.383-0.400
+ 4.98500, // 0.900, 0.400-0.417
+ 5.33750, // 0.917, 0.417-0.433
+ 5.69500, // 0.933, 0.433-0.450
+ 6.05000, // 0.950, 0.450-0.467
+ 6.40500, // 0.967, 0.467-0.483
+ 6.77000, // 0.983, 0.483-0.500
+ 7.13500, // 1.000, 0.500-0.517
+ 7.50000, // 1.017, 0.517-0.533
+ 7.88250, // 1.033, 0.533-0.550
+ 8.26500, // 1.050, 0.550-0.567
+ 8.66000, // 1.067, 0.567-0.583
+ 9.07000, // 1.083, 0.583-0.600
+ 9.48250, // 1.100, 0.600-0.617
+ 9.92750, // 1.117, 0.617-0.633
+10.37750, // 1.133, 0.633-0.650
+10.87500, // 1.150, 0.650-0.667
+11.38000, // 1.167, 0.667-0.683
+11.95250, // 1.183, 0.683-0.700
+12.55000, // 1.200, 0.700-0.717
+13.22750, // 1.217, 0.717-0.733
+13.98500, // 1.233, 0.733-0.750
+14.81500, // 1.250, 0.750-0.767
+15.71500, // 1.267, 0.767-0.783
+16.63750, // 1.283, 0.783-0.800
+17.53750, // 1.300, 0.800-0.817
+18.38500, // 1.317, 0.817-0.833
+19.16500, // 1.333, 0.833-0.850
+19.89750, // 1.350, 0.850-0.867
+20.59250, // 1.367, 0.867-0.883
+21.24250, // 1.383, 0.883-0.900
+21.85250, // 1.400, 0.900-0.917
+22.44500, // 1.417, 0.917-0.933
+22.99500, // 1.433, 0.933-0.950
+23.53250, // 1.450, 0.950-0.967
+24.03750, // 1.467, 0.967-0.983
+24.53250, // 1.483, 0.983-1.000
+25.00000  // 1.500, 1.000-1.017 - keep for interpolation
+};
+// Copied from HcalSimpleRecAlgo
+float hoMuonAnalyzer::timeshift_ns_hbheho(float wpksamp) {
+  float flx = (num_bins_hbheho-1)*(wpksamp - wpksamp0_hbheho);
+  int index = (int)flx;
+  float yval;
+
+  if      (index <    0)               return actual_ns_hbheho[0];
+  else if (index >= num_bins_hbheho-1) return actual_ns_hbheho[num_bins_hbheho-1];
+
+  // else interpolate:
+  float y1 = actual_ns_hbheho[index];
+  float y2 = actual_ns_hbheho[index+1];
+
+  yval = y1 + (y2-y1)*(flx-(float)index);
+
+  return yval;
 }
 
 /**
