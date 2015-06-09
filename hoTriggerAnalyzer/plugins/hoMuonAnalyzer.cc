@@ -342,6 +342,8 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 						adcSamples
 				)
 		);
+		//Take care of memory! Adc samples are copied in the struct's constructor
+		delete[] adcSamples;
 	}
 
 	dataTree->Fill();
