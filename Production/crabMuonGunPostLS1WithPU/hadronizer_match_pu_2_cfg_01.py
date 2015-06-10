@@ -62,7 +62,7 @@ process.AODSIMoutput = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('file:FEVT_WorkingDetector01.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
-        dataTier = cms.untracked.string('FEVTDEBUG')
+        dataTier = cms.untracked.string('')
     ),
     SelectEvents = cms.untracked.PSet(
         SelectEvents = cms.vstring('generation_step')
@@ -638,19 +638,27 @@ process.AODSIMoutput_step = cms.EndPath(process.AODSIMoutput)
 # Schedule definition
 process.schedule = cms.Schedule(process.generation_step,
 							process.genfiltersummary_step,
-							process.simulation_step,process.digitisation_step,
+							process.simulation_step,
+							process.digitisation_step,
 							process.L1simulation_step,
-							process.digi2raw_step)
-#process.schedule.extend(process.HLTSchedule)
-process.schedule.extend([process.raw2digi_step,
-						process.L1Reco_step,
-						process.L1extra_step,
-
-#						process.reconstruction_step,
-#						process.eventinterpretaion_step,
-						process.endjob_step,
-						process.AODSIMoutput_step
-						])
+							process.digi2raw_step,
+							process.raw2digi_step,
+							process.reconstruction_step,
+							process.L1Reco_step,
+							process.L1extra_step,
+							process.endjob_step,
+							process.FEVTDEBUGoutput_step
+							)
+# #process.schedule.extend(process.HLTSchedule)
+# process.schedule.extend([
+# 						process.L1Reco_step,
+# 						process.L1extra_step,
+# 
+# #						process.reconstruction_step,
+# #						process.eventinterpretaion_step,
+# 						process.endjob_step,
+# 						process.AODSIMoutput_step
+# 						])
 # filter all path with the production filter sequence
 for path in process.paths:
 	getattr(process,path)._seq = process.generator * getattr(process,path)._seq
