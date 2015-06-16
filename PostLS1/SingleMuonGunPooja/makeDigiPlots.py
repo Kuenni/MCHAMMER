@@ -108,6 +108,7 @@ def plotDigiTime():
 	histHoTime = file.Get('hoMuonAnalyzer/hoTimeFromDigi_Time')
 	setupAxes(histHoTime)
 	histHoTime.GetXaxis().SetTitle('time / ns')
+	histHoTime.GetXaxis().SetRangeUser(-100,100)
 	histHoTime.SetLineColor(colorRwthDarkBlue)
 	histHoTime.SetStats(0)
 	histHoTime.SetFillStyle(3004)
@@ -277,10 +278,9 @@ def plotRecHitVsDigiTime():
 
 	return canvas, label, hoDigiTime
 
-#res = plotDigiTest()
-#res = plotDigiTime()
-#res2 = plotDigiDeltaTime()
-#res3 = plotDigiVsEta()
-#res4 = plotDigiVsPhi()
+res = plotDigiTime()
+res2 = plotDigiDeltaTime()
+res3 = plotDigiVsEta()
+res4 = plotDigiVsPhi()
 res5 = plotRecHitVsDigiTime()
 raw_input('-->')
