@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("Demo")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.cerr.FwkReport.reportEvery = 100
+#process.MessageLogger.cerr.FwkReport.reportEvery = 100
 
 process.TFileService = cms.Service("TFileService",
                                    fileName=cms.string('L1MuonHistogramPooja.root')
@@ -17,7 +17,9 @@ import FWCore.Utilities.FileUtils as FileUtils
 
 process.source = cms.Source("PoolSource",
     # replace 'myfile.root' with the source file you want to use
-    fileNames = cms.untracked.vstring('file:///net/scratch_cms/institut_3a/scheuch/SingleMu_52PU_2015/FEVT_WorkingDetector.root')
+    fileNames = cms.untracked.vstring('file://./SingleMu_PU52_FEVT.root'
+#    file:///net/scratch_cms/institut_3a/scheuch/SingleMu_52PU_2015/FEVT_WorkingDetector.root'
+	)
 )
 
 # import of standard configurations
@@ -66,19 +68,22 @@ process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
 #L1Extra
 process.load('L1Trigger.Configuration.L1Extra_cff')
 
+process.load('Configuration.StandardSequences.Digi_cff')
+
 #horeco
 process.load('Configuration.StandardSequences.Reconstruction_cff')
 
-#process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
+#process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-from Configuration.AlCa.GlobalTag import GlobalTag
+#from Configuration.AlCa.GlobalTag import GlobalTag
 
-from Configuration.AlCa.autoCond import autoCond
+from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
+
+process.GlobalTag = GlobalTag(process.GlobalTag, 'PHYS14_25_V1', '')
+
+#from Configuration.AlCa.autoCond import autoCond
 #process.GlobalTag.globaltag = autoCond['run2_mc'] #MCRUN2_72_V1 PHYS14_25_V1
-
-process.GlobalTag = GlobalTag(process.GlobalTag, 'PHYS14_25_V1::All', '')
-print process.GlobalTag.globaltag
 
 parameters = TrackAssociatorParameterBlock.TrackAssociatorParameters
 parameters.useEcal = False
@@ -95,7 +100,8 @@ process.hoMuonAnalyzer = cms.EDAnalyzer(
 	maxDeltaR = cms.double(0.3),
 	debug = cms.bool(True),
 	maxDeltaRL1MuonMatching = cms.double(1.),
-	TrackAssociatorParameters=parameters
+	TrackAssociatorParameters=parameters,
+	hoAdcThreshold = cms.int32(60)
     )
 
 #Alternative matcher: TrivialDeltaRMatcher
@@ -130,9 +136,11 @@ process.demo_step = cms.Path(process.hoMuonAnalyzer)
 process.FEVTDEBUGHLToutput_step = cms.EndPath(process.FEVTDEBUGHLToutput)
 process.L1Reco_step = cms.Path(process.L1Reco)
 process.muonL1Match_step = cms.Path(process.muonL1Match)
-
-process.p = cms.Path(process.genfilter*
-					#*process.L1Reco*
+process.reconstruction_step = cms.Path(process.reconstruction)
+process.load('Configuration.StandardSequences.DigiToRaw_cff')
+process.load('Configuration.StandardSequences.RawToDigi_cff')
+from EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi import *
+process.p = cms.Path(
 					process.l1MuonGenMatch*
 					process.horeco*
 					process.muonL1Match*
@@ -142,4 +150,20 @@ process.p = cms.Path(process.genfilter*
 process.schedule = cms.Schedule(
 	process.p
 	)
+
+#customisation of the process.
+# Automatic addition of the customisation function from HLTrigger.Configuration.customizeHLTforMC
+from HLTrigger.Configuration.customizeHLTforMC import customizeHLTforMC
+
+#call to customisation function customizeHLTforMC imported from HLTrigger.Configuration.customizeHLTforMC
+process = customizeHLTforMC(process)
+
+# Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.postLS1Customs
+from SLHCUpgradeSimulations.Configuration.postLS1Customs import customisePostLS1
+
+#call to customisation function customisePostLS1 imported from SLHCUpgradeSimulations.Configuration.postLS1Customs
+process = customisePostLS1(process)
+
+# End of customisation functions
+
 
