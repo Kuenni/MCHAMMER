@@ -65,10 +65,6 @@ public:
 
 private:
 
-
-  //Threshold for 4 TS HO Digi
-  const double ADC_THR = 60;
-
   virtual void beginJob() override;
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() override;
@@ -172,6 +168,11 @@ private:
    * Energy threshold for HO rec hits
    */
   float threshold;
+
+  /**
+   * ADC Threshold for 4 TS HO Digi
+   */
+  int ADC_THR;
 
   /**
    * Maximum delta R to be used for matching

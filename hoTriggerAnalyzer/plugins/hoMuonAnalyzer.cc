@@ -106,6 +106,7 @@ hoMuonAnalyzer::hoMuonAnalyzer(const edm::ParameterSet& iConfig)/*:
 	_hltSumAODInput = iConfig.getParameter<edm::InputTag>("hltSumAODSrc");
 	deltaR_Max = iConfig.getParameter<double>("maxDeltaR");
 	threshold = iConfig.getParameter<double>("hoEnergyThreshold");
+	ADC_THR = iConfig.getParameter<int>("hoAdcThreshold");
 	debug = iConfig.getParameter<bool>("debug");
 	deltaR_L1MuonMatching = iConfig.getParameter<double>("maxDeltaRL1MuonMatching");
 
