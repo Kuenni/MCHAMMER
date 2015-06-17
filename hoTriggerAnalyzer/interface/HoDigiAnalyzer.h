@@ -63,12 +63,19 @@ private:
 	virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
 	virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
 
+	void analyzeHoDigiTiming(const edm::Event& iEvent);
+
+	bool isFrameAboveThr(const HODataFrame* dataFrame);
+	double calculateHitTimeFromDigi(const HODataFrame* dataFrame);
 	float timeshift_ns_hbheho(float wpksamp);
+	int findMaximumTimeSlice(const HODataFrame* dataFrame);
+	int get4TsAdcSum(const HODataFrame* dataFrame, int sliceMax);
 
 	edm::Service<TFileService> _fileService;
 
 	HistogramBuilder histogramBuilder;
 	HoMatcher* hoMatcher;
+	CommonFunctionsHandler* functionsHandler;
 
 	edm::ESHandle<CaloGeometry> caloGeo;
 

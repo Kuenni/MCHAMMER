@@ -1,30 +1,45 @@
-#include "HoMuonTrigger/hoTriggerAnalyzer/interface/CommonFunctions.h"
-
-/*
- * The Common Function Class contains  
- * functions that are useful in 
- * my different circumstances, and
- * that I have used often in my analyses. 
- *
- * Created by Christopher Anelli
- * On 6.15.2014
-*/
+#include "../interface/CommonFunctionsHandler.h"
 
 #include "math.h"
 
-/*
- * Wrap check calculates the difference between two phi's,
- * making sure they are not more than 2 pi apart.
+/**
+ * Setup the parameters for getting the collections later on
  */
+void CommonFunctionsHandler::CommonFunctionsHandler(const edm::ParameterSet& iConfig){
+	_horecoInput = iConfig.getParameter<edm::InputTag>("horecoSrc");
+	_hoDigiInput = iConfig.getParameter<edm::InputTag>("hoDigiSrc");
+}
 
-float CommonFunctions::WrapCheck(float phi1, float phi2){
-  //double M_PI = (double) 3.14;
-  float delta_phi = phi1 - phi2;
-  if(delta_phi < -M_PI){
-    return (2*M_PI + delta_phi);
-  }
-  if(delta_phi > M_PI){
-    return (delta_phi - 2*M_PI);
-  }
-  return delta_phi;
-};
+/**
+ * Gets the collections for the given event
+ */
+void CommonFunctionsHandler::getEvent(const edm::Event& iEvent){
+	iEvent.getByLabel( _horecoInput, hoRecoHits);
+	iEvent.getByLabel( _hoDigiInput, hoDigis);
+}
+
+/**
+ * Search in the rec hit collection for a hit with the given detId
+ */
+const HORecHit* CommonFunctionsHandler::findHoRecHitById(DetId id){
+	auto hoRecoIt = hoRecoHits->begin();
+	for( ; hoRecoIt != hoRecoHits->end() ; hoRecoIt++){
+		if(hoRecoIt->detid() == id){
+			return &*hoRecoIt;
+		}
+	}
+	return 0;
+}
+
+/**
+ * Search in the digi collection for a hit with the given detId
+ */
+const HODataFrame* CommonFunctionsHandler::findHoDigiById(DetId id){
+	auto hoDigiIt = hoDigis->begin();
+	for( ; hoDigiIt != hoDigis->end() ; hoDigiIt++){
+		if(hoDigiIt->id() == id){
+			return &*hoDigiIt;
+		}
+	}
+	return 0;
+}

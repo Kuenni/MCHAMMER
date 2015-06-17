@@ -106,7 +106,7 @@
 HoDigiAnalyzer::HoDigiAnalyzer(const edm::ParameterSet& iConfig){
 	deltaR_Max = iConfig.getParameter<double>("maxDeltaR");
 	ADC_THR = iConfig.getParameter<int>("hoAdcThreshold");
-
+	functionsHandler =  new CommonFunctionsHandler(iConfig);
 }
 
 
@@ -144,8 +144,149 @@ HoDigiAnalyzer::analyze(const edm::Event& iEvent,
 {
 	iSetup.get<CaloGeometryRecord>().get(caloGeo);
 	hoMatcher = new HoMatcher(*caloGeo);
+	//Do this at the beginning to get the correct collections for the event
+	functionsHandler->getEvent(iEvent);
 
 }
+
+/**
+ * The function contains the code that is used for studying the ho digi
+ * timing. The DIGI studies are more suited to assess the usability of HO
+ * than the RECO information
+ *
+ */
+void HoDigiAnalyzer::analyzeHoDigiTiming(const edm::Event& iEvent){
+	std::map<HcalDetId,int> idCounterMap;
+
+	if(!hoDigis.isValid()) std::cout << "No HO digis collection found" << std::endl;
+	auto dataFrame = hoDigis->begin();
+
+	//Loop over all ho digis
+	for(; dataFrame != hoDigis->end() ; ++dataFrame){
+		double hitTime = calculateHitTimeFromDigi(&*dataFrame);
+		histogramBuilder.fillTimeHistogram(hitTime,"hoTimeFromDigi");
+		idCounterMap[dataFrame->id()] += 1;
+		if(isFrameAboveThr(&(*dataFrame))){
+			double digiEta = caloGeo->getPosition(dataFrame->id()).eta();
+			double digiPhi = caloGeo->getPosition(dataFrame->id()).phi();
+			histogramBuilder.fillTimeHistogram(hitTime,"hoTimeFromDigiAboveThr");
+			histogramBuilder.fillCorrelationGraph(digiEta,hitTime,"hoTimeFromDigiEta");
+			histogramBuilder.fillCorrelationGraph(digiPhi,hitTime,"hoTimeFromDigiPhi");
+			const HORecHit* recHit = functionsHandler->findHoRecHitById(dataFrame->id());
+			if(recHit){
+				histogramBuilder.fillCorrelationGraph(hitTime,recHit->time(),"hoTimeRecHitVsDigi");
+				histogramBuilder.fillGraph2D(digiEta,digiPhi,recHit->time() - hitTime,"etaPhiDeltaHoTime");
+			}
+			const l1extra::L1MuonParticle* l1muon = getBestL1MuonMatch(digiEta,digiPhi);
+			if(l1muon)
+				histogramBuilder.fillDeltaTimeHistogram(calculateHitTimeFromDigi(&*dataFrame),l1muon->bx(),"hoTimeFromDigi");
+		}
+		double adcSum = 0;
+		int maxTSIdx = findMaximumTimeSlice(&*dataFrame);
+		int maxAdcVal = 0;
+
+		if(maxTSIdx != -1)
+			maxAdcVal = dataFrame->sample(maxTSIdx).adc();
+
+		for (int i = 0 ; i < dataFrame->size() ; i++){
+			adcSum += dataFrame->sample(i).adc();
+			histogramBuilder.fillCorrelationHistogram(i,dataFrame->sample(i).adc(),"adc samples");
+		}
+		//Fill histogram with maximum TS ID
+		histogramBuilder.fillBxIdHistogram(maxTSIdx,"maxTimeSlice");
+		histogramBuilder.fillCorrelationHistogram(maxTSIdx,maxAdcVal,"MaxTimeSliceVsAdc");
+		histogramBuilder.fillMultiplicityHistogram(adcSum,"hoDigiAdcSum");
+		histogramBuilder.fillMultiplicityHistogram(dataFrame->sample(4).adc(),"hoDigiAdcTS4");
+		if( maxTSIdx != -1 ){
+			histogramBuilder.fillMultiplicityHistogram(get4TsAdcSum(&*dataFrame,maxTSIdx),"hoDigi4TsSum");
+		}
+	}//Loop over data frames
+	//Fill a histogram with the number of occurences for the given Det ID
+	for(auto iterator = idCounterMap.begin(); iterator != idCounterMap.end(); iterator++){
+		histogramBuilder.fillCorrelationGraph(iterator->first.rawId(),iterator->second,"detIdInDigiCounter");
+	}
+}
+
+/**
+ * Calculate the 4 TS Sum for an HO data frame around the max adc Sample
+ */
+int HoDigiAnalyzer::get4TsAdcSum(const HODataFrame* dataFrame, int sliceMax){
+	int adcSum = 0;
+	//Define start for the loop. Do not go below 0 index
+	int index = (sliceMax - 1) < 0 ? 0 : sliceMax - 1;
+	//Run the loop until +2 TS or end of frame
+	for( ; index <= std::min(sliceMax + 2,dataFrame->size() - 1) ; index++){
+		adcSum += dataFrame->sample(index).adc();
+	}
+	return adcSum;
+}
+
+/**
+ * Returns the time slice number with the maximum ADC value in an HO Data Frame
+ */
+int HoDigiAnalyzer::findMaximumTimeSlice(const HODataFrame* dataFrame){
+	int maxSlice = -1;
+	int adcMax = -1;
+	for (int i = 0 ; i < dataFrame->size() ; i++){
+		if(adcMax < dataFrame->sample(i).adc()){
+			adcMax = dataFrame->sample(i).adc();
+			maxSlice = i;
+		}
+	}
+	return maxSlice;
+}
+
+/**
+ * Test whether the data Frame is in the 4 TS ADC sum above a given threshold
+ * TODO: Catch the case where slice max is >= N-Samples - 2
+ */
+bool HoDigiAnalyzer::isFrameAboveThr(const HODataFrame* dataFrame){
+	int sliceMax = -1;
+	double adcSum = -1;
+	sliceMax = findMaximumTimeSlice(dataFrame);
+	if(sliceMax != -1){
+		if(sliceMax == 0){
+			adcSum = dataFrame->sample(0).adc() + dataFrame->sample(1).adc() + dataFrame->sample(2).adc();
+		} else {
+			adcSum = dataFrame->sample(sliceMax - 1).adc() + dataFrame->sample(sliceMax).adc() + dataFrame->sample(sliceMax + 1).adc() + dataFrame->sample(sliceMax + 2).adc();
+		}
+	}
+	return adcSum >= ADC_THR;
+}
+
+/**
+ * Calculates the raw hit time for the digi using the amplitude weighted bin position
+ * as described in the paper about hcal timing reconstruction CMS-IN 2008/011
+ */
+double HoDigiAnalyzer::calculateHitTimeFromDigi(const HODataFrame* dataFrame){
+	double hitTime = -1;
+	int sliceMax = findMaximumTimeSlice(dataFrame);
+	if( sliceMax != -1 ){
+		int sliceM1 = 0;
+		int sliceP1 = 0;
+		int maxA	= dataFrame->sample(sliceMax).adc();
+
+		if (sliceMax -1 >= 0){
+			sliceM1 = dataFrame->sample(sliceMax - 1).adc();
+		}
+		if (sliceMax + 1 < dataFrame->size()){
+			sliceP1 = dataFrame->sample(sliceMax + 1).adc();
+		}
+		//Calculate sum of weights
+		float wpksamp = (sliceM1 + maxA + sliceP1);
+		if (wpksamp!=0){
+			//calculate weighted position of max, assuming maxA in slice 1
+			wpksamp=(maxA + 2.0*sliceP1) / wpksamp;
+		}
+		//subtract the pre-samples and convert from time slice number to ns
+		//Add time shift
+		hitTime = (sliceMax - dataFrame->presamples())*25.0 + timeshift_ns_hbheho(wpksamp);
+		return hitTime;
+	} else {
+		return -9999;
+	}
+}
+
 // timeshift implementation
 // Copied from HcalSimpleRecAlgo
 static const float wpksamp0_hbheho = 0.5;

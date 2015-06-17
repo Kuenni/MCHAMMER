@@ -80,7 +80,6 @@ private:
 	void analyzeL1MuonsForGhosts(const edm::Event& iEvent,const edm::EventSetup& iSetup);
 	void fillEfficiencyHistograms(double ptMeasured,double ptReal,std::string key);
 	void fillHoGeomAcceptanceGraph(reco::GenParticle genParticle);
-	void analyzeHoDigiTiming(const edm::Event& iEvent);
 
 	const reco::GenParticle* getBestGenMatch(float,float);
 	const l1extra::L1MuonParticle* getBestL1MuonMatch(double eta, double phi);
@@ -89,15 +88,6 @@ private:
 	bool hasL1Match(trigger::TriggerObject,edm::Handle<l1extra::L1MuonParticleCollection>);
 	bool hasHoHitInGrid(GlobalPoint direction,int gridSize);
 	bool processTriggerDecision(string algorithmName,const edm::Event& );
-
-	int findMaximumTimeSlice(const HODataFrame* dataFrame);
-	double calculateHitTimeFromDigi(const HODataFrame* dataFrame);
-	bool isFrameAboveThr(const HODataFrame* dataFrame);
-	int get4TsAdcSum(const HODataFrame* dataFrame, int sliceMax);
-	float timeshift_ns_hbheho(float wpksamp);
-
-	const HORecHit* findHoRecHitById(DetId id);
-	const HODataFrame* findHoDigiById(DetId id);
 
 	TrackDetMatchInfo* getTrackDetMatchInfo(reco::GenParticle,const edm::Event& iEvent,const edm::EventSetup& iSetup);
 
@@ -112,7 +102,6 @@ private:
 	edm::Handle<reco::GenParticleCollection> truthParticles;
 	edm::Handle<l1extra::L1MuonParticleCollection> l1Muons;
 	edm::Handle<HORecHitCollection> hoRecoHits;
-	edm::Handle<HODigiCollection> hoDigis;
 	edm::Handle<reco::GenParticleMatch> l1MuonGenMatches;
 	edm::Handle<edm::View<l1extra::L1MuonParticle> > l1MuonView;
 	edm::Handle<reco::MuonCollection> recoMuons;
@@ -168,11 +157,6 @@ private:
 	 * Energy threshold for HO rec hits
 	 */
 	float threshold;
-
-	/**
-	 * ADC Threshold for 4 TS HO Digi
-	 */
-	int ADC_THR;
 
 	/**
 	 * Maximum delta R to be used for matching

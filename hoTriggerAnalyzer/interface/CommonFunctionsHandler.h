@@ -3,24 +3,30 @@
 
 /*
  * Common Functions Class
- * Author Chris Anelli
- * 6.13.2013
+ * Author Andreas Kuensken
+ * 17.06.2015
  */
 
+#include "DataFormats/HcalRecHit/interface/HORecHit.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
-class CommonFunctions {  
-  
- public:
+class CommonFunctionsHandler {  
 
-  /*
-   * Takes the difference of two phis, makes
-   * sure they are not more than 2 pi.
-   */
-  float WrapCheck(float phi1, float phi2);
+public:
+	CommonFunctionsHandler(const edm::ParameterSet& iConfig);
+	const HORecHit* findHoRecHitById(DetId id);
+	const HODataFrame* findHoDigiById(DetId id);
+	void getEvent(const edm::Event& iEvent);
 
- private:
+private:
+	//Handles to access the collections
+	edm::Handle<HORecHitCollection> hoRecoHits;
+	edm::Handle<HODigiCollection> hoDigis;
 
-  
+	//Input tags for the collections
+	edm::InputTag _horecoInput;
+	edm::InputTag _hoDigiInput;
+
 };
 
 #endif
