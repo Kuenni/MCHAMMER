@@ -98,57 +98,7 @@
 #include <utility>
 #include <vector>
 
-
-//
-// class declaration
-//
-
-class HoDigiAnalyzer : public edm::EDAnalyzer {
-public:
-	explicit HoDigiAnalyzer(const edm::ParameterSet&);
-	~HoDigiAnalyzer();
-
-
-private:
-	virtual void beginJob() override;
-	virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-	virtual void endJob() override;
-	virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-	virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-
-	float timeshift_ns_hbheho(float wpksamp);
-
-	edm::Service<TFileService> _fileService;
-
-	HistogramBuilder histogramBuilder;
-	HoMatcher* hoMatcher;
-
-	edm::ESHandle<CaloGeometry> caloGeo;
-
-	edm::Handle<HODigiCollection> hoDigis;
-	/**
-	 * ADC Threshold for 4 TS HO Digi
-	 */
-	int ADC_THR;
-	/**
-	 * Maximum delta R to be used for matching
-	 */
-	float deltaR_Max;
-
-	/**
-	 * Prefix for any cout
-	 */
-	const std::string coutPrefix = "[HoDigiAnalyzer] ";
-
-};
-
-//
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
+#include "../interface/HoDigiAnalyzer.h"
 
 //
 // constructors and destructor
