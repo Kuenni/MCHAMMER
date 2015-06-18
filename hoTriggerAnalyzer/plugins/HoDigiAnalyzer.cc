@@ -150,6 +150,7 @@ HoDigiAnalyzer::analyze(const edm::Event& iEvent,
 	//Do this at the beginning to get the correct collections for the event
 	functionsHandler->getEvent(iEvent);
 	hoMatcher->getEvent(iEvent,iSetup);
+	analyzeHoDigiTiming(iEvent);
 }
 
 /**
