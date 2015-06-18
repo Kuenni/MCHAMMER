@@ -95,10 +95,24 @@ process.hoMuonAnalyzer = cms.EDAnalyzer(
 	debug = cms.bool(True),
 	maxDeltaRL1MuonMatching = cms.double(1.),
 	TrackAssociatorParameters=parameters,
-	hoDigiInput = cms.InputTag('simHcalDigis'),
+	hoDigiSrc = cms.InputTag('simHcalDigis'),
 	hoAdcThreshold = cms.int32(60)
     )
 
+#Create the HO digi analyzer module
+process.hoDigiAnalyzer = cms.EDAnalyzer(
+    'HoDigiAnalyzer',
+    genSrc = cms.InputTag("genParticles"),
+    l1MuonSrc=cms.InputTag("l1extraParticles"),
+    horecoSrc = cms.InputTag("horeco"),
+    hltSumAODSrc = cms.InputTag("hltTriggerSummaryAOD"),
+    l1MuonGenMatchSrc = cms.InputTag("l1MuonGenMatch"),
+    hoEnergyThreshold = cms.double(0.2),
+	maxDeltaR = cms.double(0.3),
+	TrackAssociatorParameters=parameters,
+	hoDigiSrc = cms.InputTag('simHcalDigis'),
+	hoAdcThreshold = cms.int32(60)
+    )
 #Alternative matcher: TrivialDeltaRMatcher
 process.l1MuonGenMatch = cms.EDProducer("MCTruthDeltaRMatcherNew",
      src = cms.InputTag("l1extraParticles"),
@@ -137,7 +151,8 @@ process.p = cms.Path(process.genfilter*
 					process.l1MuonGenMatch*
 					process.horeco*
 					process.muonL1Match*
-					process.hoMuonAnalyzer)
+					process.hoMuonAnalyzer*
+					process.hoDigiAnalyzer)
 
 #Schedule Definition
 process.schedule = cms.Schedule(
