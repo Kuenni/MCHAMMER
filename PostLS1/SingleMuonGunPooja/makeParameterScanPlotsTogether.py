@@ -6,6 +6,112 @@ from ROOT import TFile,TCanvas
 from PlotStyle import setPlotStyle,getLabelCmsPrivateSimulation
 setPlotStyle()
 
+def plotCorrectedL1MatchEfficiency():
+	c = TCanvas("cL1EffCorrected","L1EffCorected",1800,900)
+	c.Divide(2,1)
+	
+	fileVaried = TFile.Open('condor/L1Eff.root')
+	if(fileVaried.IsZombie()):
+		print 'Error opening file: condor/L1Eff.root'
+		sys.exit(1)
+	
+	hVaried = fileVaried.Get('histL1Eff')
+	hOriginal = hVaried.Clone('clone')
+	hVaried.SetName('histL1EffVariedCorrected')
+	
+	
+	
+	min = 0
+	max = 100
+	label = getLabelCmsPrivateSimulation()
+	
+	correctionsFile = open('geometricEfficiencies.txt')
+	correctionsList = []
+	for line in correctionsFile.readlines():
+		if line.startswith('#'):
+			continue
+		correctionsList.append(float((line.split())[1]))
+	print correctionsList
+	print hVaried.GetNbinsX()
+	for i in range(2,hVaried.GetNbinsX()):
+		for j in range(2,hVaried.GetNbinsY()):
+			if(correctionsList[i-2] != 0):
+				print hVaried.GetBinContent(i,j),hVaried.GetBinContent(i,j)/correctionsList[i-2]*100,correctionsList[i-2]
+				hVaried.SetBinContent(i,j,
+								hVaried.GetBinContent(i,j)/correctionsList[i-2]*100
+								)
+
+	c.cd(1)
+	hOriginal.SetMinimum(min)
+	hOriginal.SetMaximum(max)
+	hOriginal.Draw('colz')
+
+	c.cd(2)
+	hVaried.SetMinimum(min)
+	hVaried.SetMaximum(max)
+	hVaried.SetTitle('L1 matched to GEN, GEN cone varied, Corrected')
+	hVaried.Draw('colz')
+	label.Draw()	
+	c.Update()
+
+	c.SaveAs('L1MatchEfficiencyCorr.png')
+	c.SaveAs('L1MatchEfficiencyCorr.pdf')
+	
+	return c,hVaried,fileVaried,label
+
+def plotCorrectedHoMatchEfficiency():
+	c = TCanvas("cHoEffCorrected","HoEffCorected",1800,900)
+	c.Divide(2,1)
+	
+	fileVaried = TFile.Open('condor/HoEff.root')
+	if(fileVaried.IsZombie()):
+		print 'Error opening file: condor/HoEff.root'
+		sys.exit(1)
+	
+	hVaried = fileVaried.Get('histEff')
+	hOriginal = hVaried.Clone('clone')
+	hVaried.SetName('histHoEffVariedCorrected')
+	
+	
+	
+	min = 0
+	max = 100
+	label = getLabelCmsPrivateSimulation()
+	
+	correctionsFile = open('geometricEfficiencies.txt')
+	correctionsList = []
+	for line in correctionsFile.readlines():
+		if line.startswith('#'):
+			continue
+		correctionsList.append(float((line.split())[1]))
+	print correctionsList
+	print hVaried.GetNbinsX()
+	for i in range(2,hVaried.GetNbinsX()):
+		for j in range(2,hVaried.GetNbinsY()):
+			if(correctionsList[i-2] != 0):
+				print hVaried.GetBinContent(i,j),hVaried.GetBinContent(i,j)/correctionsList[i-2]*100,correctionsList[i-2]
+				hVaried.SetBinContent(i,j,
+								hVaried.GetBinContent(i,j)/correctionsList[i-2]*100
+								)
+
+	c.cd(1)
+	hOriginal.SetMinimum(min)
+	hOriginal.SetMaximum(max)
+	hOriginal.Draw('colz')
+
+	c.cd(2)
+	hVaried.SetMinimum(min)
+	hVaried.SetMaximum(max)
+	hVaried.SetTitle('L1 matched to GEN, GEN cone varied, Corrected')
+	hVaried.Draw('colz')
+	label.Draw()	
+	c.Update()
+
+#	c.SaveAs('L1MatchEfficiencyCorr.png')
+#	c.SaveAs('L1MatchEfficiencyCorr.pdf')
+	
+	return c,hVaried,fileVaried,label
+
 # Plot the efficiency for matching L1 to both, GEN and HO Rec Hits
 def plotHoMatchEfficiency():
 	c = TCanvas("cHoEff","hoEff",1800,900)
@@ -181,9 +287,11 @@ def plotProduct():
 		
 	return c,hVaried,hFixed,fileFixed,fileVaried,label
 
-res2 	= plotL1MatchEfficiency()
-res 	= plotHoMatchEfficiency()
-res3 	= plotFractionInTimeWindow()
-res4 	= plotProduct()
+#res2 	= plotL1MatchEfficiency()
+#res 	= plotHoMatchEfficiency()
+#res3 	= plotFractionInTimeWindow()
+#res4 	= plotProduct()
+res5	= plotCorrectedL1MatchEfficiency()
+res6	= plotCorrectedHoMatchEfficiency()
 
 raw_input('-->')
