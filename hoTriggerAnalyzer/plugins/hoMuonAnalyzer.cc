@@ -319,7 +319,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 
 	hoRecHitVector->clear();
 	for( auto it = hoRecoHits->begin(); it != hoRecoHits->end(); it++ ){
-		int* adcSamples = new int[10];
+		short* adcSamples = new short[10];
 		const HODataFrame* dataFrame = hoMatcher->findHoDigiById(it->detid());
 		for(int i = 0; i < std::min(10,dataFrame->size()); i++){
 			adcSamples[i] = dataFrame->sample(i).adc();

@@ -12,8 +12,8 @@ struct HoRecHitData{
 	double phi;
 	double energy;
 	double time;
-	int adcSamples[MAXSAMPLES];
-	HoRecHitData(double _eta, double _phi, double _energy,double _time, int* _adcSamples):eta(_eta),phi(_phi),energy(_energy),time(_time){
+	short adcSamples[MAXSAMPLES];
+	HoRecHitData(double _eta, double _phi, double _energy,double _time, short* _adcSamples):eta(_eta),phi(_phi),energy(_energy),time(_time){
 		//Copy array content
 		std::copy(_adcSamples,_adcSamples + MAXSAMPLES,adcSamples);
 	}
