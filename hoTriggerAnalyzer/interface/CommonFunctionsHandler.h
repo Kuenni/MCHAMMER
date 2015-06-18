@@ -7,6 +7,11 @@
  * 17.06.2015
  */
 #include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+#include <DataFormats/L1Trigger/interface/L1MuonParticle.h>
+#include <DataFormats/L1Trigger/interface/L1MuonParticleFwd.h>
 
 class CommonFunctionsHandler {  
 

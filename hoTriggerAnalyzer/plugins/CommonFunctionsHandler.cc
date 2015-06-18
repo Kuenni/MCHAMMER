@@ -6,7 +6,7 @@
 /**
  * Setup the parameters for getting the collections later on
  */
-void CommonFunctionsHandler::CommonFunctionsHandler(const edm::ParameterSet& iConfig){
+CommonFunctionsHandler::CommonFunctionsHandler(const edm::ParameterSet& iConfig){
 	_l1MuonInput = iConfig.getParameter<edm::InputTag>("l1MuonSrc");
 	deltaR_Max = iConfig.getParameter<double>("maxDeltaR");
 }
