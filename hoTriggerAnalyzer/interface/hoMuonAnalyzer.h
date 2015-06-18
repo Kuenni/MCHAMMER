@@ -50,6 +50,8 @@
 #include "DataFormats/HcalDigi/interface/HODataFrame.h"
 
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+
+#include "../interface/CommonFunctionsHandler.h"
 using namespace::std;
 //
 // class declaration

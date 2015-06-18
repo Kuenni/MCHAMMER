@@ -15,6 +15,9 @@
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
+#include "DataFormats/HcalDigi/interface/HODataFrame.h"
+
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 class HoMatcher {
 public:
 	HoMatcher(const edm::ParameterSet& iConfig){
