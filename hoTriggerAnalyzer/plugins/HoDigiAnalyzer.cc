@@ -107,6 +107,7 @@ HoDigiAnalyzer::HoDigiAnalyzer(const edm::ParameterSet& iConfig){
 	deltaR_Max = iConfig.getParameter<double>("maxDeltaR");
 	ADC_THR = iConfig.getParameter<int>("hoAdcThreshold");
 	functionsHandler =  new CommonFunctionsHandler(iConfig);
+	hoMatcher = new HoMatcher(iConfig);
 }
 
 
@@ -143,10 +144,9 @@ HoDigiAnalyzer::analyze(const edm::Event& iEvent,
 		const edm::EventSetup& iSetup)
 {
 	iSetup.get<CaloGeometryRecord>().get(caloGeo);
-	hoMatcher = new HoMatcher(*caloGeo);
 	//Do this at the beginning to get the correct collections for the event
 	functionsHandler->getEvent(iEvent);
-
+	hoMatcher->getEvent(iEvent,iSetup);
 }
 
 /**
@@ -172,7 +172,7 @@ void HoDigiAnalyzer::analyzeHoDigiTiming(const edm::Event& iEvent){
 			histogramBuilder.fillTimeHistogram(hitTime,"hoTimeFromDigiAboveThr");
 			histogramBuilder.fillCorrelationGraph(digiEta,hitTime,"hoTimeFromDigiEta");
 			histogramBuilder.fillCorrelationGraph(digiPhi,hitTime,"hoTimeFromDigiPhi");
-			const HORecHit* recHit = functionsHandler->findHoRecHitById(dataFrame->id());
+			const HORecHit* recHit = hoMatcher->findHoRecHitById(dataFrame->id());
 			if(recHit){
 				histogramBuilder.fillCorrelationGraph(hitTime,recHit->time(),"hoTimeRecHitVsDigi");
 				histogramBuilder.fillGraph2D(digiEta,digiPhi,recHit->time() - hitTime,"etaPhiDeltaHoTime");
