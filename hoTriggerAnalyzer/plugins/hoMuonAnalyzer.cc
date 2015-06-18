@@ -1186,15 +1186,15 @@ hoMuonAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
  * Helper Functions
  *############################
  */
-
+//Look for an L1 object in the direction of the HLT object
 const l1extra::L1MuonParticle* hoMuonAnalyzer::getMatchedL1Object(trigger::TriggerObject hltObject
 		,edm::Handle<l1extra::L1MuonParticleCollection> l1muons){
+	double hltPhi,hltEta;
+	double l1Phi,l1Eta;
+	hltEta = hltObject.eta();
+	hltPhi = hltObject.phi();
 	for(unsigned int i = 0; i < l1muons->size(); i++){
 		const l1extra::L1MuonParticle* l1muon = &(l1muons->at(i));
-		double hltPhi,hltEta;
-		double l1Phi,l1Eta;
-		hltEta = hltObject.eta();
-		hltPhi = hltObject.phi();
 		l1Eta = l1muon->eta();
 		l1Phi = l1muon->phi();
 		if(FilterPlugin::isInsideDeltaR(hltEta,l1Eta,hltPhi,l1Phi,deltaR_Max))
