@@ -6,10 +6,10 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName=cms.string('L1MuonHistogramPooja.root')
+                                   	fileName=cms.string('L1MuonHistogramPooja.root'),
                                    )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1))
 
 
 import FWCore.Utilities.FileUtils as FileUtils
@@ -94,7 +94,9 @@ process.hoMuonAnalyzer = cms.EDAnalyzer(
 	maxDeltaR = cms.double(0.3),
 	debug = cms.bool(True),
 	maxDeltaRL1MuonMatching = cms.double(1.),
-	TrackAssociatorParameters=parameters
+	TrackAssociatorParameters=parameters,
+	hoDigiInput = cms.InputTag('simHcalDigis'),
+	hoAdcThreshold = cms.int32(60)
     )
 
 #Alternative matcher: TrivialDeltaRMatcher
