@@ -13,13 +13,11 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 
 import FWCore.Utilities.FileUtils as FileUtils
-#mylist = FileUtils.loadListFromFile('cmsswSourceFiles')
+mylist = FileUtils.loadListFromFile('cmsswSourceFiles')
 
 process.source = cms.Source("PoolSource",
     # replace 'myfile.root' with the source file you want to use
-    fileNames = cms.untracked.vstring('file://./SingleMu_PU52_FEVT.root'
-#    file:///net/scratch_cms/institut_3a/scheuch/SingleMu_52PU_2015/FEVT_WorkingDetector.root'
-	)
+    fileNames = cms.untracked.vstring(*mylist)
 )
 
 # import of standard configurations
