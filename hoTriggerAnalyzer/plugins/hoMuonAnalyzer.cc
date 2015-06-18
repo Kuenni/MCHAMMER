@@ -121,6 +121,7 @@ hoMuonAnalyzer::hoMuonAnalyzer(const edm::ParameterSet& iConfig)/*:
 
 	defineTriggersOfInterest();
 
+	functionsHandler = new CommonFunctionsHandler(iConfig);
 
 	/**
 	 * Create the root tree for tuple storage. After that tell root to process the loader
@@ -189,6 +190,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 
 
 	hoMatcher = new HoMatcher(*caloGeo);
+	functionsHandler->getEvent(iEvent);
 
 	//Try getting the event info for weights
 	edm::Handle<GenEventInfoProduct> genEventInfo;
@@ -327,7 +329,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	hoRecHitVector->clear();
 	for( auto it = hoRecoHits->begin(); it != hoRecoHits->end(); it++ ){
 		int* adcSamples = new int[10];
-		const HODataFrame* dataFrame = findHoDigiById(it->detid());
+		const HODataFrame* dataFrame = functionsHandler->findHoDigiById(it->detid());
 		for(int i = 0; i < std::min(10,dataFrame->size()); i++){
 			adcSamples[i] = dataFrame->sample(i).adc();
 		}

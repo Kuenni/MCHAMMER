@@ -116,6 +116,7 @@ private:
 	TrackAssociatorParameters assocParams;
 
 	HoMatcher* hoMatcher;
+	CommonFunctionsHandler* functionsHandler;
 
 	/*
 	 * Maps of selected hlt triggers to get the trigger decisions,

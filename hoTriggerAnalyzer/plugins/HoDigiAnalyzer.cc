@@ -177,7 +177,7 @@ void HoDigiAnalyzer::analyzeHoDigiTiming(const edm::Event& iEvent){
 				histogramBuilder.fillCorrelationGraph(hitTime,recHit->time(),"hoTimeRecHitVsDigi");
 				histogramBuilder.fillGraph2D(digiEta,digiPhi,recHit->time() - hitTime,"etaPhiDeltaHoTime");
 			}
-			const l1extra::L1MuonParticle* l1muon = getBestL1MuonMatch(digiEta,digiPhi);
+			const l1extra::L1MuonParticle* l1muon = functionsHandler->getBestL1MuonMatch(digiEta,digiPhi);
 			if(l1muon)
 				histogramBuilder.fillDeltaTimeHistogram(calculateHitTimeFromDigi(&*dataFrame),l1muon->bx(),"hoTimeFromDigi");
 		}
