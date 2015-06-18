@@ -9,17 +9,50 @@
 #include "HoMuonTrigger/hoTriggerAnalyzer/interface/FilterPlugin.h"
 
 HoMatcher::~HoMatcher() {
-	// TODO Auto-generated destructor stub
 }
 
-const HORecHit* HoMatcher::matchByEMaxDeltaR(double eta,double phi,double maxDeltaR,HORecHitCollection hoRecHits){
-	HORecHitCollection::const_iterator hoRecHitIt = hoRecHits.begin();
+/**
+ * Gets the collections for the given event
+ */
+void HoMatcher::getEvent(const edm::Event& iEvent){
+	iEvent.getByLabel( _horecoInput, hoRecoHits);
+	iEvent.getByLabel( _hoDigiInput, hoDigis);
+}
+
+/**
+ * Search in the rec hit collection for a hit with the given detId
+ */
+const HORecHit* HoMatcher::findHoRecHitById(DetId id){
+	auto hoRecoIt = hoRecoHits->begin();
+	for( ; hoRecoIt != hoRecoHits->end() ; hoRecoIt++){
+		if(hoRecoIt->detid() == id){
+			return &*hoRecoIt;
+		}
+	}
+	return 0;
+}
+
+/**
+ * Search in the digi collection for a hit with the given detId
+ */
+const HODataFrame* HoMatcher::findHoDigiById(DetId id){
+	auto hoDigiIt = hoDigis->begin();
+	for( ; hoDigiIt != hoDigis->end() ; hoDigiIt++){
+		if(hoDigiIt->id() == id){
+			return &*hoDigiIt;
+		}
+	}
+	return 0;
+}
+
+const HORecHit* HoMatcher::matchByEMaxDeltaR(double eta,double phi){
+	HORecHitCollection::const_iterator hoRecHitIt = hoRecoHits->begin();
 	const HORecHit* matchedRecHit = 0;
 	//Loop over all rec hits
-	for( ; hoRecHitIt!=hoRecHits.end(); hoRecHitIt++ ){
+	for( ; hoRecHitIt!=hoRecoHits->end(); hoRecHitIt++ ){
 		double recHitEta = caloGeometry.getPosition(hoRecHitIt->detid()).eta();
 		double recHitPhi = caloGeometry.getPosition(hoRecHitIt->detid()).phi();
-		if(FilterPlugin::isInsideDeltaR(eta,recHitEta,phi,recHitPhi,maxDeltaR)){
+		if(FilterPlugin::isInsideDeltaR(eta,recHitEta,phi,recHitPhi,deltaR_Max)){
 			if(!matchedRecHit){
 				matchedRecHit = &(*hoRecHitIt);
 			} else {

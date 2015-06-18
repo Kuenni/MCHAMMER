@@ -14,22 +14,47 @@
 
 class HoMatcher {
 public:
-	HoMatcher(CaloGeometry cg):caloGeometry(cg){};
+	HoMatcher(CaloGeometry cg,const edm::ParameterSet& iConfig):caloGeometry(cg){
+		_horecoInput = iConfig.getParameter<edm::InputTag>("horecoSrc");
+		_hoDigiInput = iConfig.getParameter<edm::InputTag>("hoDigiSrc");
+		deltaR_Max = iConfig.getParameter<double>("maxDeltaR");
+	};
 	virtual ~HoMatcher();
+
+	bool isInChimney(double eta, double phi);
+
+	const HODataFrame* findHoDigiById(DetId id);
+	const HORecHit* findHoRecHitById(DetId id);
 
 	/**
 	 * Finds the HORecHit with the highest energy entry inside a delta R cone
 	 * for a given eta and phi. Uses the calo geometry for calculating eta and phi
 	 * of the rec hits
 	 */
-	const HORecHit* matchByEMaxDeltaR(double,double,double,HORecHitCollection);
+	const HORecHit* matchByEMaxDeltaR(double eta,double phi);
+
+	double getHoBinSize(){return 0.087;};
+
 	int getDeltaIeta(double eta, const HORecHit* recHit);
 	int getDeltaIphi(double phi, const HORecHit* rechit);
-	double getHoBinSize(){return 0.087;};
-	bool isInChimney(double eta, double phi);
+
+	/**
+	 * Get the current event's collections
+	 */
+	void getEvent(const edm::Event& iEvent);
 
 private:
 	CaloGeometry caloGeometry;
+
+	//Input tags for the collections
+	edm::InputTag _horecoInput;
+	edm::InputTag _hoDigiInput;
+
+	//Handles to access the collections
+	edm::Handle<HORecHitCollection> hoRecoHits;
+	edm::Handle<HODigiCollection> hoDigis;
+
+	double deltaR_Max;
 
 	/**
 	 * Boundaries for the position of the chimney of HO. Calculated from n times the iEta
