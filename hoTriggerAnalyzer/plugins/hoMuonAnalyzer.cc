@@ -879,7 +879,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 
 				}
 			}
-			const l1extra::L1MuonParticle* l1Part = getBestL1MuonMatch(muMatchEta,muMatchPhi);
+			const l1extra::L1MuonParticle* l1Part = functionsHandler->getBestL1MuonMatch(muMatchEta,muMatchPhi);
 			if(l1Part){
 				double deltaEta = muMatchEta - l1Part->eta();
 				double deltaPhi = FilterPlugin::wrapCheck(muMatchPhi, l1Part->phi());
@@ -1034,7 +1034,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			if(MuonHOAcceptance::inGeomAccept(muMatchEta,muMatchPhi) && !hoMatcher->isInChimney(muMatchEta,muMatchPhi)){
 
 				histogramBuilder.fillCountHistogram("SMuTrgTdmiInGA");
-				const l1extra::L1MuonParticle* l1Ref = getBestL1MuonMatch(genEta,genPhi);
+				const l1extra::L1MuonParticle* l1Ref = functionsHandler->getBestL1MuonMatch(genEta,genPhi);
 				if(l1Ref){
 					histogramBuilder.fillCountHistogram("SMuTrgFoundL1Match");
 					float l1Muon_eta = l1Ref->eta();
@@ -1242,26 +1242,6 @@ const reco::GenParticle* hoMuonAnalyzer::getBestGenMatch(float eta, float phi){
 		}
 	}
 	return bestGen;
-}
-/**
- * Returns a pointer to the closest l1 muon particle of all particles that are closer
- * than delta R given by delta R max
- */
-const l1extra::L1MuonParticle* hoMuonAnalyzer::getBestL1MuonMatch(double eta, double phi){
-	const l1extra::L1MuonParticle* bestL1 = 0;
-	float bestDR = 999.;
-	l1extra::L1MuonParticleCollection::const_iterator l1It = l1Muons->begin();
-	l1extra::L1MuonParticleCollection::const_iterator l1End = l1Muons->end();
-	for(; l1It!=l1End; ++l1It) {
-		float genPhi = l1It->phi();
-		float genEta = l1It->eta();
-		float dR = deltaR(eta,phi,genEta,genPhi);
-		if (dR < deltaR_L1MuonMatching && dR < bestDR) { // CB get it from CFG
-			bestDR = dR;
-			bestL1 = &(*l1It);
-		}
-	}
-	return bestL1;
 }
 
 void hoMuonAnalyzer::defineTriggersOfInterest(){
@@ -1587,7 +1567,7 @@ void hoMuonAnalyzer::analyzeEfficiencyWithGenLoop(const edm::Event& iEvent,const
 		float genEta = genIt->eta();
 		float genPhi = genIt->phi();
 		const l1extra::L1MuonParticle* l1Part = 0;
-		l1Part = getBestL1MuonMatch(genEta,genPhi);
+		l1Part = functionsHandler->getBestL1MuonMatch(genEta,genPhi);
 		if(l1Part){
 			fillEfficiencyHistograms(l1Part->pt(),genIt->pt(),"GenAndL1Muon");
 			/**
