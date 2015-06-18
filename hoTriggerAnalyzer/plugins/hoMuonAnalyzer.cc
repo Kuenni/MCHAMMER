@@ -184,11 +184,6 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 
 	iSetup.get<IdealMagneticFieldRecord>().get(theMagField );
 
-	iSetup.get<DetIdAssociatorRecord>().get("HODetIdAssociator", hoDetIdAssociator_);
-	if(!hoDetIdAssociator_.isValid()){
-		std::cout << coutPrefix << "HODetIdAssociator is not Valid!" << std::endl;
-	}
-
 	hoMatcher->getEvent(iEvent,iSetup);
 	functionsHandler->getEvent(iEvent);
 
@@ -573,7 +568,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			//#####
 			// Central tile
 			//#####
-			if(hasHoHitInGrid(l1Direction,0)){
+			if(hoMatcher->hasHoHitInGrid(l1Direction,0)){
 				histogramBuilder.fillCountHistogram("L1MuonCentral");
 				histogramBuilder.fillEfficiency(true,bl1Muon->pt(),"L1MuonCentral");
 			} else{
@@ -582,7 +577,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			//#####
 			// 3 x 3
 			//#####
-			if(hasHoHitInGrid(l1Direction,1)){
+			if(hoMatcher->hasHoHitInGrid(l1Direction,1)){
 				histogramBuilder.fillCountHistogram("L1Muon3x3");
 				histogramBuilder.fillEfficiency(true,bl1Muon->pt(),"L1Muon3x3");
 			} else {
@@ -591,7 +586,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			//#####
 			// 5 x 5
 			//#####
-			if(hasHoHitInGrid(l1Direction,2)){
+			if(hoMatcher->hasHoHitInGrid(l1Direction,2)){
 				histogramBuilder.fillCountHistogram("L1Muon5x5");
 				histogramBuilder.fillEfficiency(true,bl1Muon->pt(),"L1Muon5x5");
 			} else {
@@ -832,7 +827,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				//#####
 				// Central tile
 				//#####
-				if(	hasHoHitInGrid(
+				if(	hoMatcher->hasHoHitInGrid(
 						GlobalPoint(
 						muMatch->trkGlobPosAtHO.X(),
 						muMatch->trkGlobPosAtHO.Y(),
@@ -848,7 +843,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				//#####
 				// 3 x 3
 				//#####
-				if( hasHoHitInGrid(GlobalPoint(
+				if( hoMatcher->hasHoHitInGrid(GlobalPoint(
 						muMatch->trkGlobPosAtHO.X(),
 						muMatch->trkGlobPosAtHO.Y(),
 						muMatch->trkGlobPosAtHO.Z()
@@ -864,7 +859,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				//#####
 				// 5 x 5
 				//#####
-				if( hasHoHitInGrid(GlobalPoint(
+				if( hoMatcher->hasHoHitInGrid(GlobalPoint(
 						muMatch->trkGlobPosAtHO.X(),
 						muMatch->trkGlobPosAtHO.Y(),
 						muMatch->trkGlobPosAtHO.Z()
@@ -1083,10 +1078,10 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 						bl1Muon->p4().Y(),
 						bl1Muon->p4().Z()
 				);
-				if(hasHoHitInGrid(l1Direction,0)){
+				if(hoMatcher->hasHoHitInGrid(l1Direction,0)){
 					histogramBuilder.fillCountHistogram("L1MuonSMuTrgCentral");
 				}
-				if(hasHoHitInGrid(l1Direction,1)){
+				if(hoMatcher->hasHoHitInGrid(l1Direction,1)){
 					histogramBuilder.fillCountHistogram("L1MuonSMuTrg3x3");
 				}
 			}
@@ -1277,41 +1272,6 @@ void hoMuonAnalyzer::fillEfficiencyHistograms(double ptMeasured, double ptReal,s
 }
 
 /**
- * Find out whether a given direction, represented by a point (Thank You, CMSSW)
- * points to an HORecHit with E > 0.2,
- * The Gridsize determines the search area, e.g.:
- *
- * 		Size: 0		Size: 1		Size: 2
- *
- * 								# # # # #
- * 					# # #		# # # # #
- * 			O		# O #		# # O # #
- * 					# # #		# # # # #
- * 								# # # # #
- */
-bool hoMuonAnalyzer::hasHoHitInGrid(GlobalPoint direction, int gridSize){
-	if(gridSize < 0){
-		if(debug){
-			std::cout << coutPrefix << "Negative grid size in hasHoHitInGrid(GlobalPoint,int)! Returning false." << std::endl;
-		}
-		return false;
-	}
-
-	//Loop over the det Ids close to the point
-	std::set<DetId> detIdSet = hoDetIdAssociator_->getDetIdsCloseToAPoint(direction,gridSize);
-	for(auto it = detIdSet.begin(); it != detIdSet.end(); it++){
-		//Find the corresponding DetId in the rec hits
-		for(auto itRecHits = hoRecoHits->begin(); itRecHits != hoRecoHits->end(); itRecHits++){
-			if(itRecHits->detid() == *it){
-				if(itRecHits->energy() >= threshold)
-					return true;
-			}
-		}
-	}
-	return false;
-}
-
-/**
  * Prints all channel qualities for HO into histogram which itself is stored
  * in a root file
  */
@@ -1369,7 +1329,7 @@ void hoMuonAnalyzer::analyzeL1AndGenMatch(const edm::Event& iEvent, const edm::E
 				//#####
 				// Central tile
 				//#####
-				if(hasHoHitInGrid(l1Direction,0)){
+				if(hoMatcher->hasHoHitInGrid(l1Direction,0)){
 					histogramBuilder.fillCountHistogram("L1GenRefInGaCentral");
 					histogramBuilder.fillEfficiency(true,ref->pt(),"L1GenRefInGaCentral");
 				} else{
@@ -1379,7 +1339,7 @@ void hoMuonAnalyzer::analyzeL1AndGenMatch(const edm::Event& iEvent, const edm::E
 				//#####
 				// 3 x 3
 				//#####
-				if(hasHoHitInGrid(l1Direction,1)){
+				if(hoMatcher->hasHoHitInGrid(l1Direction,1)){
 					histogramBuilder.fillCountHistogram("L1GenRefInGa3x3");
 					histogramBuilder.fillEfficiency(true,ref->pt(),"L1GenRefInGa3x3");
 				} else {
@@ -1389,7 +1349,7 @@ void hoMuonAnalyzer::analyzeL1AndGenMatch(const edm::Event& iEvent, const edm::E
 				//#####
 				// 5 x 5
 				//#####
-				if(hasHoHitInGrid(l1Direction,2)){
+				if(hoMatcher->hasHoHitInGrid(l1Direction,2)){
 					histogramBuilder.fillCountHistogram("L1GenRefInGa5x5");
 					histogramBuilder.fillEfficiency(true,ref->pt(),"L1GenRefInGa5x5");
 				} else {
@@ -1433,7 +1393,7 @@ void hoMuonAnalyzer::analyzeNoSingleMuEventsL1Loop(const edm::Event& iEvent,cons
 				//#####
 				// Central tile
 				//#####
-				if(hasHoHitInGrid(l1Direction,0)){
+				if(hoMatcher->hasHoHitInGrid(l1Direction,0)){
 					histogramBuilder.fillCountHistogram("L1GenRefNoSingleMuInGaCentral");
 					histogramBuilder.fillEfficiency(true,ref->pt(),"L1GenRefNoSingleMuInGaCentral");
 					histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"L1GenRefNoSingleMuInGaCentral");
@@ -1444,7 +1404,7 @@ void hoMuonAnalyzer::analyzeNoSingleMuEventsL1Loop(const edm::Event& iEvent,cons
 				//#####
 				// 3 x 3
 				//#####
-				if(hasHoHitInGrid(l1Direction,1)){
+				if(hoMatcher->hasHoHitInGrid(l1Direction,1)){
 					histogramBuilder.fillCountHistogram("L1GenRefNoSingleMuInGa3x3");
 					histogramBuilder.fillEfficiency(true,ref->pt(),"L1GenRefNoSingleMuInGa3x3");
 					histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"L1GenRefNoSingleMuInGa3x3");
@@ -1455,7 +1415,7 @@ void hoMuonAnalyzer::analyzeNoSingleMuEventsL1Loop(const edm::Event& iEvent,cons
 				//#####
 				// 5 x 5
 				//#####
-				if(hasHoHitInGrid(l1Direction,2)){
+				if(hoMatcher->hasHoHitInGrid(l1Direction,2)){
 					histogramBuilder.fillCountHistogram("L1GenRefNoSingleMuInGa5x5");
 					histogramBuilder.fillEfficiency(true,ref->pt(),"L1GenRefNoSingleMuInGa5x5");
 					histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"L1GenRefNoSingleMuInGa5x5");
@@ -1500,7 +1460,7 @@ void hoMuonAnalyzer::analyzeNoSingleMuEventsGenLoop(const edm::Event& iEvent,con
 			//#####
 			// Central tile
 			//#####
-			if(hasHoHitInGrid(genDirection,0)){
+			if(hoMatcher->hasHoHitInGrid(genDirection,0)){
 				histogramBuilder.fillCountHistogram("NoSingleMuInGaCentral");
 				histogramBuilder.fillEfficiency(true,genIt->pt(),"NoSingleMuInGaCentral");
 				histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"NoSingleMuInGaCentral");
@@ -1511,7 +1471,7 @@ void hoMuonAnalyzer::analyzeNoSingleMuEventsGenLoop(const edm::Event& iEvent,con
 			//#####
 			// 3 x 3
 			//#####
-			if(hasHoHitInGrid(genDirection,1)){
+			if(hoMatcher->hasHoHitInGrid(genDirection,1)){
 				histogramBuilder.fillCountHistogram("NoSingleMuInGa3x3");
 				histogramBuilder.fillEfficiency(true,genIt->pt(),"NoSingleMuInGa3x3");
 				histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"NoSingleMuInGa3x3");
@@ -1522,7 +1482,7 @@ void hoMuonAnalyzer::analyzeNoSingleMuEventsGenLoop(const edm::Event& iEvent,con
 			//#####
 			// 5 x 5
 			//#####
-			if(hasHoHitInGrid(genDirection,2)){
+			if(hoMatcher->hasHoHitInGrid(genDirection,2)){
 				histogramBuilder.fillCountHistogram("NoSingleMuInGa5x5");
 				histogramBuilder.fillEfficiency(true,genIt->pt(),"NoSingleMuInGa5x5");
 				histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"NoSingleMuInGa5x5");

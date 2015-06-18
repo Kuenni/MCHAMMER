@@ -84,7 +84,6 @@ private:
 	const reco::GenParticle* getBestGenMatch(float,float);
 	const l1extra::L1MuonParticle* getMatchedL1Object(trigger::TriggerObject,edm::Handle<l1extra::L1MuonParticleCollection>);
 
-	bool hasHoHitInGrid(GlobalPoint direction,int gridSize);
 	bool processTriggerDecision(string algorithmName,const edm::Event& );
 
 	TrackDetMatchInfo* getTrackDetMatchInfo(reco::GenParticle,const edm::Event& iEvent,const edm::EventSetup& iSetup);
@@ -105,7 +104,6 @@ private:
 	edm::Handle<reco::MuonCollection> recoMuons;
 
 	edm::ESHandle<CaloGeometry> caloGeo;
-	edm::ESHandle<DetIdAssociator> hoDetIdAssociator_;
 	edm::ESHandle<MagneticField> theMagField;
 
 	HistogramBuilder histogramBuilder;
