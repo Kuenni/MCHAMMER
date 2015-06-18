@@ -84,7 +84,6 @@ private:
 	const reco::GenParticle* getBestGenMatch(float,float);
 	const l1extra::L1MuonParticle* getMatchedL1Object(trigger::TriggerObject,edm::Handle<l1extra::L1MuonParticleCollection>);
 
-	bool hasL1Match(trigger::TriggerObject,edm::Handle<l1extra::L1MuonParticleCollection>);
 	bool hasHoHitInGrid(GlobalPoint direction,int gridSize);
 	bool processTriggerDecision(string algorithmName,const edm::Event& );
 

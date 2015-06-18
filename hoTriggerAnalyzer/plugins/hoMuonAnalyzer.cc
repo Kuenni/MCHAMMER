@@ -1204,24 +1204,6 @@ const l1extra::L1MuonParticle* hoMuonAnalyzer::getMatchedL1Object(trigger::Trigg
 }
 
 /**
- FilterPlugin::isInsideRCutue, if the trigger object has a delta R match to a l1muon object
- */
-bool hoMuonAnalyzer::hasL1Match(trigger::TriggerObject hltObject,edm::Handle<l1extra::L1MuonParticleCollection> l1muons){
-	for(unsigned int i = 0; i < l1muons->size(); i++){
-		const l1extra::L1MuonParticle* l1muon = &(l1muons->at(i));
-		double hltPhi,hltEta;
-		double l1Phi,l1Eta;
-		hltEta = hltObject.eta();
-		hltPhi = hltObject.phi();
-		l1Eta = l1muon->eta();
-		l1Phi = l1muon->phi();
-		if(FilterPlugin::isInsideDeltaR(hltEta,l1Eta,hltPhi,l1Phi,deltaR_Max))
-			return true;
-	}
-	return false;
-}
-
-/**
  * Returns a pointer to the closest gen particle of all particles that are closer
  * than delta R < delta R max
  */
