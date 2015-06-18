@@ -1,9 +1,6 @@
 // -*- C++ -*-
-//
-// Package:    caloInspector
-// Class:      caloInspector
 // 
-/**\class caloInspector caloInspector.cc L1TriggerDPGUpgrade/caloInspector/plugins/caloInspector.cc
+/**
 
  Description: [one line class summary]
 
