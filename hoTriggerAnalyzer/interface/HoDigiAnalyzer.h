@@ -81,6 +81,8 @@ private:
 
 	edm::ESHandle<CaloGeometry> caloGeo;
 
+	edm::InputTag hoDigiInput;
+
 	edm::Handle<HODigiCollection> hoDigis;
 	/**
 	 * ADC Threshold for 4 TS HO Digi

@@ -109,6 +109,7 @@ const float HoDigiAnalyzer::wpksamp0_hbheho = 0.5;
 HoDigiAnalyzer::HoDigiAnalyzer(const edm::ParameterSet& iConfig){
 	deltaR_Max = iConfig.getParameter<double>("maxDeltaR");
 	ADC_THR = iConfig.getParameter<int>("hoAdcThreshold");
+	hoDigiInput = iConfig.getParameter<edm::InputTag>("hoDigiSrc");
 	functionsHandler =  new CommonFunctionsHandler(iConfig);
 	hoMatcher = new HoMatcher(iConfig);
 }
@@ -147,9 +148,13 @@ HoDigiAnalyzer::analyze(const edm::Event& iEvent,
 		const edm::EventSetup& iSetup)
 {
 	iSetup.get<CaloGeometryRecord>().get(caloGeo);
+	iEvent.getByLabel( hoDigiInput, hoDigis);
+
 	//Do this at the beginning to get the correct collections for the event
 	functionsHandler->getEvent(iEvent);
 	hoMatcher->getEvent(iEvent,iSetup);
+
+	//Call the analyzer functions
 	analyzeHoDigiTiming(iEvent);
 }
 
