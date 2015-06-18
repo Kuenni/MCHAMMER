@@ -19,6 +19,10 @@ parser.add_argument('--desy'
                     ,dest='useDesy'
                     ,action='store_true'
                     ,help='Use a different server for copying to access data on DESY T2')
+parser.add_argument('--rwth'
+                    ,dest='useRwth'
+                    ,action='store_true'
+                    ,help='Use a different server for copying to access data on RWTH T2')
 parser.add_argument('--net-scratch'
                     ,dest='useNetScratch'
                     ,action='store_true'
@@ -73,6 +77,7 @@ mergeRootFiles = args.mergeRootFiles
 nFilesToCopy = args.nFilesToCopy
 targetDir = args.targetDir
 useDesy = args.useDesy
+useRwth = args.useRwth
 useNetScratch = args.useNetScratch
 
 createFileList = args.createFileList
@@ -99,6 +104,9 @@ RWTHT2PREFIX = 'srm://grid-srm.physik.rwth-aachen.de:8443/pnfs/physik.rwth-aache
 #Get dev null for call later on
 DEVNULL = open(os.devnull, 'wb')
 
+#Give java more memory. Otherwise srmls fails on large lists of files
+os.environ['SRM_JAVA_OPTIONS'] = '-Xms256m -Xmx256m'
+
 #Find out, where the script is running
 sampleName = ''
 if(dCacheDir != None):
@@ -120,7 +128,7 @@ def createFileList():
     elif useNetScratch:
     	server=''
     else:
-        server = RWTHSERVER
+        server = RWTHT2PREFIX
     
     sourceDir = server + sampleName
         
@@ -153,14 +161,10 @@ def createFileList():
         if lineStr.count('.root'):
             fileName = lineStr.split(' ')[-1].rstrip('\n')
             fileName = 'file://' + fileName
-            if(useDesy):
+            if useDesy or useRwth:
             	fileName = fileName[fileName.index('/store'):]
             cmsswRunSources.write(XROOTPREFIX + fileName + '\n')
     return
-
-if createFileList:
-    createFileList()
-#    sys.exit(0)
 
 def copyDoNotUseDesy():
     print "Copy, from RWTH T2"
