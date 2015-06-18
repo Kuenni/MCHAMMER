@@ -14,9 +14,11 @@ HoMatcher::~HoMatcher() {
 /**
  * Gets the collections for the given event
  */
-void HoMatcher::getEvent(const edm::Event& iEvent){
+void HoMatcher::getEvent(const edm::Event& iEvent,const edm::EventSetup& iSetup){
 	iEvent.getByLabel( _horecoInput, hoRecoHits);
 	iEvent.getByLabel( _hoDigiInput, hoDigis);
+	iSetup.get<CaloGeometryRecord>().get(caloGeometry);
+	iSetup.get<DetIdAssociatorRecord>().get("HODetIdAssociator", hoDetIdAssociator);
 }
 
 /**
@@ -50,8 +52,8 @@ const HORecHit* HoMatcher::matchByEMaxDeltaR(double eta,double phi){
 	const HORecHit* matchedRecHit = 0;
 	//Loop over all rec hits
 	for( ; hoRecHitIt!=hoRecoHits->end(); hoRecHitIt++ ){
-		double recHitEta = caloGeometry.getPosition(hoRecHitIt->detid()).eta();
-		double recHitPhi = caloGeometry.getPosition(hoRecHitIt->detid()).phi();
+		double recHitEta = caloGeometry->getPosition(hoRecHitIt->detid()).eta();
+		double recHitPhi = caloGeometry->getPosition(hoRecHitIt->detid()).phi();
 		if(FilterPlugin::isInsideDeltaR(eta,recHitEta,phi,recHitPhi,deltaR_Max)){
 			if(!matchedRecHit){
 				matchedRecHit = &(*hoRecHitIt);
@@ -70,7 +72,7 @@ const HORecHit* HoMatcher::matchByEMaxDeltaR(double eta,double phi){
  * Get delta in iEta between given eta and given HORecHit
  */
 int HoMatcher::getDeltaIeta(double eta, const HORecHit* recHit){
-	double hoEta = caloGeometry.getPosition(recHit->detid()).eta();
+	double hoEta = caloGeometry->getPosition(recHit->detid()).eta();
 	double deltaEta = hoEta - eta;
 	return (deltaEta >= 0) ? int(deltaEta/getHoBinSize() + getHoBinSize()/2.) : int(deltaEta/getHoBinSize() - getHoBinSize()/2.);
 }
@@ -79,7 +81,7 @@ int HoMatcher::getDeltaIeta(double eta, const HORecHit* recHit){
  * Get delta in iPhi between given phi and given HORecHit
  */
 int HoMatcher::getDeltaIphi(double phi, const HORecHit* recHit){
-	double hoPhi = caloGeometry.getPosition(recHit->detid()).phi();
+	double hoPhi = caloGeometry->getPosition(recHit->detid()).phi();
 	double deltaPhi = FilterPlugin::wrapCheck(hoPhi,phi);
 	return (deltaPhi >= 0) ? int(deltaPhi/getHoBinSize() + getHoBinSize()/2.) : int(deltaPhi/getHoBinSize() - getHoBinSize()/2.);
 }
@@ -96,6 +98,37 @@ bool HoMatcher::isInChimney(double eta, double phi){
 		}else{
 			if(phi > phiLowerBoundM && phi < phiUpperBoundM){
 				return true;
+			}
+		}
+	}
+	return false;
+}
+
+/**
+ * Find out whether a given direction, represented by a point (Thank You, CMSSW)
+ * points to an HORecHit with E > 0.2,
+ * The Gridsize determines the search area, e.g.:
+ *
+ * 		Size: 0		Size: 1		Size: 2
+ *
+ * 								# # # # #
+ * 					# # #		# # # # #
+ * 			O		# O #		# # O # #
+ * 					# # #		# # # # #
+ * 								# # # # #
+ */
+bool HoMatcher::hasHoHitInGrid(GlobalPoint direction, int gridSize){
+	if(gridSize < 0){
+		return false;
+	}
+	//Loop over the det Ids close to the point
+	std::set<DetId> detIdSet = hoDetIdAssociator->getDetIdsCloseToAPoint(direction,gridSize);
+	for(auto it = detIdSet.begin(); it != detIdSet.end(); it++){
+		//Find the corresponding DetId in the rec hits
+		for(auto itRecHits = hoRecoHits->begin(); itRecHits != hoRecoHits->end(); itRecHits++){
+			if(itRecHits->detid() == *it){
+				if(itRecHits->energy() > threshold)
+					return true;
 			}
 		}
 	}

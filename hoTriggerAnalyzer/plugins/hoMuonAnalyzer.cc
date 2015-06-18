@@ -121,7 +121,7 @@ hoMuonAnalyzer::hoMuonAnalyzer(const edm::ParameterSet& iConfig)/*:
 
 	defineTriggersOfInterest();
 
-	hoMatcher = new HoMatcher(*caloGeo,iConfig);
+	hoMatcher = new HoMatcher(iConfig);
 	functionsHandler = new CommonFunctionsHandler(iConfig);
 
 	/**
@@ -189,7 +189,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		std::cout << coutPrefix << "HODetIdAssociator is not Valid!" << std::endl;
 	}
 
-	hoMatcher->getEvent(iEvent);
+	hoMatcher->getEvent(iEvent,iSetup);
 	functionsHandler->getEvent(iEvent);
 
 	//Try getting the event info for weights

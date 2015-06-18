@@ -8,16 +8,20 @@
 #ifndef HOMATCHER_H_
 #define HOMATCHER_H_
 
+#include <TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h>
+#include <TrackingTools/TrackAssociator/plugins/HODetIdAssociator.h>
+
 #include "DataFormats/HcalRecHit/interface/HORecHit.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
 class HoMatcher {
 public:
-	HoMatcher(CaloGeometry cg,const edm::ParameterSet& iConfig):caloGeometry(cg){
+	HoMatcher(const edm::ParameterSet& iConfig){
 		_horecoInput = iConfig.getParameter<edm::InputTag>("horecoSrc");
 		_hoDigiInput = iConfig.getParameter<edm::InputTag>("hoDigiSrc");
 		deltaR_Max = iConfig.getParameter<double>("maxDeltaR");
+		threshold = iConfig.getParameter<double>("hoEnergyThreshold");
 	};
 	virtual ~HoMatcher();
 
@@ -38,13 +42,17 @@ public:
 	int getDeltaIeta(double eta, const HORecHit* recHit);
 	int getDeltaIphi(double phi, const HORecHit* rechit);
 
+	bool hasHoHitInGrid(GlobalPoint direction, int gridSize);
+
 	/**
 	 * Get the current event's collections
 	 */
-	void getEvent(const edm::Event& iEvent);
+	void getEvent(const edm::Event& iEvent,const edm::EventSetup& iSetup);
 
 private:
-	CaloGeometry caloGeometry;
+	//Handles for geometry and det id associator
+	edm::ESHandle<CaloGeometry> caloGeometry;
+	edm::ESHandle<DetIdAssociator> hoDetIdAssociator;
 
 	//Input tags for the collections
 	edm::InputTag _horecoInput;
@@ -54,7 +62,15 @@ private:
 	edm::Handle<HORecHitCollection> hoRecoHits;
 	edm::Handle<HODigiCollection> hoDigis;
 
+	/**
+	 * delta R max for matching
+	 */
 	double deltaR_Max;
+
+	/**
+	 * Energy threshold for HO rec hits
+	 */
+	float threshold;
 
 	/**
 	 * Boundaries for the position of the chimney of HO. Calculated from n times the iEta
