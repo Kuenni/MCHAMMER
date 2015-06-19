@@ -69,7 +69,7 @@ args = parser.parse_args()
 copy = args.copy
 dCacheDir = args.dCacheDir
 
-merge = args.merge
+wantMerge = args.merge
 removeOriginals = args.removeOriginals
 mergeList = args.mergeList
 mergeRootFiles = args.mergeRootFiles
@@ -82,16 +82,16 @@ useNetScratch = args.useNetScratch
 
 createFileList = args.createFileList
 
-move = args.move
+wantMove = args.move
 
 all = args.all
 
 if all:
     copy = True
-    merge = True
-    move = True
+    wantMerge = True
+    wantMove = True
 else:
-    if not (copy or merge or move or createFileList):
+    if not (copy or wantMerge or wantMove or createFileList):
         print 'Error! Program requires at least one parameter!'
         parser.print_help()
         sys.exit(3)
@@ -368,9 +368,9 @@ def main():
 			copyUseDesy()
 		else:
 			copyDoNotUseDesy()
-	if merge:
+	if wantMerge:
 		merge()
-	if move:
+	if wantMove:
 		move()
 	print 'All done.'
 	
