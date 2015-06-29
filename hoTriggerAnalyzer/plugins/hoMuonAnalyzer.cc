@@ -123,7 +123,7 @@ hoMuonAnalyzer::hoMuonAnalyzer(const edm::ParameterSet& iConfig)/*:
 
 	/**
 	 * Create the root tree for tuple storage. After that tell root to process the loader
-	 * script which will provide support for the vetors of structs in the tree
+	 * script which will provide support for the vectors of structs in the tree
 	 */
 	dataTree = _fileService->make<TTree>("dataTree","Tree with L1, Gen, and HO data");
 
@@ -144,6 +144,10 @@ hoMuonAnalyzer::hoMuonAnalyzer(const edm::ParameterSet& iConfig)/*:
 
 hoMuonAnalyzer::~hoMuonAnalyzer()
 {
+	delete hoMatcher;
+	delete functionsHandler;
+	hoMatcher = 0;
+	functionsHandler = 0;
 }
 
 // ------------ method called for each event  ------------
