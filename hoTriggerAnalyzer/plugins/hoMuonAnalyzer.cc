@@ -127,7 +127,7 @@ hoMuonAnalyzer::hoMuonAnalyzer(const edm::ParameterSet& iConfig)/*:
 	 */
 	dataTree = _fileService->make<TTree>("dataTree","Tree with L1, Gen, and HO data");
 
-	gROOT->ProcessLine(".L ./loader.C+");
+	gROOT->ProcessLine(".L $CMSSW_BASE/src/HoMuonTrigger/loader.C+");
 
 	l1MuonVector = new std::vector<L1MuonData>();
 	genMuonVector = new std::vector<GenMuonData>();
