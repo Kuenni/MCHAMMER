@@ -1,7 +1,8 @@
-#include "../../hoTriggerAnalyzer/interface/GenMuonData.h"
-#include "../../hoTriggerAnalyzer/interface/L1MuonData.h"
-#include "../../hoTriggerAnalyzer/interface/HoRecHitData.h"
 #include <vector>
+#include "hoTriggerAnalyzer/interface/GenMuonData.h"
+#include "hoTriggerAnalyzer/interface/L1MuonData.h"
+#include "hoTriggerAnalyzer/interface/HoRecHitData.h"
+
 
 #ifdef __MAKECINT__
 #pragma link C++ class L1MuonData+;
