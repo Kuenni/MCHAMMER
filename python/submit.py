@@ -27,7 +27,12 @@ def main():
 	task=cesubmit.Task(name,cmsswVersion='CMSSW_7_2_2_patch2', scramArch='slc6_amd64_gcc481')
   	tempExe = '''
 cmsRun $1
-echo "Finished execution"
+RET=$?
+if [ $RET -eq 0 ]; then
+	echo "Finished execution";
+else
+	exit $RET;
+fi
 '''
 	tempFile = open('exec.sh','w')
 	tempFile.write(tempExe)
