@@ -156,7 +156,6 @@ def createFileList():
     if(useNetScratch):
 		XROOTPREFIX = ''
     for line in lsResults:
-    	print line
         lineStr = str(line)
         if lineStr.count('.root'):
             fileName = lineStr.split(' ')[-1].rstrip('\n')
