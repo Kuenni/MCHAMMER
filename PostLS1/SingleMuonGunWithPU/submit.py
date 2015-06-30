@@ -26,13 +26,7 @@ def main():
 	print "Preparing task", name
 	task=cesubmit.Task(name,cmsswVersion='CMSSW_7_2_2_patch2', scramArch='slc6_amd64_gcc481')
   	tempExe = '''
-mv $1 $CMSSW_BASE/src
-mv loader.C $CMSSW_BASE/src/HoMuonTrigger
-mv sourceList* $CMSSW_BASE/src
-cd $CMSSW_BASE/src
 cmsRun $1
-cd ../..
-mv $CMSSW_BASE/src/L1MuonHistogram* .
 echo "Finished execution"
 '''
 	tempFile = open('exec.sh','w')
@@ -46,7 +40,6 @@ echo "Finished execution"
 		job.arguments.append('parallelConfig' + str(i) + '.py')
 		job.inputfiles.append(os.path.abspath('configs/parallelConfig' + str(i) + '.py'))
 		job.inputfiles.append(os.path.abspath('sources/sourceList' + str(i)))
-		job.inputfiles.append(os.path.abspath('loader.C'))
 		job.outputfiles.append("L1MuonHistogramPooja" + str(i) + '.root')
 		task.addJob(job)
 	task.submit(6)
