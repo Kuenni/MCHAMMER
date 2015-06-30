@@ -7,6 +7,8 @@
 
 static const int MAXSAMPLES = 10;
 
+#include <algorithm>
+
 struct HoRecHitData{
 	double eta;
 	double phi;
