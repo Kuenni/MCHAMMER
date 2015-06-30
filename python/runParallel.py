@@ -23,6 +23,8 @@ Author: Andreas Kuensken <kuensken@physik.rwth-aachen.de>
 cmsswSourceFiles = 'cmsswSourceFiles'
 outputFileTrunk = 'sourceList'
 
+print 
+
 prefix = '[runParallel]'
 def output(outString):
 	print prefix,outString
@@ -33,7 +35,7 @@ def printProgress(done,total):
 	sys.stdout.write(progressbar)
 	sys.stdout.flush()
 
-configTemplate = 'runConfig_template.py'
+configTemplate = os.environ['HOMUONTRIGGER_BASE'] + '/python/runConfig_template.py'
 	
 parser = argparse.ArgumentParser()
 
@@ -114,7 +116,7 @@ def createRunConfigs():
 
 #Eventually send the jobs
 def sendJobs():
-	ret = call(['./submit.py','--nJobs',str(1 if args.test else args.nJobs)]			)
+	ret = call(['submit.py','--nJobs',str(1 if args.test else args.nJobs)]			)
 	if ret:
 		output('Something went wrong while creating the sample file lists!')
 	sys.exit(1)
