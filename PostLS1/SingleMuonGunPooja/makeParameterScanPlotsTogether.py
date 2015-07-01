@@ -1,9 +1,13 @@
-import sys,os
-sys.path.append(os.path.abspath("../../python"))
-
+import sys
 from ROOT import TFile,TCanvas
 
-from PlotStyle import setPlotStyle,getLabelCmsPrivateSimulation
+import subprocess,os
+proc = subprocess.Popen(['/bin/bash','-i','-c','cmsEnv; echo $HOMUONTRIGGER_BASE'],stdout=subprocess.PIPE)
+(stdout,stderr) = proc.communicate()
+os.environ['HOMUONTRIGGER_BASE'] = stdout.rstrip()
+sys.path.append(os.environ['HOMUONTRIGGER_BASE'] + '/python')
+
+from plotting.PlotStyle import setPlotStyle,getLabelCmsPrivateSimulation
 setPlotStyle()
 
 def plotCorrectedL1MatchEfficiency():
