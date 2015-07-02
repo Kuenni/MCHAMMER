@@ -9,7 +9,6 @@ logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger(__name__)
 import ConfigParser
 import argparse
-from subprocess import call
 
 parser = argparse.ArgumentParser()
 
