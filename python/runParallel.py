@@ -42,7 +42,6 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--nJobs','-n'
 					,dest='nJobs'
 					,type=int
-					,default = 10
 					,help='Create N jobs')
 
 parser.add_argument('--test'
@@ -50,13 +49,71 @@ parser.add_argument('--test'
 					,action="store_true",default=False
 					,help='Only submit one job for testing')
 
+parser.add_argument('--collect','-c'
+				,dest='collect'
+				,action='store_true',default=False
+				,help='Gather the results from running on CEs')
+
+parser.add_argument('--dir','-d'
+				,dest='dir'
+				,help='Set the name of the directory to process on collecting the events (should be the same as the task name)')
+
+parser.add_argument('--outfile','-o'
+				,dest='outfile'
+				,type = str
+				,default='L1MuonHistogram.root'
+				,help='Set the name of the output file when collecting the results')
+
+parser.add_argument('--split-every','-s'
+				,dest='split'
+				,type = int
+				,default= 25
+				,help='Set the number of files after whose merging to create a new root file')
+
 args = parser.parse_args()
 
-if not args.nJobs and not args.test:
+if not args.nJobs and not args.test and not args.collect:
 	output('If no test run is requested, the number of jobs has to be set!')
 	parser.print_help()
 	sys.exit(1)
 
+def hasJobFailed(resultsPath):
+	errFile = open(os.path.abspath(resultsPath) + '/out.txt')
+	for line in errFile.readlines():
+		if line.find('Finished execution') != -1:
+			return False
+	return True
+
+def collectOutput():
+	fileBatches = []
+	filesToProcess = []
+	if not args.dir:
+		output('You have to provide the task directory')
+		sys.exit(1)
+	for file in os.listdir(args.dir):
+		if len(filesToProcess) == args.split:
+			fileBatches.append(filesToProcess)
+			filesToProcess = []
+		if file.startswith('grid'):
+			file = os.path.abspath(args.dir + '/' + file)
+			if not hasJobFailed(file):
+				for result in os.listdir(file):
+					if result.endswith('.root'):
+						filesToProcess.append(file + '/' + result)
+	filenameTrunk = args.outfile[0:args.outfile.rfind('.root')]
+	for i,batch in enumerate(fileBatches):
+		filename = '%s%d.root' % (filenameTrunk,i)
+		output('Merging into file %s' % filename)
+		cmd = ['hadd',filename]
+		cmd.extend(batch)
+		ret = call(cmd)
+		if ret != 0:
+			output('Error on merging root files')
+			sys.exit(1)
+		else:
+			output('All files merged')
+	
+	
 #Get the number of lines in a file
 def getLineCount(filename):
 	with open(filename) as f:
@@ -122,10 +179,13 @@ def sendJobs():
 	sys.exit(1)
 
 def main():
-	createDirectories()
-	createSourceLists()
-	createRunConfigs()
-	sendJobs()
+	if args.nJobs or args.test:
+		createDirectories()
+		createSourceLists()
+		createRunConfigs()
+		sendJobs()
+	else:
+		collectOutput()
 
 if __name__=="__main__":
 	main()
