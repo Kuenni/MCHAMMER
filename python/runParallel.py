@@ -30,10 +30,15 @@ def output(outString):
 	print prefix,outString
 
 def printProgress(done,total):
-	nHashes = done/total*80
-	progressbar = '\r[%s%s] %5.2f%% done.' % (nHashes*'#',(80-nHashes)*' ',done*100/float(total))
-	sys.stdout.write(progressbar)
+	s = getProgressString(done, total)
+	sys.stdout.write(s)
 	sys.stdout.flush()
+	pass
+	
+def getProgressString(done,total):
+	nHashes = int(done/float(total)*80)
+	progressbar = '\r[%s%s] %5.2f%% done.' % (nHashes*'#',(80-nHashes)*' ',done*100/float(total))
+	return progressbar
 
 configTemplate = os.environ['HOMUONTRIGGER_BASE'] + '/python/runConfig_template.py'
 	
@@ -112,6 +117,7 @@ def collectOutput():
 			sys.exit(1)
 		else:
 			output('All files merged')
+			output(getProgressString(i+1, len(fileBatches)))
 	
 	
 #Get the number of lines in a file
