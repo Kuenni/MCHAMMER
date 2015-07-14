@@ -26,6 +26,11 @@ class RootFileHandler:
 			pass
 		return chain
 	
+	#Print status information
+	def printStatus(self):
+		print '[RootFileHandler] Looking for files with naming scheme \'%s\'' % (self.filename)
+		print '[RootFileHandler] Found %d matching files' % (self.numberOfFiles)
+		
 	'''
 	Get the histogram with the given name from the result files.
 	A new histogram is created as a clone from the first histogram,
