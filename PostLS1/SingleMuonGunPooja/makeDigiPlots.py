@@ -1,6 +1,5 @@
-import os,sys
+import os
 from math import sqrt
-sys.path.append(os.path.abspath("../../python"))
 
 from ROOT import TCanvas,ROOT,TFile,TLegend,TF1,TLine,gROOT,TPaveText,TH1D,Double,TH2D,THStack,gStyle
 
@@ -8,7 +7,7 @@ DEBUG = 1
 
 gROOT.Reset()
 
-from PlotStyle import setPlotStyle,colorRwthDarkBlue,getLabelCmsPrivateSimulation,colorRwthTuerkis,colorRwthMagenta,setupAxes
+from plotting.PlotStyle import setPlotStyle,colorRwthDarkBlue,getLabelCmsPrivateSimulation,colorRwthTuerkis,colorRwthMagenta,setupAxes
 setPlotStyle()
 
 if( not os.path.exists('plots')):
