@@ -54,9 +54,7 @@ class RootFileHandler:
 	def getGraph(self,graphname):
 		newGraph = None
 		file = TFile(self.fileNameList[0])
-		graph = file.Get(graphname)from array import array
-
-
+		graph = file.Get(graphname)
 		for i in range(1,len(self.fileNameList)):
 			file = TFile(self.fileNameList[i])
 			g2 = file.Get(graphname)
@@ -68,4 +66,3 @@ class RootFileHandler:
 				pass
 			pass
 		return graph
-	
