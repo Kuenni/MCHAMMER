@@ -1,4 +1,5 @@
-import os
+#!/usr/bin/python
+import os,sys
 from math import sqrt
 
 from ROOT import TCanvas,ROOT,TFile,TLegend,TF1,TLine,gROOT,TPaveText,TH1D,Double,TH2D,THStack,gStyle
@@ -8,6 +9,7 @@ DEBUG = 1
 gROOT.Reset()
 
 from plotting.PlotStyle import setPlotStyle,colorRwthDarkBlue,getLabelCmsPrivateSimulation,colorRwthTuerkis,colorRwthMagenta,setupAxes
+from plotting.RootFileHandler import RootFileHandler
 setPlotStyle()
 
 if( not os.path.exists('plots')):
@@ -24,11 +26,16 @@ file = TFile.Open(filename)
 if(file == None):
 	print 'Error opening file:',filename
 
+if len(sys.argv) < 2:
+	print 'First argument has to be the file name scheme!'
+fileHandler = RootFileHandler(sys.argv[1])
+fileHandler.printStatus()
+
 def plotDigiTest():
 	#Prepare canvas
 	canvas = TCanvas("canvasBxId","BXID",1200,1200)
 	canvas.SetLogy()
-	histBx = file.Get("hoMuonAnalyzer/hoDigi_BxId")
+	histBx = fileHandler.getHistogram("hoDigiAnalyzer/hoDigi_BxId")
 	histBx.GetXaxis().SetRangeUser(-3,3)
 	histBx.SetLineWidth(3)
 	histBx.Scale(1/histBx.Integral())
@@ -69,7 +76,7 @@ def plotDigiTest():
 
 	canvasAdcSum = TCanvas("cavasAdcSum","ADC Sum",1200,1200)
 	canvasAdcSum.SetLogy()
-	histAdcSum = file.Get("hoMuonAnalyzer/hoDigiAdcSum_Multiplicity")
+	histAdcSum = fileHandler.getHistogram("hoMuonAnalyzer/hoDigiAdcSum_Multiplicity")
 	histAdcSum.GetXaxis().SetRangeUser(-0.5,500)
 	histAdcSum.GetXaxis().SetTitle('ADC counts')
 	histAdcSum.GetYaxis().SetTitle('#')
@@ -83,7 +90,7 @@ def plotDigiTest():
 
 	canvasTS4 = TCanvas("cavasTS4","TS4",1200,1200)
 	canvasTS4.SetLogy()
-	histAdcTS4 = file.Get("hoMuonAnalyzer/hoDigiAdcTS4_Multiplicity")
+	histAdcTS4 = fileHandler.getHistogram("hoMuonAnalyzer/hoDigiAdcTS4_Multiplicity")
 	histAdcTS4.GetXaxis().SetRangeUser(-0.5,500)
 	histAdcTS4.GetXaxis().SetTitle('ADC counts')
 	histAdcTS4.GetYaxis().SetTitle('#')
@@ -104,7 +111,7 @@ def plotDigiTime():
 	canvas = TCanvas("canvasDigiSimpleTime","Simple Digi Time",1200,1200)
 	canvas.SetLogy()
 	
-	histHoTime = file.Get('hoMuonAnalyzer/hoTimeFromDigi_Time')
+	histHoTime = fileHandler.getHistogram('hoDigiAnalyzer/hoTimeFromDigi_Time')
 	setupAxes(histHoTime)
 	histHoTime.GetXaxis().SetTitle('time / ns')
 	histHoTime.GetXaxis().SetRangeUser(-100,100)
@@ -130,7 +137,7 @@ def plotDigiTime():
 	canvas.SaveAs('plots/timing/digiTimeAllHo.png')
 
 	#Now add next plot
-	histHoTimeAboveThr = file.Get('hoMuonAnalyzer/hoTimeFromDigiAboveThr_Time')
+	histHoTimeAboveThr = fileHandler.getHistogram('hoDigiAnalyzer/hoTimeFromDigiAboveThr_Time')
 	histHoTimeAboveThr.SetLineColor(colorRwthTuerkis)
 	histHoTimeAboveThr.SetStats(0)
 	histHoTimeAboveThr.SetLineWidth(3)
@@ -146,7 +153,7 @@ def plotDigiTime():
 	canvas.SaveAs('plots/timing/digiTimePlusThr.png')
 	
 	#Now add Ho rec hit time plot
-	histHoRecHitTime = file.Get('hoMuonAnalyzer/hoRecHitsAboveThr_Time')
+	histHoRecHitTime = fileHandler.getHistogram('hoMuonAnalyzer/hoRecHitsAboveThr_Time')
 	histHoRecHitTime.SetLineColor(colorRwthMagenta)
 	histHoRecHitTime.SetStats(0)
 	histHoRecHitTime.SetLineWidth(3)
@@ -166,7 +173,7 @@ def plotDigiDeltaTime():
 	canvas = TCanvas("canvasDigiDeltaTime","Simple Digi Delta Time",1200,1200)
 	canvas.SetLogy()
 	
-	histHoTime = file.Get('hoMuonAnalyzer/hoTimeFromDigi_DeltaTime')
+	histHoTime = fileHandler.getHistogram('hoDigiAnalyzer/hoTimeFromDigi_DeltaTime')
 	setupAxes(histHoTime)
 	histHoTime.GetXaxis().SetTitle('#Deltatime / ns')
 	histHoTime.SetLineColor(colorRwthDarkBlue)
@@ -189,7 +196,7 @@ def plotDigiDeltaTime():
 	canvas.SaveAs('plots/timing/digiTimeDeltaTime.pdf')
 	canvas.SaveAs('plots/timing/digiTimeDeltaTime.png')
 	
-	histRecHitTime = file.Get('hoMuonAnalyzer/L1MuonAboveThr_DeltaTime')
+	histRecHitTime = fileHandler.getHistogram('hoMuonAnalyzer/L1MuonAboveThr_DeltaTime')
 	histRecHitTime.SetLineColor(colorRwthMagenta)
 	histRecHitTime.SetLineWidth(3)
 	histRecHitTime.Draw('same')
@@ -208,7 +215,7 @@ def plotDigiVsEta():
 
 	canvas = TCanvas("canvasDigiEta","Simple Digi Eta",1200,1200)
 
-	hoDigiTime = file.Get('hoMuonAnalyzer/correlation/hoTimeFromDigiEta')
+	hoDigiTime = fileHandler.getGraph('hoDigiAnalyzer/correlation/hoTimeFromDigiEta')
 	setupAxes(hoDigiTime)
 	hoDigiTime.GetXaxis().SetTitle('#eta')
 	hoDigiTime.GetYaxis().SetTitle('time / ns')
@@ -233,7 +240,7 @@ def plotDigiVsPhi():
 
 	canvas = TCanvas("canvasDigiPhi","Simple Digi Phi",1200,1200)
 
-	hoDigiTime = file.Get('hoMuonAnalyzer/correlation/hoTimeFromDigiPhi')
+	hoDigiTime = fileHandler.getGraph('hoDigiAnalyzer/correlation/hoTimeFromDigiPhi')
 	setupAxes(hoDigiTime)
 	hoDigiTime.GetXaxis().SetTitle('#phi')
 	hoDigiTime.GetYaxis().SetTitle('time / ns')
@@ -256,7 +263,7 @@ def plotDigiVsPhi():
 def plotRecHitVsDigiTime():
 	canvas = TCanvas("canvasRecHitVsDigi","RecHitTime Vs Simple Digi",1200,1200)
 
-	hoDigiTime = file.Get('hoMuonAnalyzer/correlation/hoTimeRecHitVsDigi')
+	hoDigiTime = fileHandler.getGraph('hoDigiAnalyzer/correlation/hoTimeRecHitVsDigi')
 	setupAxes(hoDigiTime)
 
 	hoDigiTime.GetXaxis().SetTitle('digi time / ns')
@@ -279,7 +286,7 @@ def plotRecHitVsDigiTime():
 
 res = plotDigiTime()
 res2 = plotDigiDeltaTime()
-res3 = plotDigiVsEta()
-res4 = plotDigiVsPhi()
+#res3 = plotDigiVsEta()
+#res4 = plotDigiVsPhi()
 res5 = plotRecHitVsDigiTime()
 raw_input('-->')
