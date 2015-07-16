@@ -1,5 +1,5 @@
 import os
-from ROOT import TChain,TFile,SetOwnership
+from ROOT import TChain,TFile,SetOwnership,Double
 class RootFileHandler:
 	#Look, how many files with the given name trunk in filename exist in the directory
 	def getNumberOfFiles(self):
@@ -45,3 +45,27 @@ class RootFileHandler:
 			file = TFile(self.fileNameList[i])
 			histNew.Add(file.Get(histoname))
 		return histNew
+	
+	'''
+	Get the graph with the given name from the result files
+	The points from the additional files are added to the graph
+	from the first file
+	'''
+	def getGraph(self,graphname):
+		newGraph = None
+		file = TFile(self.fileNameList[0])
+		graph = file.Get(graphname)from array import array
+
+
+		for i in range(1,len(self.fileNameList)):
+			file = TFile(self.fileNameList[i])
+			g2 = file.Get(graphname)
+			x = Double(0)
+ 			y = Double(0)
+ 			for j in range(0,g2.GetN()):
+				g2.GetPoint(j,x,y)
+				graph.SetPoint(graph.GetN(),x,y)
+				pass
+			pass
+		return graph
+	
