@@ -323,6 +323,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 
 	hoRecHitVector->clear();
 	for( auto it = hoRecoHits->begin(); it != hoRecoHits->end(); it++ ){
+		histogramBuilder.fillMultiplicityHistogram(hoMatcher->countHoDigisByDetId(it->detid()),"hoDigiMatchesPerDetId");
 		short* adcSamples = new short[10];
 		const HODataFrame* dataFrame = hoMatcher->findHoDigiById(it->detid());
 		for(int i = 0; i < std::min(10,dataFrame->size()); i++){
@@ -398,7 +399,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		return;
 	}
 	histogramBuilder.fillCountHistogram("Events");
-	analyzeEfficiencyWithGenLoop(iEvent,iSetup);
+	analyzeWithGenLoop(iEvent,iSetup);
 
 	/*
 	 * Level 1 Muons
@@ -1503,7 +1504,7 @@ void hoMuonAnalyzer::analyzeNoSingleMuEventsGenLoop(const edm::Event& iEvent,con
  * TODO: Except for the tile matching the other efficiency plots can probably
  * be removed from the code above
  */
-void hoMuonAnalyzer::analyzeEfficiencyWithGenLoop(const edm::Event& iEvent,const edm::EventSetup& iSetup){
+void hoMuonAnalyzer::analyzeWithGenLoop(const edm::Event& iEvent,const edm::EventSetup& iSetup){
 	for(reco::GenParticleCollection::const_iterator genIt = truthParticles->begin();
 			genIt != truthParticles->end(); genIt++){
 		float genEta = genIt->eta();
@@ -1512,6 +1513,7 @@ void hoMuonAnalyzer::analyzeEfficiencyWithGenLoop(const edm::Event& iEvent,const
 		l1Part = functionsHandler->getBestL1MuonMatch(genEta,genPhi);
 		if(l1Part){
 			fillEfficiencyHistograms(l1Part->pt(),genIt->pt(),"GenAndL1Muon");
+			fillAverageEnergyAroundL1Direction(l1Part);
 			/**
 			 * Find a rec hit that can be matched to the l1 particle. Use this information for the efficiency
 			 * plots. This time it is ensured that only as many entries as there are gen particles is used
@@ -1523,6 +1525,29 @@ void hoMuonAnalyzer::analyzeEfficiencyWithGenLoop(const edm::Event& iEvent,const
 				if(matchedRecHit->energy() > threshold){
 					fillEfficiencyHistograms(l1Part->pt(),genIt->pt(),"GenAndL1MuonAndHoAboveThr");
 				}
+			}
+		}
+	}
+}
+
+/**
+ * Fill a histogram with the measured energy around a given L1.
+ * For now the grid size is hardcoded to 2
+ */
+void hoMuonAnalyzer::fillAverageEnergyAroundL1Direction(const l1extra::L1MuonParticle* l1Muon){
+	GlobalPoint l1Direction(
+			l1Muon->p4().X(),
+			l1Muon->p4().Y(),
+			l1Muon->p4().Z()
+				);
+	std::set<DetId> detIds = hoMatcher->getDetIdsCloseToAPoint(l1Direction,2);
+	for(auto it = detIds.begin(); it != detIds.end(); it++){
+		for(auto recHitIt = hoRecoHits->begin(); recHitIt != hoRecoHits->end(); recHitIt++){
+			if (recHitIt->detid() == *it){
+				histogramBuilder.fillDeltaEtaDeltaPhiHistogramsWithWeights(float(l1Direction.eta())
+						,float(hoMatcher->getRecHitEta(&*recHitIt))	,float(l1Direction.phi())
+						,float(hoMatcher->getRecHitPhi(&*recHitIt))	,recHitIt->energy()
+						,"averageEnergyAroundPoint");
 			}
 		}
 	}

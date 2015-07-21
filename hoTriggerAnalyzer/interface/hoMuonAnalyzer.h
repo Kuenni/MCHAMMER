@@ -78,10 +78,11 @@ private:
 	void analyzeL1AndGenMatch(const edm::Event& iEvent,const edm::EventSetup& iSetup);
 	void analyzeNoSingleMuEventsL1Loop(const edm::Event& iEvent,const edm::EventSetup& iSetup);
 	void analyzeNoSingleMuEventsGenLoop(const edm::Event& iEvent,const edm::EventSetup& iSetup);
-	void analyzeEfficiencyWithGenLoop(const edm::Event& iEvent,const edm::EventSetup& iSetup);
+	void analyzeWithGenLoop(const edm::Event& iEvent,const edm::EventSetup& iSetup);
 	void analyzeL1MuonsForGhosts(const edm::Event& iEvent,const edm::EventSetup& iSetup);
 	void fillEfficiencyHistograms(double ptMeasured,double ptReal,std::string key);
 	void fillHoGeomAcceptanceGraph(reco::GenParticle genParticle);
+	void fillAverageEnergyAroundL1Direction(const l1extra::L1MuonParticle*);
 
 	const reco::GenParticle* getBestGenMatch(float,float);
 	const l1extra::L1MuonParticle* getMatchedL1Object(trigger::TriggerObject,edm::Handle<l1extra::L1MuonParticleCollection>);
