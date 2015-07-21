@@ -201,7 +201,7 @@ void HistogramBuilder::fillDeltaEtaDeltaPhiHistograms(float eta1, float eta2,
 		std::string key){
 	TFileDirectory etaPhiDir = _fileService->mkdir("etaPhi");
 	float deltaEta, deltaPhi;
-	deltaEta = eta1 - eta2;
+	deltaEta = eta2 - eta1;
 	deltaPhi = FilterPlugin::wrapCheck(phi1, phi2);
 
 	//Delta Eta Histograms Fill
@@ -232,6 +232,26 @@ void HistogramBuilder::fillDeltaEtaDeltaPhiHistograms(float eta1, float eta2,
 	_h2DeltaEtaDeltaPhi[key]->Fill(deltaEta, deltaPhi);
 
 } 
+
+/**
+ * Fill a delta eta delta phi histogram bin by a given weight
+ */
+void HistogramBuilder::fillDeltaEtaDeltaPhiHistogramsWithWeights(float eta1, float eta2,
+		float phi1, float phi2, double weight, std::string key){
+	TFileDirectory etaPhiDir = _fileService->mkdir("deltaEtaDeltaPhiEnergy");
+	float deltaEta, deltaPhi;
+	deltaEta = eta2 - eta1;
+	deltaPhi = FilterPlugin::wrapCheck(phi1, phi2);
+
+	//DeltaEta Delta Phi Histograms Fill
+	if(!_h2DeltaEtaDeltaPhiWeights.count(key)){
+		_h2DeltaEtaDeltaPhiWeights[key] = etaPhiDir.make<TH2D>(Form("%s_DeltaEtaDeltaPhiEnergy",key.c_str()),Form("%s #Delta#eta #Delta#Phi Energy",key.c_str()),
+				11, -0.4785, 0.4785, 	//eta
+				11, -0.4785, 0.4785);	//phi
+	}
+	_h2DeltaEtaDeltaPhiWeights[key]->Fill(deltaEta, deltaPhi, weight);
+
+}
 
 /*
  *L1Muon Pt Histograms
@@ -345,7 +365,7 @@ void HistogramBuilder::fillDeltaEtaDeltaPhiEnergyHistogram(float eta1, float eta
 	TFileDirectory etaPhiDir = _fileService->mkdir("etaPhi");
 	TFileDirectory etaPhiSubdir = _fileService->mkdir("etaPhi/energy1D");
 	float deltaEta, deltaPhi;
-	deltaEta = eta1 - eta2;
+	deltaEta = eta2 - eta1;
 	deltaPhi = FilterPlugin::wrapCheck(phi1, phi2);
 
 	//DeltaEta Delta Phi Histograms Fill

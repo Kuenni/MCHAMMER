@@ -41,6 +41,7 @@ class HistogramBuilder {
   void fillCountHistogram(std::string key);
   void fillDeltaEtaDeltaPhiEnergyHistogram(float,float,float,float,float,std::string);
   void fillDeltaEtaDeltaPhiHistograms(float eta1, float eta2, float phi1, float phi2,  std::string key);
+  void fillDeltaEtaDeltaPhiHistogramsWithWeights(float eta1, float eta2, float phi1, float phi2, double weight, std::string key);
   void fillDeltaTimeHistogram(double, int, std::string);
   void fillDeltaVzHistogam(float,std::string);
   void fillEfficiency(bool,float,std::string);
@@ -93,6 +94,7 @@ class HistogramBuilder {
   std::map<std::string,TH2D*> _h2TimeCorrelation;
   std::map<std::string,TH2D*> _h2EtaPhiMap;
   std::map<std::string,TH2D*> _h2DeltaEtaDeltaPhi;
+  std::map<std::string,TH2D*> _h2DeltaEtaDeltaPhiWeights;
   std::map<std::string,TH2D*> _h2Correlation;
 
   std::map<std::string,TGraph*> _grEtaPhi;
