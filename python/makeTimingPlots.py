@@ -1,18 +1,20 @@
+#!/usr/bin/python
 import os,sys
 from math import sqrt
-sys.path.append(os.path.abspath("../../python"))
-
 from ROOT import TCanvas,ROOT,TFile,TLegend,TF1,TLine,gROOT,TPaveText,TH1D,Double,TH2D,THStack,gStyle
+from plotting.PlotStyle import setPlotStyle,calcSigma,getLabelCmsPrivateSimulation,colorRwthDarkBlue,colorRwthMagenta,setupAxes,convertToHcalCoords,chimney1,chimney2
+from plotting.RootFileHandler import RootFileHandler
 
 DEBUG = 1
 
 gROOT.Reset()
 
-import PlotStyle
-PlotStyle.setPlotStyle()
+setPlotStyle()
 
-def calcSigma(num,denom):
-	return sqrt(num/float(denom*denom) + num*num/float(pow(denom, 3)))
+if len(sys.argv) < 2:
+	print 'First argument has to be the file name scheme!'
+fileHandler = RootFileHandler(sys.argv[1])
+fileHandler.printStatus()
 
 if( not os.path.exists('plots')):
 	os.mkdir('plots')
@@ -29,8 +31,8 @@ if(file == None):
 	print 'Error opening file:',filename
 
 def plotDeltaTime():
-	hDeltaTAllHo = file.Get('hoMuonAnalyzer/L1MuonPresentHoMatch_DeltaTime')
-	hDeltaTCleanHo = file.Get('hoMuonAnalyzer/L1MuonAboveThr_DeltaTime')
+	hDeltaTAllHo = fileHandler.getHistogram('hoMuonAnalyzer/L1MuonPresentHoMatch_DeltaTime')
+	hDeltaTCleanHo = fileHandler.getHistogram('hoMuonAnalyzer/L1MuonAboveThr_DeltaTime')
 	
 	c = TCanvas("c","Delta Time",1200,1200)
 	c.SetLogy()
@@ -63,7 +65,7 @@ def plotDeltaTime():
 	legend.AddEntry(hDeltaTAllHo,"L1Muon matched to any HO","le")
 	legend.Draw()
 	
-	label = PlotStyle.getLabelCmsPrivateSimulation()
+	label = getLabelCmsPrivateSimulation()
 	label.Draw()
 	c.Update()
 	
@@ -108,7 +110,7 @@ def plotDeltaTime():
 	paveText.SetBorderSize(1)
 	paveText.Draw()
 	
-	label = PlotStyle.getLabelCmsPrivateSimulation()
+	label = getLabelCmsPrivateSimulation()
 	label.Draw()
 	c.Update()
 	
@@ -120,18 +122,18 @@ def plotL1BxId():
 	c2 = TCanvas("c2","BX ID",1200,1200)
 	c2.SetLogy()
 	
-	hBxId = file.Get('hoMuonAnalyzer/L1MuonPresent_BxId')
-	hBxIdAboveThr = file.Get('hoMuonAnalyzer/L1MuonAboveThr_BxId')
-	hBxId.SetLineColor(PlotStyle.colorRwthDarkBlue)
+	hBxId = fileHandler.getHistogram('hoMuonAnalyzer/L1MuonPresent_BxId')
+	hBxIdAboveThr = fileHandler.getHistogram('hoMuonAnalyzer/L1MuonAboveThr_BxId')
+	hBxId.SetLineColor(colorRwthDarkBlue)
 	hBxId.SetLineWidth(3)
 	hBxId.SetStats(0)
 	hBxId.SetTitle("BX ID distribution")
 	hBxId.GetXaxis().SetRangeUser(-2,5)
-	#hBxId.SetFillColor(PlotStyle.colorRwthDarkBlue)
+	#hBxId.SetFillColor(colorRwthDarkBlue)
 	#hBxId.SetFillStyle(3017)
 	hBxIdAboveThr.SetFillStyle(3002)
-	hBxIdAboveThr.SetFillColor(PlotStyle.colorRwthMagenta)
-	hBxIdAboveThr.SetLineColor(PlotStyle.colorRwthMagenta)
+	hBxIdAboveThr.SetFillColor(colorRwthMagenta)
+	hBxIdAboveThr.SetLineColor(colorRwthMagenta)
 	hBxIdAboveThr.SetLineWidth(2)
 	
 	hBxId.Scale(1/hBxId.Integral())
@@ -147,7 +149,7 @@ def plotL1BxId():
 	#legend2.AddEntry(hBxIdAboveThr,"L1Muon matched to HO > 0.2 GeV","f")
 	legend2.Draw()
 	
-	label = PlotStyle.getLabelCmsPrivateSimulation()
+	label = getLabelCmsPrivateSimulation()
 	label.Draw()
 	
 	c2.SaveAs("plots/timing/bxId.png")
@@ -164,34 +166,82 @@ def plotL1BxId():
 	hL1InNs.Draw()
 	c4.SaveAs("plots/timing/timeL1Only.pdf")
 
+def plotHoTimeLog():
+	c3 = TCanvas("c3Log","HO Time Log",1200,1200)
+	skipNoisePlot = True
+	if not skipNoisePlot:
+		c3.Divide(1,2)
+		c3.cd(1).SetLogy()
+		label = getLabelCmsPrivateSimulation()
+		label.Draw()
+		hHoTime = fileHandler.getHistogram('hoMuonAnalyzer/hoRecHits_Time')
+		
+		hHoTime.SetStats(0)
+		hHoTime.SetTitle("Time distribution for all HO Rec Hits")
+		hHoTime.SetLineColor(colorRwthDarkBlue)
+		hHoTime.SetLineWidth(3)
+		hHoTime.Draw()
+		label = getLabelCmsPrivateSimulation()
+		label.Draw()
+		
+	hHoTimeAboveThr = fileHandler.getHistogram('hoMuonAnalyzer/hoRecHitsAboveThr_Time')
+	c3.cd(2).SetLogy()
+	hHoTimeAboveThr.SetStats(0)
+	hHoTimeAboveThr.SetTitle("Time distribution for HO Rec Hits > 0.2 GeV")
+	hHoTimeAboveThr.SetLineColor(colorRwthDarkBlue)
+	hHoTimeAboveThr.SetLineWidth(3)
+	setupAxes(hHoTimeAboveThr)
+	hHoTimeAboveThr.Draw()
+	
+	label = getLabelCmsPrivateSimulation()
+	label.Draw()
+
+	fit = TF1("fit","gaus",-10,10)
+	fit.SetParameter(1,0)
+	fit.SetParameter(2,1)
+	hHoTimeAboveThr.Fit(fit,'','R',-12.5,12.5)
+	
+	pText = TPaveText(0.7,0.8,0.9,0.9,'NDC')
+	pText.AddText('Mean: %.2f ns' % (fit.GetParameter(1)))
+	pText.AddText('#sigma: %.2f ns' % (fit.GetParameter(2)))
+	pText.SetBorderSize(1)
+	pText.SetFillColor(0)
+	pText.Draw()
+	
+	c3.Update()
+	c3.SaveAs("plots/timing/hoTimeLog.png")
+	c3.SaveAs("plots/timing/hoTimeLog.pdf")
+	
+	return c3,pText,hHoTimeAboveThr
+
 def plotHoTime():
 	c3 = TCanvas("c3","HO Time",1200,1200)
 	skipNoisePlot = True
 	if not skipNoisePlot:
 		c3.Divide(1,2)
 		c3.cd(1).SetLogy()
-		label = PlotStyle.getLabelCmsPrivateSimulation()
+		label = getLabelCmsPrivateSimulation()
 		label.Draw()
-		hHoTime = file.Get('hoMuonAnalyzer/hoRecHits_Time')
+		hHoTime = fileHandler.getHistogram('hoMuonAnalyzer/hoRecHits_Time')
 		
 		hHoTime.SetStats(0)
 		hHoTime.SetTitle("Time distribution for all HO Rec Hits")
-		hHoTime.SetLineColor(PlotStyle.colorRwthDarkBlue)
+		hHoTime.SetLineColor(colorRwthDarkBlue)
 		hHoTime.SetLineWidth(3)
 		hHoTime.Draw()
-		label = PlotStyle.getLabelCmsPrivateSimulation()
+		label = getLabelCmsPrivateSimulation()
 		label.Draw()
 		
-	hHoTimeAboveThr = file.Get('hoMuonAnalyzer/hoRecHitsAboveThr_Time')
+	hHoTimeAboveThr = fileHandler.getHistogram('hoMuonAnalyzer/hoRecHitsAboveThr_Time')
 	c3.cd(2).SetLogy()
 	hHoTimeAboveThr.SetStats(0)
 	hHoTimeAboveThr.SetTitle("Time distribution for HO Rec Hits > 0.2 GeV")
-	hHoTimeAboveThr.SetLineColor(PlotStyle.colorRwthDarkBlue)
+	hHoTimeAboveThr.SetLineColor(colorRwthDarkBlue)
 	hHoTimeAboveThr.SetLineWidth(3)
-	PlotStyle.setupAxes(hHoTimeAboveThr)
+	setupAxes(hHoTimeAboveThr)
 	hHoTimeAboveThr.Draw()
 	
-	label = PlotStyle.getLabelCmsPrivateSimulation()
+	label = getLabelCmsPrivateSimulation()
 	label.Draw()
 	
 	print 80*'#'
@@ -221,14 +271,14 @@ def plotHoTime():
 	c3.SaveAs("plots/timing/hoTime.png")
 	c3.SaveAs("plots/timing/hoTime.pdf")
 	
-	return c3
+	return c3,label,hHoTimeAboveThr,pText
 
 def plotFractionsOfBxId():
 	##BX right plotting pt
 	canvasBxRightPt = TCanvas("cBxRightPt","cBxRightPt",1200,1200)
 	canvasBxRightPt.cd().SetLeftMargin(0.15)
-	hBxRightPt = file.Get('hoMuonAnalyzer/BxRightGen_Pt').Clone()
-	PlotStyle.setPlotStyle()
+	hBxRightPt = fileHandler.getHistogram('hoMuonAnalyzer/BxRightGen_Pt').Clone()
+	setPlotStyle()
 	hBxRightPt.Rebin(50)
 	hBxRightPt.GetXaxis().SetRangeUser(0,200)
 	hBxRightPt.GetYaxis().SetTitle("normalized Entries / 5 GeV")
@@ -239,15 +289,15 @@ def plotFractionsOfBxId():
 	hBxRightPt.SetLineWidth(2)
 	hBxRightPt.Scale(1/hBxRightPt.Integral())
 	hBxRightPt.Draw()
-	label = PlotStyle.getLabelCmsPrivateSimulation()
+	label = getLabelCmsPrivateSimulation()
 	label.Draw()
 	canvasBxRightPt.SaveAs('plots/timing/bxRightPt.pdf')
 	
 	##BX wrong plotting pt
 	canvasBxWrongPt = TCanvas("cBxWrongPt","cBxWrongPt",1200,1200)
 	canvasBxWrongPt.cd().SetLeftMargin(0.15)
-	hBxWrongPt = file.Get('hoMuonAnalyzer/BxWrongGen_Pt').Clone()
-	PlotStyle.setPlotStyle()
+	hBxWrongPt = fileHandler.getHistogram('hoMuonAnalyzer/BxWrongGen_Pt').Clone()
+	setPlotStyle()
 	hBxWrongPt.Rebin(50)
 	hBxWrongPt.GetXaxis().SetRangeUser(0,200)
 	hBxWrongPt.GetYaxis().SetTitle("normalized Entries / 5 GeV")
@@ -258,15 +308,15 @@ def plotFractionsOfBxId():
 	hBxWrongPt.SetLineWidth(2)
 	hBxWrongPt.Scale(1/hBxWrongPt.Integral())
 	hBxWrongPt.DrawCopy()
-	label = PlotStyle.getLabelCmsPrivateSimulation()
+	label = getLabelCmsPrivateSimulation()
 	label.Draw()
 	canvasBxWrongPt.SaveAs('plots/timing/bxWrongPt.pdf')
 	
 	#Plot the histogram stack
 	canvasStack = TCanvas("cStacked","cStacked",1200,1200)
 	canvasStack.cd().SetLeftMargin(0.15)
-	hWrong = file.Get('hoMuonAnalyzer/BxWrongGen_Pt')
-	hRight = file.Get('hoMuonAnalyzer/BxRightGen_Pt')
+	hWrong = fileHandler.getHistogram('hoMuonAnalyzer/BxWrongGen_Pt')
+	hRight = fileHandler.getHistogram('hoMuonAnalyzer/BxRightGen_Pt')
 	hRightFraction = TH1D('hRightFraction','',100,0,500)
 	hWrongFraction = TH1D('hWrongFraction','',100,0,500)
 	hWrong.Rebin(50)
@@ -285,11 +335,11 @@ def plotFractionsOfBxId():
 	nRight = hRight.Integral()
 	nWrong = hWrong.Integral()
 	nTotal = nRight + nWrong
-	hRightFraction.SetLineColor(PlotStyle.colorRwthDarkBlue)
-	hRightFraction.SetFillColor(PlotStyle.colorRwthDarkBlue)
+	hRightFraction.SetLineColor(colorRwthDarkBlue)
+	hRightFraction.SetFillColor(colorRwthDarkBlue)
 	hRightFraction.SetFillStyle(3002)
-	hWrongFraction.SetLineColor(PlotStyle.colorRwthMagenta)
-	hWrongFraction.SetFillColor(PlotStyle.colorRwthMagenta)
+	hWrongFraction.SetLineColor(colorRwthMagenta)
+	hWrongFraction.SetFillColor(colorRwthMagenta)
 	hWrongFraction.SetFillStyle(3002)
 	stack.Add(hRightFraction)
 	stack.Add(hWrongFraction)
@@ -304,7 +354,7 @@ def plotFractionsOfBxId():
 	legend.AddEntry(hRightFraction,"BX ID right","f")
 	legend.AddEntry(hWrongFraction,"BX ID wrong","f")
 	legend.Draw()
-	label = PlotStyle.getLabelCmsPrivateSimulation()
+	label = getLabelCmsPrivateSimulation()
 	label.Draw()
 	canvasStack.Update()
 	canvasStack.SaveAs('plots/timing/bxStacked.pdf')
@@ -314,19 +364,19 @@ def plotFractionsOfBxId():
 def plotEtaPhiOfWrongBxId():
 	canvasEtaPhiBxWrong = TCanvas("canvasEtaPhiBxWrong","canvasEtaPhiBxWrong",1200,1200)
 	
-	hWrong = file.Get('hoMuonAnalyzer/BxWrongGen_Pt')
-	hRight = file.Get('hoMuonAnalyzer/BxRightGen_Pt')
+	hWrong = fileHandler.getHistogram('hoMuonAnalyzer/BxWrongGen_Pt')
+	hRight = fileHandler.getHistogram('hoMuonAnalyzer/BxRightGen_Pt')
 	nRight = hRight.Integral()
 	nWrong = hWrong.Integral()
 	
-	nEventsWithL1 = file.Get('hoMuonAnalyzer/count/L1MuonPresent_Count').GetBinContent(2)
+	nEventsWithL1 = fileHandler.getHistogram('hoMuonAnalyzer/count/L1MuonPresent_Count').GetBinContent(2)
 	
-	etaPhiBxWrongNC = file.Get("hoMuonAnalyzer/graphs/BxWrongGen")
-	etaPhiBxWrong = PlotStyle.convertToHcalCoords(etaPhiBxWrongNC)
+	etaPhiBxWrongNC = fileHandler.getGraph("hoMuonAnalyzer/graphs/BxWrongGen")
+	etaPhiBxWrong = convertToHcalCoords(etaPhiBxWrongNC)
 	etaPhiBxWrong.GetXaxis().SetTitle("i#eta / a.u.")
 	etaPhiBxWrong.GetYaxis().SetTitle("i#phi / a.u.")
 	etaPhiBxWrong.SetMarkerStyle(6)
-	etaPhiBxWrong.SetMarkerColor(PlotStyle.colorRwthDarkBlue)
+	etaPhiBxWrong.SetMarkerColor(colorRwthDarkBlue)
 	etaPhiBxWrong.SetTitle("#eta #phi plot of events with BX ID wrong")
 	etaPhiBxWrong.Draw("AP")
 	
@@ -336,14 +386,14 @@ def plotEtaPhiOfWrongBxId():
 	pText.SetBorderSize(1)
 	pText.Draw()
 	
-	chimney1Converted = PlotStyle.convertToHcalCoords(PlotStyle.chimney1)
-	chimney2Converted = PlotStyle.convertToHcalCoords(PlotStyle.chimney2)
-	chimney1Converted.SetLineColor(PlotStyle.colorRwthMagenta)
-	chimney2Converted.SetLineColor(PlotStyle.colorRwthMagenta)
+	chimney1Converted = convertToHcalCoords(chimney1)
+	chimney2Converted = convertToHcalCoords(chimney2)
+	chimney1Converted.SetLineColor(colorRwthMagenta)
+	chimney2Converted.SetLineColor(colorRwthMagenta)
 	chimney1Converted.Draw("same,l")
 	chimney2Converted.Draw("same,l")
 	
-	labelCmsPrivateSimulation = PlotStyle.getLabelCmsPrivateSimulation()
+	labelCmsPrivateSimulation = getLabelCmsPrivateSimulation()
 	labelCmsPrivateSimulation.Draw()
 	
 	legend = TLegend(0.1,0.87,0.3,0.9)
@@ -356,8 +406,8 @@ def plotEtaPhiOfWrongBxId():
 
 def plotEtaOfWrongBxId():
 	#Make eta histogram of the graph before
-	etaPhiBxWrongNC = file.Get("hoMuonAnalyzer/graphs/BxWrongGen")
-	etaPhiBxWrong = PlotStyle.convertToHcalCoords(etaPhiBxWrongNC)
+	etaPhiBxWrongNC = fileHandler.getGraph("hoMuonAnalyzer/graphs/BxWrongGen")
+	etaPhiBxWrong = convertToHcalCoords(etaPhiBxWrongNC)
 	canvasEtaBxWrong = TCanvas("canvasEtaBxWrong","canvasEtaBxWrong",1200,1200)
 	histEtaBxWrong = TH1D("histEtaBxWrong","histEtaBxWrong;#eta Gen;# Events",20,-0.8,0.8)
 	x = Double(0)
@@ -374,7 +424,7 @@ def plotEtaOfWrongBxId():
 	# Create a binwise normalized histogram of eta
 	#
 	canvasEtaBxTotal = TCanvas("canvasEtaBxTotal","canvasEtaBxtotal",1200,1200)
-	etaPhiTotalNC = file.Get("hoMuonAnalyzer/graphs/L1ToGen")
+	etaPhiTotalNC = fileHandler.getGraph("hoMuonAnalyzer/graphs/L1ToGen")
 	histEtaBxTotal= TH1D("histEtaBxTotal","histEtaBxTotal;#eta Gen;entries / 0.08 #eta",20,-0.8,0.8)
 	x = Double(0)
 	y = Double(0)
@@ -387,7 +437,7 @@ def plotEtaOfWrongBxId():
 	canvasEtaBxWrongNorm = TCanvas("canvasEtaBxWrongNorm","canvasEtaBxWrongNorm",1200,1200)
 	histEtaBxWrongNorm = TH1D("histEtaBxWrongNorm","Fraction of L1 with BX ID Wrong;#eta Gen;fraction / 0.08 #eta (%)",20,-0.8,0.8)
 	histEtaBxWrongNorm.SetStats(0)
-	histEtaBxWrongNorm.SetLineColor(PlotStyle.colorRwthDarkBlue)
+	histEtaBxWrongNorm.SetLineColor(colorRwthDarkBlue)
 	#fill the histogram bins
 	for i in range(1,21):
 		w = histEtaBxWrong.GetBinContent(i)
@@ -410,10 +460,10 @@ def plotDetectorContributionsToTiming():
 	canvas.cd(1).SetLogy()
 
 	#prepare histogram
-	hist = file.Get("hoMuonAnalyzer/detectorIndexBxWrong_Multiplicity")
+	hist = fileHandler.getHistogram("hoMuonAnalyzer/detectorIndexBxWrong_Multiplicity")
 	hist.GetXaxis().SetRangeUser(0.5,5.5)
-	hist.SetLineColor(PlotStyle.colorRwthDarkBlue)
-	hist.SetFillColor(PlotStyle.colorRwthDarkBlue)
+	hist.SetLineColor(colorRwthDarkBlue)
+	hist.SetFillColor(colorRwthDarkBlue)
 	#Prepare the bin labels
 	x = ['RPC','DT','DT/RPC','CSC','CSC/RPC']
 	for i in range(1,6):
@@ -428,7 +478,7 @@ def plotDetectorContributionsToTiming():
 	hist.Draw()
 	
 	#add label
-	label = PlotStyle.getLabelCmsPrivateSimulation()
+	label = getLabelCmsPrivateSimulation()
 	label.Draw()
 	
 	#Make a histogram to grey out the CSC parts
@@ -454,10 +504,10 @@ def plotDetectorContributionsToTiming():
 	canvas.cd(2).SetLogy()
 
 	#prepare second histogram
-	hist2 = file.Get("hoMuonAnalyzer/detectorIndexBxRight_Multiplicity")
+	hist2 = fileHandler.getHistogram("hoMuonAnalyzer/detectorIndexBxRight_Multiplicity")
 	hist2.GetXaxis().SetRangeUser(0.5,5.5)
-	hist2.SetLineColor(PlotStyle.colorRwthDarkBlue)
-	hist2.SetFillColor(PlotStyle.colorRwthDarkBlue)
+	hist2.SetLineColor(colorRwthDarkBlue)
+	hist2.SetFillColor(colorRwthDarkBlue)
 	#Prepare the bin labels
 	x = ['RPC','DT','DT/RPC','CSC','CSC/RPC']
 	for i in range(1,6):
@@ -472,7 +522,7 @@ def plotDetectorContributionsToTiming():
 	hist2.Draw()
 	
 	#add label
-	label2 = PlotStyle.getLabelCmsPrivateSimulation()
+	label2 = getLabelCmsPrivateSimulation()
 	label2.Draw()
 	
 	histGrey.DrawCopy('same')
@@ -492,7 +542,7 @@ def plotPtAndEtaOfWrongBxId():
 	canvas = TCanvas("canvasEtaPtBxWrong","EtaPtBxWrong",1200,1200)
 	canvas.cd().Draw()
 	#prepare histogram
-	hist = file.Get("hoMuonAnalyzer/etaPhi/3D/BxWrongGen_EtaPhiPt")
+	hist = fileHandler.getHistogram("hoMuonAnalyzer/etaPhi/3D/BxWrongGen_EtaPhiPt")
 
 	stack = THStack(hist,"zx","2dStack","",-1,-1,-1,-1,"zx","")
 
@@ -511,7 +561,7 @@ def plotPtAndEtaOfWrongBxId():
 	palette.SetX1NDC(0.9)
 	palette.SetX2NDC(0.92)
 	#add label
-	label = PlotStyle.getLabelCmsPrivateSimulation()
+	label = getLabelCmsPrivateSimulation()
 	label.Draw()
 	
 	canvas.Update()
@@ -524,7 +574,7 @@ def plotPtAndPhiOfWrongBxId():
 	canvas = TCanvas("canvasPtPhiBxWrong","PtPhiBxWrong",1200,1200)
 	canvas.cd().Draw()
 	#prepare histogram
-	hist = file.Get("hoMuonAnalyzer/etaPhi/3D/BxWrongGen_EtaPhiPt")
+	hist = fileHandler.getHistogram("hoMuonAnalyzer/etaPhi/3D/BxWrongGen_EtaPhiPt")
 
 	stack = THStack(hist,"zy","2dStack","",-1,-1,-1,-1,"zy","")
 
@@ -536,7 +586,7 @@ def plotPtAndPhiOfWrongBxId():
 
 	gStyle.SetPalette(1)
 	histNew.SetStats(0)
-	PlotStyle.setupAxes(histNew)
+	setupAxes(histNew)
 	histNew.Draw('COLZ')
 	canvas.Update()
 
@@ -544,7 +594,7 @@ def plotPtAndPhiOfWrongBxId():
 	palette.SetX1NDC(0.9)
 	palette.SetX2NDC(0.92)
 	#add label
-	label = PlotStyle.getLabelCmsPrivateSimulation()
+	label = getLabelCmsPrivateSimulation()
 	label.Draw()
 	
 	canvas.Update()
@@ -555,13 +605,13 @@ def plotPtAndPhiOfWrongBxId():
 
 def plotImprovementInDt():
 	#Prepare canvas
-	PlotStyle.setPlotStyle()
+	setPlotStyle()
 	canvas = TCanvas("canvasDtImprovement","DT improvement",1200,1200)
 	canvas.SetLogy()
-	histDt = file.Get("hoMuonAnalyzer/BxDtOnly_BxId")
+	histDt = fileHandler.getHistogram("hoMuonAnalyzer/BxDtOnly_BxId")
 	
 	#Define variables for integrals
-	histHoTime = file.Get('hoMuonAnalyzer/hoRecHitsAboveThr_Time')
+	histHoTime = fileHandler.getHistogram('hoMuonAnalyzer/hoRecHitsAboveThr_Time')
 	integralHoCorrect = histHoTime.Integral(histHoTime.FindBin(-12.5),histHoTime.FindBin(12.5))
 	integralHoTotal = histHoTime.Integral()
 	integralHoOutside = integralHoTotal - integralHoCorrect
@@ -582,8 +632,9 @@ def plotImprovementInDt():
 	dtBx0 = histDt.GetBinContent(6)
 	dtBxM1 = histDt.GetBinContent(5)
 	dtBxP1 = histDt.GetBinContent(7)
-	dtBxTotal = dtBx0 + dtBxM1
+	dtBxTotal = dtBx0 + dtBxM1 + dtBxP1
 	dtFractionWrongM1 = dtBxM1/float(dtBxTotal)
+	dtFractionWrongP1 = dtBxP1/float(dtBxTotal)
 
 	#Print some information
 	heading = 'Bin contents for DT timing:'
@@ -591,6 +642,7 @@ def plotImprovementInDt():
 	print len(heading)*'-'
 	print 'BX ID 0:\t%d\t=>\t%5.2f%% +/- %5.2f%%'%(dtBx0,dtBx0/float(dtBxTotal)*100,calcSigma(dtBx0, dtBxTotal))
 	print 'BX ID -1:\t%d\t=>\t%5.2f%% +/- %5.2f%%'%(dtBxM1,dtFractionWrongM1*100,calcSigma(dtBxM1, dtBxTotal))
+	print 'BX ID +1:\t%d\t=>\t%5.2f%% +/- %5.2f%%'%(dtBxP1,dtFractionWrongP1*100,calcSigma(dtBxP1, dtBxTotal))
 	print 'BX ID total:\t%d' % (dtBxTotal)
 	print
 	
@@ -613,16 +665,16 @@ def plotImprovementInDt():
 	histNew.SetBinContent(histNew.FindBin(-1),correctedBxIdM1)
 	histNew.SetBinContent(histNew.FindBin(0),correctedBxId0)
 	histNew.SetBinContent(histNew.FindBin(1),correctedBxIdP1)
-	histNew.SetLineColor(PlotStyle.colorRwthMagenta)
+	histNew.SetLineColor(colorRwthMagenta)
 	histNew.SetStats(0)
 	histNew.Scale(1/histNew.Integral())
 	histNew.SetLineStyle(9)
-	PlotStyle.setupAxes(histNew)
+	setupAxes(histNew)
 	
 	histDt.GetXaxis().SetRangeUser(-3,3)
 	histDt.SetLineWidth(3)
 	histDt.Scale(1/histDt.Integral())
-	histDt.SetLineColor(PlotStyle.colorRwthDarkBlue)
+	histDt.SetLineColor(colorRwthDarkBlue)
 	
 	
 	histNew.Draw()
@@ -631,7 +683,7 @@ def plotImprovementInDt():
 	
 
 	#Add label
-	label = PlotStyle.getLabelCmsPrivateSimulation()
+	label = getLabelCmsPrivateSimulation()
 	label.Draw()
 	
 	#Add legend
@@ -679,4 +731,5 @@ res2 = plotDetectorContributionsToTiming()
 res3 = plotPtAndEtaOfWrongBxId()
 res4 = plotImprovementInDt()
 res5 = plotPtAndPhiOfWrongBxId()
+res6 = plotHoTimeLog()
 raw_input('-->')
