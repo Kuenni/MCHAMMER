@@ -1,5 +1,6 @@
 from ROOT import gROOT,gStyle, TColor, TPaveText, TGraph, ROOT, Double, TBox, TH2D, TH1D
 from math import sqrt,pi
+import sys
 
 colorRwthMagenta 	= TColor.GetColor("#E30066")
 colorRwthLightBlue 	= TColor.GetColor("#8EBAE5")
@@ -107,3 +108,16 @@ def getTH1D(name,title,nBinsX,xLow,xHigh):
 
 def calcSigma(num,denom):
 	return sqrt(num/float(denom*denom) + num*num/float(pow(denom, 3)))
+
+#Output function for the progress in a python script
+def printProgress(done,total):
+	s = getProgressString(done, total)
+	sys.stdout.write(s)
+	sys.stdout.flush()
+	pass
+
+#Output function for the progress in a python script
+def getProgressString(done,total):
+	nHashes = int(done/float(total)*80)
+	progressbar = '\r[%s%s] %5.2f%% done.' % (nHashes*'#',(80-nHashes)*' ',done*100/float(total))
+	return progressbar
