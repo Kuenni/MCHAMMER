@@ -35,6 +35,21 @@ const HORecHit* HoMatcher::findHoRecHitById(DetId id){
 }
 
 /**
+ * Count, how often a Digi with the same DetId is found per Event.
+ * Should not be more often than once!
+ */
+int HoMatcher::countHoDigisByDetId(DetId id){
+	int hoDigiCounter = 0;
+	auto hoDigiIt = hoDigis->begin();
+	for( ; hoDigiIt != hoDigis->end() ; hoDigiIt++){
+		if(hoDigiIt->id() == id){
+			hoDigiCounter++;
+		}
+	}
+	return hoDigiCounter;
+}
+
+/**
  * Search in the digi collection for a hit with the given detId
  */
 const HODataFrame* HoMatcher::findHoDigiById(DetId id){
@@ -66,6 +81,20 @@ const HORecHit* HoMatcher::matchByEMaxDeltaR(double eta,double phi){
 		}
 	}
 	return matchedRecHit;
+}
+
+/**
+ * Returns the eta value from a rec hits det id value
+ */
+double HoMatcher::getRecHitEta(const HORecHit* recHit){
+	return caloGeometry->getPosition(recHit->detid()).eta();
+}
+
+/**
+ * Returns the phi value from a rec hits det id value
+ */
+double HoMatcher::getRecHitPhi(const HORecHit* recHit){
+	return caloGeometry->getPosition(recHit->detid()).phi();
 }
 
 /**
@@ -122,7 +151,7 @@ bool HoMatcher::hasHoHitInGrid(GlobalPoint direction, int gridSize){
 		return false;
 	}
 	//Loop over the det Ids close to the point
-	std::set<DetId> detIdSet = hoDetIdAssociator->getDetIdsCloseToAPoint(direction,gridSize);
+	std::set<DetId> detIdSet = getDetIdsCloseToAPoint(direction,gridSize);
 	for(auto it = detIdSet.begin(); it != detIdSet.end(); it++){
 		//Find the corresponding DetId in the rec hits
 		for(auto itRecHits = hoRecoHits->begin(); itRecHits != hoRecoHits->end(); itRecHits++){
@@ -133,4 +162,12 @@ bool HoMatcher::hasHoHitInGrid(GlobalPoint direction, int gridSize){
 		}
 	}
 	return false;
+}
+
+/**
+ * define this function for usage outside of this class
+ */
+const std::set<DetId> HoMatcher::getDetIdsCloseToAPoint(GlobalPoint direction, int gridSize){
+	std::set<DetId> detIdSet = hoDetIdAssociator->getDetIdsCloseToAPoint(direction,gridSize);
+	return detIdSet;
 }

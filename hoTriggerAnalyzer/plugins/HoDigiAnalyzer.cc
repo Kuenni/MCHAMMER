@@ -266,6 +266,8 @@ bool HoDigiAnalyzer::isFrameAboveThr(const HODataFrame* dataFrame){
 /**
  * Calculates the raw hit time for the digi using the amplitude weighted bin position
  * as described in the paper about hcal timing reconstruction CMS-IN 2008/011
+ *
+ * FIXME: Use the time slew correction
  */
 double HoDigiAnalyzer::calculateHitTimeFromDigi(const HODataFrame* dataFrame){
 	double hitTime = -1;
