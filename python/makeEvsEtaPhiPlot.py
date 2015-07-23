@@ -2,11 +2,11 @@
 import os,sys
 from math import sqrt
 from ROOT import TCanvas,ROOT,TFile,TLegend,TF1,TLine,gROOT,TPaveText,TH1D,Double,TH2D,THStack,gStyle
-from plotting.PlotStyle import setPlotStyle,calcSigma,getLabelCmsPrivateSimulation,colorRwthDarkBlue
+from plotting.PlotStyle import setPlotStyle,calcSigma,getLabelCmsPrivateSimulation,colorRwthDarkBlue,setupPalette
 from plotting.PlotStyle import colorRwthMagenta,setupAxes,convertToHcalCoords,chimney1,chimney2,printProgress
+from plotting.PlotStyle import setStatBoxOptions,setStatBoxPosition
 from plotting.RootFileHandler import RootFileHandler
 from matchingLibrary import findBestL1Match
-DEBUG = 1
 
 gROOT.Reset()
 gROOT.ProcessLine("gErrorIgnoreLevel = 3000;")
@@ -25,16 +25,47 @@ fileHandler.printStatus()
 
 if( not os.path.exists('plots')):
 	os.mkdir('plots')
-if( not os.path.exists('plots/timing')):
-	os.mkdir('plots/timing')
+if( not os.path.exists('plots/averageEnergy')):
+	os.mkdir('plots/averageEnergy')
 
-hSum = fileHandler.getHistogram('hoMuonAnalyzer/deltaEtaDeltaPhiEnergy/averageEnergyAroundPoint_2dSummedWeights')
-hCounter = fileHandler.getHistogram('hoMuonAnalyzer/deltaEtaDeltaPhiEnergy/averageEnergyAroundPoint_2dCounter')
-for i in range(0,hSum.GetNbinsX()):
-	for j in range(0,hSum.GetNbinsY()):
-		if hCounter.GetBinContent(hCounter.GetBin(i,j)) != 0:
-			hSum.SetBinContent(hSum.GetBin(i,j),hSum.GetBinContent(hSum.GetBin(i,j))/hCounter.GetBinContent(hCounter.GetBin(i,j)))
-hSum.Draw('colz')
+'''
+Plots the average energy seen in in the tiles around the direction
+of the L1 muons
+'''
+def plotAverageEnergyAroundL1():
+	canvas = TCanvas('canvasAverageEnergy','Average energy',1200,1200)
+	canvas.cd().SetLogz()
+	
+	hSum = fileHandler.getHistogram('hoMuonAnalyzer/deltaEtaDeltaPhiEnergy/averageEnergyAroundPoint_2dSummedWeights')
+	hCounter = fileHandler.getHistogram('hoMuonAnalyzer/deltaEtaDeltaPhiEnergy/averageEnergyAroundPoint_2dCounter')
+
+	for i in range(0,hSum.GetNbinsX()):
+		for j in range(0,hSum.GetNbinsY()):
+			if hCounter.GetBinContent(hCounter.GetBin(i,j)) != 0:
+				hSum.SetBinContent(hSum.GetBin(i,j),hSum.GetBinContent(hSum.GetBin(i,j))/hCounter.GetBinContent(hCounter.GetBin(i,j)))
+				pass
+	hSum.GetXaxis().SetTitle('#Delta#eta')
+	hSum.GetYaxis().SetTitle('#Delta#phi')
+	hSum.GetZaxis().SetTitle('Reconstructed Energy / GeV')
+	hSum.SetTitle('Mean Energy in HO tiles around L1 direction')
+	hSum.Draw('colz')
+	
+	label = getLabelCmsPrivateSimulation()
+	label.Draw()
+	
+	canvas.Update()
+	
+	#Setup plot style
+	setupAxes(hSum)	
+	setStatBoxOptions(hSum,1100)
+	setStatBoxPosition(hSum)
+	setupPalette(hSum)
+
+	canvas.Update()
+	
+	return canvas,hSum,label
+
+res = plotAverageEnergyAroundL1()
 
 # chain = fileHandler.getTChain()
 # totalEvents = chain.GetEntries()
