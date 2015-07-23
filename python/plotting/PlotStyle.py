@@ -88,11 +88,30 @@ def setupAxes(plot):
 	plot.GetYaxis().SetTitleFont(62)
 	plot.GetXaxis().SetLabelFont(62)
 	plot.GetYaxis().SetLabelFont(62)
-	
 	# Check for the function. Otherwise it crashes with TGraphs
 	if hasattr(plot, 'GetZaxis'):
 		plot.GetZaxis().SetTitleFont(62)
 		plot.GetZaxis().SetLabelFont(62)
+
+#Set the stat box display Options
+def setStatBoxOptions(plot,option):
+	stats = plot.GetListOfFunctions().FindObject("stats")
+	stats.SetOptStat(option)
+
+#Set the stat box position
+def setStatBoxPosition(plot,x1 = 0.7, x2 = 0.9, y1 = 0.75, y2 = 0.9):
+	stats = plot.GetListOfFunctions().FindObject("stats")
+	stats.SetX1NDC(x1)
+	stats.SetX2NDC(x2)
+	stats.SetY1NDC(y1)
+	stats.SetY2NDC(y2)
+
+def setupPalette(plot):
+	#Set as many color palette divisions as possible
+	plot.SetContour(99)
+	#make the palette as small as possible
+	pal = plot.GetListOfFunctions().FindObject("palette")
+	pal.SetX2NDC(0.92)
 
 #Function that returns a new TH2D with the axes already set up
 def getTH2D(name,title,nBinsX,xLow,xHigh,nBinsY,yLow,yHigh):
