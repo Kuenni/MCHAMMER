@@ -75,6 +75,12 @@ parser.add_argument('--split-every','-s'
 				,default= 25
 				,help='Set the number of files after whose merging to create a new root file')
 
+parser.add_argument('--gridpackname','-g'
+				,dest='gridpackname'
+				,type = str
+				,default='modulegridpack.tar.gz'
+				,help='Set the name of the gridpack file')
+
 args = parser.parse_args()
 
 if not args.nJobs and not args.test and not args.collect:
@@ -179,7 +185,10 @@ def createRunConfigs():
 
 #Eventually send the jobs
 def sendJobs():
-	ret = call(['submit.py','--nJobs',str(1 if args.test else args.nJobs)]			)
+	cmdList = ['submit.py','--nJobs',str(1 if args.test else args.nJobs)]
+	if args.gridpackname != None:
+		cmdList.extend(['--gridpackname',args.gridpackname])
+	ret = call(cmdList)
 	if ret:
 		output('Something went wrong while creating the sample file lists!')
 	sys.exit(1)

@@ -18,6 +18,12 @@ parser.add_argument('--nJobs'
                     ,required=True
                     ,help='Set the number of Jobs in the task')
 
+parser.add_argument('--gridpackname','-g'
+				,dest='gridpackname'
+				,type = str
+				,default='modulegridpack.tar.gz'
+				,help='Set the name of the gridpack file')
+
 args = parser.parse_args()
 
 def main():
@@ -37,7 +43,8 @@ fi
 	tempFile.write(tempExe)
 	tempFile.close()
 	task.executable=os.path.abspath('exec.sh')
-	uploadurl = cesubmit.createAndUploadGridPack(['../../loader.C','../../hoTriggerAnalyzer'],'modulegridpack.tar.gz')
+	uploadurl = cesubmit.createAndUploadGridPack(['../../loader.C','../../hoTriggerAnalyzer'],
+												args.gridpackname if args.gridpackname != None else 'modulegridpack.tar.gz')
 	task.addGridPack(uploadurl,extractdir="$CMSSW_BASE/src/HoMuonTrigger")
 	for i in range(0,args.nJobs):
 		job=cesubmit.Job()
