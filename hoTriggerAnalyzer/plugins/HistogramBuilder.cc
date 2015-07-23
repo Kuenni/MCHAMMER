@@ -245,12 +245,18 @@ void HistogramBuilder::fillDeltaEtaDeltaPhiHistogramsWithWeights(float eta1, flo
 
 	//DeltaEta Delta Phi Histograms Fill
 	if(!_h2DeltaEtaDeltaPhiWeights.count(key)){
-		_h2DeltaEtaDeltaPhiWeights[key] = etaPhiDir.make<TH2D>(Form("%s_DeltaEtaDeltaPhiEnergy",key.c_str()),Form("%s #Delta#eta #Delta#Phi Energy",key.c_str()),
+		_h2DeltaEtaDeltaPhiWeights[key] = etaPhiDir.make<TH2D>(Form("%s_2dSummedWeights",key.c_str()),Form("%s #Delta#eta #Delta#Phi Energy",key.c_str()),
+				11, -0.4785, 0.4785, 	//eta
+				11, -0.4785, 0.4785);	//phi
+	}
+	//DeltaEta Delta Phi Histograms Fill
+	if(!_h2DeltaEtaDeltaPhiCounter.count(key)){
+		_h2DeltaEtaDeltaPhiCounter[key] = etaPhiDir.make<TH2D>(Form("%s_2dCounter",key.c_str()),Form("%s #Delta#eta #Delta#Phi Energy",key.c_str()),
 				11, -0.4785, 0.4785, 	//eta
 				11, -0.4785, 0.4785);	//phi
 	}
 	_h2DeltaEtaDeltaPhiWeights[key]->Fill(deltaEta, deltaPhi, weight);
-
+	_h2DeltaEtaDeltaPhiCounter[key]->Fill(deltaEta, deltaPhi);
 }
 
 /*

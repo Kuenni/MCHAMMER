@@ -95,6 +95,7 @@ class HistogramBuilder {
   std::map<std::string,TH2D*> _h2EtaPhiMap;
   std::map<std::string,TH2D*> _h2DeltaEtaDeltaPhi;
   std::map<std::string,TH2D*> _h2DeltaEtaDeltaPhiWeights;
+  std::map<std::string,TH2D*> _h2DeltaEtaDeltaPhiCounter;
   std::map<std::string,TH2D*> _h2Correlation;
 
   std::map<std::string,TGraph*> _grEtaPhi;
