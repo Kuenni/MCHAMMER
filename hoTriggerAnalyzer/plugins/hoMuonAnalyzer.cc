@@ -1548,6 +1548,10 @@ void hoMuonAnalyzer::fillAverageEnergyAroundL1Direction(const l1extra::L1MuonPar
 						,float(hoMatcher->getRecHitEta(&*recHitIt))	,float(l1Direction.phi())
 						,float(hoMatcher->getRecHitPhi(&*recHitIt))	,recHitIt->energy()
 						,"averageEnergyAroundPoint");
+				histogramBuilder.fillDeltaEtaDeltaPhiEnergyHistogram(float(l1Direction.eta())
+						,float(hoMatcher->getRecHitEta(&*recHitIt))	,float(l1Direction.phi())
+						,float(hoMatcher->getRecHitPhi(&*recHitIt))	,recHitIt->energy()
+						,"averageEnergyAroundPoint");//Use this function for the 1D distributions for each delta eta and delta phi
 			}
 		}
 	}
