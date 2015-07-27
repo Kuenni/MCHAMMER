@@ -387,7 +387,7 @@ void HistogramBuilder::fillDeltaEtaDeltaPhiEnergyHistogram(float eta1, float eta
 
 	/**
 	 * This is done to track the deposited energies in a tile in delta eta delta phi coordinates.
-	 * With ths it should be possible to perform a landau fit to the energy instead of using the mean
+	 * With this it should be possible to perform a landau fit to the energy instead of using the mean
 	 * which leads to a wrong Edep estimate.
 	 *
 	 * The coordinates are in iEta and iPhi relative to the central tile.
