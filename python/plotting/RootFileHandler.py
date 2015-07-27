@@ -38,11 +38,11 @@ class RootFileHandler:
 	'''
 	def getHistogram(self,histoname):
 		histNew = None
-		file = TFile(self.fileNameList[0])
+		file = TFile(self.fileNameList[0],'READ')
 		histNew = file.Get(histoname).Clone()
 		histNew.SetDirectory(0)
 		for i in range(1,len(self.fileNameList)):
-			file = TFile(self.fileNameList[i])
+			file = TFile(self.fileNameList[i],'READ')
 			histNew.Add(file.Get(histoname))
 		return histNew
 	
@@ -53,10 +53,10 @@ class RootFileHandler:
 	'''
 	def getGraph(self,graphname):
 		newGraph = None
-		file = TFile(self.fileNameList[0])
+		file = TFile(self.fileNameList[0],'READ')
 		graph = file.Get(graphname)
 		for i in range(1,len(self.fileNameList)):
-			file = TFile(self.fileNameList[i])
+			file = TFile(self.fileNameList[i],'READ')
 			g2 = file.Get(graphname)
 			x = Double(0)
  			y = Double(0)
