@@ -16,6 +16,11 @@ def getLabelCmsPrivateSimulation( x1ndc = 0.6, y1ndc = 0.90, x2ndc = 0.9, y2ndc 
 	labelCmsPrivateSimulation.SetFillColor(0) # 0 == White
 	return labelCmsPrivateSimulation
 
+def drawLabelCmsPrivateSimulation( x1ndc = 0.6, y1ndc = 0.90, x2ndc = 0.9, y2ndc = 0.93):
+	label = getLabelCmsPrivateSimulation(x1ndc,y1ndc,x2ndc,y2ndc)
+	label.Draw()
+	return label
+
 chimney1 = TGraph()
 chimney1.SetPoint(0,.3425,1.48)
 chimney1.SetPoint(1,.3425,1.65)
