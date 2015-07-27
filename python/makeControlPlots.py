@@ -2,12 +2,16 @@
 import os,sys
 from math import sqrt
 from ROOT import TCanvas,ROOT,TFile,TLegend,TF1,TLine,gROOT,TPaveText,TH1D,Double,TH2D,THStack,gStyle
-from plotting.PlotStyle import setPlotStyle,calcSigma,getLabelCmsPrivateSimulation,colorRwthDarkBlue
+from plotting.PlotStyle import setPlotStyle,calcSigma,drawLabelCmsPrivateSimulation,colorRwthDarkBlue
 from plotting.PlotStyle import colorRwthMagenta,setupAxes,convertToHcalCoords,chimney1,chimney2,printProgress
+from plotting.PlotStyle import setStatBoxOptions, setStatBoxPosition
 from plotting.RootFileHandler import RootFileHandler
 from matchingLibrary import findBestL1Match
+from array import array
 
 setPlotStyle()
+
+gROOT.ProcessLine(".L $HOMUONTRIGGER_BASE/python/loader.C+");
 
 prefix = '[makeEvsEtaPhiPlot] '
 def output(outString):
@@ -39,8 +43,7 @@ def plotHoDigiMatchesPerDetId():
 	digiMatches.SetLineColor(colorRwthDarkBlue)
 	digiMatches.Draw()
 	
-	label = getLabelCmsPrivateSimulation()
-	label.Draw()
+	label = drawLabelCmsPrivateSimulation()
 	
 	canvas.Update()
 	
@@ -57,7 +60,43 @@ def plotHoDigiMatchesPerDetId():
 	
 	return canvas,digiMatches,label
 
+def plotL1PerPt():
+	ptValues = [0.,1.5,2.0,2.5,3.0,3.5,4.0,4.5,5.0,6.0,7.0,8.0,10.0,12.0,14.0,16.0,18.0,20.0,25.0,30.0,35.0,40.0,45.0,50.0,60.0,70.0,80.0,90.0,100.0,120.0,140.0,160]
+	ptBins = [0]
+	for i in range(len(ptValues)-1):
+		ptBins.append( (ptValues[i]+ptValues[i+1])/2. )
+	ptBins.append(2*ptValues[-1] - ptValues[-2])
+	canvas = TCanvas('cL1PerPt')
+	hist = TH1D('hist','# L1 per p_{T}',len(ptBins)-1,array('d',ptBins))
+	chain = fileHandler.getTChain()
+	eventCounter = 0
+	liste = []
+	nEvents = chain.GetEntries()
+	for event in chain:
+ 		eventCounter += 1
+		for l1 in event.l1MuonData:
+			if not l1.pt in liste:
+				liste.append(l1.pt)
+ 			hist.Fill(l1.pt)
+ 		if not eventCounter%10000:
+ 			printProgress(eventCounter,nEvents)
+ 		if eventCounter == 50000:
+ 			break
+ 	print
+ 	setupAxes(hist)
+ 	hist.SetStats(0)
+ 	hist.Scale(1,"width")
+ 	hist.Draw()
+ 	
+ 	label = drawLabelCmsPrivateSimulation()
+   	
+ 	canvas.Update()
+ 	
+#	print liste
+	return hist, canvas, label
+
 output('Plotting digi matches per det id')
-res = plotHoDigiMatchesPerDetId()
-	
+#res = plotHoDigiMatchesPerDetId()
+output('Plot N L1 per Pt')
+res2 = plotL1PerPt()
 raw_input('-->')
