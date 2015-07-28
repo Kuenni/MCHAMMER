@@ -61,7 +61,7 @@ void HistogramBuilder::fillEfficiency(bool passed, float pt, std::string key){
 	if(!_effMap.count(key)){
 		_effMap[key] = efficiencyDir.make<TEfficiency>(Form("%s_Efficiency",key.c_str()),
 				Form("%s Efficiency",key.c_str()),
-				251, -0.5, 250.5);
+				502, -0.75, 250.25);
 	}
 	_effMap[key]->Fill(passed,pt);
 }
