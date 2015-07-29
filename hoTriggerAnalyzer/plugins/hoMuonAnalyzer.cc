@@ -1511,8 +1511,11 @@ void hoMuonAnalyzer::analyzeWithGenLoop(const edm::Event& iEvent,const edm::Even
 		float genPhi = genIt->phi();
 		const l1extra::L1MuonParticle* l1Part = 0;
 		l1Part = functionsHandler->getBestL1MuonMatch(genEta,genPhi);
+		histogramBuilder.fillCountHistogram("Gen");
 		if(l1Part){
 			fillEfficiencyHistograms(l1Part->pt(),genIt->pt(),"GenAndL1Muon");
+			histogramBuilder.fillCountHistogram("GenAndL1Muon");
+
 			fillAverageEnergyAroundL1Direction(l1Part);
 			/**
 			 * Find a rec hit that can be matched to the l1 particle. Use this information for the efficiency
@@ -1524,6 +1527,8 @@ void hoMuonAnalyzer::analyzeWithGenLoop(const edm::Event& iEvent,const edm::Even
 			if(matchedRecHit){
 				if(matchedRecHit->energy() > threshold){
 					fillEfficiencyHistograms(l1Part->pt(),genIt->pt(),"GenAndL1MuonAndHoAboveThr");
+					histogramBuilder.fillCountHistogram("GenAndL1MuonAndHoAboveThr");
+
 				}
 			}
 		}
