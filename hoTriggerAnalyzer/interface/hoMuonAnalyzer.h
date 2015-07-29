@@ -84,6 +84,7 @@ private:
 	void fillHoGeomAcceptanceGraph(reco::GenParticle genParticle);
 	void fillAverageEnergyAroundL1Direction(const l1extra::L1MuonParticle*);
 	void fillGridMatchingEfficiency(GlobalPoint direction, float pt, std::string key);
+	void fillGridMatchingEfficiency(GlobalPoint direction, float pt, std::string key, float eta, float phi);
 
 	const reco::GenParticle* getBestGenMatch(float,float);
 	const l1extra::L1MuonParticle* getMatchedL1Object(trigger::TriggerObject,edm::Handle<l1extra::L1MuonParticleCollection>);
