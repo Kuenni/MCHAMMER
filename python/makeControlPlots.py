@@ -95,8 +95,29 @@ def plotL1PerPt():
 #	print liste
 	return hist, canvas, label
 
+def plotEfficiencyCountCheck():
+	c = TCanvas()
+	genHist = fileHandler.getHistogram('hoMuonAnalyzer/count/Gen_Count')
+	l1AndGenHist = fileHandler.getHistogram('hoMuonAnalyzer/count/GenAndL1Muon_Count')
+	plusHoHist = fileHandler.getHistogram('hoMuonAnalyzer/count/GenAndL1MuonAndHoAboveThr_Count')
+	plusHoHist.SetLineColor(colorRwthMagenta)
+	genHist.SetLineColor(colorRwthDarkBlue)
+
+	genHist.SetLineWidth(3)
+	l1AndGenHist.SetLineWidth(3)
+	plusHoHist.SetLineWidth(3)
+
+	setPlotStyle()
+
+	genHist.Draw()
+	l1AndGenHist.Draw('same')
+	plusHoHist.Draw('same')
+	
+	return c,l1AndGenHist,plusHoHist,genHist
+
 output('Plotting digi matches per det id')
 #res = plotHoDigiMatchesPerDetId()
 output('Plot N L1 per Pt')
 res2 = plotL1PerPt()
+res3 = plotEfficiencyCountCheck()
 raw_input('-->')
