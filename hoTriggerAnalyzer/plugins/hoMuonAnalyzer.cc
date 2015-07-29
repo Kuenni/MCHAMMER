@@ -567,33 +567,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 					bl1Muon->p4().Z()
 					);
 			histogramBuilder.fillCorrelationGraph(l1Direction.eta(),l1Muon_eta,"Correlationp4AndL1Object");
-			//#####
-			// Central tile
-			//#####
-			if(hoMatcher->hasHoHitInGrid(l1Direction,0)){
-				histogramBuilder.fillCountHistogram("L1MuonCentral");
-				histogramBuilder.fillEfficiency(true,bl1Muon->pt(),"L1MuonCentral");
-			} else{
-				histogramBuilder.fillEfficiency(false,bl1Muon->pt(),"L1MuonCentral");
-			}
-			//#####
-			// 3 x 3
-			//#####
-			if(hoMatcher->hasHoHitInGrid(l1Direction,1)){
-				histogramBuilder.fillCountHistogram("L1Muon3x3");
-				histogramBuilder.fillEfficiency(true,bl1Muon->pt(),"L1Muon3x3");
-			} else {
-				histogramBuilder.fillEfficiency(false,bl1Muon->pt(),"L1Muon3x3");
-			}
-			//#####
-			// 5 x 5
-			//#####
-			if(hoMatcher->hasHoHitInGrid(l1Direction,2)){
-				histogramBuilder.fillCountHistogram("L1Muon5x5");
-				histogramBuilder.fillEfficiency(true,bl1Muon->pt(),"L1Muon5x5");
-			} else {
-				histogramBuilder.fillEfficiency(false,bl1Muon->pt(),"L1Muon5x5");
-			}
+			fillGridMatchingEfficiency(l1Direction,bl1Muon->pt(),"L1Muon");
 		}
 
 		const HORecHit* matchedRecHit = hoMatcher->matchByEMaxDeltaR(l1Muon_eta,l1Muon_phi);
@@ -1572,6 +1546,41 @@ void hoMuonAnalyzer::fillHoGeomAcceptanceGraph(reco::GenParticle genPart){
 				&& MuonHOAcceptance::inNotDeadGeom(genPart.eta(),genPart.phi())
 				&& !hoMatcher->isInChimney(genPart.eta(),genPart.phi())){
 		histogramBuilder.fillEtaPhiGraph(genPart.eta(),genPart.phi(),"HoGeomAcceptance");
+	}
+}
+
+/**
+ * Automatically fill efficiency and count histograms for the grid matching for grid sizes
+ * central, 3x3 and 5x5
+ */
+void hoMuonAnalyzer::fillGridMatchingEfficiency(GlobalPoint direction, float pt, std::string key){
+	//#####
+	// Central tile
+	//#####
+	if(hoMatcher->hasHoHitInGrid(direction,0)){
+		histogramBuilder.fillCountHistogram(key + "Central");
+		histogramBuilder.fillEfficiency(true,pt,key + "Central");
+	} else{
+		histogramBuilder.fillEfficiency(false,pt,key + "Central");
+	}
+	//#####
+	// 3 x 3
+	//#####
+	if(hoMatcher->hasHoHitInGrid(direction,1)){
+		histogramBuilder.fillCountHistogram(key + "3x3");
+		histogramBuilder.fillEfficiency(true,pt,key + "3x3");
+	} else {
+		histogramBuilder.fillEfficiency(false,pt,key + "3x3");
+	}
+	//#####
+	// 5 x 5
+	//#####
+	if(hoMatcher->hasHoHitInGrid(direction,2)){
+		histogramBuilder.fillCountHistogram(key + "5x5");
+		histogramBuilder.fillEfficiency(true,pt,key + "5x5");
+
+	} else {
+		histogramBuilder.fillEfficiency(false,pt,key + "5x5");
 	}
 }
 
