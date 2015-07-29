@@ -1,4 +1,4 @@
-from ROOT import gROOT,gStyle, TColor, TPaveText, TGraph, ROOT, Double, TBox, TH2D, TH1D
+from ROOT import gROOT,gStyle, TColor, TPaveText, TGraph, ROOT, Double, TBox, TH2D, TH1D, TEfficiency
 from math import sqrt,pi
 import sys
 
@@ -89,6 +89,9 @@ def setPlotStyle():
 
 #Set all Axes to bold font
 def setupAxes(plot):
+	
+	if plot.__class__ == TEfficiency:
+		plot = plot.GetPaintedGraph()
 	plot.GetXaxis().SetTitleFont(62)
 	plot.GetYaxis().SetTitleFont(62)
 	plot.GetXaxis().SetLabelFont(62)
