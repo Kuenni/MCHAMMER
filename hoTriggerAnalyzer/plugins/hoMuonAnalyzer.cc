@@ -1341,7 +1341,12 @@ void hoMuonAnalyzer::analyzeWithGenLoop(const edm::Event& iEvent,const edm::Even
 		if(l1Part){
 			fillEfficiencyHistograms(l1Part->pt(),genIt->pt(),"GenAndL1Muon");
 			histogramBuilder.fillCountHistogram("GenAndL1Muon");
-
+			GlobalPoint l1Direction(
+					l1Part->p4().X(),
+					l1Part->p4().Y(),
+					l1Part->p4().Z()
+			);
+			fillGridMatchingEfficiency(l1Direction,l1Part->pt(),"L1MuonTruth");
 			fillAverageEnergyAroundL1Direction(l1Part);
 			/**
 			 * Find a rec hit that can be matched to the l1 particle. Use this information for the efficiency
