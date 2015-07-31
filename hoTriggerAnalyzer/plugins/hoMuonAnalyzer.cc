@@ -551,22 +551,15 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				histogramBuilder.fillTrigRateHistograms(j,"L1MuonPresent");
 			}
 		}
-		//##################################################
-		//##################################################
-		// L1 Muons for the "Oliver Style" efficiency
-		//##################################################
-		//##################################################
+		//Look for matches in grid around L1
+		GlobalPoint l1Direction(bl1Muon->p4().X(),bl1Muon->p4().Y(),bl1Muon->p4().Z());
+		fillGridMatchingEfficiency(l1Direction,bl1Muon->pt(),"L1Muon");
+
 		if(MuonHOAcceptance::inGeomAccept(l1Muon_eta,l1Muon_phi)&& !hoMatcher->isInChimney(l1Muon_eta,l1Muon_phi)){
 			histogramBuilder.fillCountHistogram("L1MuonInGA_L1Dir");
 			if(bl1Muon->bx() == 0)
 				histogramBuilder.fillCountHistogram("L1MuoninGaBx0");
-			GlobalPoint l1Direction(
-					bl1Muon->p4().X(),
-					bl1Muon->p4().Y(),
-					bl1Muon->p4().Z()
-					);
 			histogramBuilder.fillCorrelationGraph(l1Direction.eta(),l1Muon_eta,"Correlationp4AndL1Object");
-			fillGridMatchingEfficiency(l1Direction,bl1Muon->pt(),"L1Muon");
 		}
 
 		const HORecHit* matchedRecHit = hoMatcher->matchByEMaxDeltaR(l1Muon_eta,l1Muon_phi);
