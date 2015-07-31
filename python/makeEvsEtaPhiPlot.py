@@ -8,6 +8,9 @@ from plotting.PlotStyle import setStatBoxOptions,setStatBoxPosition
 from plotting.RootFileHandler import RootFileHandler
 from matchingLibrary import findBestL1Match
 
+import numpy as np
+import matplotlib.pyplot as plt
+
 gROOT.Reset()
 gROOT.ProcessLine("gErrorIgnoreLevel = 3000;")
 gROOT.ProcessLine(".L $HOMUONTRIGGER_BASE/python/loader.C+");
@@ -65,7 +68,70 @@ def plotAverageEnergyAroundL1():
 	
 	return canvas,hSum,label
 
+def plot1DEnergyAroundL1():
+	
+	'''
+		eta[P,M][2,1,0]phi[P,M][2,1,0]_averageEnergyAroundPoint
+		Central tile is central
+	'''
+	histList = []
+	fitList = []
+	labelList = []
+	canvas = TCanvas('canvas1DEnergy','1D energy',1200,1200)
+	for p in reversed(range(-2,3)):
+		for e in range(-2,3):
+			if e == 0 and p == 0:
+				histList.append(fileHandler.getHistogram('hoMuonAnalyzer/etaPhi/energy1D/central_averageEnergyAroundPoint'))
+			else:
+				histName = 'hoMuonAnalyzer/etaPhi/energy1D/eta%s%dPhi%s%d_averageEnergyAroundPoint' % ('P' if e >= 0 else 'M',abs(e),'P' if p >= 0 else 'M',abs(p))
+				histList.append(fileHandler.getHistogram(histName))
+	canvas.Divide(5,5)
+	for i,hist in enumerate(histList):
+		canvas.cd(i+1).SetLogy()
+		hist.GetXaxis().SetRangeUser(-0.5,4)
+		hist.SetLineWidth(3)
+		setupAxes(hist)
+		hist.Draw()
+		fit = TF1('fit%d' % (i),'landau',0.5,2)
+		hist.Fit(fit,'RQ')
+		output('MPV: %5.2f\tX2: %5.2f\tNDF:%d\t X2/NDF: %5.2f' % (fit.GetParameter(1),fit.GetChisquare(),fit.GetNDF(),fit.GetChisquare()/float(fit.GetNDF())))
+		label = TPaveText(0.6,0.7,0.9,0.9,"NDC")
+		label.AddText('MPV: %5.2f' % (fit.GetParameter(1)))
+		label.Draw()
+		labelList.append(label)
+		fitList.append(fit)
+	canvas.Update()
+	return histList,canvas,fitList,labelList
+
+def plotMPVs(fitList):
+	x = np.arange(-2,3)
+	y = np.arange(-2,3)
+	z = []
+	for fit in fitList:
+		z.append(fit.GetParameter(1))
+	
+	z = np.reshape(z, [len(x), len(y)])
+	print z
+	z = np.flipud(z)
+	data = np.random.rand(4,4)
+	
+	fig, ax = plt.subplots()
+	im = ax.pcolor(z)
+	ax.set_xticks(np.arange(z.shape[0])+0.5, minor=False)
+	ax.set_yticks(np.arange(z.shape[1])+0.5, minor=False)
+	ax.set_xticklabels(x, minor=False)
+	ax.set_yticklabels(y, minor=False)
+	
+	colorbar = fig.colorbar(im)
+	colorbar.set_label('MPV reconstructed energy / GeV')
+	ax.axis('tight')
+	plt.xlabel(r'$\Delta i\eta$')
+	plt.ylabel(r'$\Delta i\phi$')
+	plt.show()
+
 res = plotAverageEnergyAroundL1()
+res2 = plot1DEnergyAroundL1()
+res3 = plotMPVs(fitList=res2[2])
 
 # chain = fileHandler.getTChain()
 # totalEvents = chain.GetEntries()

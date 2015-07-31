@@ -61,11 +61,11 @@ def plotHoDigiMatchesPerDetId():
 	return canvas,digiMatches,label
 
 def plotL1PerPt():
-	ptValues = [0.,1.5,2.0,2.5,3.0,3.5,4.0,4.5,5.0,6.0,7.0,8.0,10.0,12.0,14.0,16.0,18.0,20.0,25.0,30.0,35.0,40.0,45.0,50.0,60.0,70.0,80.0,90.0,100.0,120.0,140.0,160]
+	ptValues = [0.,1.5,2.0,2.5,3.0,3.5,4.0,4.5,5.0,6.0,7.0,8.0,10.0,12.0,14.0,16.0,18.0,20.0,25.0,30.0,35.0,40.0,45.0,50.0,60.0,70.0,80.0,90.0,100.0,120.0,140.0,200]
 	ptBins = [0]
 	for i in range(len(ptValues)-1):
 		ptBins.append( (ptValues[i]+ptValues[i+1])/2. )
-	ptBins.append(2*ptValues[-1] - ptValues[-2])
+	ptBins.append(ptValues[-1])
 	canvas = TCanvas('cL1PerPt')
 	hist = TH1D('hist','# L1 per p_{T}',len(ptBins)-1,array('d',ptBins))
 	chain = fileHandler.getTChain()
@@ -119,5 +119,5 @@ output('Plotting digi matches per det id')
 #res = plotHoDigiMatchesPerDetId()
 output('Plot N L1 per Pt')
 res2 = plotL1PerPt()
-res3 = plotEfficiencyCountCheck()
+#res3 = plotEfficiencyCountCheck()
 raw_input('-->')
