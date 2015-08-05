@@ -1,5 +1,6 @@
 from ROOT import gROOT,gStyle, TColor, TPaveText, TGraph, ROOT, Double, TBox, TH2D, TH1D, TEfficiency
 from math import sqrt,pi
+import matplotlib.pyplot as plt
 import sys
 
 colorRwthMagenta 	= TColor.GetColor("#E30066")
@@ -148,3 +149,10 @@ def getProgressString(done,total):
 	nHashes = int(done/float(total)*80)
 	progressbar = '\r[%s%s] %5.2f%% done.' % (nHashes*'#',(80-nHashes)*' ',done*100/float(total))
 	return progressbar
+
+def pyplotCmsPrivateLabel(ax,x=0.995,y=0.945):
+	plt.text(x, y, r'$\mathbf{CMS}$ private, $\mathit{simulation}$',
+        horizontalalignment='right',
+        verticalalignment='bottom',
+        transform=ax.transAxes,
+        bbox=dict(facecolor='white'))
