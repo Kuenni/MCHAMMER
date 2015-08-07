@@ -1,5 +1,9 @@
 import os
 from ROOT import TChain,TFile,SetOwnership,Double
+from plotting.OutputModule import CommandLineHandler
+
+commandLine = CommandLineHandler('[RootFileHandler] ')
+
 class RootFileHandler:
 	#Look, how many files with the given name trunk in filename exist in the directory
 	def getNumberOfFiles(self):
@@ -55,14 +59,23 @@ class RootFileHandler:
 		newGraph = None
 		file = TFile(self.fileNameList[0],'READ')
 		graph = file.Get(graphname)
+		nTotal = 0
+		counter = 0
+		
+		for i in range(0,len(self.fileNameList)):
+			file = TFile(self.fileNameList[i],'READ')
+			g = file.Get(graphname)
+			nTotal += g.GetN()
+		commandLine.output('getGraph(%s) found %d points to process' % (graphname,nTotal))
 		for i in range(1,len(self.fileNameList)):
 			file = TFile(self.fileNameList[i],'READ')
 			g2 = file.Get(graphname)
 			x = Double(0)
  			y = Double(0)
  			for j in range(0,g2.GetN()):
+ 				counter += 1
+ 				if (counter % 100000 == 0):
+ 					commandLine.printProgress(counter,nTotal)
 				g2.GetPoint(j,x,y)
 				graph.SetPoint(graph.GetN(),x,y)
-				pass
-			pass
 		return graph
