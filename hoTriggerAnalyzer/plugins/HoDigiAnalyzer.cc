@@ -206,8 +206,11 @@ void HoDigiAnalyzer::analyzeHoDigiTiming(const edm::Event& iEvent){
 		histogramBuilder.fillCorrelationHistogram(maxTSIdx,maxAdcVal,"MaxTimeSliceVsAdc");
 		histogramBuilder.fillMultiplicityHistogram(adcSum,"hoDigiAdcSum");
 		histogramBuilder.fillMultiplicityHistogram(dataFrame->sample(4).adc(),"hoDigiAdcTS4");
-		//Fill correlation between ADC sum (charge) and calculated time
-		histogramBuilder.fillCorrelationGraph(calculateHitTimeFromDigi(&*dataFrame),get4TsAdcSum(&*dataFrame,maxTSIdx),"digiTimeVs4TSSum");
+		//get Data frame i eta and i phi to check the energy vs time only for a specific tile
+		if( dataFrame->id().ieta() == 1 && dataFrame->id().iphi() == 1 ){
+			//Fill correlation between ADC sum (charge) and calculated time
+			histogramBuilder.fillCorrelationGraph(calculateHitTimeFromDigi(&*dataFrame),get4TsAdcSum(&*dataFrame,maxTSIdx),"digiTimeVs4TSSum");
+		}
 		if( maxTSIdx != -1 ){
 			histogramBuilder.fillMultiplicityHistogram(get4TsAdcSum(&*dataFrame,maxTSIdx),"hoDigi4TsSum");
 		}
