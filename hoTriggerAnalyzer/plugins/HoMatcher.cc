@@ -186,7 +186,7 @@ bool HoMatcher::hasHoHitInGrid(GlobalPoint direction, int gridSize){
 	for(auto it = detIdSet.begin(); it != detIdSet.end(); it++){
 		//Find the corresponding DetId in the rec hits
 		for(auto itRecHits = hoRecoHits->begin(); itRecHits != hoRecoHits->end(); itRecHits++){
-			if(itRecHits->detid() == *it){
+			if(isRecHitInGrid(double(direction.eta()),double(direction.phi()),&*itRecHits,gridSize)){
 				if(itRecHits->energy() > threshold)
 					return true;
 			}
