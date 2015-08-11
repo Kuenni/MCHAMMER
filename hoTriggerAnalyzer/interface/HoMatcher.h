@@ -32,7 +32,6 @@ public:
 
 	const HODataFrame* findHoDigiById(DetId id);
 	const HORecHit* findHoRecHitById(DetId id);
-	const std::set<DetId> getDetIdsCloseToAPoint(GlobalPoint direction, int gridSize);
 
 	/**
 	 * Finds the HORecHit with the highest energy entry inside a delta R cone

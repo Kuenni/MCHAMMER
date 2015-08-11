@@ -181,15 +181,12 @@ bool HoMatcher::hasHoHitInGrid(GlobalPoint direction, int gridSize){
 	if(gridSize < 0){
 		return false;
 	}
-	//Loop over the det Ids close to the point
-	std::set<DetId> detIdSet = getDetIdsCloseToAPoint(direction,gridSize);
-	for(auto it = detIdSet.begin(); it != detIdSet.end(); it++){
-		//Find the corresponding DetId in the rec hits
-		for(auto itRecHits = hoRecoHits->begin(); itRecHits != hoRecoHits->end(); itRecHits++){
-			if(isRecHitInGrid(double(direction.eta()),double(direction.phi()),&*itRecHits,gridSize)){
-				if(itRecHits->energy() > threshold)
-					return true;
-			}
+
+	//Find the corresponding DetId in the rec hits
+	for(auto itRecHits = hoRecoHits->begin(); itRecHits != hoRecoHits->end(); itRecHits++){
+		if(isRecHitInGrid(double(direction.eta()),double(direction.phi()),&*itRecHits,gridSize)){
+			if(itRecHits->energy() > threshold)
+				return true;
 		}
 	}
 	return false;
@@ -207,10 +204,4 @@ bool HoMatcher::isRecHitInGrid(double eta, double phi, const HORecHit* recHit, i
 	}
 	return false;
 }
-/**
- * define this function for usage outside of this class
- */
-const std::set<DetId> HoMatcher::getDetIdsCloseToAPoint(GlobalPoint direction, int gridSize){
-	std::set<DetId> detIdSet = hoDetIdAssociator->getDetIdsCloseToAPoint(direction,uint(gridSize),uint(gridSize),uint(gridSize),uint(gridSize));
-	return detIdSet;
-}
+

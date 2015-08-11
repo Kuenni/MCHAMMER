@@ -1409,8 +1409,6 @@ void hoMuonAnalyzer::fillHoGeomAcceptanceGraph(reco::GenParticle genPart){
 /**
  * Automatically fill efficiency and count histograms for the grid matching for grid sizes
  * central, 3x3 and 5x5. Also store the position information
- * #FIXME: The getDetIdsCloseToAPoint behaves strangely. Swith to a function, that evaluates whether
- * a given rec hit coordinate is inside a grid or not
  */
 void hoMuonAnalyzer::fillGridMatchingEfficiency(GlobalPoint direction, float pt, std::string key, float eta, float phi){
 	//#####
