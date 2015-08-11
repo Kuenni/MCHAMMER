@@ -62,6 +62,10 @@ const HODataFrame* HoMatcher::findHoDigiById(DetId id){
 	return 0;
 }
 
+/**
+ * Try to find the HO Rec hit with the largest energy entry in a given
+ * Delta R cone
+ */
 const HORecHit* HoMatcher::matchByEMaxDeltaR(double eta,double phi){
 	HORecHitCollection::const_iterator hoRecHitIt = hoRecoHits->begin();
 	const HORecHit* matchedRecHit = 0;
@@ -191,6 +195,18 @@ bool HoMatcher::hasHoHitInGrid(GlobalPoint direction, int gridSize){
 	return false;
 }
 
+/**
+ * Check whether a given combination of eta, phi and HORecHit (its coordinates)
+ * are within a given tile grid
+ */
+bool HoMatcher::isRecHitInGrid(double eta, double phi, const HORecHit* recHit, int gridSize){
+	double deltaIEta = getDeltaIeta(eta,recHit);
+	double deltaIPhi = getDeltaIphi(phi,recHit);
+	if (abs(deltaIEta) <= gridSize && abs(deltaIPhi) <= gridSize){
+		return true;
+	}
+	return false;
+}
 /**
  * define this function for usage outside of this class
  */

@@ -50,6 +50,7 @@ public:
 	int getDeltaIphi(double phi, const HORecHit* rechit);
 	int countHoDigisByDetId(DetId id);
 
+	bool isRecHitInGrid(double eta, double phi, const HORecHit* recHit, int gridSize);
 	bool hasHoHitInGrid(GlobalPoint direction, int gridSize);
 
 	/**
