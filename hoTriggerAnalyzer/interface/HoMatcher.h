@@ -40,6 +40,7 @@ public:
 	 * of the rec hits
 	 */
 	const HORecHit* matchByEMaxDeltaR(double eta,double phi);
+	const HORecHit* findEMaxHitInGrid(double eta,double phi, int gridSize);
 
 	double getHoBinSize(){return 0.087;};
 	double getRecHitEta(const HORecHit* recHit);

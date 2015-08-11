@@ -84,6 +84,33 @@ const HORecHit* HoMatcher::matchByEMaxDeltaR(double eta,double phi){
 }
 
 /**
+ * Find the highest energy rec hit in a grid of given size
+ */
+const HORecHit* HoMatcher::findEMaxHitInGrid(double eta, double phi, int gridSize){
+	HORecHitCollection::const_iterator hoRecHitIt = hoRecoHits->begin();
+		const HORecHit* matchedRecHit = 0;
+		//Loop over all rec hits
+		for( ; hoRecHitIt!=hoRecoHits->end(); hoRecHitIt++ ){
+			//Only look for potential hits
+			if(hoRecHitIt->energy() < threshold){
+				continue;
+			}
+			double deltaIEta = getDeltaIeta(eta,&*hoRecHitIt);
+			double deltaIPhi = getDeltaIphi(phi,&*hoRecHitIt);
+			if (abs(deltaIEta) <= gridSize && abs(deltaIPhi) <= gridSize){
+				if(!matchedRecHit){
+					matchedRecHit = &*hoRecHitIt;
+				} else {
+					if(matchedRecHit->energy() < hoRecHitIt->energy()){
+						matchedRecHit = &*hoRecHitIt;
+					}
+				}
+			}
+		}
+		return matchedRecHit;
+}
+
+/**
  * Returns the eta value from a rec hits det id value
  */
 double HoMatcher::getRecHitEta(const HORecHit* recHit){
@@ -168,6 +195,6 @@ bool HoMatcher::hasHoHitInGrid(GlobalPoint direction, int gridSize){
  * define this function for usage outside of this class
  */
 const std::set<DetId> HoMatcher::getDetIdsCloseToAPoint(GlobalPoint direction, int gridSize){
-	std::set<DetId> detIdSet = hoDetIdAssociator->getDetIdsCloseToAPoint(direction,gridSize);
+	std::set<DetId> detIdSet = hoDetIdAssociator->getDetIdsCloseToAPoint(direction,uint(gridSize),uint(gridSize),uint(gridSize),uint(gridSize));
 	return detIdSet;
 }

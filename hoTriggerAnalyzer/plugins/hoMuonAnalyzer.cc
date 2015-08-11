@@ -1361,7 +1361,7 @@ void hoMuonAnalyzer::analyzeWithGenLoop(const edm::Event& iEvent,const edm::Even
 
 /**
  * Fill a histogram with the measured energy around a given L1.
- * For now the grid size is hardcoded to 2
+ * For now the grid size is hard-coded
  */
 void hoMuonAnalyzer::fillAverageEnergyAroundL1Direction(const l1extra::L1MuonParticle* l1Muon){
 	GlobalPoint l1Direction(
@@ -1383,6 +1383,19 @@ void hoMuonAnalyzer::fillAverageEnergyAroundL1Direction(const l1extra::L1MuonPar
 						,"averageEnergyAroundPoint");//Use this function for the 1D distributions for each delta eta and delta phi
 			}
 		}
+	}
+	//Filling the average energy only for the highest energetic particle
+	const HORecHit* matchedRecHit = 0;
+	matchedRecHit = hoMatcher->findEMaxHitInGrid(l1Muon->eta(), l1Muon->phi(),2);
+	if(matchedRecHit){
+		histogramBuilder.fillDeltaEtaDeltaPhiHistogramsWithWeights(l1Muon->eta()
+								,float(hoMatcher->getRecHitEta(matchedRecHit))	,l1Muon->phi()
+								,float(hoMatcher->getRecHitPhi(matchedRecHit))	,matchedRecHit->energy()
+								,"averageEMaxAroundPoint");
+						histogramBuilder.fillDeltaEtaDeltaPhiEnergyHistogram(l1Muon->eta()
+								,float(hoMatcher->getRecHitEta(matchedRecHit))	,l1Muon->phi()
+								,float(hoMatcher->getRecHitPhi(matchedRecHit))	,matchedRecHit->energy()
+								,"averageEMaxAroundPoint");
 	}
 }
 
