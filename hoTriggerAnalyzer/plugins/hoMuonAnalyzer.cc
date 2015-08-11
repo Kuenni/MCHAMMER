@@ -1369,33 +1369,32 @@ void hoMuonAnalyzer::fillAverageEnergyAroundL1Direction(const l1extra::L1MuonPar
 			l1Muon->p4().Y(),
 			l1Muon->p4().Z()
 				);
-	std::set<DetId> detIds = hoMatcher->getDetIdsCloseToAPoint(l1Direction,2);
-	for(auto it = detIds.begin(); it != detIds.end(); it++){
-		for(auto recHitIt = hoRecoHits->begin(); recHitIt != hoRecoHits->end(); recHitIt++){
-			if (recHitIt->detid() == *it){
-				histogramBuilder.fillDeltaEtaDeltaPhiHistogramsWithWeights(float(l1Direction.eta())
-						,float(hoMatcher->getRecHitEta(&*recHitIt))	,float(l1Direction.phi())
-						,float(hoMatcher->getRecHitPhi(&*recHitIt))	,recHitIt->energy()
-						,"averageEnergyAroundPoint");
-				histogramBuilder.fillDeltaEtaDeltaPhiEnergyHistogram(float(l1Direction.eta())
-						,float(hoMatcher->getRecHitEta(&*recHitIt))	,float(l1Direction.phi())
-						,float(hoMatcher->getRecHitPhi(&*recHitIt))	,recHitIt->energy()
-						,"averageEnergyAroundPoint");//Use this function for the 1D distributions for each delta eta and delta phi
-			}
+	int gridSize = 5;
+	for(auto recHitIt = hoRecoHits->begin(); recHitIt != hoRecoHits->end(); recHitIt++){
+		if(hoMatcher->isRecHitInGrid(l1Muon->eta(), l1Muon->phi(),&*recHitIt,gridSize)){
+			histogramBuilder.fillDeltaEtaDeltaPhiHistogramsWithWeights(float(l1Direction.eta())
+					,float(hoMatcher->getRecHitEta(&*recHitIt))	,float(l1Direction.phi())
+					,float(hoMatcher->getRecHitPhi(&*recHitIt))	,recHitIt->energy()
+					,"averageEnergyAroundPoint");
+			histogramBuilder.fillDeltaEtaDeltaPhiEnergyHistogram(float(l1Direction.eta())
+					,float(hoMatcher->getRecHitEta(&*recHitIt))	,float(l1Direction.phi())
+					,float(hoMatcher->getRecHitPhi(&*recHitIt))	,recHitIt->energy()
+					,"averageEnergyAroundPoint");//Use this function for the 1D distributions for each delta eta and delta phi
 		}
 	}
+
 	//Filling the average energy only for the highest energetic particle
 	const HORecHit* matchedRecHit = 0;
 	matchedRecHit = hoMatcher->findEMaxHitInGrid(l1Muon->eta(), l1Muon->phi(),5);
 	if(matchedRecHit){
 		histogramBuilder.fillDeltaEtaDeltaPhiHistogramsWithWeights(l1Muon->eta()
-								,float(hoMatcher->getRecHitEta(matchedRecHit))	,l1Muon->phi()
-								,float(hoMatcher->getRecHitPhi(matchedRecHit))	,matchedRecHit->energy()
-								,"averageEMaxAroundPoint");
-						histogramBuilder.fillDeltaEtaDeltaPhiEnergyHistogram(l1Muon->eta()
-								,float(hoMatcher->getRecHitEta(matchedRecHit))	,l1Muon->phi()
-								,float(hoMatcher->getRecHitPhi(matchedRecHit))	,matchedRecHit->energy()
-								,"averageEMaxAroundPoint");
+				,float(hoMatcher->getRecHitEta(matchedRecHit))	,l1Muon->phi()
+				,float(hoMatcher->getRecHitPhi(matchedRecHit))	,matchedRecHit->energy()
+				,"averageEMaxAroundPoint");
+		histogramBuilder.fillDeltaEtaDeltaPhiEnergyHistogram(l1Muon->eta()
+				,float(hoMatcher->getRecHitEta(matchedRecHit))	,l1Muon->phi()
+				,float(hoMatcher->getRecHitPhi(matchedRecHit))	,matchedRecHit->energy()
+				,"averageEMaxAroundPoint");
 	}
 }
 
