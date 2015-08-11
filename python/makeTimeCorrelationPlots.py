@@ -22,6 +22,7 @@ if len(sys.argv) < 2:
 fileHandler = RootFileHandler(sys.argv[1])
 fileHandler.printStatus()
 
+
 #plot the timing correlation between HO and L1 in general
 def plotHoL1Correlation():
 	#Select whether matching to all HO should also be plotted
@@ -259,9 +260,23 @@ def plotRpcVsHo():
 	
 	return hist,canvas,paveTextAboveThr,label
 
+def plotDigiEnergyVsTime():
+	canvas = TCanvas()
+	graph = fileHandler.getGraph('hoDigiAnalyzer/correlation/digiTimeVs4TSSum')
+	graph.GetXaxis().SetTitle('Time / ns')
+	graph.GetYaxis().SetTitle('ADC')
+	graph.GetYaxis().SetRangeUser(0,200)
+	graph.GetXaxis().SetRangeUser(-100,140)
+	graph.SetMarkerStyle(2)
+	graph.Draw('ap')
+	canvas.Update()
+	canvas.SaveAs('plots/timeCorrelation/adcVsTime.pdf')
+	return graph,canvas
+
 res = plotHoL1Correlation()
 res2 = plotAdcTimeSliceCorrelation()
 res3 = plotDtVsHo()
 res4 = plotRpcVsHo()
+res5 = plotDigiEnergyVsTime()
 
 raw_input('-->')
