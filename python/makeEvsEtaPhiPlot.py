@@ -52,6 +52,7 @@ def plotAverageEnergyAroundL1():
 	hSum.GetZaxis().SetTitle('Reconstructed Energy / GeV')
 	hSum.SetTitle('Mean Energy in HO tiles around L1 direction')
 	hSum.Draw('colz')
+	hCounter.Draw('same,text')
 	
 	label = getLabelCmsPrivateSimulation()
 	label.Draw()
@@ -67,10 +68,42 @@ def plotAverageEnergyAroundL1():
 	canvas.Update()
 	canvas.SaveAs('plots/averageEnergy/averageEnergy.pdf')
 
-	return canvas,hSum,label
+	return canvas,hSum,label,hCounter
 
-def plot1DEnergyAroundL1():
+def plotAverageEMaxAroundL1():
+	canvas = TCanvas('canvasAverageEMax','Average EMax',1200,1200)
+	canvas.cd().SetLogz()
 	
+	hSum = fileHandler.getHistogram('hoMuonAnalyzer/deltaEtaDeltaPhiEnergy/averageEMaxAroundPoint_2dSummedWeights')
+	hCounter = fileHandler.getHistogram('hoMuonAnalyzer/deltaEtaDeltaPhiEnergy/averageEMaxAroundPoint_2dCounter')
+	for i in range(0,hSum.GetNbinsX()):
+		for j in range(0,hSum.GetNbinsY()):
+			if hCounter.GetBinContent(hCounter.GetBin(i,j)) != 0:
+				hSum.SetBinContent(hSum.GetBin(i,j),hSum.GetBinContent(hSum.GetBin(i,j))/hCounter.GetBinContent(hCounter.GetBin(i,j)))
+				pass
+			
+	hSum.GetXaxis().SetTitle('#Delta#eta')
+	hSum.GetYaxis().SetTitle('#Delta#phi')
+	hSum.GetZaxis().SetTitle('Reconstructed Energy / GeV')
+	hSum.SetTitle('Mean Energy in HO tiles around L1 direction')
+	hSum.Draw('colz')
+	
+	hCounter.Draw('same,text')
+	
+	label = getLabelCmsPrivateSimulation()
+	label.Draw()
+	
+	canvas.Update()		
+			
+	setupAxes(hSum)	
+	setupPalette(hSum)
+	
+	canvas.Update()
+	canvas.SaveAs('plots/averageEnergy/averageEmax.pdf')
+	
+	return canvas,hSum,label,hCounter
+
+def plot1DEnergyAroundL1():	
 	'''
 		eta[P,M][2,1,0]phi[P,M][2,1,0]_averageEnergyAroundPoint
 		Central tile is central
@@ -95,7 +128,7 @@ def plot1DEnergyAroundL1():
 		hist.Draw()
 		fit = TF1('fit%d' % (i),'landau',0.5,2)
 		hist.Fit(fit,'RQ')
-		output('MPV: %5.2f\tX2: %5.2f\tNDF:%d\t X2/NDF: %5.2f' % (fit.GetParameter(1),fit.GetChisquare(),fit.GetNDF(),fit.GetChisquare()/float(fit.GetNDF())))
+#		output('MPV: %5.2f\tX2: %5.2f\tNDF:%d\t X2/NDF: %5.2f' % (fit.GetParameter(1),fit.GetChisquare(),fit.GetNDF(),fit.GetChisquare()/float(fit.GetNDF())))
 		label = TPaveText(0.6,0.7,0.9,0.9,"NDC")
 		label.AddText('MPV: %5.2f' % (fit.GetParameter(1)))
 		label.Draw()
@@ -103,6 +136,41 @@ def plot1DEnergyAroundL1():
 		fitList.append(fit)
 	canvas.Update()
 	canvas.SaveAs('plots/averageEnergy/1DPlots.pdf')
+	return histList,canvas,fitList,labelList
+
+def plot1DEMaxAroundL1():	
+	'''
+		eta[P,M][2,1,0]phi[P,M][2,1,0]_averageEnergyAroundPoint
+		Central tile is central
+	'''
+	histList = []
+	fitList = []
+	labelList = []
+	canvas = TCanvas('canvas1DEMax','1D EMax',1200,1200)
+	for p in reversed(range(-2,3)):
+		for e in range(-2,3):
+			if e == 0 and p == 0:
+				histList.append(fileHandler.getHistogram('hoMuonAnalyzer/etaPhi/energy1D/central_averageEMaxAroundPoint'))
+			else:
+				histName = 'hoMuonAnalyzer/etaPhi/energy1D/eta%s%dPhi%s%d_averageEMaxAroundPoint' % ('P' if e >= 0 else 'M',abs(e),'P' if p >= 0 else 'M',abs(p))
+				histList.append(fileHandler.getHistogram(histName))
+	canvas.Divide(5,5)
+	for i,hist in enumerate(histList):
+		canvas.cd(i+1).SetLogy()
+		hist.GetXaxis().SetRangeUser(-0.5,4)
+		hist.SetLineWidth(3)
+		setupAxes(hist)
+		hist.Draw()
+		fit = TF1('fit%d' % (i),'landau',0.5,2)
+		hist.Fit(fit,'RQ')
+#		output('MPV: %5.2f\tX2: %5.2f\tNDF:%d\t X2/NDF: %5.2f' % (fit.GetParameter(1),fit.GetChisquare(),fit.GetNDF(),fit.GetChisquare()/float(fit.GetNDF())))
+		label = TPaveText(0.6,0.7,0.9,0.9,"NDC")
+		label.AddText('MPV: %5.2f' % (fit.GetParameter(1)))
+		label.Draw()
+		labelList.append(label)
+		fitList.append(fit)
+	canvas.Update()
+	canvas.SaveAs('plots/averageEnergy/1DEMaxPlots.pdf')
 	return histList,canvas,fitList,labelList
 
 def plotMPVs(fitList):
@@ -132,6 +200,8 @@ def plotMPVs(fitList):
 	plt.savefig('plots/averageEnergy/mpv.png')
 	plt.show()
 
+res5 = plot1DEMaxAroundL1()
+res4 = plotAverageEMaxAroundL1()
 res = plotAverageEnergyAroundL1()
 res2 = plot1DEnergyAroundL1()
 res3 = plotMPVs(fitList=res2[2])
