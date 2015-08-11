@@ -1386,7 +1386,7 @@ void hoMuonAnalyzer::fillAverageEnergyAroundL1Direction(const l1extra::L1MuonPar
 	}
 	//Filling the average energy only for the highest energetic particle
 	const HORecHit* matchedRecHit = 0;
-	matchedRecHit = hoMatcher->findEMaxHitInGrid(l1Muon->eta(), l1Muon->phi(),2);
+	matchedRecHit = hoMatcher->findEMaxHitInGrid(l1Muon->eta(), l1Muon->phi(),5);
 	if(matchedRecHit){
 		histogramBuilder.fillDeltaEtaDeltaPhiHistogramsWithWeights(l1Muon->eta()
 								,float(hoMatcher->getRecHitEta(matchedRecHit))	,l1Muon->phi()
@@ -1415,6 +1415,8 @@ void hoMuonAnalyzer::fillHoGeomAcceptanceGraph(reco::GenParticle genPart){
 /**
  * Automatically fill efficiency and count histograms for the grid matching for grid sizes
  * central, 3x3 and 5x5. Also store the position information
+ * #FIXME: The getDetIdsCloseToAPoint behaves strangely. Swith to a function, that evaluates whether
+ * a given rec hit coordinate is inside a grid or not
  */
 void hoMuonAnalyzer::fillGridMatchingEfficiency(GlobalPoint direction, float pt, std::string key, float eta, float phi){
 	//#####
