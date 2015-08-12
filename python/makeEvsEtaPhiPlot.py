@@ -70,6 +70,7 @@ def plotAverageEnergyAroundL1():
 
 	return canvas,hSum,label,hCounter
 
+
 def plotAverageEMaxAroundL1():
 	canvas = TCanvas('canvasAverageEMax','Average EMax',1200,1200)
 	canvas.cd().SetLogz()
@@ -85,7 +86,7 @@ def plotAverageEMaxAroundL1():
 	hSum.GetXaxis().SetTitle('#Delta#eta')
 	hSum.GetYaxis().SetTitle('#Delta#phi')
 	hSum.GetZaxis().SetTitle('Reconstructed Energy / GeV')
-	hSum.SetTitle('Mean Energy in HO tiles around L1 direction')
+	hSum.SetTitle('Mean E_{Max} in HO tiles around L1 direction')
 	hSum.Draw('colz')
 	
 	hCounter.Draw('same,text')
