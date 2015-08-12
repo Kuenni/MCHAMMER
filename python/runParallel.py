@@ -111,6 +111,8 @@ def collectOutput():
 				for result in os.listdir(file):
 					if result.endswith('.root'):
 						filesToProcess.append(file + '/' + result)
+	if(len(filesToProcess) != 0):
+		fileBatches.append(filesToProcess)
 	filenameTrunk = args.outfile[0:args.outfile.rfind('.root')]
 	for i,batch in enumerate(fileBatches):
 		filename = '%s%d.root' % (filenameTrunk,i)

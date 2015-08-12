@@ -1,48 +1,40 @@
 #!/usr/bin/python
 from ROOT import ROOT,gROOT,TCanvas,TFile,TH1D,TH2D,TLegend,THStack,TPaveText, TMarker,TLine,gPad,TF1,TF2,TGraph,Double,TPad
 import sys,os,math
-import PlotStyle
+from plotting.PlotStyle import calcSigma,setPlotStyle,colorRwthDarkBlue,colorRwthMagenta,drawLabelCmsPrivateSimulation
+from plotting.RootFileHandler import RootFileHandler
 
 DEBUG = 1
 prefix = '[plotEfficiency] '
 
 markerpairs = [	[20,24],[21,25],[22,26],[23,32],[34,28] ]
 
-def calcSigma(num,denom):
-	return math.sqrt(num/(denom*denom) + num*num/(pow(denom, 3)))
+if len(sys.argv) < 2:
+	print 'First argument has to be the file name scheme!'
+fileHandler = RootFileHandler(sys.argv[1])
+fileHandler.printStatus()
+
+if( not os.path.exists('plots')):
+	os.mkdir('plots')
+if( not os.path.exists('plots/efficiency')):
+	os.mkdir('plots/efficiency')
+
+setPlotStyle()
 
 def plotEfficiencyForPt(folder,pt):
 	if(DEBUG):
 		print prefix + 'was called'
 	
-	if(folder == None):
-		print prefix + 'Error! Folder as first argument needed.'
-		return
-		
-	if( not os.path.exists('plots')):
-		os.mkdir('plots')
-   	if( not os.path.exists('plots/efficiency')):
-		os.mkdir('plots/efficiency')
-	
-	filename = folder + '/L1MuonHistogram.root'
-	if( not os.path.exists(filename)):
-		print 'Error! File ' + filename + ' does not exist!'
-		return
-	print prefix + 'Opening file:',filename
-	
-	file = TFile.Open(filename)
-	
 	#Set plot style
-	PlotStyle.setPlotStyle()
 	
 	if(DEBUG):
 		print prefix + "Getting histogram: %s" % ("hoMuonAnalyzer/efficiency/GenAndL1MuonPt" + str(pt) + "_Efficiency")
 	
-	l1Muon = file.Get("hoMuonAnalyzer/efficiency/GenAndL1MuonPt" + str(pt) + "_Efficiency")
-	l1MuonAndHo = file.Get("hoMuonAnalyzer/efficiency/L1MuonHoRecoPt" + str(pt) + "_Efficiency")
+	l1Muon = fileHandler.getHistogram("hoMuonAnalyzer/efficiency/GenAndL1MuonPt" + str(pt) + "_Efficiency")
+	l1MuonAndHo = fileHandler.getHistogram("hoMuonAnalyzer/efficiency/L1MuonHoRecoPt" + str(pt) + "_Efficiency")
 	if(DEBUG):
 		print prefix + "Getting histogram: %s" % ("hoMuonAnalyzer/efficiency/GenAndL1MuonAndHoAboveThrPt" + str(pt) + "_Efficiency")
-	l1MuonAndHoAboveThr = file.Get("hoMuonAnalyzer/efficiency/GenAndL1MuonAndHoAboveThrPt" + str(pt) + "_Efficiency")
+	l1MuonAndHoAboveThr = fileHandler.getHistogram("hoMuonAnalyzer/efficiency/GenAndL1MuonAndHoAboveThrPt" + str(pt) + "_Efficiency")
 	
 	canv = TCanvas("efficiencyCanvas" + str(pt),'efficiencyCanvas' + str(pt),1200,1200)
 	
@@ -50,13 +42,13 @@ def plotEfficiencyForPt(folder,pt):
 	l1MuonAndHo.SetMarkerStyle(21)
 	l1MuonAndHoAboveThr.SetMarkerStyle(markerpairs[pt/5 -1][1])
 	
-	l1Muon.SetMarkerColor(PlotStyle.colorRwthDarkBlue)
+	l1Muon.SetMarkerColor(colorRwthDarkBlue)
 	l1MuonAndHo.SetMarkerColor(ROOT.kBlue)
-	l1MuonAndHoAboveThr.SetMarkerColor(PlotStyle.colorRwthMagenta)   
+	l1MuonAndHoAboveThr.SetMarkerColor(colorRwthMagenta)   
 	
-	l1Muon.SetLineColor(PlotStyle.colorRwthDarkBlue)
+	l1Muon.SetLineColor(colorRwthDarkBlue)
 	l1MuonAndHo.SetLineColor(ROOT.kBlue)
-	l1MuonAndHoAboveThr.SetLineColor(PlotStyle.colorRwthMagenta)
+	l1MuonAndHoAboveThr.SetLineColor(colorRwthMagenta)
 	
 	upperPad = TPad("upperPad", "upperPad", .005, .25, .995, .995);
 	lowerPad = TPad("lowerPad", "lowerPad", .005, .005, .995, .25);
@@ -100,8 +92,7 @@ def plotEfficiencyForPt(folder,pt):
 		paveText.SetBorderSize(1)
 		paveText.Draw()
 
-	label = PlotStyle.getLabelCmsPrivateSimulation()
-	label.Draw()	
+	label = drawLabelCmsPrivateSimulation()
 	##### Try creating residuals
 	lowerPad.cd()
 	l1MuonGraph = l1Muon.GetPaintedGraph()
@@ -120,11 +111,14 @@ def plotEfficiencyForPt(folder,pt):
 		newGraph.SetPoint(i,x1,(y1-y2)*100)
 	
 	
+	frame = TH2D('frame','frame',1,0,50,1,-0.1,1.5)
+	frame.Draw()
+	
 	newGraph.SetMarkerStyle(20)
 	newGraph.GetYaxis().SetTitle("%")
-	newGraph.GetXaxis().SetRangeUser(0.5,50.1)
+	newGraph.GetXaxis().SetRangeUser(0,50)
 
-	newGraph.Draw("ap")
+	newGraph.Draw("same,p")
 	line2 = TLine(0,0,50,0)
 	line2.SetLineColor(ROOT.kRed)
 	line2.SetLineWidth(2)
@@ -138,7 +132,7 @@ def plotEfficiencyForPt(folder,pt):
 	f = TFile.Open("plots/efficiency/efficiency" + str(pt) + ".root","RECREATE")
 	canv.Write()
 	f.Close()
-	return [l1Muon,l1MuonAndHoAboveThr,canv,legend,line,paveText,label]
+	return [l1Muon,l1MuonAndHoAboveThr,canv,legend,line,paveText,label,newGraph,frame]
 
 def plotEfficiency(folder):
 	histlist = []
@@ -198,18 +192,11 @@ def plotEfficiencyPerHoTiles(dataSource = 'L1Muon',gridsize = 0):
 		os.mkdir('plots/effPerGrid')
 	
 	c = TCanvas("eff" + dataSource + gridType, "Efficiency " + dataSource + " " + gridType)
-	
-	if(DEBUG):
-		print 'Getting eff. graph',fullName
-	file = TFile.Open("L1MuonHistogram.root")
-	
-	#Set plot style
-	PlotStyle.setPlotStyle()
-	
-	graph = file.Get(fullName)
+
+	graph = fileHandler.getHistogram(fullName)
 	
 	graph.SetMarkerStyle(20)
-	graph.SetMarkerColor(PlotStyle.colorRwthDarkBlue)
+	graph.SetMarkerColor(colorRwthDarkBlue)
 	
 	graph.Draw()
 	c.Update()

@@ -551,49 +551,15 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				histogramBuilder.fillTrigRateHistograms(j,"L1MuonPresent");
 			}
 		}
-		//##################################################
-		//##################################################
-		// L1 Muons for the "Oliver Style" efficiency
-		//##################################################
-		//##################################################
+		//Look for matches in grid around L1
+		GlobalPoint l1Direction(bl1Muon->p4().X(),bl1Muon->p4().Y(),bl1Muon->p4().Z());
+		fillGridMatchingEfficiency(l1Direction,bl1Muon->pt(),"L1Muon");
+
 		if(MuonHOAcceptance::inGeomAccept(l1Muon_eta,l1Muon_phi)&& !hoMatcher->isInChimney(l1Muon_eta,l1Muon_phi)){
 			histogramBuilder.fillCountHistogram("L1MuonInGA_L1Dir");
 			if(bl1Muon->bx() == 0)
 				histogramBuilder.fillCountHistogram("L1MuoninGaBx0");
-			//TODO write function to find central tile (and search 3x3 area around) with respect to the given direction
-			GlobalPoint l1Direction(
-					bl1Muon->p4().X(),
-					bl1Muon->p4().Y(),
-					bl1Muon->p4().Z()
-					);
 			histogramBuilder.fillCorrelationGraph(l1Direction.eta(),l1Muon_eta,"Correlationp4AndL1Object");
-			//#####
-			// Central tile
-			//#####
-			if(hoMatcher->hasHoHitInGrid(l1Direction,0)){
-				histogramBuilder.fillCountHistogram("L1MuonCentral");
-				histogramBuilder.fillEfficiency(true,bl1Muon->pt(),"L1MuonCentral");
-			} else{
-				histogramBuilder.fillEfficiency(false,bl1Muon->pt(),"L1MuonCentral");
-			}
-			//#####
-			// 3 x 3
-			//#####
-			if(hoMatcher->hasHoHitInGrid(l1Direction,1)){
-				histogramBuilder.fillCountHistogram("L1Muon3x3");
-				histogramBuilder.fillEfficiency(true,bl1Muon->pt(),"L1Muon3x3");
-			} else {
-				histogramBuilder.fillEfficiency(false,bl1Muon->pt(),"L1Muon3x3");
-			}
-			//#####
-			// 5 x 5
-			//#####
-			if(hoMatcher->hasHoHitInGrid(l1Direction,2)){
-				histogramBuilder.fillCountHistogram("L1Muon5x5");
-				histogramBuilder.fillEfficiency(true,bl1Muon->pt(),"L1Muon5x5");
-			} else {
-				histogramBuilder.fillEfficiency(false,bl1Muon->pt(),"L1Muon5x5");
-			}
 		}
 
 		const HORecHit* matchedRecHit = hoMatcher->matchByEMaxDeltaR(l1Muon_eta,l1Muon_phi);
@@ -824,56 +790,13 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 
 			if(MuonHOAcceptance::inGeomAccept(muMatchEta,muMatchPhi)&& !hoMatcher->isInChimney(muMatchEta,muMatchPhi)){
 				histogramBuilder.fillCountHistogram("TdmiInGA_TdmiDir");
-				//TODO write function to find central tile (and search 3x3 area around) with respect to the given direction
 				std::vector<const HORecHit*> crossedHoRecHits = muMatch->crossedHORecHits;
-				//#####
-				// Central tile
-				//#####
-				if(	hoMatcher->hasHoHitInGrid(
-						GlobalPoint(
+				GlobalPoint muMatchDirection(
 						muMatch->trkGlobPosAtHO.X(),
 						muMatch->trkGlobPosAtHO.Y(),
 						muMatch->trkGlobPosAtHO.Z()
-						)
-					,0)
-				){
-					histogramBuilder.fillCountHistogram("TdmiCentral");
-					histogramBuilder.fillEfficiency(true,genIt->pt(),"tdmiCentral");
-				} else {
-					histogramBuilder.fillEfficiency(false,genIt->pt(),"tdmiCentral");
-				}
-				//#####
-				// 3 x 3
-				//#####
-				if( hoMatcher->hasHoHitInGrid(GlobalPoint(
-						muMatch->trkGlobPosAtHO.X(),
-						muMatch->trkGlobPosAtHO.Y(),
-						muMatch->trkGlobPosAtHO.Z()
-						)
-					,1)
-				){
-					histogramBuilder.fillCountHistogram("Tdmi3x3");
-					histogramBuilder.fillEfficiency(true,genIt->pt(),"tdmi3x3");
-				} else {
-					histogramBuilder.fillEfficiency(false,genIt->pt(),"tdmi3x3");
-
-				}
-				//#####
-				// 5 x 5
-				//#####
-				if( hoMatcher->hasHoHitInGrid(GlobalPoint(
-						muMatch->trkGlobPosAtHO.X(),
-						muMatch->trkGlobPosAtHO.Y(),
-						muMatch->trkGlobPosAtHO.Z()
-						)
-					,2)
-				){
-					histogramBuilder.fillCountHistogram("Tdmi5x5");
-					histogramBuilder.fillEfficiency(true,genIt->pt(),"tdmi5x5");
-				} else {
-					histogramBuilder.fillEfficiency(false,genIt->pt(),"tdmi5x5");
-
-				}
+				);
+				fillGridMatchingEfficiency(muMatchDirection,genIt->pt(),"tdmi");
 			}
 			const l1extra::L1MuonParticle* l1Part = functionsHandler->getBestL1MuonMatch(muMatchEta,muMatchPhi);
 			if(l1Part){
@@ -950,10 +873,6 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"NoTrgTdmiAny");
 			//The muon needs to hit the HO geometric acceptance
 			if(MuonHOAcceptance::inGeomAccept(muMatchEta,muMatchPhi) && !hoMatcher->isInChimney(muMatchEta,muMatchPhi)){
-
-				//######
-				// TODO: Here, a check whether available l1 muon objects can be matched to HO is interesting
-				//######
 				histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"NoTrgTdmiInGA");
 				histogramBuilder.fillCountHistogram("NoTrgTdmiInGA");
 				histogramBuilder.fillEnergyVsPosition(muMatchEta,muMatchPhi,muMatch->hoCrossedEnergy(),"NoTrgTdmiXedE");
@@ -1074,7 +993,6 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			double l1Muon_phi = bl1Muon->phi();
 			if(MuonHOAcceptance::inGeomAccept(l1Muon_eta,l1Muon_phi)&& !hoMatcher->isInChimney(l1Muon_eta,l1Muon_phi)){
 				histogramBuilder.fillCountHistogram("L1MuonSMuTrgInGA_L1Dir");
-				//TODO write function to find central tile (and search 3x3 area around) with respect to the given direction
 				GlobalPoint l1Direction(
 						bl1Muon->p4().X(),
 						bl1Muon->p4().Y(),
@@ -1328,36 +1246,7 @@ void hoMuonAnalyzer::analyzeL1AndGenMatch(const edm::Event& iEvent, const edm::E
 						l1Muon->p4().Y(),
 						l1Muon->p4().Z()
 						);
-				//#####
-				// Central tile
-				//#####
-				if(hoMatcher->hasHoHitInGrid(l1Direction,0)){
-					histogramBuilder.fillCountHistogram("L1GenRefInGaCentral");
-					histogramBuilder.fillEfficiency(true,ref->pt(),"L1GenRefInGaCentral");
-				} else{
-					histogramBuilder.fillEfficiency(false,ref->pt(),"L1GenRefInGaCentral");
-					histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"L1GenRefInGaCentralFail");
-				}
-				//#####
-				// 3 x 3
-				//#####
-				if(hoMatcher->hasHoHitInGrid(l1Direction,1)){
-					histogramBuilder.fillCountHistogram("L1GenRefInGa3x3");
-					histogramBuilder.fillEfficiency(true,ref->pt(),"L1GenRefInGa3x3");
-				} else {
-					histogramBuilder.fillEfficiency(false,ref->pt(),"L1GenRefInGa3x3");
-					histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"L1GenRefInGa3x3Fail");
-				}
-				//#####
-				// 5 x 5
-				//#####
-				if(hoMatcher->hasHoHitInGrid(l1Direction,2)){
-					histogramBuilder.fillCountHistogram("L1GenRefInGa5x5");
-					histogramBuilder.fillEfficiency(true,ref->pt(),"L1GenRefInGa5x5");
-				} else {
-					histogramBuilder.fillEfficiency(false,ref->pt(),"L1GenRefInGa5x5");
-					histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"L1GenRefInGa5x5Fail");
-				}
+				fillGridMatchingEfficiency(l1Direction,ref->pt(),"L1GenRefInGa",muMatchEta,muMatchPhi);
 			}
 
 		} else {
@@ -1392,40 +1281,7 @@ void hoMuonAnalyzer::analyzeNoSingleMuEventsL1Loop(const edm::Event& iEvent,cons
 						l1Muon->p4().Y(),
 						l1Muon->p4().Z()
 				);
-				//#####
-				// Central tile
-				//#####
-				if(hoMatcher->hasHoHitInGrid(l1Direction,0)){
-					histogramBuilder.fillCountHistogram("L1GenRefNoSingleMuInGaCentral");
-					histogramBuilder.fillEfficiency(true,ref->pt(),"L1GenRefNoSingleMuInGaCentral");
-					histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"L1GenRefNoSingleMuInGaCentral");
-				} else{
-					histogramBuilder.fillEfficiency(false,ref->pt(),"L1GenRefNoSingleMuInGaCentral");
-					histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"L1GenRefNoSingleMuInGaCentralFail");
-				}
-				//#####
-				// 3 x 3
-				//#####
-				if(hoMatcher->hasHoHitInGrid(l1Direction,1)){
-					histogramBuilder.fillCountHistogram("L1GenRefNoSingleMuInGa3x3");
-					histogramBuilder.fillEfficiency(true,ref->pt(),"L1GenRefNoSingleMuInGa3x3");
-					histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"L1GenRefNoSingleMuInGa3x3");
-				} else {
-					histogramBuilder.fillEfficiency(false,ref->pt(),"L1GenRefNoSingleMuInGa3x3");
-					histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"L1GenRefNoSingleMuInGa3x3Fail");
-				}
-				//#####
-				// 5 x 5
-				//#####
-				if(hoMatcher->hasHoHitInGrid(l1Direction,2)){
-					histogramBuilder.fillCountHistogram("L1GenRefNoSingleMuInGa5x5");
-					histogramBuilder.fillEfficiency(true,ref->pt(),"L1GenRefNoSingleMuInGa5x5");
-					histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"L1GenRefNoSingleMuInGa5x5");
-
-				} else {
-					histogramBuilder.fillEfficiency(false,ref->pt(),"L1GenRefNoSingleMuInGa5x5");
-					histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"L1GenRefNoSingleMuInGa5x5Fail");
-				}
+				fillGridMatchingEfficiency(l1Direction, ref->pt(),"L1GenRefNoSingleMuInGa",muMatchEta,muMatchPhi);
 			}
 
 		} else {
@@ -1459,50 +1315,13 @@ void hoMuonAnalyzer::analyzeNoSingleMuEventsGenLoop(const edm::Event& iEvent,con
 					genIt->p4().Y(),
 					genIt->p4().Z()
 			);
-			//#####
-			// Central tile
-			//#####
-			if(hoMatcher->hasHoHitInGrid(genDirection,0)){
-				histogramBuilder.fillCountHistogram("NoSingleMuInGaCentral");
-				histogramBuilder.fillEfficiency(true,genIt->pt(),"NoSingleMuInGaCentral");
-				histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"NoSingleMuInGaCentral");
-			} else{
-				histogramBuilder.fillEfficiency(false,genIt->pt(),"NoSingleMuInGaCentral");
-				histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"NoSingleMuInGaCentralFail");
-			}
-			//#####
-			// 3 x 3
-			//#####
-			if(hoMatcher->hasHoHitInGrid(genDirection,1)){
-				histogramBuilder.fillCountHistogram("NoSingleMuInGa3x3");
-				histogramBuilder.fillEfficiency(true,genIt->pt(),"NoSingleMuInGa3x3");
-				histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"NoSingleMuInGa3x3");
-			} else {
-				histogramBuilder.fillEfficiency(false,genIt->pt(),"NoSingleMuInGa3x3");
-				histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"NoSingleMuInGa3x3Fail");
-			}
-			//#####
-			// 5 x 5
-			//#####
-			if(hoMatcher->hasHoHitInGrid(genDirection,2)){
-				histogramBuilder.fillCountHistogram("NoSingleMuInGa5x5");
-				histogramBuilder.fillEfficiency(true,genIt->pt(),"NoSingleMuInGa5x5");
-				histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"NoSingleMuInGa5x5");
-
-			} else {
-				histogramBuilder.fillEfficiency(false,genIt->pt(),"NoSingleMuInGa5x5");
-				histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"NoSingleMuInGa5x5Fail");
-			}
+			fillGridMatchingEfficiency(genDirection, genIt->pt(),"NoSingleMuInGa",muMatchEta,muMatchPhi);
 		}
-
 	}
-
 }
 
 /**
  * Use this function to make the efficiency plots with root's TEfficiency.
- * TODO: Except for the tile matching the other efficiency plots can probably
- * be removed from the code above
  */
 void hoMuonAnalyzer::analyzeWithGenLoop(const edm::Event& iEvent,const edm::EventSetup& iSetup){
 	for(reco::GenParticleCollection::const_iterator genIt = truthParticles->begin();
@@ -1511,8 +1330,16 @@ void hoMuonAnalyzer::analyzeWithGenLoop(const edm::Event& iEvent,const edm::Even
 		float genPhi = genIt->phi();
 		const l1extra::L1MuonParticle* l1Part = 0;
 		l1Part = functionsHandler->getBestL1MuonMatch(genEta,genPhi);
+		histogramBuilder.fillCountHistogram("Gen");
 		if(l1Part){
 			fillEfficiencyHistograms(l1Part->pt(),genIt->pt(),"GenAndL1Muon");
+			histogramBuilder.fillCountHistogram("GenAndL1Muon");
+			GlobalPoint l1Direction(
+					l1Part->p4().X(),
+					l1Part->p4().Y(),
+					l1Part->p4().Z()
+			);
+			fillGridMatchingEfficiency(l1Direction,l1Part->pt(),"L1MuonTruth");
 			fillAverageEnergyAroundL1Direction(l1Part);
 			/**
 			 * Find a rec hit that can be matched to the l1 particle. Use this information for the efficiency
@@ -1524,6 +1351,8 @@ void hoMuonAnalyzer::analyzeWithGenLoop(const edm::Event& iEvent,const edm::Even
 			if(matchedRecHit){
 				if(matchedRecHit->energy() > threshold){
 					fillEfficiencyHistograms(l1Part->pt(),genIt->pt(),"GenAndL1MuonAndHoAboveThr");
+					histogramBuilder.fillCountHistogram("GenAndL1MuonAndHoAboveThr");
+
 				}
 			}
 		}
@@ -1532,24 +1361,35 @@ void hoMuonAnalyzer::analyzeWithGenLoop(const edm::Event& iEvent,const edm::Even
 
 /**
  * Fill a histogram with the measured energy around a given L1.
- * For now the grid size is hardcoded to 2
+ * For now the grid size is hard-coded
  */
 void hoMuonAnalyzer::fillAverageEnergyAroundL1Direction(const l1extra::L1MuonParticle* l1Muon){
-	GlobalPoint l1Direction(
-			l1Muon->p4().X(),
-			l1Muon->p4().Y(),
-			l1Muon->p4().Z()
-				);
-	std::set<DetId> detIds = hoMatcher->getDetIdsCloseToAPoint(l1Direction,2);
-	for(auto it = detIds.begin(); it != detIds.end(); it++){
-		for(auto recHitIt = hoRecoHits->begin(); recHitIt != hoRecoHits->end(); recHitIt++){
-			if (recHitIt->detid() == *it){
-				histogramBuilder.fillDeltaEtaDeltaPhiHistogramsWithWeights(float(l1Direction.eta())
-						,float(hoMatcher->getRecHitEta(&*recHitIt))	,float(l1Direction.phi())
-						,float(hoMatcher->getRecHitPhi(&*recHitIt))	,recHitIt->energy()
-						,"averageEnergyAroundPoint");
-			}
+	int gridSize = 5;
+	for(auto recHitIt = hoRecoHits->begin(); recHitIt != hoRecoHits->end(); recHitIt++){
+		if(hoMatcher->isRecHitInGrid(l1Muon->eta(), l1Muon->phi(),&*recHitIt,gridSize)){
+			histogramBuilder.fillDeltaEtaDeltaPhiHistogramsWithWeights(l1Muon->eta()
+					,float(hoMatcher->getRecHitEta(&*recHitIt))	,l1Muon->phi()
+					,float(hoMatcher->getRecHitPhi(&*recHitIt))	,recHitIt->energy()
+					,"averageEnergyAroundPoint");
+			histogramBuilder.fillDeltaEtaDeltaPhiEnergyHistogram(l1Muon->eta()
+					,float(hoMatcher->getRecHitEta(&*recHitIt))	,l1Muon->phi()
+					,float(hoMatcher->getRecHitPhi(&*recHitIt))	,recHitIt->energy()
+					,"averageEnergyAroundPoint");//Use this function for the 1D distributions for each delta eta and delta phi
 		}
+	}
+
+	//Filling the average energy only for the highest energetic particle
+	const HORecHit* matchedRecHit = 0;
+	matchedRecHit = hoMatcher->findEMaxHitInGrid(l1Muon->eta(), l1Muon->phi(),5);
+	if(matchedRecHit){
+		histogramBuilder.fillDeltaEtaDeltaPhiHistogramsWithWeights(l1Muon->eta()
+				,float(hoMatcher->getRecHitEta(matchedRecHit))	,l1Muon->phi()
+				,float(hoMatcher->getRecHitPhi(matchedRecHit))	,matchedRecHit->energy()
+				,"averageEMaxAroundPoint");
+		histogramBuilder.fillDeltaEtaDeltaPhiEnergyHistogram(l1Muon->eta()
+				,float(hoMatcher->getRecHitEta(matchedRecHit))	,l1Muon->phi()
+				,float(hoMatcher->getRecHitPhi(matchedRecHit))	,matchedRecHit->energy()
+				,"averageEMaxAroundPoint");
 	}
 }
 
@@ -1564,6 +1404,57 @@ void hoMuonAnalyzer::fillHoGeomAcceptanceGraph(reco::GenParticle genPart){
 				&& !hoMatcher->isInChimney(genPart.eta(),genPart.phi())){
 		histogramBuilder.fillEtaPhiGraph(genPart.eta(),genPart.phi(),"HoGeomAcceptance");
 	}
+}
+
+/**
+ * Automatically fill efficiency and count histograms for the grid matching for grid sizes
+ * central, 3x3 and 5x5. Also store the position information
+ */
+void hoMuonAnalyzer::fillGridMatchingEfficiency(GlobalPoint direction, float pt, std::string key, float eta, float phi){
+	//#####
+	// Central tile
+	//#####
+	if(hoMatcher->hasHoHitInGrid(direction,0)){
+		histogramBuilder.fillCountHistogram(key + "Central");
+		histogramBuilder.fillEfficiency(true,pt,key + "Central");
+		histogramBuilder.fillEtaPhiGraph(eta,phi,key + "Central");
+	} else{
+		histogramBuilder.fillEfficiency(false,pt,key + "Central");
+		histogramBuilder.fillEtaPhiGraph(eta,phi,key + "CentralFail");
+	}
+	//#####
+	// 3 x 3
+	//#####
+	if(hoMatcher->hasHoHitInGrid(direction,1)){
+		histogramBuilder.fillCountHistogram(key + "3x3");
+		histogramBuilder.fillEfficiency(true,pt,key + "3x3");
+		histogramBuilder.fillEtaPhiGraph(eta,phi,key + "3x3");
+
+	} else {
+		histogramBuilder.fillEfficiency(false,pt,key + "3x3");
+		histogramBuilder.fillEtaPhiGraph(eta,phi,key + "3x3Fail");
+	}
+	//#####
+	// 5 x 5
+	//#####
+	if(hoMatcher->hasHoHitInGrid(direction,2)){
+		histogramBuilder.fillCountHistogram(key + "5x5");
+		histogramBuilder.fillEfficiency(true,pt,key + "5x5");
+		histogramBuilder.fillEtaPhiGraph(eta,phi,key + "5x5");
+
+
+	} else {
+		histogramBuilder.fillEfficiency(false,pt,key + "5x5");
+		histogramBuilder.fillEtaPhiGraph(eta,phi,key + "5x5Fail");
+	}
+}
+
+/**
+ * Automatically fill efficiency and count histograms for the grid matching for grid sizes
+ * central, 3x3 and 5x5. The position information is always 0 if this function is used
+ */
+void hoMuonAnalyzer::fillGridMatchingEfficiency(GlobalPoint direction, float pt, std::string key){
+	fillGridMatchingEfficiency(direction,pt,key,0,0);
 }
 
 /**

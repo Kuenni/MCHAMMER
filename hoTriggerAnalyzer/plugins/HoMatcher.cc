@@ -62,6 +62,10 @@ const HODataFrame* HoMatcher::findHoDigiById(DetId id){
 	return 0;
 }
 
+/**
+ * Try to find the HO Rec hit with the largest energy entry in a given
+ * Delta R cone
+ */
 const HORecHit* HoMatcher::matchByEMaxDeltaR(double eta,double phi){
 	HORecHitCollection::const_iterator hoRecHitIt = hoRecoHits->begin();
 	const HORecHit* matchedRecHit = 0;
@@ -81,6 +85,33 @@ const HORecHit* HoMatcher::matchByEMaxDeltaR(double eta,double phi){
 		}
 	}
 	return matchedRecHit;
+}
+
+/**
+ * Find the highest energy rec hit in a grid of given size
+ */
+const HORecHit* HoMatcher::findEMaxHitInGrid(double eta, double phi, int gridSize){
+	HORecHitCollection::const_iterator hoRecHitIt = hoRecoHits->begin();
+		const HORecHit* matchedRecHit = 0;
+		//Loop over all rec hits
+		for( ; hoRecHitIt!=hoRecoHits->end(); hoRecHitIt++ ){
+			//Only look for potential hits
+			if(hoRecHitIt->energy() < threshold){
+				continue;
+			}
+			double deltaIEta = getDeltaIeta(eta,&*hoRecHitIt);
+			double deltaIPhi = getDeltaIphi(phi,&*hoRecHitIt);
+			if (abs(deltaIEta) <= gridSize && abs(deltaIPhi) <= gridSize){
+				if(!matchedRecHit){
+					matchedRecHit = &*hoRecHitIt;
+				} else {
+					if(matchedRecHit->energy() < hoRecHitIt->energy()){
+						matchedRecHit = &*hoRecHitIt;
+					}
+				}
+			}
+		}
+		return matchedRecHit;
 }
 
 /**
@@ -150,24 +181,27 @@ bool HoMatcher::hasHoHitInGrid(GlobalPoint direction, int gridSize){
 	if(gridSize < 0){
 		return false;
 	}
-	//Loop over the det Ids close to the point
-	std::set<DetId> detIdSet = getDetIdsCloseToAPoint(direction,gridSize);
-	for(auto it = detIdSet.begin(); it != detIdSet.end(); it++){
-		//Find the corresponding DetId in the rec hits
-		for(auto itRecHits = hoRecoHits->begin(); itRecHits != hoRecoHits->end(); itRecHits++){
-			if(itRecHits->detid() == *it){
-				if(itRecHits->energy() > threshold)
-					return true;
-			}
+
+	//Find the corresponding DetId in the rec hits
+	for(auto itRecHits = hoRecoHits->begin(); itRecHits != hoRecoHits->end(); itRecHits++){
+		if(isRecHitInGrid(double(direction.eta()),double(direction.phi()),&*itRecHits,gridSize)){
+			if(itRecHits->energy() > threshold)
+				return true;
 		}
 	}
 	return false;
 }
 
 /**
- * define this function for usage outside of this class
+ * Check whether a given combination of eta, phi and HORecHit (its coordinates)
+ * are within a given tile grid
  */
-const std::set<DetId> HoMatcher::getDetIdsCloseToAPoint(GlobalPoint direction, int gridSize){
-	std::set<DetId> detIdSet = hoDetIdAssociator->getDetIdsCloseToAPoint(direction,gridSize);
-	return detIdSet;
+bool HoMatcher::isRecHitInGrid(double eta, double phi, const HORecHit* recHit, int gridSize){
+	double deltaIEta = getDeltaIeta(eta,recHit);
+	double deltaIPhi = getDeltaIphi(phi,recHit);
+	if (abs(deltaIEta) <= gridSize && abs(deltaIPhi) <= gridSize){
+		return true;
+	}
+	return false;
 }
+

@@ -1,5 +1,6 @@
-from ROOT import gROOT,gStyle, TColor, TPaveText, TGraph, ROOT, Double, TBox, TH2D, TH1D
+from ROOT import gROOT,gStyle, TColor, TPaveText, TGraph, ROOT, Double, TBox, TH2D, TH1D, TEfficiency
 from math import sqrt,pi
+import matplotlib.pyplot as plt
 import sys
 
 colorRwthMagenta 	= TColor.GetColor("#E30066")
@@ -15,6 +16,11 @@ def getLabelCmsPrivateSimulation( x1ndc = 0.6, y1ndc = 0.90, x2ndc = 0.9, y2ndc 
 	labelCmsPrivateSimulation.SetBorderSize(1)
 	labelCmsPrivateSimulation.SetFillColor(0) # 0 == White
 	return labelCmsPrivateSimulation
+
+def drawLabelCmsPrivateSimulation( x1ndc = 0.6, y1ndc = 0.90, x2ndc = 0.9, y2ndc = 0.93):
+	label = getLabelCmsPrivateSimulation(x1ndc,y1ndc,x2ndc,y2ndc)
+	label.Draw()
+	return label
 
 chimney1 = TGraph()
 chimney1.SetPoint(0,.3425,1.48)
@@ -84,15 +90,37 @@ def setPlotStyle():
 
 #Set all Axes to bold font
 def setupAxes(plot):
+	
+	if plot.__class__ == TEfficiency:
+		plot = plot.GetPaintedGraph()
 	plot.GetXaxis().SetTitleFont(62)
 	plot.GetYaxis().SetTitleFont(62)
 	plot.GetXaxis().SetLabelFont(62)
 	plot.GetYaxis().SetLabelFont(62)
-	
 	# Check for the function. Otherwise it crashes with TGraphs
 	if hasattr(plot, 'GetZaxis'):
 		plot.GetZaxis().SetTitleFont(62)
 		plot.GetZaxis().SetLabelFont(62)
+
+#Set the stat box display Options
+def setStatBoxOptions(plot,option):
+	stats = plot.GetListOfFunctions().FindObject("stats")
+	stats.SetOptStat(option)
+
+#Set the stat box position
+def setStatBoxPosition(plot,x1 = 0.7, x2 = 0.9, y1 = 0.75, y2 = 0.9):
+	stats = plot.GetListOfFunctions().FindObject("stats")
+	stats.SetX1NDC(x1)
+	stats.SetX2NDC(x2)
+	stats.SetY1NDC(y1)
+	stats.SetY2NDC(y2)
+
+def setupPalette(plot):
+	#Set as many color palette divisions as possible
+	plot.SetContour(99)
+	#make the palette as small as possible
+	pal = plot.GetListOfFunctions().FindObject("palette")
+	pal.SetX2NDC(0.92)
 
 #Function that returns a new TH2D with the axes already set up
 def getTH2D(name,title,nBinsX,xLow,xHigh,nBinsY,yLow,yHigh):
@@ -121,3 +149,10 @@ def getProgressString(done,total):
 	nHashes = int(done/float(total)*80)
 	progressbar = '\r[%s%s] %5.2f%% done.' % (nHashes*'#',(80-nHashes)*' ',done*100/float(total))
 	return progressbar
+
+def pyplotCmsPrivateLabel(ax,x=0.995,y=0.945):
+	plt.text(x, y, r'$\mathbf{CMS}$ private, $\mathit{simulation}$',
+        horizontalalignment='right',
+        verticalalignment='bottom',
+        transform=ax.transAxes,
+        bbox=dict(facecolor='white'))
