@@ -91,8 +91,9 @@ void HistogramBuilder::fillCountHistogram(std::string key){
 }                                                                               
 
 void HistogramBuilder::fillMultiplicityHistogram(int nEvents, std::string key){
+	TFileDirectory dir = _fileService->mkdir("multiplicity");
 	if(!_h1Multiplicity.count(key)){
-		_h1Multiplicity[key] = _fileService->make<TH1D>(Form("%s_Multiplicity",key.c_str()),
+		_h1Multiplicity[key] = dir.make<TH1D>(Form("%s_Multiplicity",key.c_str()),
 				Form("%s Multiplicity",key.c_str()),
 				3001, -0.5, 3000.5);
 	}
