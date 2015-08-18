@@ -1,0 +1,6 @@
+rwthMagenta 	= "#E30066"
+rwthLightBlue 	= "#8EBAE5"
+rwthDarkBlue 	= "#00549F"
+rwthTuerkis		= "#0098A1"
+rwthGruen		= "#57AB27"
+rwthRot			= "#CC071E"
