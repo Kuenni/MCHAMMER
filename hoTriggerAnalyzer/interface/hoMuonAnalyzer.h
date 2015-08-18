@@ -83,6 +83,7 @@ private:
 	void fillEfficiencyHistograms(double ptMeasured,double ptReal,std::string key);
 	void fillHoGeomAcceptanceGraph(reco::GenParticle genParticle);
 	void fillAverageEnergyAroundL1Direction(const l1extra::L1MuonParticle*);
+	void fillGridMatchingQualityCodes(const l1extra::L1MuonParticle* l1muon, float pt, std::string key);
 	void fillGridMatchingEfficiency(GlobalPoint direction, float pt, std::string key);
 	void fillGridMatchingEfficiency(GlobalPoint direction, float pt, std::string key, float eta, float phi);
 
