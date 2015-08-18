@@ -554,6 +554,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		//Look for matches in grid around L1
 		GlobalPoint l1Direction(bl1Muon->p4().X(),bl1Muon->p4().Y(),bl1Muon->p4().Z());
 		fillGridMatchingEfficiency(l1Direction,bl1Muon->pt(),"L1Muon");
+		fillGridMatchingQualityCodes(&*bl1Muon,bl1Muon->pt(),"L1MuonQualityCodes");
 
 		if(MuonHOAcceptance::inGeomAccept(l1Muon_eta,l1Muon_phi)&& !hoMatcher->isInChimney(l1Muon_eta,l1Muon_phi)){
 			histogramBuilder.fillCountHistogram("L1MuonInGA_L1Dir");
@@ -1245,7 +1246,7 @@ void hoMuonAnalyzer::analyzeL1AndGenMatch(const edm::Event& iEvent, const edm::E
 						l1Muon->p4().X(),
 						l1Muon->p4().Y(),
 						l1Muon->p4().Z()
-						);
+				);
 				fillGridMatchingEfficiency(l1Direction,ref->pt(),"L1GenRefInGa",muMatchEta,muMatchPhi);
 			}
 
@@ -1340,6 +1341,7 @@ void hoMuonAnalyzer::analyzeWithGenLoop(const edm::Event& iEvent,const edm::Even
 					l1Part->p4().Z()
 			);
 			fillGridMatchingEfficiency(l1Direction,l1Part->pt(),"L1MuonTruth");
+			fillGridMatchingQualityCodes(&*l1Part,genIt->pt(),"L1MuonTruth");
 			fillAverageEnergyAroundL1Direction(l1Part);
 			/**
 			 * Find a rec hit that can be matched to the l1 particle. Use this information for the efficiency
@@ -1404,6 +1406,46 @@ void hoMuonAnalyzer::fillHoGeomAcceptanceGraph(reco::GenParticle genPart){
 				&& !hoMatcher->isInChimney(genPart.eta(),genPart.phi())){
 		histogramBuilder.fillEtaPhiGraph(genPart.eta(),genPart.phi(),"HoGeomAcceptance");
 	}
+}
+
+/**
+ * Overloaded function to make the use for l1 objects easier
+ */
+void hoMuonAnalyzer::fillGridMatchingQualityCodes(const l1extra::L1MuonParticle* l1muon, float truePt, std::string key){
+	GlobalPoint direction(
+			l1muon->p4().X(),
+			l1muon->p4().Y(),
+			l1muon->p4().Z()
+	);
+	//#####
+	// Central tile
+	//#####
+	int l1MuonQuality = l1muon->gmtMuonCand().quality();
+	if(hoMatcher->hasHoHitInGrid(direction,0)){
+		histogramBuilder.fillMultiplicityHistogram(l1MuonQuality,key + "QualityCodesCentral" );
+		fillEfficiencyHistograms(l1muon->pt(),truePt,key + "GenPtCentral");
+	} else{
+		histogramBuilder.fillMultiplicityHistogram(l1MuonQuality,key + "QualityCodesCentralFail" );
+	}
+	//#####
+	// 3 x 3
+	//#####
+	if(hoMatcher->hasHoHitInGrid(direction,1)){
+		histogramBuilder.fillMultiplicityHistogram(l1MuonQuality,key + "QualityCodes3x3");
+		fillEfficiencyHistograms(l1muon->pt(),truePt,key + "GenPt3x3");
+	} else {
+		histogramBuilder.fillMultiplicityHistogram(l1MuonQuality,key + "QualityCodes3x3Fail");
+	}
+	//#####
+	// 5 x 5
+	//#####
+	if(hoMatcher->hasHoHitInGrid(direction,2)){
+		histogramBuilder.fillMultiplicityHistogram(l1MuonQuality,key + "QualityCodes5x5");
+		fillEfficiencyHistograms(l1muon->pt(),truePt,key + "GenPt5x5");
+	} else {
+		histogramBuilder.fillMultiplicityHistogram(l1MuonQuality,key + "QualityCodes5x5Fail");
+	}
+	histogramBuilder.fillCorrelationGraph(l1muon->pt(),l1MuonQuality,key);
 }
 
 /**

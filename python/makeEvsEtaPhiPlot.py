@@ -11,8 +11,6 @@ from matchingLibrary import findBestL1Match
 import numpy as np
 import matplotlib.pyplot as plt
 
-gROOT.Reset()
-gROOT.ProcessLine("gErrorIgnoreLevel = 3000;")
 gROOT.ProcessLine(".L $HOMUONTRIGGER_BASE/python/loader.C+");
 
 setPlotStyle()
@@ -47,12 +45,15 @@ def plotAverageEnergyAroundL1():
 			if hCounter.GetBinContent(hCounter.GetBin(i,j)) != 0:
 				hSum.SetBinContent(hSum.GetBin(i,j),hSum.GetBinContent(hSum.GetBin(i,j))/hCounter.GetBinContent(hCounter.GetBin(i,j)))
 				pass
+	hSum.GetXaxis().SetRangeUser(-0.6,0.6)
+	hSum.GetYaxis().SetRangeUser(-0.6,0.6)
+#	hSum.SetStats(0)
 	hSum.GetXaxis().SetTitle('#Delta#eta')
 	hSum.GetYaxis().SetTitle('#Delta#phi')
 	hSum.GetZaxis().SetTitle('Reconstructed Energy / GeV')
 	hSum.SetTitle('Mean Energy in HO tiles around L1 direction')
 	hSum.Draw('colz')
-	hCounter.Draw('same,text')
+#	hCounter.Draw('same,text')
 	
 	label = getLabelCmsPrivateSimulation()
 	label.Draw()
@@ -70,6 +71,7 @@ def plotAverageEnergyAroundL1():
 
 	return canvas,hSum,label,hCounter
 
+
 def plotAverageEMaxAroundL1():
 	canvas = TCanvas('canvasAverageEMax','Average EMax',1200,1200)
 	canvas.cd().SetLogz()
@@ -82,10 +84,13 @@ def plotAverageEMaxAroundL1():
 				hSum.SetBinContent(hSum.GetBin(i,j),hSum.GetBinContent(hSum.GetBin(i,j))/hCounter.GetBinContent(hCounter.GetBin(i,j)))
 				pass
 			
+	hSum.SetStats(0)
+	hSum.GetXaxis().SetRangeUser(-0.6,0.6)
+	hSum.GetYaxis().SetRangeUser(-0.6,0.6)
 	hSum.GetXaxis().SetTitle('#Delta#eta')
 	hSum.GetYaxis().SetTitle('#Delta#phi')
 	hSum.GetZaxis().SetTitle('Reconstructed Energy / GeV')
-	hSum.SetTitle('Mean Energy in HO tiles around L1 direction')
+	hSum.SetTitle('Mean E_{Max} in HO tiles around L1 direction')
 	hSum.Draw('colz')
 	
 	hCounter.Draw('same,text')

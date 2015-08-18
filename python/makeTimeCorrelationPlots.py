@@ -1,6 +1,7 @@
 #!/usr/bin/python
 import os,sys
-from math import sqrt
+from math import sqrt,log
+import numpy as np
 from ROOT import TCanvas,ROOT,TFile,TLegend,TF1,TLine,gROOT,TPaveText,TH1D,Double,TH2D,THStack,gStyle
 
 DEBUG = 1
@@ -22,6 +23,15 @@ if len(sys.argv) < 2:
 fileHandler = RootFileHandler(sys.argv[1])
 fileHandler.printStatus()
 
+'''
+Calculate the time slew for a given charge
+'''
+def getTimeSlew(charge):
+	if charge < 1:
+		charge = 1
+	rawDelay = 23.97 - 3.18*log(charge)
+	timeSlew = 0 if rawDelay < 0 else (np.min([16,rawDelay]))
+	return timeSlew
 
 #plot the timing correlation between HO and L1 in general
 def plotHoL1Correlation():
@@ -271,6 +281,31 @@ def plotDigiEnergyVsTime():
 	graph.Draw('ap')
 	canvas.Update()
 	canvas.SaveAs('plots/timeCorrelation/adcVsTime.pdf')
+	canvas.SaveAs('plots/timeCorrelation/adcVsTime.png')
+	return graph,canvas
+
+def plotDigiEnergyVsTimeCorrected():
+	canvas = TCanvas()
+	graph = fileHandler.getGraph('hoDigiAnalyzer/correlation/digiTimeVs4TSSum').Clone('')
+	graph.GetXaxis().SetTitle('Time / ns')
+	graph.GetYaxis().SetTitle('ADC')
+	graph.SetTitle('ADC vs Time, Time slew corrected')
+	graph.GetYaxis().SetRangeUser(0,200)
+	graph.GetXaxis().SetRangeUser(-100,140)
+	graph.SetMarkerStyle(2)
+	
+	x = Double(0)
+	y = Double(0)
+	for i in range(0,graph.GetN()):
+		graph.GetPoint(i,x,y)
+		#FIXME: This is just a guess for the conversion
+		newX = Double(x - getTimeSlew(y*0.85))
+		graph.SetPoint(i,newX,y)
+	
+	graph.Draw('ap')
+	canvas.Update()
+	canvas.SaveAs('plots/timeCorrelation/adcVsTimeCorrected.pdf')
+	canvas.SaveAs('plots/timeCorrelation/adcVsTimeCorrected.png')
 	return graph,canvas
 
 res = plotHoL1Correlation()
@@ -278,5 +313,6 @@ res2 = plotAdcTimeSliceCorrelation()
 res3 = plotDtVsHo()
 res4 = plotRpcVsHo()
 res5 = plotDigiEnergyVsTime()
+res6 = plotDigiEnergyVsTimeCorrected()
 
 raw_input('-->')

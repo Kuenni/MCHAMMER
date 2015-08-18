@@ -46,31 +46,31 @@ def convertToHcalCoords(inputGraph):
 	gConvertedToiEtaiPhi.SetMarkerStyle(6)
 	for i in range(0, inputGraph.GetN()):
 		x = Double(0)
- 		y = Double(0)
-	 	inputGraph.GetPoint(i,x,y)
-	 	if( y < 0 ):
+		y = Double(0)
+		inputGraph.GetPoint(i,x,y)
+		if( y < 0 ):
 			y += 2*pi
 		if( y > 2*pi ):
 			y -= 2*pi
- 		xIEta = x/0.087 + ( 0.5 if x > 0 else -0.5 )
-  		yIPhi = y/0.087 + 1
-  	 	gConvertedToiEtaiPhi.SetPoint(i,xIEta,yIPhi)
-  	gConvertedToiEtaiPhi.GetXaxis().SetTitle("i#eta")
+		xIEta = x/0.087 + ( 0.5 if x > 0 else -0.5 )
+		yIPhi = y/0.087 + 1
+		gConvertedToiEtaiPhi.SetPoint(i,xIEta,yIPhi)
+	gConvertedToiEtaiPhi.GetXaxis().SetTitle("i#eta")
 	gConvertedToiEtaiPhi.GetYaxis().SetTitle("i#phi")
-  	return gConvertedToiEtaiPhi
+	return gConvertedToiEtaiPhi
 
 def drawHcalBoxesHcalCoords(canvas):
-    canvas.cd()
-    boxes = []
-    for i in range(-15,15):
-        for j in range(0,72):
-            box = TBox(i,j,(i+1),(j+1))
-            box.SetFillStyle(0)
-            box.SetLineColor(colorRwthMagenta)
-            box.SetLineWidth(2)
-            box.Draw()
-            boxes.append(box)
-    return boxes
+	canvas.cd()
+	boxes = []
+	for i in range(-15,15):
+		for j in range(0,72):
+			box = TBox(i,j,(i+1),(j+1))
+			box.SetFillStyle(0)
+			box.SetLineColor(colorRwthMagenta)
+			box.SetLineWidth(2)
+			box.Draw()
+			boxes.append(box)
+	return boxes
 
 def setPlotStyle():
 	gStyle.SetPadGridX(1)

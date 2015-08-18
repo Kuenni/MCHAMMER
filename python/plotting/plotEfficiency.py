@@ -153,8 +153,8 @@ def plotCombinedEfficiency():
 		val[1].Draw('same')
 		
 	
-	hl[0][1].SetFillColor(PlotStyle.colorRwthMagenta)
-	hl[0][0].SetFillColor(PlotStyle.colorRwthDarkBlue)
+	hl[0][1].SetFillColor(colorRwthMagenta)
+	hl[0][0].SetFillColor(colorRwthDarkBlue)
 	leg.AddEntry(hl[0][0],"L1","f")
 	leg.AddEntry(hl[0][1],"L1 + HO","f")
 	markers = []
@@ -164,18 +164,17 @@ def plotCombinedEfficiency():
 		leg.AddEntry(markers[i],"p_{T} = " + str((i+1)*5) + " GeV","p")
 	leg.Draw()
 	
-	label = PlotStyle.getLabelCmsPrivateSimulation()
-	label.Draw()
+	label = drawLabelCmsPrivateSimulation()
 	
 	if( not os.path.exists('plots')):
 		os.mkdir('plots')
-   	if( not os.path.exists('plots/efficiency')):
+	if( not os.path.exists('plots/efficiency')):
 		os.mkdir('plots/efficiency')
 	
 	canv.SaveAs('plots/efficiency/combinedEfficiency.png')	
 	canv.SaveAs('plots/efficiency/combinedEfficiency.pdf')
 	canv.SaveAs('plots/efficiency/combinedEfficiency.root')			
-	return canv,leg,hl
+	return canv,leg,hl,label
 
 def plotEfficiencyPerHoTiles(dataSource = 'L1Muon',gridsize = 0):
 	gridType = ''
