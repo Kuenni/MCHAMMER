@@ -27,3 +27,6 @@ PostLS1/noiseTest
 PostLS1/AsymmetryCheck
 PostLS1/SingleMuonGunPooja/condor
 PostLS1/SingleMuPlus/muonAnalyzerTask
+PostLS1/SingleMuPlus/sources
+PostLS1/SingleMuonGunPooja/condorFixedGenDeltaR/results
+PostLS1/SingleMuonGunPooja/muonAnalyzerTask
