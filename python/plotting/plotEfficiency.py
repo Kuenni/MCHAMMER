@@ -111,14 +111,10 @@ def plotEfficiencyForPt(folder,pt):
 		newGraph.SetPoint(i,x1,(y1-y2)*100)
 	
 	
-	frame = TH2D('frame','frame',1,0,50,1,-0.1,1.5)
-	frame.Draw()
-	
 	newGraph.SetMarkerStyle(20)
 	newGraph.GetYaxis().SetTitle("%")
-	newGraph.GetXaxis().SetRangeUser(0,50)
-
-	newGraph.Draw("same,p")
+	newGraph.Draw("a,p")
+	newGraph.GetXaxis().SetLimits(0,50)
 	line2 = TLine(0,0,50,0)
 	line2.SetLineColor(ROOT.kRed)
 	line2.SetLineWidth(2)
@@ -132,7 +128,7 @@ def plotEfficiencyForPt(folder,pt):
 	f = TFile.Open("plots/efficiency/efficiency" + str(pt) + ".root","RECREATE")
 	canv.Write()
 	f.Close()
-	return [l1Muon,l1MuonAndHoAboveThr,canv,legend,line,paveText,label,newGraph,frame]
+	return [l1Muon,l1MuonAndHoAboveThr,canv,legend,line,paveText,label,newGraph]
 
 def plotEfficiency(folder):
 	histlist = []
