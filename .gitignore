@@ -23,3 +23,5 @@ __init__.py
 *.jdl
 */out.*
 */err.*
+PostLS1/noiseTest
+PostLS1/AsymmetryCheck
