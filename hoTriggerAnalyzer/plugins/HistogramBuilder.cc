@@ -46,12 +46,16 @@ void HistogramBuilder::fillVzHistogram(float vz, std::string key){
 /**
  * Fill a 2d histogram
  */
-void HistogramBuilder::fillCorrelationHistogram(double x, double y, std::string key){
+void HistogramBuilder::fillCorrelationHistogram(double x, double y, std::string key,TH2D* histogram){
 	TFileDirectory correlationDir = _fileService->mkdir( "correlation" );
 	if(!_h2Correlation.count(key)){
 		_h2Correlation[key] = correlationDir.make<TH2D>(Form("%s_Correlation",key.c_str()),
-					Form("%s Correlation;x;y",key.c_str()),
-					500, 0,500,500,0,500);
+				Form("%s Correlation;x;y",key.c_str()),
+				500, 0,500,500,0,500);
+		if(histogram){
+			histogram->Copy(*_h2Correlation[key]);
+			_h2Correlation[key]->SetDirectory(correlationDir.getBareDirectory());
+		}
 	}
 	_h2Correlation[key]->Fill(x,y);
 }

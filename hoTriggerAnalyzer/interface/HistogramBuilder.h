@@ -37,7 +37,7 @@ class HistogramBuilder {
   void fillBxIdHistogram(int bxId,std::string key);
   void fillBxIdVsPt(int bxId,double pt,std::string key);
   void fillCorrelationGraph(double xVal, double yVal, std::string key);
-  void fillCorrelationHistogram(double x, double y, std::string key);
+  void fillCorrelationHistogram(double x, double y, std::string key,TH2D* histogram = 0);
   void fillCountHistogram(std::string key);
   void fillDeltaEtaDeltaPhiEnergyHistogram(float,float,float,float,float,std::string);
   void fillDeltaEtaDeltaPhiHistograms(float eta1, float eta2, float phi1, float phi2,  std::string key);
