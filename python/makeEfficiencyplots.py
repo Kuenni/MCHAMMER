@@ -295,18 +295,18 @@ def plot5x5GridTogether():
 	plt.show()
 
 def plotDeltaNL1ComparedGridMatching():
-	effL1Muon5x5Truth = fileHandler.getHistogram('hoMuonAnalyzer/efficiency/L1MuonTruth5x5_Efficiency')
-	effL1Muon5x5 = fileHandler.getHistogram('hoMuonAnalyzer/efficiency/L1Muon5x5_Efficiency')
+	effL1Muon3x3Truth = fileHandler.getHistogram('hoMuonAnalyzer/efficiency/L1MuonTruth3x3_Efficiency')
+	effL1Muon3x3 = fileHandler.getHistogram('hoMuonAnalyzer/efficiency/L1Muon3x3_Efficiency')
 
 	xValues = []
 	xErrLow = []
 	xErrHigh= []
 	yValues = []
 	
-	for i in range(effL1Muon5x5.GetPassedHistogram().GetNbinsX()):
-		if(effL1Muon5x5.GetTotalHistogram().GetBinContent(i) != 0):
-			yValues.append(effL1Muon5x5Truth.GetTotalHistogram().GetBinContent(i) - effL1Muon5x5.GetTotalHistogram().GetBinContent(i))
-			xValues.append(effL1Muon5x5.GetTotalHistogram().GetBinCenter(i))
+	for i in range(effL1Muon3x3.GetPassedHistogram().GetNbinsX()):
+		if(effL1Muon3x3.GetTotalHistogram().GetBinContent(i) != 0):
+			yValues.append(effL1Muon3x3Truth.GetTotalHistogram().GetBinContent(i) - effL1Muon3x3.GetTotalHistogram().GetBinContent(i))
+			xValues.append(effL1Muon3x3.GetTotalHistogram().GetBinCenter(i))
 	
 	xErrLow.append(0.25)
 	xErrHigh.append(.25)
@@ -319,14 +319,14 @@ def plotDeltaNL1ComparedGridMatching():
 	
 	fig = plt.figure()
 	ax1 = fig.add_subplot(111)
-	ax1.errorbar(xValues,yValues,xerr=[xErrLow,xErrHigh],fmt='^',color='#57AB27',label='(L1 + HO) - L1')
+	ax1.errorbar(xValues,yValues,xerr=[xErrLow,xErrHigh],fmt='^',color='#57AB27',label='# Truth - # All')
 	ax1.legend(loc='lower right')
 	ax1.grid(True)
 	ax1.set_ylabel('# L1')
 	ax1.set_xlabel(r'p$_\mathrm{T}$ / GeV')
-	ax1.set_title(r'# L1 in direct comparison for GridMatching')
+	ax1.set_title(r'# L1 in direct comparison for Grid Matching (3x3)')
 	pyplotCmsPrivateLabel(ax1)
-	plt.savefig('plots/efficiency/nL15x5.png')
+	plt.savefig('plots/efficiency/nL13x3.png')
 	plt.show()
 
 def plotDeltaNL1ComparedMatchingByEMax():
@@ -363,12 +363,15 @@ def plotDeltaNL1ComparedMatchingByEMax():
 	plt.savefig('plots/efficiency/nL1ByEmax.png')
 	plt.show()
 	
-def plotNtotalGridMatching5x5():
-	effL1Muon5x5 = fileHandler.getHistogram("hoMuonAnalyzer/efficiency/L1Muon5x5_Efficiency")
+def plotNtotalGridMatching3x3():
+	effL1Muon3x3 = fileHandler.getHistogram("hoMuonAnalyzer/efficiency/L1Muon3x3_Efficiency")
+	effL1Muon3x3Truth = fileHandler.getHistogram("hoMuonAnalyzer/efficiency/L1MuonTruth3x3_Efficiency")
 	effL1Muon5x5Truth = fileHandler.getHistogram("hoMuonAnalyzer/efficiency/L1MuonTruth5x5_Efficiency")
+
 	genPt = fileHandler.getHistogram("hoMuonAnalyzer/gen_Pt")
 	
 	yTruth = []
+	yTruthErr = []
 	
 	xValues = []
 	xErrLow = []
@@ -378,20 +381,26 @@ def plotNtotalGridMatching5x5():
 	xGen = []
 	xGenErr = []
 	yGen = []
+	yGenSummed = []
+	yGenSummedErr = []
 	
 	for i in range(1,genPt.GetNbinsX()):
 		if(genPt.GetBinCenter(i) > 200):
 			break
 		xGen.append(genPt.GetBinCenter(i))
 		xGenErr.append(genPt.GetBinWidth(i)/2.)
-		yGen.append( genPt.GetBinContent(i) / 2*xGenErr[i-1] )
+		yGen.append( genPt.GetBinContent(i) )
 		
-	for i in range(1,effL1Muon5x5.GetPassedHistogram().GetNbinsX()):
-		if(effL1Muon5x5.GetTotalHistogram().GetBinContent(i) != 0):
-			yValues.append(effL1Muon5x5.GetTotalHistogram().GetBinContent(i))
-			xValues.append(effL1Muon5x5.GetTotalHistogram().GetBinCenter(i))
-			yTruth.append(effL1Muon5x5Truth.GetTotalHistogram().GetBinContent(i))
+	for i in range(1,effL1Muon3x3.GetPassedHistogram().GetNbinsX()):
+		if(effL1Muon3x3.GetTotalHistogram().GetBinContent(i) != 0):
+			yValues.append(effL1Muon3x3.GetTotalHistogram().GetBinContent(i))
+			xValues.append(effL1Muon3x3.GetTotalHistogram().GetBinCenter(i))
+			yTruth.append(effL1Muon3x3Truth.GetTotalHistogram().GetBinContent(i))
+			yTruthErr.append(sqrt(yTruth[-1]))
 	
+	print effL1Muon3x3.GetTotalHistogram().Integral(),effL1Muon3x3Truth.GetTotalHistogram().Integral()\
+		,genPt.Integral(),effL1Muon5x5Truth.GetTotalHistogram().Integral()
+
 	
 	xErrLow.append(0.25)
 	xErrHigh.append(.25)
@@ -403,27 +412,41 @@ def plotNtotalGridMatching5x5():
 	xErrHigh.append(60)#xErrHigh[-1])
 
 	counter = 0
+	genSum = 0
 	for i in range(len(xGen)):
 		if(xGen[i]>(xValues[counter] + xErrHigh[counter])):
 			counter+=1
-	
+			yGenSummed.append(genSum)
+			yGenSummedErr.append(sqrt(yGenSummed[-1]))
+
+			genSum = 0
+		genSum += yGen[i]
+	yGenSummed.append(genSum)
+	yGenSummedErr.append(sqrt(yGenSummed[-1]))
+
 	for i in range(0,len(yValues)):
 		yValues[i] /= (xErrHigh[i] + xErrLow[i])
 	for i in range(0,len(yTruth)):
 		yTruth[i] /= (xErrHigh[i] + xErrLow[i])
+		yTruthErr[i] /= (xErrHigh[i] + xErrLow[i])
+	for i in range(0,len(yGenSummed)):
+		yGenSummed[i] /= (xErrHigh[i] + xErrLow[i])
+		yGenSummedErr[i] /= (xErrHigh[i] + xErrLow[i])
 	
 	fig = plt.figure()
 	ax1 = fig.add_subplot(111)
 	ax1.errorbar(xValues,yValues,xerr=[xErrLow,xErrHigh],fmt='^',color=rwthDarkBlue,label='L1')
-	ax1.errorbar(xValues,yTruth,xerr=[xErrLow,xErrHigh],fmt='^',color=rwthGruen,label='L1 Truth')
-	ax1.errorbar(xGen,yGen,xerr=xGenErr,fmt='^',color=rwthMagenta,label='Gen')
+	ax1.set_yscale('log')
+	ax1.errorbar(xValues,yTruth,xerr=[xErrLow,xErrHigh],yerr=yTruthErr,fmt='^',color=rwthGruen,label='L1 Truth')
+#	ax1.errorbar(xGen,yGen,xerr=xGenErr,fmt='^',color=rwthMagenta,label='Gen')
+	ax1.errorbar(xValues,yGenSummed,xerr=[xErrLow,xErrHigh],yerr = yGenSummedErr,fmt='^',color=rwthRot,label='Gen Summed')
 	ax1.legend(loc='lower right')
 	ax1.grid(True)
-	ax1.set_ylabel('# / bin width')
+	ax1.set_ylabel('# / bin width (1/GeV)')
 	ax1.set_xlabel(r'p$_\mathrm{T}$ / GeV')
-	ax1.set_title(r'# L1 for grid matching by E$_{Max}$')
+	ax1.set_title(r'# L1 for grid matching (3x3) by E$_{Max}$')
 	pyplotCmsPrivateLabel(ax1)
-	plt.savefig('plots/efficiency/nL1ByEmax5x5Absolute.png')
+	plt.savefig('plots/efficiency/nL1ByEmax3x3Absolute.png')
 	plt.show()
 	
 def plot3x3GridTogether():
@@ -508,14 +531,14 @@ def plot3x3GridTogether():
 	plt.savefig('plots/efficiency/efficiency3x3.png')
 	plt.show()
 	
-r =plotQualityCodes()
-raw_input('--> Enter')
 
+plotNtotalGridMatching3x3()
+res2 = plotEfficiencyForPt(None,15)
+r = plotQualityCodes()
+raw_input('--> Enter')
 plot3x3GridTogether()
-plotNtotalGridMatching5x5()
 plotDeltaNL1ComparedMatchingByEMax()
 res = plotEfficiencyPerHoTiles()
-res2 = plotEfficiencyForPt(None,15)
 plotDeltaNL1ComparedGridMatching()	
 plotL1GridMatchingEfficiency()
 plotL1TruthGridMatchingPlot()
