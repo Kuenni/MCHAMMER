@@ -33,3 +33,9 @@ PostLS1/SingleMuonGunPooja/muonAnalyzerTask
 PostLS1/SingleMuonGunPooja/condorFixedGenDeltaR
 PostLS1/SingleMuonGunPooja/sources
 PostLS1/noiseTestWithPU
+PostLS1/SingleMuonGunWithPU/configs
+PostLS1/SingleMuonGunWithPU/condor
+PostLS1/SingleMuonGunWithPU/sources
+PostLS1/SingleMuonGunWithPU/muonAnalyzerTask
+PostLS1/SingleMuonGunWithPU/condor
+PostLS1/SingleMuonGunWithPU/configs
