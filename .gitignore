@@ -25,3 +25,5 @@ __init__.py
 */err.*
 PostLS1/noiseTest
 PostLS1/AsymmetryCheck
+PostLS1/SingleMuonGunPooja/condor
+PostLS1/SingleMuPlus/muonAnalyzerTask
