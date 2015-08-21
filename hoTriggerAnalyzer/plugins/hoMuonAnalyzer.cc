@@ -554,7 +554,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		//Look for matches in grid around L1
 		GlobalPoint l1Direction(bl1Muon->p4().X(),bl1Muon->p4().Y(),bl1Muon->p4().Z());
 		fillGridMatchingEfficiency(l1Direction,bl1Muon->pt(),"L1Muon");
-		fillGridMatchingQualityCodes(&*bl1Muon,bl1Muon->pt(),"L1MuonQualityCodes");
+		fillGridMatchingQualityCodes(&*bl1Muon,bl1Muon->pt(),"L1Muon");
 
 		if(MuonHOAcceptance::inGeomAccept(l1Muon_eta,l1Muon_phi)&& !hoMatcher->isInChimney(l1Muon_eta,l1Muon_phi)){
 			histogramBuilder.fillCountHistogram("L1MuonInGA_L1Dir");
@@ -1377,6 +1377,13 @@ void hoMuonAnalyzer::fillAverageEnergyAroundL1Direction(const l1extra::L1MuonPar
 					,float(hoMatcher->getRecHitEta(&*recHitIt))	,l1Muon->phi()
 					,float(hoMatcher->getRecHitPhi(&*recHitIt))	,recHitIt->energy()
 					,"averageEnergyAroundPoint");//Use this function for the 1D distributions for each delta eta and delta phi
+			float deltaPhi;
+			deltaPhi = FilterPlugin::wrapCheck(l1Muon->phi(),hoMatcher->getRecHitPhi(&*recHitIt));
+			float variableBinArray[] = {0,0.5,1,1.5,2,2.5,3,3.5,4,4.5,5,6,7,8,10,12,14,16,18,20,25,30,35,40,45,50,60,70,80,100,120,140,200};
+			TH2D* hist = new TH2D("shiftCheckDeltaPhiVsPt","#Delta#phi shift check;p_{T} / GeV;#Delta#phi",32,variableBinArray,73, -3.1755, 3.1755);
+			histogramBuilder.fillCorrelationHistogram(l1Muon->pt(),deltaPhi,"shiftCheckDeltaPhiVsPt",hist);
+			hist = new TH2D("shiftCheckDeltaPhiVsPhi","#Delta#phi shift check;#phi;#Delta#phi",730, -3.1755, 3.1755,73, -3.1755, 3.1755);
+			histogramBuilder.fillCorrelationHistogram(l1Muon->phi(),deltaPhi,"shiftCheckDeltaPhiVsPhi",hist);
 		}
 	}
 
@@ -1426,6 +1433,8 @@ void hoMuonAnalyzer::fillGridMatchingQualityCodes(const l1extra::L1MuonParticle*
 		fillEfficiencyHistograms(l1muon->pt(),truePt,key + "GenPtCentral");
 	} else{
 		histogramBuilder.fillMultiplicityHistogram(l1MuonQuality,key + "QualityCodesCentralFail" );
+		TH2D* hist = new TH2D((key + "p2TvsQCCentralFail").c_str(),"p_{T} vs. QC (Central);QC;p_{T} / Gev",5,3.5,8.5,200,0,200);
+		histogramBuilder.fillCorrelationHistogram(l1MuonQuality,l1muon->pt(),key + "pTvsQCCentralFail",hist);
 	}
 	//#####
 	// 3 x 3
@@ -1435,6 +1444,8 @@ void hoMuonAnalyzer::fillGridMatchingQualityCodes(const l1extra::L1MuonParticle*
 		fillEfficiencyHistograms(l1muon->pt(),truePt,key + "GenPt3x3");
 	} else {
 		histogramBuilder.fillMultiplicityHistogram(l1MuonQuality,key + "QualityCodes3x3Fail");
+		TH2D* hist = new TH2D((key + "pTvsQC3x3Fail").c_str(),"p_{T} vs. QC (3x3);QC;p_{T} / Gev",5,3.5,8.5,200,0,200);
+		histogramBuilder.fillCorrelationHistogram(l1MuonQuality,l1muon->pt(),key + "pTvsQC3x3Fail",hist);
 	}
 	//#####
 	// 5 x 5
@@ -1444,6 +1455,8 @@ void hoMuonAnalyzer::fillGridMatchingQualityCodes(const l1extra::L1MuonParticle*
 		fillEfficiencyHistograms(l1muon->pt(),truePt,key + "GenPt5x5");
 	} else {
 		histogramBuilder.fillMultiplicityHistogram(l1MuonQuality,key + "QualityCodes5x5Fail");
+		TH2D* hist = new TH2D((key + "pTvsQC5x5Fail").c_str(),"p_{T} vs. QC (5x5);QC;p_{T} / Gev",5,3.5,8.5,200,0,200);
+		histogramBuilder.fillCorrelationHistogram(l1MuonQuality,l1muon->pt(),key + "pTvsQC5x5Fail",hist);
 	}
 	histogramBuilder.fillCorrelationGraph(l1muon->pt(),l1MuonQuality,key);
 }
