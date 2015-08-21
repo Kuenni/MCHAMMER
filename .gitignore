@@ -37,5 +37,5 @@ PostLS1/SingleMuonGunWithPU/configs
 PostLS1/SingleMuonGunWithPU/condor
 PostLS1/SingleMuonGunWithPU/sources
 PostLS1/SingleMuonGunWithPU/muonAnalyzerTask
-PostLS1/SingleMuonGunWithPU/condor
-PostLS1/SingleMuonGunWithPU/configs
+*cmsswSourceFiles*
+*dcacheFiles*
