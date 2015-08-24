@@ -81,6 +81,11 @@ parser.add_argument('--gridpackname','-g'
 				,default='modulegridpack.tar.gz'
 				,help='Set the name of the gridpack file')
 
+parser.add_argument('--no-submit'
+				,dest='noSubmit'
+				,action="store_true",default=False
+				,help='Do not submit jobs to CE')
+
 args = parser.parse_args()
 
 if not args.nJobs and not args.test and not args.collect:
@@ -101,16 +106,16 @@ def collectOutput():
 	if not args.dir:
 		output('You have to provide the task directory')
 		sys.exit(1)
-	for file in os.listdir(args.dir):
+	for sourceFile in os.listdir(args.dir):
 		if len(filesToProcess) == args.split:
 			fileBatches.append(filesToProcess)
 			filesToProcess = []
-		if file.startswith('grid'):
-			file = os.path.abspath(args.dir + '/' + file)
-			if not hasJobFailed(file):
-				for result in os.listdir(file):
+		if sourceFile.startswith('grid'):
+			sourceFile = os.path.abspath(args.dir + '/' + sourceFile)
+			if not hasJobFailed(sourceFile):
+				for result in os.listdir(sourceFile):
 					if result.endswith('.root'):
-						filesToProcess.append(file + '/' + result)
+						filesToProcess.append(sourceFile + '/' + result)
 	if(len(filesToProcess) != 0):
 		fileBatches.append(filesToProcess)
 	filenameTrunk = args.outfile[0:args.outfile.rfind('.root')]
@@ -200,7 +205,8 @@ def main():
 		createDirectories()
 		createSourceLists()
 		createRunConfigs()
-		sendJobs()
+		if not args.noSubmit:
+			sendJobs()
 	else:
 		collectOutput()
 
