@@ -543,7 +543,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		histogramBuilder.fillVzHistogram(bl1Muon->vz(),l1muon_key);
 		histogramBuilder.fillEtaPhiGraph(bl1Muon->eta(), bl1Muon->phi(), l1muon_key);
 		//For variable binning
-		listL1MuonPt.push_back(bl1Muon->pt());
+//		listL1MuonPt.push_back(bl1Muon->pt());
 		/*
 		 * Fill histogram for different pt thresholds
 		 * CAREFUL!! THIS IS NOT A REAL RATE YET!!
