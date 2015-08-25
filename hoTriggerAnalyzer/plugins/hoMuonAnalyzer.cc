@@ -302,6 +302,8 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				histogramBuilder.fillCountHistogram("tdmiMatchHoFail");
 				histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"tdmiMatchHoFail");
 			}
+			delete muMatch;
+
 		}//<-- TDMI in GA
 	}
 
@@ -759,6 +761,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 
 			double muMatchPhi = muMatch->trkGlobPosAtHO.phi();
 			double muMatchEta = muMatch->trkGlobPosAtHO.eta();
+			delete muMatch;
 			histogramBuilder.fillEtaPhiGraph(genEta,genPhi,"NoL1GenAny");
 			histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"NoL1TdmiAny");
 			if(MuonHOAcceptance::inGeomAccept(muMatchEta,muMatchPhi)
@@ -799,6 +802,8 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				);
 				fillGridMatchingEfficiency(muMatchDirection,genIt->pt(),"tdmi");
 			}
+			delete muMatch;
+
 			const l1extra::L1MuonParticle* l1Part = functionsHandler->getBestL1MuonMatch(muMatchEta,muMatchPhi);
 			if(l1Part){
 				double deltaEta = muMatchEta - l1Part->eta();
@@ -919,6 +924,8 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"NoTrgTdmiNotInGA");
 				histogramBuilder.fillEtaPhiPtHistogram(muMatchEta,muMatchPhi,genIt->pt(),"NoTrgTdmiNotInGA");
 			}
+			delete muMatch;
+
 		}//Loop over gen particles
 	}//<-- Not single mu trg
 	//#############################################################
@@ -945,6 +952,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			TrackDetMatchInfo * muMatch = getTrackDetMatchInfo(*genIt,iEvent,iSetup);
 			double muMatchPhi = muMatch->trkGlobPosAtHO.phi();
 			double muMatchEta = muMatch->trkGlobPosAtHO.eta();
+			delete muMatch;
 
 			//Require the muon to hit the HO area
 			if(MuonHOAcceptance::inGeomAccept(muMatchEta,muMatchPhi) && !hoMatcher->isInChimney(muMatchEta,muMatchPhi)){
@@ -1177,7 +1185,9 @@ TrackDetMatchInfo* hoMuonAnalyzer::getTrackDetMatchInfo(reco::GenParticle genPar
 	GlobalVector mom (genPart.momentum().x(),genPart.momentum().y(),genPart.momentum().z());
 	int charge = genPart.charge();
 	const FreeTrajectoryState *freetrajectorystate_ = new FreeTrajectoryState(vertexPoint, mom ,charge , &(*theMagField));
-	return new TrackDetMatchInfo(assoc.associate(iEvent, iSetup, *freetrajectorystate_, assocParams));
+	TrackDetMatchInfo* info = new TrackDetMatchInfo(assoc.associate(iEvent, iSetup, *freetrajectorystate_, assocParams));
+	delete freetrajectorystate_;
+	return info;
 }
 
 /**
@@ -1237,6 +1247,7 @@ void hoMuonAnalyzer::analyzeL1AndGenMatch(const edm::Event& iEvent, const edm::E
 			TrackDetMatchInfo * muMatch = getTrackDetMatchInfo(*ref,iEvent,iSetup);
 			double muMatchEta = muMatch->trkGlobPosAtHO.eta();
 			double muMatchPhi = muMatch->trkGlobPosAtHO.phi();
+			delete muMatch;
 			histogramBuilder.fillCountHistogram("L1GenRef");
 			if(MuonHOAcceptance::inGeomAccept(muMatchEta,muMatchPhi)
 						&& MuonHOAcceptance::inNotDeadGeom(muMatchEta,muMatchPhi)
@@ -1272,6 +1283,7 @@ void hoMuonAnalyzer::analyzeNoSingleMuEventsL1Loop(const edm::Event& iEvent,cons
 			TrackDetMatchInfo * muMatch = getTrackDetMatchInfo(*ref,iEvent,iSetup);
 			double muMatchEta = muMatch->trkGlobPosAtHO.eta();
 			double muMatchPhi = muMatch->trkGlobPosAtHO.phi();
+			delete muMatch;
 			histogramBuilder.fillCountHistogram("L1GenRefNoSingleMu");
 			if(MuonHOAcceptance::inGeomAccept(muMatchEta,muMatchPhi)
 			&& MuonHOAcceptance::inNotDeadGeom(muMatchEta,muMatchPhi)
@@ -1306,6 +1318,7 @@ void hoMuonAnalyzer::analyzeNoSingleMuEventsGenLoop(const edm::Event& iEvent,con
 		TrackDetMatchInfo * muMatch = getTrackDetMatchInfo(*genIt,iEvent,iSetup);
 		double muMatchEta = muMatch->trkGlobPosAtHO.eta();
 		double muMatchPhi = muMatch->trkGlobPosAtHO.phi();
+		delete muMatch;
 		histogramBuilder.fillCountHistogram("NoSingleMu");
 		if(MuonHOAcceptance::inGeomAccept(muMatchEta,muMatchPhi)
 		&& MuonHOAcceptance::inNotDeadGeom(muMatchEta,muMatchPhi)
@@ -1441,6 +1454,7 @@ void hoMuonAnalyzer::fillGridMatchingQualityCodes(const l1extra::L1MuonParticle*
 		histogramBuilder.fillMultiplicityHistogram(l1MuonQuality,key + "QualityCodesCentralFail" );
 		TH2D* hist = new TH2D((key + "pTvsQCCentralFail").c_str(),"p_{T} vs. QC (Central);QC;p_{T} / Gev",5,3.5,8.5,200,0,200);
 		histogramBuilder.fillCorrelationHistogram(l1MuonQuality,l1muon->pt(),key + "pTvsQCCentralFail",hist);
+		delete hist;
 	}
 	//#####
 	// 3 x 3
@@ -1452,6 +1466,7 @@ void hoMuonAnalyzer::fillGridMatchingQualityCodes(const l1extra::L1MuonParticle*
 		histogramBuilder.fillMultiplicityHistogram(l1MuonQuality,key + "QualityCodes3x3Fail");
 		TH2D* hist = new TH2D((key + "pTvsQC3x3Fail").c_str(),"p_{T} vs. QC (3x3);QC;p_{T} / Gev",5,3.5,8.5,200,0,200);
 		histogramBuilder.fillCorrelationHistogram(l1MuonQuality,l1muon->pt(),key + "pTvsQC3x3Fail",hist);
+		delete hist;
 	}
 	//#####
 	// 5 x 5
@@ -1463,6 +1478,7 @@ void hoMuonAnalyzer::fillGridMatchingQualityCodes(const l1extra::L1MuonParticle*
 		histogramBuilder.fillMultiplicityHistogram(l1MuonQuality,key + "QualityCodes5x5Fail");
 		TH2D* hist = new TH2D((key + "pTvsQC5x5Fail").c_str(),"p_{T} vs. QC (5x5);QC;p_{T} / Gev",5,3.5,8.5,200,0,200);
 		histogramBuilder.fillCorrelationHistogram(l1MuonQuality,l1muon->pt(),key + "pTvsQC5x5Fail",hist);
+		delete hist;
 	}
 	histogramBuilder.fillCorrelationGraph(l1muon->pt(),l1MuonQuality,key);
 }

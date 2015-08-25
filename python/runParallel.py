@@ -207,6 +207,8 @@ def main():
 		createRunConfigs()
 		if not args.noSubmit:
 			sendJobs()
+		else:
+			output('As requested, no jobs were submitted.')
 	else:
 		collectOutput()
 
