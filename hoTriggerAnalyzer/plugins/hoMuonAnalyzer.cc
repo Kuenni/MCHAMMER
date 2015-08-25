@@ -564,7 +564,6 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				histogramBuilder.fillCountHistogram("L1MuoninGaBx0");
 			histogramBuilder.fillCorrelationGraph(l1Direction.eta(),l1Muon_eta,"Correlationp4AndL1Object");
 		}
-
 		const HORecHit* matchedRecHit = hoMatcher->matchByEMaxDeltaR(l1Muon_eta,l1Muon_phi);
 		if(matchedRecHit){
 			double hoEta,hoPhi;
@@ -1231,41 +1230,6 @@ void hoMuonAnalyzer::printChannelQualities(const edm::EventSetup& iSetup){
 	channelStatusHist->Write();
 	channelStatusfile->Write();
 	channelStatusfile->Close();
-}
-
-/**
- * This function analyzes the information in the collection produced by the l1muon and gen matcher
- */
-void hoMuonAnalyzer::analyzeL1AndGenMatch(const edm::Event& iEvent, const edm::EventSetup& iSetup){
-	for(unsigned int i = 0; i < l1Muons->size() ; i++){
-		const l1extra::L1MuonParticle* l1Muon = &(l1Muons->at(i));
-		edm::RefToBase<l1extra::L1MuonParticle> l1MuonCandiateRef(l1MuonView,i);
-		reco::GenParticleRef ref = (*l1MuonGenMatches)[l1MuonCandiateRef];
-		if(ref.isNonnull()){
-			histogramBuilder.fillEfficiency(true,l1Muon->pt(),"L1GenRef");
-			//Once there is a gen ref, get the Track det match info
-			TrackDetMatchInfo * muMatch = getTrackDetMatchInfo(*ref,iEvent,iSetup);
-			double muMatchEta = muMatch->trkGlobPosAtHO.eta();
-			double muMatchPhi = muMatch->trkGlobPosAtHO.phi();
-			delete muMatch;
-			histogramBuilder.fillCountHistogram("L1GenRef");
-			if(MuonHOAcceptance::inGeomAccept(muMatchEta,muMatchPhi)
-						&& MuonHOAcceptance::inNotDeadGeom(muMatchEta,muMatchPhi)
-						&& !hoMatcher->isInChimney(muMatchEta,muMatchPhi)){
-				histogramBuilder.fillCountHistogram("L1GenRefInGa");
-				GlobalPoint l1Direction(
-						l1Muon->p4().X(),
-						l1Muon->p4().Y(),
-						l1Muon->p4().Z()
-				);
-				fillGridMatchingEfficiency(l1Direction,ref->pt(),"L1GenRefInGa",muMatchEta,muMatchPhi);
-			}
-
-		} else {
-			histogramBuilder.fillEfficiency(false,l1Muon->pt(),"L1GenRef");
-			histogramBuilder.fillEtaPhiGraph(l1Muon->eta(),l1Muon->phi(),"L1GenRefFail");
-		}
-	}
 }
 
 /**
