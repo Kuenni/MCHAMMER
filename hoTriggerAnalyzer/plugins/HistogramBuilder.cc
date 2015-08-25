@@ -142,8 +142,8 @@ void HistogramBuilder::fillTrigRateHistograms(float ptThreshold,std::string key)
  * Trig rate histogram with special x binning for L1 resolution
  */
 void HistogramBuilder::fillTrigRateL1Histograms(float ptThreshold, std::string key){
-	float variableBinArray[] = {0,0.5,1,1.5,2,2.5,3,3.5,4,4.5,5,6,7,8,9,10,12,14,16,18,20,25,30,35,40,45,50,60,70,80,100,120,140,180};
 	if(!_h1TrigRate.count(key)){
+		float variableBinArray[] = {0,0.5,1,1.5,2,2.5,3,3.5,4,4.5,5,6,7,8,9,10,12,14,16,18,20,25,30,35,40,45,50,60,70,80,100,120,140,180};
 		_h1TrigRate[key] = _fileService->make<TH1D>(Form("%s_TrigRate",key.c_str()),
 				Form("%s Trigger Pseudo Rate",key.c_str()),
 				33,variableBinArray);
@@ -295,24 +295,24 @@ void HistogramBuilder::fillEnergyCorrelationHistogram(double simHitEnergy, doubl
 	TFileDirectory energyDir = _fileService->mkdir("energy");
 
 	//Fill Sim hit energy histo
-	TString simHitKey(key);
+	std::string simHitKey(key);
 	key.append("simHits");
-	if(!_h1Energy.count(simHitKey.Data())){
-		_h1Energy[simHitKey.Data()] = energyDir.make<TH1F>(Form("%s_Energy_SimHits",key.c_str()),
+	if(!_h1Energy.count(simHitKey.c_str())){
+		_h1Energy[simHitKey.c_str()] = energyDir.make<TH1F>(Form("%s_Energy_SimHits",key.c_str()),
 				Form("%s Energy;Sim Hits / GeV;#",key.c_str()),
 				2100, -5.0, 100.0);
 	}
-	_h1Energy[simHitKey.Data()]->Fill(simHitEnergy);
+	_h1Energy[simHitKey.c_str()]->Fill(simHitEnergy);
 
 	//Fill rec hit energy histo
-	TString recHitKey(key);
+	std::string recHitKey(key);
 	key.append("recHits");
-	if(!_h1Energy.count(recHitKey.Data())){
-		_h1Energy[recHitKey.Data()] = energyDir.make<TH1F>(Form("%s_Energy_RecHits",key.c_str()),
+	if(!_h1Energy.count(recHitKey.c_str())){
+		_h1Energy[recHitKey.c_str()] = energyDir.make<TH1F>(Form("%s_Energy_RecHits",key.c_str()),
 				Form("%s Energy;Rec Hits / GeV;#",key.c_str()),
 				2100, -5.0, 100.0);
 	}
-	_h1Energy[recHitKey.Data()]->Fill(recHitEnergy);
+	_h1Energy[recHitKey.c_str()]->Fill(recHitEnergy);
 
 	//Fill correlation
 	if(!_h2EnergyCorrelation.count(key)){
