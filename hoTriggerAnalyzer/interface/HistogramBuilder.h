@@ -64,6 +64,12 @@ class HistogramBuilder {
   void fillTrigRateL1Histograms(float,std::string);
   void fillVzHistogram(float,std::string);
 
+  ~HistogramBuilder(){
+	  for(std::map<std::string,TH1D**>::const_iterator it = _hArrDeltaEtaDeltaPhiEnergy.begin(); it != _hArrDeltaEtaDeltaPhiEnergy.end(); it++){
+		  delete[] it->second;
+	  }
+  }
+
  private:
 
   std::map<std::string,TH1F*> _h1Eta;
