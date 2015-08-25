@@ -117,6 +117,10 @@ HoDigiAnalyzer::HoDigiAnalyzer(const edm::ParameterSet& iConfig){
 
 HoDigiAnalyzer::~HoDigiAnalyzer()
 {
+	delete functionsHandler;
+	delete hoMatcher;
+	hoMatcher = 0;
+	functionsHandler = 0;
 }
 
 // ------------ method called when starting to processes a run  ------------
