@@ -88,9 +88,7 @@
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 using namespace::std;
 
-hoMuonAnalyzer::hoMuonAnalyzer(const edm::ParameterSet& iConfig)/*:
-				assocParams(iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters"))*/
-{
+hoMuonAnalyzer::hoMuonAnalyzer(const edm::ParameterSet& iConfig){
 	coutPrefix = "[hoMuonAnalyzer] ";
 	//now do what ever initialization is needed
 
