@@ -3,13 +3,13 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("Demo")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
-#process.MessageLogger.cerr.FwkReport.reportEvery = 100
+process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 process.TFileService = cms.Service("TFileService",
                                    fileName=cms.string('L1MuonHistogramPooja.root')
                                    )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 
 import FWCore.Utilities.FileUtils as FileUtils
@@ -49,44 +49,20 @@ from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAny_cfi imp
 
 from TrackingTools.TrackAssociator.default_cfi import TrackAssociatorParameterBlock
 
-process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
-    splitLevel = cms.untracked.int32(0),
-    eventAutoFlushCompressedSize = cms.untracked.int32(1048576),
-    outputCommands = process.FEVTDEBUGHLTEventContent.outputCommands,
-    fileName = cms.untracked.string('SingleMuPt100_WithL1Extra.root'),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string(''),
-        dataTier = cms.untracked.string('')
-    )
-#    ,SelectEvents = cms.untracked.PSet(
-#        SelectEvents = cms.vstring('l1extra_step')
-#    )
-)
-
 #L1Extra
 process.load('L1Trigger.Configuration.L1Extra_cff')
 
-process.load('Configuration.StandardSequences.Digi_cff')
-
 #horeco
 process.load('Configuration.StandardSequences.Reconstruction_cff')
-
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
-#process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-
-#from Configuration.AlCa.GlobalTag import GlobalTag
-
-from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
-
-process.GlobalTag = GlobalTag(process.GlobalTag, 'PHYS14_25_V1', '')
-
-#from Configuration.AlCa.autoCond import autoCond
-#process.GlobalTag.globaltag = autoCond['run2_mc'] #MCRUN2_72_V1 PHYS14_25_V1
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
+process.GlobalTag.globaltag = 'PHYS14_25_V1::All'
 
 parameters = TrackAssociatorParameterBlock.TrackAssociatorParameters
 parameters.useEcal = False
 parameters.useHcal = False
 parameters.useMuon = False
+
+#ho Muon anlyzer module for studies on rec hits
 process.hoMuonAnalyzer = cms.EDAnalyzer(
     'hoMuonAnalyzer',
     genSrc = cms.InputTag("genParticles"),
@@ -147,14 +123,10 @@ process.genFilter_step = cms.Path(process.genfilter)
 process.horeco_step = cms.Path(process.horeco)
 process.l1MuonGenMatch_step = cms.Path(process.l1MuonGenMatch)
 process.demo_step = cms.Path(process.hoMuonAnalyzer)
-process.FEVTDEBUGHLToutput_step = cms.EndPath(process.FEVTDEBUGHLToutput)
 process.L1Reco_step = cms.Path(process.L1Reco)
 process.muonL1Match_step = cms.Path(process.muonL1Match)
-process.reconstruction_step = cms.Path(process.reconstruction)
-process.load('Configuration.StandardSequences.DigiToRaw_cff')
-process.load('Configuration.StandardSequences.RawToDigi_cff')
-from EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi import *
-process.p = cms.Path(
+
+process.p = cms.Path(process.genfilter*
 					process.l1MuonGenMatch*
 					process.horeco*
 					process.muonL1Match*
@@ -166,13 +138,6 @@ process.schedule = cms.Schedule(
 	process.p
 	)
 
-#customisation of the process.
-# Automatic addition of the customisation function from HLTrigger.Configuration.customizeHLTforMC
-from HLTrigger.Configuration.customizeHLTforMC import customizeHLTforMC
-
-#call to customisation function customizeHLTforMC imported from HLTrigger.Configuration.customizeHLTforMC
-process = customizeHLTforMC(process)
-
 # Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.postLS1Customs
 from SLHCUpgradeSimulations.Configuration.postLS1Customs import customisePostLS1
 
@@ -180,5 +145,3 @@ from SLHCUpgradeSimulations.Configuration.postLS1Customs import customisePostLS1
 process = customisePostLS1(process)
 
 # End of customisation functions
-
-

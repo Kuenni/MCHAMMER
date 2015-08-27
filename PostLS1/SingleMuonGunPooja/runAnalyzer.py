@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("Demo")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.cerr.FwkReport.reportEvery = 100
+process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 process.TFileService = cms.Service("TFileService",
                                    	fileName=cms.string('L1MuonHistogramPooja.root'),
@@ -49,20 +49,6 @@ from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAny_cfi imp
 
 from TrackingTools.TrackAssociator.default_cfi import TrackAssociatorParameterBlock
 
-process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
-    splitLevel = cms.untracked.int32(0),
-    eventAutoFlushCompressedSize = cms.untracked.int32(1048576),
-    outputCommands = process.FEVTDEBUGHLTEventContent.outputCommands,
-    fileName = cms.untracked.string('SingleMuPt100_WithL1Extra.root'),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string(''),
-        dataTier = cms.untracked.string('')
-    )
-#    ,SelectEvents = cms.untracked.PSet(
-#        SelectEvents = cms.vstring('l1extra_step')
-#    )
-)
-
 #L1Extra
 process.load('L1Trigger.Configuration.L1Extra_cff')
 
@@ -83,6 +69,8 @@ parameters = TrackAssociatorParameterBlock.TrackAssociatorParameters
 parameters.useEcal = False
 parameters.useHcal = False
 parameters.useMuon = False
+
+#ho Muon anlyzer module for studies on rec hits
 process.hoMuonAnalyzer = cms.EDAnalyzer(
     'hoMuonAnalyzer',
     genSrc = cms.InputTag("genParticles"),
@@ -113,6 +101,7 @@ process.hoDigiAnalyzer = cms.EDAnalyzer(
 	hoDigiSrc = cms.InputTag('simHcalDigis'),
 	hoAdcThreshold = cms.int32(60)
     )
+
 #Alternative matcher: TrivialDeltaRMatcher
 process.l1MuonGenMatch = cms.EDProducer("MCTruthDeltaRMatcherNew",
      src = cms.InputTag("l1extraParticles"),
@@ -142,7 +131,6 @@ process.genFilter_step = cms.Path(process.genfilter)
 process.horeco_step = cms.Path(process.horeco)
 process.l1MuonGenMatch_step = cms.Path(process.l1MuonGenMatch)
 process.demo_step = cms.Path(process.hoMuonAnalyzer)
-process.FEVTDEBUGHLToutput_step = cms.EndPath(process.FEVTDEBUGHLToutput)
 process.L1Reco_step = cms.Path(process.L1Reco)
 process.muonL1Match_step = cms.Path(process.muonL1Match)
 
@@ -159,3 +147,10 @@ process.schedule = cms.Schedule(
 	process.p
 	)
 
+# Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.postLS1Customs
+from SLHCUpgradeSimulations.Configuration.postLS1Customs import customisePostLS1
+
+#call to customisation function customisePostLS1 imported from SLHCUpgradeSimulations.Configuration.postLS1Customs
+process = customisePostLS1(process)
+
+# End of customisation functions
