@@ -1178,7 +1178,11 @@ void hoMuonAnalyzer::analyzeWithGenLoop(const edm::Event& iEvent,const edm::Even
 				if(matchedRecHit->energy() > threshold){
 					fillEfficiencyHistograms(l1Part->pt(),genIt->pt(),"GenAndL1MuonAndHoAboveThr");
 					histogramBuilder.fillCountHistogram("GenAndL1MuonAndHoAboveThr");
-
+					double hoPhi = hoMatcher->getRecHitPhi(matchedRecHit);
+					double hoIPhi = matchedRecHit->id().iphi();
+					histogramBuilder.fillCorrelationGraph(hoPhi,l1Part->phi(),"l1PhiVsHoPhi");
+					histogramBuilder.fillCorrelationGraph(hoIPhi,l1Part->phi(),"l1PhiVsHoIPhi");
+					histogramBuilder.fillCorrelationGraph(hoIPhi,hoPhi,"hoPhiVsHoIPhi");
 				}
 			}
 		}
