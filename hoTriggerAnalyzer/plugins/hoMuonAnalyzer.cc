@@ -1211,7 +1211,7 @@ void hoMuonAnalyzer::fillAverageEnergyAroundL1Direction(const l1extra::L1MuonPar
 			TH2D* hist = new TH2D("shiftCheckDeltaPhiVsL1Pt","#Delta#phi shift check;p_{T} / GeV;#Delta#phi",32,variableBinArray,73, -3.1755, 3.1755);
 			histogramBuilder.fillCorrelationHistogram(l1Muon->pt(),deltaPhi,"shiftCheckDeltaPhiVsL1Pt",hist);
 			delete hist;
-			hist = new TH2D("shiftCheckDeltaPhiVsPhi","#Delta#phi shift check;#phi;#Delta#phi",730, -3.1755, 3.1755,73, -3.1755, 3.1755);
+			hist = new TH2D("shiftCheckDeltaPhiVsPhi","#Delta#phi shift check;#phi;#Delta#phi",289,-3.163175, 3.163175,73, -3.1755, 3.1755);
 			histogramBuilder.fillCorrelationHistogram(l1Muon->phi(),deltaPhi,"shiftCheckDeltaPhiVsPhi",hist);
 			delete hist;
 			const reco::GenParticle* gen = getBestGenMatch(l1Muon->eta(),l1Muon->phi());
@@ -1262,6 +1262,7 @@ void hoMuonAnalyzer::fillGridMatchingQualityCodes(const l1extra::L1MuonParticle*
 	// Central tile
 	//#####
 	int l1MuonQuality = l1muon->gmtMuonCand().quality();
+	histogramBuilder.fillMultiplicityHistogram(l1MuonQuality,key+"AllQualityCodes");
 	if(hoMatcher->hasHoHitInGrid(direction,0)){
 		histogramBuilder.fillMultiplicityHistogram(l1MuonQuality,key + "QualityCodesCentral" );
 		fillEfficiencyHistograms(l1muon->pt(),truePt,key + "GenPtCentral");
