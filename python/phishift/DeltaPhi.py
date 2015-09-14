@@ -29,11 +29,13 @@ def plotDeltaPhiVsL1Phi():
 	canvas = TCanvas('cDeltaPhiVsL1Phi','DeltaPhiVsL1Phi',1200,1200)
 	hist = fileHandler.getHistogram('hoMuonAnalyzer/correlation/shiftCheckDeltaPhiVsPhi')
 	hist.GetYaxis().SetRangeUser(-.6,.6)
+	hist.GetXaxis().SetRangeUser(-.35,.35)
+	hist.GetXaxis().SetTitle('L1 #phi')
 	hist.Draw('colz')
 	phiBorderLines = []
 	
-	for i in range(72):
-		line = TLine(-pi+0.087*i,-.6,-pi+0.087*i,.6)
+	for i in range(-32,33):
+		line = TLine(0.087*i,-.6, 0.087*i,.6)
 		line.Draw()
 		phiBorderLines.append(line)
 		
