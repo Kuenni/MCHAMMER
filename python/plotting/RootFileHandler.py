@@ -9,7 +9,7 @@ class RootFileHandler:
 	def getNumberOfFiles(self):
 		fileCounter = 0
 		self.fileNameList = []
-		for f in os.listdir('.'):
+		for f in os.listdir(self.filepath):
 			if f.find(self.filename) != -1:
 				fileCounter += 1
 				self.fileNameList.append(f)
@@ -18,7 +18,11 @@ class RootFileHandler:
 	
 	#Initialize object
 	def __init__(self,filename):
-		self.filename = filename
+		self.filepath = '.'
+		directoryIndex = filename.rfind('/')
+		if directoryIndex != -1:
+			self.filepath += '/' + filename[0:directoryIndex+1]
+		self.filename = filename[directoryIndex+1:]
 		self.getNumberOfFiles()
 		pass
 	
@@ -41,11 +45,11 @@ class RootFileHandler:
 	and then, the histograms from the other files are added in a loop
 	'''
 	def getHistogram(self,histoname):
-		rootfile = TFile(self.fileNameList[0],'READ')
+		rootfile = TFile(self.filepath + '/' + self.fileNameList[0],'READ')
 		histNew = rootfile.Get(histoname).Clone()
 		histNew.SetDirectory(0)
 		for i in range(1,len(self.fileNameList)):
-			rootfile = TFile(self.fileNameList[i],'READ')
+			rootfile = TFile(self.filepath + '/' + self.fileNameList[i],'READ')
 			histNew.Add(rootfile.Get(histoname))
 		return histNew
 	
