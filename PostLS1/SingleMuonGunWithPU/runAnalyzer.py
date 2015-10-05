@@ -9,7 +9,7 @@ process.TFileService = cms.Service("TFileService",
                                    fileName=cms.string('L1MuonHistogramPooja.root')
                                    )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
 
 
 import FWCore.Utilities.FileUtils as FileUtils
@@ -118,6 +118,94 @@ process.genfilter = cms.EDFilter("MCSingleParticleFilter",
 #Try using different source for hoReco
 process.horeco.digiLabel = cms.InputTag('simHcalDigis')
 
+process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
+    splitLevel = cms.untracked.int32(0),
+    eventAutoFlushCompressedSize = cms.untracked.int32(1048576),
+    outputCommands = process.FEVTDEBUGHLTEventContent.outputCommands,
+    fileName = cms.untracked.string('SingleMuWithHoReco.root'),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string(''),
+       dataTier = cms.untracked.string('')
+    )
+#    ,SelectEvents = cms.untracked.PSet(
+#        SelectEvents = cms.vstring('l1extra_step')
+#    )
+)
+
+process.FEVTDEBUGHLToutput.outputCommands.append('keep *_*CaloTower*_*_*')
+process.FEVTDEBUGHLToutput.outputCommands.append('keep *_*caloTower*_*_*')
+process.FEVTDEBUGHLToutput.outputCommands.append('keep *_*calotower*_*_*')
+
+process.end = cms.EndPath(process.FEVTDEBUGHLToutput)
+
+process.myCaloTowerMaker = cms.EDProducer( "CaloTowersCreator",
+    EBSumThreshold = cms.double( 0.2 ),
+    MomHBDepth = cms.double( 0.2 ),
+    UseEtEBTreshold = cms.bool( False ),
+    hfInput = cms.InputTag( "hltHfreco" ),
+    AllowMissingInputs = cms.bool( True ),
+    MomEEDepth = cms.double( 0.0 ),
+    EESumThreshold = cms.double( 0.45 ),
+    HBGrid = cms.vdouble(  ),
+    HcalAcceptSeverityLevelForRejectedHit = cms.uint32( 9999 ),
+    HBThreshold = cms.double( 0.7 ),
+    EcalSeveritiesToBeUsedInBadTowers = cms.vstring(  ),
+    UseEcalRecoveredHits = cms.bool( False ),
+    MomConstrMethod = cms.int32( 1 ),
+    MomHEDepth = cms.double( 0.4 ),
+    HcalThreshold = cms.double( -1000.0 ),
+    HF2Weights = cms.vdouble(  ),
+    HOWeights = cms.vdouble(  ),
+    EEGrid = cms.vdouble(  ),
+    UseSymEBTreshold = cms.bool( False ),
+    EEWeights = cms.vdouble(  ),
+    EEWeight = cms.double( 1.0 ),
+    UseHO = cms.bool( True ),
+    HBWeights = cms.vdouble(  ),
+    HF1Weight = cms.double( 1.0 ),
+    HF2Grid = cms.vdouble(  ),
+    HEDWeights = cms.vdouble(  ),
+    HEDGrid = cms.vdouble(  ),
+    EBWeight = cms.double( 1.0 ),
+    HF1Grid = cms.vdouble(  ),
+    EBWeights = cms.vdouble(  ),
+    HOWeight = cms.double( 1.0 ),
+    HESWeight = cms.double( 1.0 ),
+    HESThreshold = cms.double( 0.8 ),
+    hbheInput = cms.InputTag( "hltHbhereco" ),
+    HF2Weight = cms.double( 1.0 ),
+    HF2Threshold = cms.double( 0.85 ),
+    HcalAcceptSeverityLevel = cms.uint32( 9 ),
+    EEThreshold = cms.double( 0.3 ),
+    HOThresholdPlus1 = cms.double( 0 ),
+    HOThresholdPlus2 = cms.double( 0 ),
+    HF1Weights = cms.vdouble(  ),
+    hoInput = cms.InputTag( "horeco" ),
+    HF1Threshold = cms.double( 0.5 ),
+    HOThresholdMinus1 = cms.double( 0 ),
+    HESGrid = cms.vdouble(  ),
+    EcutTower = cms.double( -1000.0 ),
+    UseRejectedRecoveredEcalHits = cms.bool( False ),
+    UseEtEETreshold = cms.bool( False ),
+    HESWeights = cms.vdouble(  ),
+    EcalRecHitSeveritiesToBeExcluded = cms.vstring( 'kTime',
+      'kWeird',
+      'kBad' ),
+    HEDWeight = cms.double( 1.0 ),
+    UseSymEETreshold = cms.bool( False ),
+    HEDThreshold = cms.double( 0.8 ),
+    EBThreshold = cms.double( 0.07 ),
+    UseRejectedHitsOnly = cms.bool( False ),
+    UseHcalRecoveredHits = cms.bool( False ),
+    HOThresholdMinus2 = cms.double( 0 ),
+    HOThreshold0 = cms.double( 0 ),
+    ecalInputs = cms.VInputTag( 'hltEcalRecHitAll:EcalRecHitsEB','hltEcalRecHitAll:EcalRecHitsEE' ),
+    UseRejectedRecoveredHcalHits = cms.bool( False ),
+    MomEBDepth = cms.double( 0.3 ),
+    HBWeight = cms.double( 1.0 ),
+    HOGrid = cms.vdouble(  ),
+    EBGrid = cms.vdouble(  )
+)
 #Path definitions
 process.genFilter_step = cms.Path(process.genfilter)
 process.horeco_step = cms.Path(process.horeco)
@@ -135,7 +223,7 @@ process.p = cms.Path(process.genfilter*
 
 #Schedule Definition
 process.schedule = cms.Schedule(
-	process.p
+	process.p,process.end
 	)
 
 # Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.postLS1Customs
