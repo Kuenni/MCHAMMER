@@ -1,8 +1,8 @@
 import sys
 from plotting.RootFileHandler import RootFileHandler
-from plotting.PlotStyle import drawLabelCmsPrivateSimulation, setupAxes
-from ROOT import TCanvas,TLine
-from cmath import pi
+from plotting.PlotStyle import drawLabelCmsPrivateSimulation, setupAxes,\
+	setupPalette
+from ROOT import TCanvas,TLine,TLegend
 
 fileHandler = RootFileHandler(sys.argv[1])
 
@@ -28,21 +28,35 @@ def plotDeltaPhiVsGenPt():
 def plotDeltaPhiVsL1Phi():
 	canvas = TCanvas('cDeltaPhiVsL1Phi','DeltaPhiVsL1Phi',1200,1200)
 	hist = fileHandler.getHistogram('hoMuonAnalyzer/correlation/shiftCheckDeltaPhiVsPhi')
-	hist.GetYaxis().SetRangeUser(-.6,.6)
-	hist.GetXaxis().SetRangeUser(-.35,.35)
+	hist.GetYaxis().SetRangeUser(-1,1)
+	hist.GetXaxis().SetRangeUser(-.5,.5)
 	hist.GetXaxis().SetTitle('L1 #phi')
+	hist.GetZaxis().SetTitle('#')
+	hist.SetStats(0)
+	hist.SetTitle('#Delta#phi vs. L1#phi')
 	hist.Draw('colz')
 	phiBorderLines = []
 	
-	for i in range(-32,33):
+	for i in range(-31,32):
 		line = TLine(0.087*i,-.6, 0.087*i,.6)
+		line.SetLineWidth(2)
 		line.Draw()
 		phiBorderLines.append(line)
 		
+	legend = TLegend(0.6,0.8,0.9,0.85)
+	legend.AddEntry(phiBorderLines[0],"HO Tile border","e")
+	legend.Draw()
+	
 	label = drawLabelCmsPrivateSimulation()
 	canvas.Update()
 	
-	return canvas,hist,label,phiBorderLines
+	setupAxes(hist)
+	setupPalette(hist)
+	
+	canvas.Update()
+	canvas.SaveAs('plots/deltaPhiVsL1Phi.pdf')
+	
+	return canvas,hist,label,phiBorderLines,legend
 	
 def plotL1PhiVsHoPhi():
 	canvas = TCanvas('cL1PhiVsHoPhi','L1PhiVsHoPhi',1200,1200)
