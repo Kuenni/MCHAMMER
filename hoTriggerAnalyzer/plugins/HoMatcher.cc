@@ -142,7 +142,7 @@ int HoMatcher::getDeltaIeta(double eta, const HORecHit* recHit){
  */
 int HoMatcher::getDeltaIphi(double phi, const HORecHit* recHit){
 	double hoPhi = caloGeometry->getPosition(recHit->detid()).phi();
-	double deltaPhi = FilterPlugin::wrapCheck(hoPhi,phi);
+	double deltaPhi = FilterPlugin::wrapCheck(phi,hoPhi);
 	return (deltaPhi >= 0) ? int(deltaPhi/getHoBinSize() + getHoBinSize()/2.) : int(deltaPhi/getHoBinSize() - getHoBinSize()/2.);
 }
 
