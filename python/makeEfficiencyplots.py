@@ -5,7 +5,7 @@ from plotting.PlotStyle import setPlotStyle,setupAxes,colorRwthDarkBlue,colorRwt
 from plotting.RootFileHandler import RootFileHandler
 from plotting.plotEfficiency import *
 from plotting.Colors import *
-from efficiency.QualityCodes import plotQualityCodes,plotQualityCodesVsPt
+from efficiency.QualityCodes import plotQualityCodes,plotQualityCodesVsPt,plotQualityCodesCentralStacked,plotQualityCodes3x3Stacked
 import matplotlib.pyplot as plt
 from cmath import sqrt
 
@@ -444,7 +444,7 @@ def plotNtotalGridMatching3x3():
 	ax1.grid(True)
 	ax1.set_ylabel('# / bin width (1/GeV)')
 	ax1.set_xlabel(r'p$_\mathrm{T}$ / GeV')
-	ax1.set_title(r'# L1 for grid matching (3x3) by E$_{Max}$')
+	ax1.set_title('# L1')
 	pyplotCmsPrivateLabel(ax1)
 	plt.savefig('plots/efficiency/nL1ByEmax3x3Absolute.png')
 	plt.show()
@@ -531,6 +531,8 @@ def plot3x3GridTogether():
 	plt.savefig('plots/efficiency/efficiency3x3.png')
 	plt.show()
 	
+r2 = plotQualityCodesCentralStacked()
+r3 = plotQualityCodes3x3Stacked()
 r = plotQualityCodesVsPt()
 plotNtotalGridMatching3x3()
 res2 = plotEfficiencyForPt(None,15)
