@@ -5,7 +5,7 @@ from plotting.PlotStyle import setPlotStyle,setupAxes,colorRwthDarkBlue,colorRwt
 from plotting.RootFileHandler import RootFileHandler
 from plotting.plotEfficiency import *
 from plotting.Colors import *
-from efficiency.QualityCodes import plotQualityCodes,plotQualityCodesVsPt,plotQualityCodesCentralStacked,plotQualityCodes3x3Stacked
+from efficiency.QualityCodes import plotQualityCodes,plotQualityCodesVsPt,plotQualityCodesStacked
 import matplotlib.pyplot as plt
 from cmath import sqrt
 
@@ -531,8 +531,8 @@ def plot3x3GridTogether():
 	plt.savefig('plots/efficiency/efficiency3x3.png')
 	plt.show()
 	
-r2 = plotQualityCodesCentralStacked()
-r3 = plotQualityCodes3x3Stacked()
+r2 = plotQualityCodesStacked(0)
+r3 = plotQualityCodesStacked(1)
 r = plotQualityCodesVsPt()
 plotNtotalGridMatching3x3()
 res2 = plotEfficiencyForPt(None,15)

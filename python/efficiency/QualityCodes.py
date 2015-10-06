@@ -20,6 +20,11 @@ qualityCodeDict = {
 				7:'matched DT-RPC or CSC-RPC'
 				}
 
+gridSizeDict = {
+			0:'Central',
+			1:'3x3',
+			2:'5x5'}
+
 def plotQualityCodes():
 	c = TCanvas('cQualityCodes')
 	c.SetLogy()
@@ -41,7 +46,7 @@ def plotQualityCodes():
 	
 	c.cd().SetBottomMargin(0.15)
 	#Label the bins with the meaning of the quality code
-	for i in range(0,8):
+	for i in range(1,8):
 		qualityCodes.GetXaxis().SetBinLabel(qualityCodes.FindBin(i),qualityCodeDict.get(i))
 	
 	setupAxes(qualityCodesFail)
@@ -98,13 +103,14 @@ def plotQualityCodes():
 	
 	return c,qualityCodes,label,qualityCodesFail,qualityCodes3x3,qualityCodes3x3Fail,qualityCodes5x5,qualityCodes5x5Fail,legend
 
-def plotQualityCodesCentralStacked():
-	c = TCanvas('cQualityCodesCentralStacked','Stacked QC',600,0,800,600)
+def plotQualityCodesStacked(gridSize):
+	gridString = gridSizeDict.get(gridSize)
+	c = TCanvas('cQualityCodes' + gridString + 'Stacked','Stacked QC ' + gridString,600,0,800,600)
 	c.SetLogy()
 	c.cd().SetBottomMargin(0.15)
 	c.cd().SetRightMargin(0.20)
-	qualityCodes = fileHandler.getHistogram('hoMuonAnalyzer/multiplicity/L1MuonQualityCodesCentral_Multiplicity')
-	qualityCodesFail = fileHandler.getHistogram('hoMuonAnalyzer/multiplicity/L1MuonQualityCodesCentralFail_Multiplicity')
+	qualityCodes = fileHandler.getHistogram('hoMuonAnalyzer/multiplicity/L1MuonQualityCodes' + gridString + '_Multiplicity')
+	qualityCodesFail = fileHandler.getHistogram('hoMuonAnalyzer/multiplicity/L1MuonQualityCodes' + gridString + 'Fail_Multiplicity')
 	
 	countQualityCodes = fileHandler.getHistogram('hoMuonAnalyzer/multiplicity/L1MuonAllQualityCodes_Multiplicity')
 	countQualityCodesTruth = fileHandler.getHistogram('hoMuonAnalyzer/multiplicity/L1MuonTruthAllQualityCodes_Multiplicity')
@@ -124,7 +130,7 @@ def plotQualityCodesCentralStacked():
 			qualityCodes.SetBinContent(qualityCodes.FindBin(i),nPass/float(nTotalHistogram))
 			qualityCodesFail.SetBinContent(qualityCodesFail.FindBin(i),nFail/float(nTotalHistogram))
 	
-	stack = THStack("hstack","Fractions of rejected and accepted quality codes (central);;rel. fraction")
+	stack = THStack("hstack","Fractions of rejected and accepted quality codes (" + gridString + ");;rel. fraction")
 	
 	qualityCodes.SetLineColor(colorRwthDarkBlue)
 	qualityCodes.SetFillColor(colorRwthDarkBlue)
@@ -154,67 +160,7 @@ def plotQualityCodesCentralStacked():
 		
 	c.Update()
 	
-	c.SaveAs('plots/efficiency/qualityCodesStacked.pdf')
-	
-	return stack,c,qualityCodes,qualityCodesFail,legend,label
-
-def plotQualityCodes3x3Stacked():
-	c = TCanvas('cQualityCodes3x3Stacked','Stacked 3x3 QC',600,0,800,600)
-	c.SetLogy()
-	c.cd().SetBottomMargin(0.15)
-	c.cd().SetRightMargin(0.20)
-	qualityCodes = fileHandler.getHistogram('hoMuonAnalyzer/multiplicity/L1MuonQualityCodes3x3_Multiplicity')
-	qualityCodesFail = fileHandler.getHistogram('hoMuonAnalyzer/multiplicity/L1MuonQualityCodes3x3Fail_Multiplicity')
-	
-	countQualityCodes = fileHandler.getHistogram('hoMuonAnalyzer/multiplicity/L1MuonAllQualityCodes_Multiplicity')
-	countQualityCodesTruth = fileHandler.getHistogram('hoMuonAnalyzer/multiplicity/L1MuonTruthAllQualityCodes_Multiplicity')
-	
-	print
-	cli.output('Sanity check for quality code counts')
-	for i in range(1,8):
-		nTotalHistogram = countQualityCodes.GetBinContent(countQualityCodes.FindBin(i))
-		nFail = qualityCodesFail.GetBinContent(qualityCodesFail.FindBin(i))
-		nPass = qualityCodes.GetBinContent(qualityCodes.FindBin(i))
-		nSummed = nFail + nPass
-		print
-		cli.output('NTotal: %d\t\tNSummed: %d' % (nTotalHistogram,nSummed))
-		cli.output('Sanity check: %s'% (CliColors.OKBLUE + 'OK' + CliColors.ENDC if nTotalHistogram == nSummed else CliColors.FAIL + 'FAIL' + CliColors.ENDC) )
-		print
-		if nTotalHistogram:
-			qualityCodes.SetBinContent(qualityCodes.FindBin(i),nPass/float(nTotalHistogram))
-			qualityCodesFail.SetBinContent(qualityCodesFail.FindBin(i),nFail/float(nTotalHistogram))
-	
-	stack = THStack("hstack","Fractions of rejected and accepted quality codes (3x3);;rel. fraction")
-	
-	qualityCodes.SetLineColor(colorRwthDarkBlue)
-	qualityCodes.SetFillColor(colorRwthDarkBlue)
-	qualityCodes.SetFillStyle(3002)
-
-	qualityCodesFail.SetFillColor(colorRwthMagenta)
-	qualityCodesFail.SetLineColor(colorRwthMagenta)
-	qualityCodesFail.SetFillStyle(3002)
-
-	stack.Add(qualityCodes)
-	stack.Add(qualityCodesFail)
-	
-	stack.Draw()
-	stack.GetXaxis().SetRangeUser(0,8)
-		#Label the bins with the meaning of the quality code
-	for i in range(1,8):
-		stack.GetXaxis().SetBinLabel(stack.GetXaxis().FindBin(i),qualityCodeDict.get(i))
-		
-	legend = TLegend(0.82,0.75,0.99,0.9)
-	legend.AddEntry(qualityCodes,"Passed","f")
-	legend.AddEntry(qualityCodesFail,"Failed","f")
-	legend.Draw()
-	
-	label = drawLabelCmsPrivateSimulation(x1ndc=0.5,y1ndc=0.9,x2ndc=0.8,y2ndc=0.93)
-	
-	setupAxes(stack)
-		
-	c.Update()
-	
-	c.SaveAs('plots/efficiency/qualityCodesStacked.pdf')
+	c.SaveAs('plots/efficiency/qualityCodesStacked' + gridString + '.pdf')
 	
 	return stack,c,qualityCodes,qualityCodesFail,legend,label
 
@@ -241,7 +187,7 @@ def createPlotPtVsQualityCode(gridSize):
 	histogram.SetStats(0)
 	histogram.SetTitle(title)
 	
-#	histogram.Scale(1,'width')
+	histogram.Scale(1,'width')
 	
 	histogram.Draw('colz')
 	
