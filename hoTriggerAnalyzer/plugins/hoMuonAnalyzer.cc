@@ -476,12 +476,17 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				histogramBuilder.fillDeltaTimeHistogram(matchedRecHit->time(),bl1Muon->bx(),"L1MuonAboveThr");
 				histogramBuilder.fillTimeHistogram(matchedRecHit->time(),"L1MuonAboveThr");
 				histogramBuilder.fillBxIdVsPt(bl1Muon->bx(),bl1Muon->pt(),"L1MuonAboveThr");
-				histogramBuilder.fillCorrelationHistogram(matchedRecHit->time(),matchedRecHit->energy(),"hoEnergyVsTime");
 				histogramBuilder.fillEnergyHistograms(matchedRecHit->energy(),"L1MuonWithHoMatchAboveThr");
 				histogramBuilder.fillEtaPhiHistograms(hoEta,hoPhi,"L1MuonWithHoMatchAboveThr_HO");
 				histogramBuilder.fillDeltaEtaDeltaPhiHistograms(l1Muon_eta,hoEta,l1Muon_phi, hoPhi,"L1MuonWithHoMatchAboveThr");
 				histogramBuilder.fillL1MuonPtHistograms(bl1Muon->pt(),"L1MuonWithHoMatchAboveThr");
 				histogramBuilder.fillEnergyVsPosition(hoEta,hoPhi,matchedRecHit->energy(),"L1MuonWithHoMatchAboveThr");
+
+
+				TH2D* hist = new TH2D("hoEnergyVsTime","HO Energy vs. Time;Time / ns;E_{Rec} / GeV",201,-100.5,100.5,2100, -5.0, 100.0);
+				histogramBuilder.fillCorrelationHistogram(matchedRecHit->time(),matchedRecHit->energy(),"hoEnergyVsTime",hist);
+				delete hist;
+
 				//Make time correlation plots depending on the different detector subsystems
 				switch (bl1Muon->gmtMuonCand().detector()) {
 					//RPC
@@ -1202,7 +1207,10 @@ void hoMuonAnalyzer::analyzeWithGenLoop(const edm::Event& iEvent,const edm::Even
 					histogramBuilder.fillCorrelationGraph(hoPhi,l1Part->phi(),"l1PhiVsHoPhi");
 					histogramBuilder.fillCorrelationGraph(hoIPhi,l1Part->phi(),"l1PhiVsHoIPhi");
 					histogramBuilder.fillCorrelationGraph(hoIPhi,hoPhi,"hoPhiVsHoIPhi");
-					histogramBuilder.fillCorrelationHistogram(matchedRecHit->time(), matchedRecHit->energy(),"hoTruthEnergyVsTime");
+
+					TH2D* hist = new TH2D("hoTruthEnergyVsTime","HO Energy vs. Time;Time / ns;E_{Rec} / GeV",201,-100.5,100.5,2100, -5.0, 100.0);
+					histogramBuilder.fillCorrelationHistogram(matchedRecHit->time(),matchedRecHit->energy(),"hoTruthEnergyVsTime",hist);
+					delete hist;
 				}
 			}
 		}
@@ -1225,23 +1233,30 @@ void hoMuonAnalyzer::fillAverageEnergyAroundL1Direction(const l1extra::L1MuonPar
 					,float(hoMatcher->getRecHitEta(&*recHitIt))	,l1Muon->phi()
 					,float(hoMatcher->getRecHitPhi(&*recHitIt))	,recHitIt->energy()
 					,"averageEnergyAroundPoint");//Use this function for the 1D distributions for each delta eta and delta phi
+
 			float deltaPhi;
 			deltaPhi = FilterPlugin::wrapCheck(l1Muon->phi(),hoMatcher->getRecHitPhi(&*recHitIt));
+
 			double variableBinArray[] = {0,0.5,1,1.5,2,2.5,3,3.5,4,4.5,5,6,7,8,10,12,14,16,18,20,25,30,35,40,45,50,60,70,80,100,120,140,200};
+
 			TH2D* hist = new TH2D("shiftCheckDeltaPhiVsL1Pt","#Delta#phi shift check;p_{T} / GeV;#Delta#phi",32,variableBinArray,73, -3.1755, 3.1755);
 			histogramBuilder.fillCorrelationHistogram(l1Muon->pt(),deltaPhi,"shiftCheckDeltaPhiVsL1Pt",hist);
 			delete hist;
+
 			hist = new TH2D("shiftCheckDeltaPhiVsPhi","#Delta#phi shift check;#phi;#Delta#phi",289,-3.163175, 3.163175,73, -3.1755, 3.1755);
 			histogramBuilder.fillCorrelationHistogram(l1Muon->phi(),deltaPhi,"shiftCheckDeltaPhiVsPhi",hist);
 			delete hist;
+
 			const reco::GenParticle* gen = getBestGenMatch(l1Muon->eta(),l1Muon->phi());
 			hist = new TH2D("shiftCheckDeltaPhiVsGenPt","#Delta#phi shift check;p_{T} / GeV;#Delta#phi",200,0,200,73, -3.1755, 3.1755);
 			histogramBuilder.fillCorrelationHistogram(gen->pt(),deltaPhi,"shiftCheckDeltaPhiVsGenPt",hist);
 			delete hist;
+
 			//Delta phi vs l1 eta
 			hist = new TH2D("shiftCheckDeltaPhiVsL1Eta","#Delta#phi shift check;#eta_{L1};#Delta#phi",200,0,200,73, -3.1755, 3.1755);
 			histogramBuilder.fillCorrelationHistogram(l1Muon->eta(),deltaPhi,"shiftCheckDeltaPhiVsL1Eta",hist);
 			delete hist;
+
 			//Delta phi vs gen eta
 			hist = new TH2D("shiftCheckDeltaPhiVsGenEta","#Delta#phi shift check;#eta_{Gen};#Delta#phi",200,0,200,73, -3.1755, 3.1755);
 			histogramBuilder.fillCorrelationHistogram(gen->eta(),deltaPhi,"shiftCheckDeltaPhiVsGenEta",hist);
