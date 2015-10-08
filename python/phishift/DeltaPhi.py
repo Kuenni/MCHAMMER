@@ -58,6 +58,28 @@ def plotDeltaPhiVsL1Phi():
 	
 	return canvas,hist,label,phiBorderLines,legend
 	
+def plotDeltaPhiVsL1Eta():
+	canvas = TCanvas('cDeltaPhiVsL1Eta','DeltaPhiVsL1Eta',1200,1200)
+	hist = fileHandler.getHistogram('hoMuonAnalyzer/correlation/shiftCheckDeltaPhiVsL1Eta')
+	hist.GetYaxis().SetRangeUser(-1,1)
+	hist.GetXaxis().SetRangeUser(-.5,.5)
+	hist.GetXaxis().SetTitle('L1 #eta')
+	hist.GetZaxis().SetTitle('#')
+	hist.SetStats(0)
+	hist.SetTitle('#Delta#phi vs. L1#eta')
+	hist.Draw('colz')
+	
+	label = drawLabelCmsPrivateSimulation()
+	canvas.Update()
+	
+	setupAxes(hist)
+	setupPalette(hist)
+	
+	canvas.Update()
+	canvas.SaveAs('plots/deltaPhiVsL1Eta.pdf')
+	
+	return canvas,hist,label#,phiBorderLines,legend
+
 def plotL1PhiVsHoPhi():
 	canvas = TCanvas('cL1PhiVsHoPhi','L1PhiVsHoPhi',1200,1200)
 	fileHandlerLocal = RootFileHandler('L1MuonHistogramPooja')
