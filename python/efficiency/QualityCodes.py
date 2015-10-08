@@ -130,7 +130,7 @@ def plotQualityCodesStacked(gridSize):
 			qualityCodes.SetBinContent(qualityCodes.FindBin(i),nPass/float(nTotalHistogram))
 			qualityCodesFail.SetBinContent(qualityCodesFail.FindBin(i),nFail/float(nTotalHistogram))
 	
-	stack = THStack("hstack","Fractions of rejected and accepted quality codes (" + gridString + ");;rel. fraction")
+	stack = THStack("hstack","Quality Codes in matching to HO (" + gridString + ");;rel. fraction")
 	
 	qualityCodes.SetLineColor(colorRwthDarkBlue)
 	qualityCodes.SetFillColor(colorRwthDarkBlue)
