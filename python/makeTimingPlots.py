@@ -26,7 +26,7 @@ if( not os.path.exists('plots/timing')):
 filename = 'L1MuonHistogram.root'
 if(DEBUG):
 	print 'Opening file:',filename
-file = TFile.Open(filename)
+#file = TFile.Open(filename)
 if(file == None):
 	print 'Error opening file:',filename
 
@@ -460,7 +460,7 @@ def plotDetectorContributionsToTiming():
 	canvas.cd(1).SetLogy()
 
 	#prepare histogram
-	hist = fileHandler.getHistogram("hoMuonAnalyzer/detectorIndexBxWrong_Multiplicity")
+	hist = fileHandler.getHistogram("hoMuonAnalyzer/multiplicity/detectorIndexBxWrong_Multiplicity")
 	hist.GetXaxis().SetRangeUser(0.5,5.5)
 	hist.SetLineColor(colorRwthDarkBlue)
 	hist.SetFillColor(colorRwthDarkBlue)
@@ -504,7 +504,7 @@ def plotDetectorContributionsToTiming():
 	canvas.cd(2).SetLogy()
 
 	#prepare second histogram
-	hist2 = fileHandler.getHistogram("hoMuonAnalyzer/detectorIndexBxRight_Multiplicity")
+	hist2 = fileHandler.getHistogram("hoMuonAnalyzer/multiplicity/detectorIndexBxRight_Multiplicity")
 	hist2.GetXaxis().SetRangeUser(0.5,5.5)
 	hist2.SetLineColor(colorRwthDarkBlue)
 	hist2.SetFillColor(colorRwthDarkBlue)
@@ -721,6 +721,24 @@ def plotImprovementInDt():
 	canvas.SaveAs('plots/timing/correctedDt.root')
 	return canvas, histDt,histNew,label,legend,pText2,pText
 	
+def plotHoEnergyVsTime():
+	hist = fileHandler.getHistogram('hoMuonAnalyzer/correlation/hoEnergyVsTime')
+	histTruth = fileHandler.getHistogram('hoMuonAnalyzer/correlation/hoTruthEnergyVsTime')
+	
+	histList = [hist,histTruth]
+	
+	canvas = TCanvas('cHoEnergyVsTime')
+	canvas.Divide(2,1)
+	
+	for i,histo in enumerate(histList):
+		canvas.cd(i+1)
+		hist.GetXaxis().SetRangeUser(-100,100)
+		hist.GetYaxis().SetRangeUser(0,10)
+		hist.Draw('colz')
+	
+	return canvas,histList
+	
+resEvsTime = plotHoEnergyVsTime()
 plotDeltaTime()
 plotEtaOfWrongBxId()
 plotEtaPhiOfWrongBxId()
