@@ -134,7 +134,13 @@ double HoMatcher::getRecHitPhi(const HORecHit* recHit){
 int HoMatcher::getDeltaIeta(double eta, const HORecHit* recHit){
 	double hoEta = caloGeometry->getPosition(recHit->detid()).eta();
 	double deltaEta = hoEta - eta;
-	return (deltaEta >= 0) ? int(deltaEta/getHoBinSize() + getHoBinSize()/2.) : int(deltaEta/getHoBinSize() - getHoBinSize()/2.);
+	int deltaIEta = 0;
+	if(deltaEta > 0.0435){
+		deltaIEta = 1 + int((deltaEta - 0.0435)/0.087);
+	} else if(deltaEta < -0.0435){
+		deltaIEta = -1 + int((deltaEta + 0.0435)/0.087);
+	}
+	return deltaIEta;
 }
 
 /**
@@ -143,7 +149,19 @@ int HoMatcher::getDeltaIeta(double eta, const HORecHit* recHit){
 int HoMatcher::getDeltaIphi(double phi, const HORecHit* recHit){
 	double hoPhi = caloGeometry->getPosition(recHit->detid()).phi();
 	double deltaPhi = FilterPlugin::wrapCheck(phi,hoPhi);
-	return (deltaPhi >= 0) ? int(deltaPhi/getHoBinSize() + getHoBinSize()/2.) : int(deltaPhi/getHoBinSize() - getHoBinSize()/2.);
+	int deltaIPhi = 0;
+	/**
+	 * Assume L1 direction as the center of a tile.
+	 * This gives one half tile in each direction before
+	 * the next tile starts
+	 */
+	if(deltaPhi > 0.0435){
+		//Fixme: Use 2*pi/72 instead of 0.087s
+		deltaIPhi = 1 + int((deltaPhi - 0.0435)/0.087);
+	} else if(deltaPhi < -0.0435){
+		deltaIPhi = -1 + int((deltaPhi + 0.0435)/0.087);
+	}
+	return deltaIPhi;
 }
 
 /**
