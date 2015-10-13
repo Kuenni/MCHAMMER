@@ -110,7 +110,7 @@ HoDigiAnalyzer::HoDigiAnalyzer(const edm::ParameterSet& iConfig){
 	deltaR_Max = iConfig.getParameter<double>("maxDeltaR");
 	ADC_THR = iConfig.getParameter<int>("hoAdcThreshold");
 	hoDigiInput = iConfig.getParameter<edm::InputTag>("hoDigiSrc");
-	genInput = iConfig.getParameter<edm::InputTag>("genParticles");
+	genInput = iConfig.getParameter<edm::InputTag>("genSrc");
 	functionsHandler =  new CommonFunctionsHandler(iConfig);
 	hoMatcher = new HoMatcher(iConfig);
 }
