@@ -116,3 +116,12 @@ def plotHoPhiVsHoIPhi():
 	canvas.Update()
 	
 	return canvas,graph
+
+def plotDeltaPhiHistogram():
+	canvas = TCanvas('cDeltaPhi','Delta Phi',1200,1200)
+	hist = fileHandler.getHistogram('hoMuonAnalyzer/histograms1D/deltaPhi')
+	hist.Draw()
+	
+	label = drawLabelCmsPrivateSimulation()
+	
+	return hist,canvas,label
