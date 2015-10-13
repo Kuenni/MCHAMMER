@@ -122,14 +122,22 @@ const HORecHit* HoMatcher::findEMaxHitInGrid(double eta, double phi, int gridSiz
  * Returns the eta value from a rec hits det id value
  */
 double HoMatcher::getRecHitEta(const HORecHit* recHit){
-	return caloGeometry->getPosition(recHit->detid()).eta();
+	return getEtaFromDetId(recHit->detid());
 }
 
 /**
  * Returns the phi value from a rec hits det id value
  */
 double HoMatcher::getRecHitPhi(const HORecHit* recHit){
-	return caloGeometry->getPosition(recHit->detid()).phi();
+	return getPhiFromDetId(recHit->detid());
+}
+
+double HoMatcher::getPhiFromDetId(DetId id){
+	return caloGeometry->getPosition(id).phi();
+}
+
+double HoMatcher::getEtaFromDetId(DetId id){
+	return caloGeometry->getPosition(id).eta();
 }
 
 /**
@@ -226,3 +234,21 @@ bool HoMatcher::isRecHitInGrid(double eta, double phi, const HORecHit* recHit, i
 	return false;
 }
 
+/**
+ * Returns a pointer to the closest Ho Data frame
+ */
+const HODataFrame* HoMatcher::getBestHoDataFrameMatch(double eta, double phi){
+	const HODataFrame* bestDataFrame = 0;
+	float bestDR = 999.;
+	auto dataFrameIterator = hoDigis->begin();
+	for(; dataFrameIterator!=hoDigis->end(); ++dataFrameIterator) {
+		float hoPhi = getPhiFromDetId(dataFrameIterator->id());
+		float hoEta = getEtaFromDetId(dataFrameIterator->id());
+		float dR = deltaR(eta,phi,hoEta,hoPhi);
+		if (dR < deltaR_Max && dR < bestDR) {
+			bestDR = dR;
+			bestDataFrame = &(*dataFrameIterator);
+		}
+	}
+	return bestDataFrame;
+}

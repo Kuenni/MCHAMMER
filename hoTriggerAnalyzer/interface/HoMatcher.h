@@ -40,10 +40,14 @@ public:
 	 */
 	const HORecHit* matchByEMaxDeltaR(double eta,double phi);
 	const HORecHit* findEMaxHitInGrid(double eta,double phi, int gridSize);
+	const HODataFrame* getBestHoDataFrameMatch(double eta, double phi);
 
 	double getHoBinSize(){return 0.087;};
 	double getRecHitEta(const HORecHit* recHit);
 	double getRecHitPhi(const HORecHit* recHit);
+
+	double getPhiFromDetId(DetId id);
+	double getEtaFromDetId(DetId id);
 
 	int getDeltaIeta(double eta, const HORecHit* recHit);
 	int getDeltaIphi(double phi, const HORecHit* rechit);
