@@ -248,17 +248,21 @@ void HistogramBuilder::fillDeltaEtaDeltaPhiHistogramsWithWeights(float eta1, flo
 	deltaEta = eta2 - eta1;
 	deltaPhi = FilterPlugin::wrapCheck(phi1, phi2);
 
+	/**
+	 * 	Start and end of the axis range is determined by pi/36*11 + pi/72
+	 */
+
 	//DeltaEta Delta Phi Histograms Fill
 	if(!_h2DeltaEtaDeltaPhiWeights.count(key)){
 		_h2DeltaEtaDeltaPhiWeights[key] = etaPhiDir.make<TH2D>(Form("%s_2dSummedWeights",key.c_str()),Form("%s #Delta#eta #Delta#Phi Energy",key.c_str()),
-				23, -1.0005, 1.0005, 	//eta
-				23, -1.0005, 1.0005);	//phi
+				23, -1.0035643198967394, 1.0035643198967394, 	//eta
+				23, -1.0035643198967394, 1.0035643198967394);	//phi
 	}
 	//DeltaEta Delta Phi Histograms Fill
 	if(!_h2DeltaEtaDeltaPhiCounter.count(key)){
 		_h2DeltaEtaDeltaPhiCounter[key] = etaPhiDir.make<TH2D>(Form("%s_2dCounter",key.c_str()),Form("%s #Delta#eta #Delta#Phi Energy",key.c_str()),
-				23, -1.0005, 1.0005, 	//eta
-				23, -1.0005, 1.0005);	//phi
+				23, -1.0035643198967394, 1.0035643198967394, 	//eta
+				23, -1.0035643198967394, 1.0035643198967394);	//phi
 	}
 	_h2DeltaEtaDeltaPhiWeights[key]->Fill(deltaEta, deltaPhi, weight);
 	_h2DeltaEtaDeltaPhiCounter[key]->Fill(deltaEta, deltaPhi);
