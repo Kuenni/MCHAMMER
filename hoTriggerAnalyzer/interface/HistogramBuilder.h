@@ -53,6 +53,7 @@ class HistogramBuilder {
   void fillEtaPhiPtHistogram(double eta, double phi, double pt, std::string key);
   void fillGraph(double x, double y, std::string key);
   void fillGraph2D(double x, double y, double z, std::string key);
+  void fillHistogram(double x, std::string key,TH1D* histogram = 0);
   void fillHltIndexHistogram(int hltIndex, std::string key);
   void fillL1MuonPtHistograms(float pt, std::string key);
   void fillMultiplicityHistogram(int , std::string );
@@ -90,6 +91,7 @@ class HistogramBuilder {
   std::map<std::string,TH1D*> _h1DeltaTime;
   std::map<std::string,TH1D*> _h1TrigRate;
   std::map<std::string,TH1D**> _hArrDeltaEtaDeltaPhiEnergy;
+  std::map<std::string,TH1D*> _h1histograms;
 
   std::map<std::string,TH2D*> _h2EnergyCorrelation;
   std::map<std::string,TH2D*> _h2EnergyVsPhi;

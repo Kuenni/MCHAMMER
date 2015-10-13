@@ -44,7 +44,7 @@ void HistogramBuilder::fillVzHistogram(float vz, std::string key){
 }
 
 /**
- * Fill a 2d histogram
+ * Fill a 2D histogram
  */
 void HistogramBuilder::fillCorrelationHistogram(double x, double y, std::string key,TH2D* histogram){
 	TFileDirectory correlationDir = _fileService->mkdir( "correlation" );
@@ -58,6 +58,23 @@ void HistogramBuilder::fillCorrelationHistogram(double x, double y, std::string 
 		}
 	}
 	_h2Correlation[key]->Fill(x,y);
+}
+
+/**
+ * Fill a 1D histogram
+ */
+void HistogramBuilder::fillHistogram(double x, std::string key,TH1D* histogram){
+	TFileDirectory correlationDir = _fileService->mkdir( "histograms1D" );
+	if(!_h1histograms.count(key)){
+		_h1histograms[key] = correlationDir.make<TH1D>(Form("%s",key.c_str()),
+				Form("%s",key.c_str()),
+				500, 0,500);
+		if(histogram){
+			histogram->Copy(*_h1histograms[key]);
+			_h1histograms[key]->SetDirectory(correlationDir.getBareDirectory());
+		}
+	}
+	_h1histograms[key]->Fill(x);
 }
 
 void HistogramBuilder::fillEfficiency(bool passed, float pt, std::string key){
