@@ -1237,6 +1237,10 @@ void hoMuonAnalyzer::fillAverageEnergyAroundL1Direction(const l1extra::L1MuonPar
 			float deltaPhi;
 			deltaPhi = FilterPlugin::wrapCheck(l1Muon->phi(),hoMatcher->getRecHitPhi(&*recHitIt));
 
+			TH1D* hist1D = new TH1D("deltaPhi","#Delta#phi;#Delta#phi;N Entries",89, -1.0035643198967394, 1.0035643198967394);
+			histogramBuilder.fillHistogram(deltaPhi,"deltaPhi",hist1D);
+			delete hist1D;
+
 			double variableBinArray[] = {0,0.5,1,1.5,2,2.5,3,3.5,4,4.5,5,6,7,8,10,12,14,16,18,20,25,30,35,40,45,50,60,70,80,100,120,140,200};
 
 			TH2D* hist = new TH2D("shiftCheckDeltaPhiVsL1Pt","#Delta#phi shift check;p_{T} / GeV;#Delta#phi",32,variableBinArray,73, -3.1755, 3.1755);
