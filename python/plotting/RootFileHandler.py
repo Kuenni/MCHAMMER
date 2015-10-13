@@ -37,7 +37,10 @@ class RootFileHandler:
 	#Print status information
 	def printStatus(self):
 		print '[RootFileHandler] Looking for files with naming scheme \'%s\'' % (self.filename)
-		print '[RootFileHandler] Found %d matching files' % (self.numberOfFiles)
+		print '[RootFileHandler] Found %d matching files:' % (self.numberOfFiles)
+		for filename in self.fileNameList:
+			print '[RootFileHandler]\t' + filename
+		print
 		
 	'''
 	Get the histogram with the given name from the result files.
