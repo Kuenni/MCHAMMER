@@ -6,7 +6,7 @@ from ROOT import TCanvas,TLine,TLegend
 import math
 
 fileHandler = RootFileHandler(sys.argv[1])
-
+fileHandler.printStatus()
 def plotDeltaPhiVsL1Pt():
 	canvas = TCanvas('cDeltaPhiVsL1Pt','DeltaPhiVsL1Pt',1200,1200)
 	hist = fileHandler.getHistogram('hoMuonAnalyzer/correlation/shiftCheckDeltaPhiVsL1Pt')
@@ -85,8 +85,7 @@ def plotDeltaPhiVsL1Eta():
 
 def plotL1PhiVsHoPhi():
 	canvas = TCanvas('cL1PhiVsHoPhi','L1PhiVsHoPhi',1200,1200)
-	fileHandlerLocal = RootFileHandler('L1MuonHistogramPooja')
-	graph = fileHandlerLocal.getGraph('hoMuonAnalyzer/correlation/l1PhiVsHoPhi')
+	graph = fileHandler.getGraph('hoMuonAnalyzer/correlation/l1PhiVsHoPhi')
 	graph.SetTitle('L1 #phi vs. HO #phi;HO #phi;L1 #phi')
 	graph.SetMarkerStyle(2)
 	setupAxes(graph)
@@ -97,8 +96,7 @@ def plotL1PhiVsHoPhi():
 
 def plotL1PhiVsHoIPhi():
 	canvas = TCanvas('cL1PhiVsHoIPhi','L1PhiVsHoIPhi',1200,1200)
-	fileHandlerLocal = RootFileHandler('L1MuonHistogramPooja')
-	graph = fileHandlerLocal.getGraph('hoMuonAnalyzer/correlation/l1PhiVsHoIPhi')
+	graph = fileHandler.getGraph('hoMuonAnalyzer/correlation/l1PhiVsHoIPhi')
 	graph.SetTitle('L1 #phi vs. HO i#phi;HO i#phi;L1 #phi')
 	graph.SetMarkerStyle(2)
 	setupAxes(graph)
@@ -109,8 +107,7 @@ def plotL1PhiVsHoIPhi():
 	
 def plotHoPhiVsHoIPhi():
 	canvas = TCanvas('cHoPhiVsHoIPhi','HoPhiVsHoIPhi',1200,1200)
-	fileHandlerLocal = RootFileHandler('L1MuonHistogramPooja')
-	graph = fileHandlerLocal.getGraph('hoMuonAnalyzer/correlation/hoPhiVsHoIPhi')
+	graph = fileHandler.getGraph('hoMuonAnalyzer/correlation/hoPhiVsHoIPhi')
 	graph.SetTitle('HO #phi vs. HO i#phi;HO i#phi;HO #phi')
 	graph.SetMarkerStyle(2)
 	setupAxes(graph)
