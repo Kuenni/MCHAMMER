@@ -1247,6 +1247,8 @@ void hoMuonAnalyzer::fillAverageEnergyAroundL1Direction(const l1extra::L1MuonPar
 			histogramBuilder.fillCorrelationHistogram(l1Muon->phi(),deltaPhi,"shiftCheckDeltaPhiVsPhi",hist);
 			delete hist;
 
+			histogramBuilder.fillCorrelationGraph(l1Muon->phi(),deltaPhi,"shiftCheckDeltaPhiVsPhiGraph");
+
 			const reco::GenParticle* gen = getBestGenMatch(l1Muon->eta(),l1Muon->phi());
 			hist = new TH2D("shiftCheckDeltaPhiVsGenPt","#Delta#phi shift check;p_{T} / GeV;#Delta#phi",200,0,200,73, -3.1755, 3.1755);
 			histogramBuilder.fillCorrelationHistogram(gen->pt(),deltaPhi,"shiftCheckDeltaPhiVsGenPt",hist);
