@@ -535,7 +535,7 @@ def plotDetectorContributionsToTiming():
 	
 	
 	
-	return canvas,hist,label,histGrey,pText,pText2,label2
+	return canvas,hist,label,histGrey,pText,pText2,label2,hist2
 
 def plotPtAndEtaOfWrongBxId():
 	#Prepare canvas
@@ -727,14 +727,16 @@ def plotHoEnergyVsTime():
 	
 	histList = [hist,histTruth]
 	
-	canvas = TCanvas('cHoEnergyVsTime')
+	histTruth.SetTitle(histTruth.GetTitle() + ' (Truth)')
+	
+	canvas = TCanvas('cHoEnergyVsTime','HO Energy vs Time')
 	canvas.Divide(2,1)
 	
 	for i,histo in enumerate(histList):
 		canvas.cd(i+1)
-		hist.GetXaxis().SetRangeUser(-100,100)
-		hist.GetYaxis().SetRangeUser(0,10)
-		hist.Draw('colz')
+		histo.GetXaxis().SetRangeUser(-100,100)
+		histo.GetYaxis().SetRangeUser(0,10)
+		histo.Draw('colz')
 	
 	return canvas,histList
 	
