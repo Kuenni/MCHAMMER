@@ -3,6 +3,7 @@ from plotting.RootFileHandler import RootFileHandler
 from plotting.PlotStyle import drawLabelCmsPrivateSimulation, setupAxes,\
 	setupPalette
 from ROOT import TCanvas,TLine,TLegend
+import math
 
 fileHandler = RootFileHandler(sys.argv[1])
 
@@ -37,8 +38,10 @@ def plotDeltaPhiVsL1Phi():
 	hist.Draw('colz')
 	phiBorderLines = []
 	
+	HO_BIN = math.pi/36.
+	
 	for i in range(-31,32):
-		line = TLine(0.087*i,-.6, 0.087*i,.6)
+		line = TLine(HO_BIN*i,-.6, HO_BIN*i,.6)
 		line.SetLineWidth(2)
 		line.Draw()
 		phiBorderLines.append(line)
