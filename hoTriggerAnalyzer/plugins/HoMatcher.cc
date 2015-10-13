@@ -8,6 +8,10 @@
 #include "HoMuonTrigger/hoTriggerAnalyzer/interface/HoMatcher.h"
 #include "HoMuonTrigger/hoTriggerAnalyzer/interface/FilterPlugin.h"
 
+//Bin size definitions
+const double HoMatcher::HO_BIN = 3.1415926535897931/36.;
+const double HoMatcher::HALF_HO_BIN = HO_BIN/2.;
+
 HoMatcher::~HoMatcher() {
 }
 
@@ -135,10 +139,10 @@ int HoMatcher::getDeltaIeta(double eta, const HORecHit* recHit){
 	double hoEta = caloGeometry->getPosition(recHit->detid()).eta();
 	double deltaEta = hoEta - eta;
 	int deltaIEta = 0;
-	if(deltaEta > 0.0435){
-		deltaIEta = 1 + int((deltaEta - 0.0435)/0.087);
-	} else if(deltaEta < -0.0435){
-		deltaIEta = -1 + int((deltaEta + 0.0435)/0.087);
+	if(deltaEta > HALF_HO_BIN){
+		deltaIEta = 1 + int((deltaEta - HALF_HO_BIN)/HO_BIN);
+	} else if(deltaEta < -HALF_HO_BIN){
+		deltaIEta = -1 + int((deltaEta + HALF_HO_BIN)/HO_BIN);
 	}
 	return deltaIEta;
 }
@@ -155,11 +159,10 @@ int HoMatcher::getDeltaIphi(double phi, const HORecHit* recHit){
 	 * This gives one half tile in each direction before
 	 * the next tile starts
 	 */
-	if(deltaPhi > 0.0435){
-		//Fixme: Use 2*pi/72 instead of 0.087s
-		deltaIPhi = 1 + int((deltaPhi - 0.0435)/0.087);
-	} else if(deltaPhi < -0.0435){
-		deltaIPhi = -1 + int((deltaPhi + 0.0435)/0.087);
+	if(deltaPhi > HALF_HO_BIN){
+		deltaIPhi = 1 + int((deltaPhi - HALF_HO_BIN)/HO_BIN);
+	} else if(deltaPhi < -HALF_HO_BIN){
+		deltaIPhi = -1 + int((deltaPhi + HALF_HO_BIN)/HO_BIN);
 	}
 	return deltaIPhi;
 }
