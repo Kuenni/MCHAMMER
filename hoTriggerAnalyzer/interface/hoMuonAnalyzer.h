@@ -82,14 +82,18 @@ private:
 	void fillEfficiencyHistograms(double ptMeasured,double ptReal,std::string key);
 	void fillHoGeomAcceptanceGraph(reco::GenParticle genParticle);
 	void fillAverageEnergyAroundL1Direction(const l1extra::L1MuonParticle*);
+	void fillGridMatchingHistograms(bool passed, int grid, double pt, double time, std::string key, double eta, double phi);
 	void fillGridMatchingQualityCodes(const l1extra::L1MuonParticle* l1muon, float pt, std::string key);
-	void fillGridMatchingEfficiency(GlobalPoint direction, float pt, std::string key);
-	void fillGridMatchingEfficiency(GlobalPoint direction, float pt, std::string key, float eta, float phi);
+	void calculateGridMatchingEfficiency(GlobalPoint direction, float pt, std::string key);
+	void calculateGridMatchingEfficiency(GlobalPoint direction, float pt, std::string key, float eta, float phi);
 
 	const reco::GenParticle* getBestGenMatch(float,float);
 	const l1extra::L1MuonParticle* getMatchedL1Object(trigger::TriggerObject,edm::Handle<l1extra::L1MuonParticleCollection>);
 
 	bool processTriggerDecision(string algorithmName,const edm::Event& );
+	bool isInTimeWindow(double time){
+		return fabs(time) <= 12.5;
+	}
 
 	TrackDetMatchInfo* getTrackDetMatchInfo(reco::GenParticle,const edm::Event& iEvent,const edm::EventSetup& iSetup);
 
