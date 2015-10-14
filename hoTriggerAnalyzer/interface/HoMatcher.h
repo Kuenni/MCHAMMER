@@ -40,6 +40,7 @@ public:
 	 */
 	const HORecHit* matchByEMaxDeltaR(double eta,double phi);
 	const HORecHit* findEMaxHitInGrid(double eta,double phi, int gridSize);
+	const HORecHit* getClosestRecHitInGrid(double eta,double phi, int gridSize);
 	const HODataFrame* getBestHoDataFrameMatch(double eta, double phi);
 
 	double getHoBinSize(){return 0.087;};

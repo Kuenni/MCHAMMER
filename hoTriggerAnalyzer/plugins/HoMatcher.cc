@@ -222,6 +222,39 @@ bool HoMatcher::hasHoHitInGrid(GlobalPoint direction, int gridSize){
 }
 
 /**
+ * Look for the closest HO Rec Hit (in terms of grid distance) in a given direction, that passes
+ * the Energy threshold
+ */
+const HORecHit* HoMatcher::getClosestRecHitInGrid(double eta, double phi, int gridSize){
+	const HORecHit* match = 0;
+	int bestAbsDeltaIEta = 999;
+	int bestAbsDeltaIPhi = 999;
+
+	for(auto itRecHits = hoRecoHits->begin(); itRecHits != hoRecoHits->end(); itRecHits++){
+		//First filter out all rec hits that are either not in the matching grid or
+		//do not pass the energy threshold
+		if(isRecHitInGrid(eta,phi,&*itRecHits,gridSize)){
+			if(itRecHits->energy() > threshold){
+				int absDeltaIEta = abs(getDeltaIeta(eta,&*itRecHits));
+				int absDeltaIPhi = abs(getDeltaIphi(phi,&*itRecHits));
+				/**
+				 * If one delta i X is better that before, check whether the other
+				 * does not get worse. In that case update the match
+				 */
+				if(absDeltaIEta < bestAbsDeltaIEta || absDeltaIPhi < bestAbsDeltaIPhi){
+					if(!(absDeltaIEta > bestAbsDeltaIEta || absDeltaIPhi > bestAbsDeltaIPhi)){
+						bestAbsDeltaIEta = absDeltaIEta;
+						bestAbsDeltaIPhi = absDeltaIPhi;
+						match = &*itRecHits;
+					}
+				}
+			}
+		}
+	}
+	return match;
+}
+
+/**
  * Check whether a given combination of eta, phi and HORecHit (its coordinates)
  * are within a given tile grid
  */
