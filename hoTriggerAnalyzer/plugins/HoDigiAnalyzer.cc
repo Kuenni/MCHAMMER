@@ -176,7 +176,9 @@ void HoDigiAnalyzer::analyzeTruthDigiTiming(const edm::Event& iEvent){
 			double hitTime = calculateHitTimeFromDigi(&*dataFrame);
 			int maxTSIdx = findMaximumTimeSlice(&*dataFrame);
 			histogramBuilder.fillCorrelationGraph(hitTime,get4TsAdcSum(&*dataFrame,maxTSIdx),"digiTimeVs4TSSumTruth");
-			histogramBuilder.fillTimeHistogram(hitTime,"hoTimeFromDigiAboveThrTruth");
+			if(isFrameAboveThr(&*dataFrame)){
+				histogramBuilder.fillTimeHistogram(hitTime,"hoTimeFromDigiAboveThrTruth");
+			}
 		}
 	}
 }
