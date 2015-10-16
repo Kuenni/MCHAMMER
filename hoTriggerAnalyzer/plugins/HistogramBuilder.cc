@@ -14,6 +14,8 @@
 
 #include "TH1F.h"
 #include "TH2D.h"
+
+#include "HoMuonTrigger/hoTriggerAnalyzer/interface/HoMatcher.h"
 #include "HoMuonTrigger/hoTriggerAnalyzer/interface/FilterPlugin.h"
 
 /**
@@ -261,28 +263,49 @@ void HistogramBuilder::fillDeltaEtaDeltaPhiHistograms(float eta1, float eta2,
 void HistogramBuilder::fillDeltaEtaDeltaPhiHistogramsWithWeights(float eta1, float eta2,
 		float phi1, float phi2, double weight, std::string key){
 	TFileDirectory etaPhiDir = _fileService->mkdir("deltaEtaDeltaPhiEnergy");
-	float deltaEta, deltaPhi;
+	double deltaEta, deltaPhi;
 	deltaEta = eta2 - eta1;
 	deltaPhi = FilterPlugin::wrapCheck(phi1, phi2);
-
-	/**
-	 * 	Start and end of the axis range is determined by pi/36*11 + pi/72
-	 */
 
 	//DeltaEta Delta Phi Histograms Fill
 	if(!_h2DeltaEtaDeltaPhiWeights.count(key)){
 		_h2DeltaEtaDeltaPhiWeights[key] = etaPhiDir.make<TH2D>(Form("%s_2dSummedWeights",key.c_str()),Form("%s #Delta#eta #Delta#Phi Energy",key.c_str()),
-				23, -1.0035643198967394, 1.0035643198967394, 	//eta
-				23, -1.0035643198967394, 1.0035643198967394);	//phi
+				21,-10*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN,10*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN,
+				21,-10*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN,10*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN);
 	}
 	//DeltaEta Delta Phi Histograms Fill
 	if(!_h2DeltaEtaDeltaPhiCounter.count(key)){
 		_h2DeltaEtaDeltaPhiCounter[key] = etaPhiDir.make<TH2D>(Form("%s_2dCounter",key.c_str()),Form("%s #Delta#eta #Delta#Phi Energy",key.c_str()),
-				23, -1.0035643198967394, 1.0035643198967394, 	//eta
-				23, -1.0035643198967394, 1.0035643198967394);	//phi
+				21,-10*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN,10*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN,
+				21,-10*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN,10*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN);
 	}
 	_h2DeltaEtaDeltaPhiWeights[key]->Fill(deltaEta, deltaPhi, weight);
 	_h2DeltaEtaDeltaPhiCounter[key]->Fill(deltaEta, deltaPhi);
+
+
+	//#####################################
+	//Delta I Eta Delta I Phi Histograms Fill
+	//Same as above but doing the grid binning online.
+	//Check for the phi systematic
+	//#####################################
+	if(!_h2DeltaIEtaDeltaIPhiWeights.count(key)){
+		_h2DeltaIEtaDeltaIPhiWeights[key] = etaPhiDir.make<TH2D>(Form("%s_2dSummedWeightsIEtaIPhi",key.c_str()),
+				Form("%s #Deltai#eta #Deltai#Phi Energy",key.c_str()),
+				21,-10,10,
+				21,-10,10);
+	}
+	//Delta I Eta Delta I Phi Histograms Fill
+	if(!_h2DeltaIEtaDeltaIPhiCounter.count(key)){
+		_h2DeltaIEtaDeltaIPhiCounter[key] = etaPhiDir.make<TH2D>(Form("%s_2dCounterIEtaIPhi",key.c_str()),
+				Form("%s #Deltai#eta #Deltai#Phi Energy",key.c_str()),
+				21,-10,10,
+				21,-10,10);
+	}
+
+	int deltaIEta = HoMatcher::getDeltaIeta(eta1,eta2);
+	int deltaIPhi = HoMatcher::getDeltaIphi(phi1,phi2);
+	_h2DeltaIEtaDeltaIPhiWeights[key]->Fill(deltaIEta, deltaIPhi, weight);
+	_h2DeltaIEtaDeltaIPhiCounter[key]->Fill(deltaIEta, deltaIPhi);
 }
 
 /*
