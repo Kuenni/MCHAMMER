@@ -10,7 +10,7 @@
 #include <math.h>
 
 double FilterPlugin::wrapCheck(double phi1, double phi2){
-  float delta_phi = phi2 - phi1;
+  double delta_phi = phi2 - phi1;
   if(delta_phi < -M_PI){
     return (2*M_PI + delta_phi);
   }
@@ -22,7 +22,7 @@ double FilterPlugin::wrapCheck(double phi1, double phi2){
 
 bool FilterPlugin::isInsideDeltaR(double eta1, double eta2, double phi1, double phi2, double deltaR_Max){
 
-	float delta_eta, delta_phi;
+	double delta_eta, delta_phi;
 
 	delta_eta = eta2 - eta1;
 	delta_phi = wrapCheck(phi1,phi2); //Finds difference in phi
