@@ -205,6 +205,74 @@ def plotMPVs(fitList):
 	plt.savefig('plots/averageEnergy/mpv.png')
 	plt.show()
 
+def average2DHistogram(histWeights,histCounter):
+	for i in range(0,histWeights.GetNbinsX()):
+		for j in range(0,histWeights.GetNbinsY()):
+			if histCounter.GetBinContent(histCounter.GetBin(i,j)) != 0:
+				histWeights.SetBinContent(histWeights.GetBin(i,j),histWeights.GetBinContent(histWeights.GetBin(i,j))
+										/histCounter.GetBinContent(histCounter.GetBin(i,j)))
+	return histWeights
+
+def compareHistogramMethods():
+	canvas = TCanvas('cComparison','Comparison btween histograms')
+	
+	canvas.Divide(2,1)
+	
+	histNormal = fileHandler.getHistogram('hoMuonAnalyzer/deltaEtaDeltaPhiEnergy/averageEnergyAroundPoint_2dSummedWeights')
+	histNormalCounter = fileHandler.getHistogram('hoMuonAnalyzer/deltaEtaDeltaPhiEnergy/averageEnergyAroundPoint_2dCounter')
+	
+	histNew = fileHandler.getHistogram('hoMuonAnalyzer/deltaEtaDeltaPhiEnergy/averageEnergyAroundPoint_2dSummedWeightsIEtaIPhi')
+	histNewCounter = fileHandler.getHistogram('hoMuonAnalyzer/deltaEtaDeltaPhiEnergy/averageEnergyAroundPoint_2dCounterIEtaIPhi')
+	
+	canvas.cd(1).SetLogz()
+	
+	histNormal = average2DHistogram(histNormal, histNormalCounter)
+	histNormal.GetXaxis().SetRangeUser(-0.6,0.6)
+	histNormal.GetYaxis().SetRangeUser(-0.6,0.6)
+	histNormal.GetXaxis().SetTitle('#Delta#eta')
+	histNormal.GetYaxis().SetTitle('#Delta#phi')
+	histNormal.GetZaxis().SetTitle('Reconstructed Energy / GeV')
+	histNormal.SetTitle('Mean Energy in HO tiles around L1 direction, i#eta by binning')
+	histNormal.Draw('colz')
+	
+	label = getLabelCmsPrivateSimulation()
+	label.Draw()
+	
+	canvas.cd(2).SetLogz()
+	
+	histNew = average2DHistogram(histNew, histNewCounter)
+	histNew.GetXaxis().SetRangeUser(-8,8)
+	histNew.GetYaxis().SetRangeUser(-8,8)
+	histNew.GetXaxis().SetTitle('#Delta#eta')
+	histNew.GetYaxis().SetTitle('#Delta#phi')
+	histNew.GetZaxis().SetTitle('Reconstructed Energy / GeV')
+	histNew.SetTitle('Mean Energy in HO tiles around L1 direction, i#eta by binning')
+	histNew.Draw('colz')
+		
+	label2 = getLabelCmsPrivateSimulation()
+	label2.Draw()
+	
+	canvas.Update()
+	
+	#Setup plot style
+	setupAxes(histNormal)	
+	setStatBoxOptions(histNormal,1100)
+	setStatBoxPosition(histNormal)
+	setupPalette(histNormal)
+	
+	setupAxes(histNew)	
+	setStatBoxOptions(histNew,1100)
+	setStatBoxPosition(histNew)
+	setupPalette(histNew)
+
+	canvas.Update()
+	
+	#TODO: Print the bin contents subtracted
+	
+	return canvas, histNormal,label,histNew,label2
+
+res6 = compareHistogramMethods()
+raw_input('-->')
 res5 = plot1DEMaxAroundL1()
 res4 = plotAverageEMaxAroundL1()
 res = plotAverageEnergyAroundL1()
