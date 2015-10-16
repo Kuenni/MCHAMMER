@@ -87,6 +87,8 @@ private:
 	void calculateGridMatchingEfficiency(GlobalPoint direction, float pt, std::string key);
 	void calculateGridMatchingEfficiency(GlobalPoint direction, float pt, std::string key, float eta, float phi);
 
+	void processGenInformation(const edm::Event& iEvent,const edm::EventSetup& iSetup);
+
 	const reco::GenParticle* getBestGenMatch(float,float);
 	const l1extra::L1MuonParticle* getMatchedL1Object(trigger::TriggerObject,edm::Handle<l1extra::L1MuonParticleCollection>);
 
@@ -146,6 +148,7 @@ private:
 	bool singleMu3Trig,doubleMu0Trig;
 	bool debug;
 	bool firstRun;
+	bool isData;
 
 
 	/**
