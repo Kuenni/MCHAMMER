@@ -86,6 +86,11 @@ parser.add_argument('--gridpackname','-g'
 				,default='modulegridpack.tar.gz'
 				,help='Set the name of the gridpack file')
 
+parser.add_argument('--config-template'
+				,dest='cfgTemplate'
+				,type = str
+				,help='Give a different config template file')
+
 parser.add_argument('--no-submit'
 				,dest='noSubmit'
 				,action="store_true",default=False
@@ -204,6 +209,9 @@ def createRunConfigs():
 		sys.exit(-1)
 	for i in range(0,args.nJobs):
 		outfileName = 'configs/parallelConfig%d.py' % (i)
+		#Use a dedicated cfg template if given
+		if args.cfgTemplate:
+			configTemplate = args.cfgTemplate
 		with open(configTemplate) as infile:
 			with open(outfileName,'w') as outfile:
 				for line in infile.readlines():
