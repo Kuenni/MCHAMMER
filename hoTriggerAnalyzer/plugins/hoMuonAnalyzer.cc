@@ -1275,13 +1275,15 @@ void hoMuonAnalyzer::fillAverageEnergyAroundL1Direction(const l1extra::L1MuonPar
 			delete hist;
 
 			//Delta phi vs l1 eta
-			hist = new TH2D("shiftCheckDeltaPhiVsL1Eta","#Delta#phi shift check;#eta_{L1};#Delta#phi",200,0,200,
+			hist = new TH2D("shiftCheckDeltaPhiVsL1Eta","#Delta#phi shift check;#eta_{L1};#Delta#phi",
+					145,-36*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN,36*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN,//Half an HO bin in eta
 					73,-36*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN,36*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN);
 			histogramBuilder.fillCorrelationHistogram(l1Muon->eta(),deltaPhi,"shiftCheckDeltaPhiVsL1Eta",hist);
 			delete hist;
 
 			//Delta phi vs gen eta
-			hist = new TH2D("shiftCheckDeltaPhiVsGenEta","#Delta#phi shift check;#eta_{Gen};#Delta#phi",200,0,200,
+			hist = new TH2D("shiftCheckDeltaPhiVsGenEta","#Delta#phi shift check;#eta_{Gen};#Delta#phi",
+					145,-36*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN,36*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN,//Half an HO bin in eta,
 					73,-36*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN,36*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN);
 			histogramBuilder.fillCorrelationHistogram(gen->eta(),deltaPhi,"shiftCheckDeltaPhiVsGenEta",hist);
 			delete hist;
@@ -1378,9 +1380,12 @@ void hoMuonAnalyzer::calculateGridMatchingEfficiency(GlobalPoint direction, floa
 	double etaDir = direction.eta();
 	double phiDir = direction.phi();
 	const HORecHit* recHit = hoMatcher->getClosestRecHitInGrid(etaDir,phiDir,2);
-
 	for(int i = 0; i < 3 ; i++){
-		fillGridMatchingHistograms(hoMatcher->isRecHitInGrid(etaDir,phiDir,recHit,i),i,pt,recHit->time(),key,eta,phi);
+		if(!recHit){
+			fillGridMatchingHistograms(false,i,pt,999,key,eta,phi);
+		} else{
+			fillGridMatchingHistograms(hoMatcher->isRecHitInGrid(etaDir,phiDir,recHit,i),i,pt,recHit->time(),key,eta,phi);
+		}
 	}
 }
 
