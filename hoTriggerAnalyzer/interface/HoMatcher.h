@@ -43,15 +43,21 @@ public:
 	const HORecHit* getClosestRecHitInGrid(double eta,double phi, int gridSize);
 	const HODataFrame* getBestHoDataFrameMatch(double eta, double phi);
 
-	double getHoBinSize(){return 0.087;};
+	double getHoBinSize(){return HoMatcher::HO_BIN;};
 	double getRecHitEta(const HORecHit* recHit);
 	double getRecHitPhi(const HORecHit* recHit);
 
 	double getPhiFromDetId(DetId id);
 	double getEtaFromDetId(DetId id);
 
+	//Get necessary info from rechit
 	int getDeltaIeta(double eta, const HORecHit* recHit);
 	int getDeltaIphi(double phi, const HORecHit* rechit);
+
+	//using elementary data types
+	static int getDeltaIeta(double eta, double etaHo);
+	static int getDeltaIphi(double phi, double phiHo);
+
 	int countHoDigisByDetId(DetId id);
 
 	bool isRecHitInGrid(double eta, double phi, const HORecHit* recHit, int gridSize);

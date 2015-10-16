@@ -145,6 +145,19 @@ double HoMatcher::getEtaFromDetId(DetId id){
  */
 int HoMatcher::getDeltaIeta(double eta, const HORecHit* recHit){
 	double hoEta = caloGeometry->getPosition(recHit->detid()).eta();
+	return HoMatcher::getDeltaIeta(eta,hoEta);
+}
+
+/**
+ * Get delta in iPhi between given phi and given HORecHit
+ */
+int HoMatcher::getDeltaIphi(double phi, const HORecHit* recHit){
+	double hoPhi = caloGeometry->getPosition(recHit->detid()).phi();
+	return HoMatcher::getDeltaIphi(phi,hoPhi);
+}
+
+//Calculate delta i eta between two given eta coordinates
+int HoMatcher::getDeltaIeta(double eta, double hoEta){
 	double deltaEta = hoEta - eta;
 	int deltaIEta = 0;
 	if(deltaEta > HALF_HO_BIN){
@@ -155,24 +168,21 @@ int HoMatcher::getDeltaIeta(double eta, const HORecHit* recHit){
 	return deltaIEta;
 }
 
-/**
- * Get delta in iPhi between given phi and given HORecHit
- */
-int HoMatcher::getDeltaIphi(double phi, const HORecHit* recHit){
-	double hoPhi = caloGeometry->getPosition(recHit->detid()).phi();
+//Calculate delta i phi between two phi coordinates
+int HoMatcher::getDeltaIphi(double phi, double hoPhi){
 	double deltaPhi = FilterPlugin::wrapCheck(phi,hoPhi);
-	int deltaIPhi = 0;
-	/**
-	 * Assume L1 direction as the center of a tile.
-	 * This gives one half tile in each direction before
-	 * the next tile starts
-	 */
-	if(deltaPhi > HALF_HO_BIN){
-		deltaIPhi = 1 + int((deltaPhi - HALF_HO_BIN)/HO_BIN);
-	} else if(deltaPhi < -HALF_HO_BIN){
-		deltaIPhi = -1 + int((deltaPhi + HALF_HO_BIN)/HO_BIN);
-	}
-	return deltaIPhi;
+		int deltaIPhi = 0;
+		/**
+		 * Assume L1 direction as the center of a tile.
+		 * This gives one half tile in each direction before
+		 * the next tile starts
+		 */
+		if(deltaPhi > HALF_HO_BIN){
+			deltaIPhi = 1 + int((deltaPhi - HALF_HO_BIN)/HO_BIN);
+		} else if(deltaPhi < -HALF_HO_BIN){
+			deltaIPhi = -1 + int((deltaPhi + HALF_HO_BIN)/HO_BIN);
+		}
+		return deltaIPhi;
 }
 
 /**
