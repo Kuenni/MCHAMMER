@@ -2,8 +2,11 @@ import sys
 from plotting.RootFileHandler import RootFileHandler
 from plotting.PlotStyle import drawLabelCmsPrivateSimulation, setupAxes,\
 	setupPalette
-from ROOT import TCanvas,TLine,TLegend
+from plotting.Utils import average2DHistogramBinwise
+from ROOT import TCanvas,TLine,TLegend,Double,TH2D
 import math
+
+L1_BIN = math.pi/72.
 
 fileHandler = RootFileHandler(sys.argv[1])
 fileHandler.printStatus()
@@ -20,7 +23,13 @@ def plotDeltaPhiVsL1Pt():
 def plotDeltaPhiVsGenPt():
 	canvas = TCanvas('cDeltaPhiVsGenPt','DeltaPhiVsGenPt',1200,1200)
 	hist = fileHandler.getHistogram('hoMuonAnalyzer/correlation/shiftCheckDeltaPhiVsGenPt')
+	hist.GetYaxis().SetRangeUser(-0.6,0.6)
 	hist.Draw('colz')
+	canvas.Update()
+	
+	setupPalette(hist)
+	setupAxes(hist)
+	
 	label = drawLabelCmsPrivateSimulation()
 	canvas.Update()
 	
@@ -43,12 +52,12 @@ def plotDeltaPhiVsL1Phi():
 	for i in range(-31,32):
 		line = TLine(HO_BIN*i,-.6, HO_BIN*i,.6)
 		line.SetLineWidth(2)
-		line.Draw()
+	#	line.Draw()
 		phiBorderLines.append(line)
 		
 	legend = TLegend(0.6,0.8,0.9,0.85)
 	legend.AddEntry(phiBorderLines[0],"HO Tile border","e")
-	legend.Draw()
+	#legend.Draw()
 	
 	label = drawLabelCmsPrivateSimulation()
 	canvas.Update()
@@ -96,6 +105,8 @@ def plotL1PhiVsHoPhi():
 
 def plotL1PhiVsHoIPhi():
 	canvas = TCanvas('cL1PhiVsHoIPhi','L1PhiVsHoIPhi',1200,1200)
+	canvas.Divide(1,2)
+	canvas.cd(1)
 	graph = fileHandler.getGraph('hoMuonAnalyzer/correlation/l1PhiVsHoIPhi')
 	graph.SetTitle('L1 #phi vs. HO i#phi;HO i#phi;L1 #phi')
 	graph.SetMarkerStyle(2)
@@ -103,7 +114,22 @@ def plotL1PhiVsHoIPhi():
 	graph.Draw('AP')
 	canvas.Update()
 	
-	return canvas,graph
+	canvas.cd(2)
+	
+	halfbinwidth = L1_BIN/2.
+	
+	hist = TH2D('hL1PhiVsHoPhi','L1 Phi vs. iPhi',73,0.5,72.5,289, -math.pi - halfbinwidth,math.pi + halfbinwidth)
+	x = Double(0)
+	y = Double(0)
+	for i in range(0,graph.GetN()):
+		graph.GetPoint(i,x,y)
+		hist.Fill(x,y)
+	
+	hist.Draw('colz')
+	
+	canvas.Update()
+	
+	return canvas,graph,hist
 	
 def plotHoPhiVsHoIPhi():
 	canvas = TCanvas('cHoPhiVsHoIPhi','HoPhiVsHoIPhi',1200,1200)
@@ -125,3 +151,81 @@ def plotDeltaPhiHistogram():
 	label = drawLabelCmsPrivateSimulation()
 	
 	return hist,canvas,label
+
+def setupEAvplot(histE,histC):
+	histE = average2DHistogramBinwise(histE,histC)
+	histE.GetXaxis().SetRangeUser(-0.2,0.2)
+	histE.GetYaxis().SetRangeUser(-0.2,0.2)
+	histE.GetXaxis().SetTitle('#Delta#eta')
+	histE.GetYaxis().SetTitle('#Delta#phi')
+	histE.GetZaxis().SetTitle('Reconstructed Energy / GeV')
+	return histE
+
+def plotEAveragePerWheel():
+	canvas = TCanvas('cEAvPerWheel',"E Average per Wheel",1800,800)
+	canvas.Divide(3,1)
+
+	hM1Energy = fileHandler.getHistogram('hoMuonAnalyzer/averageEnergy/wh1m/averageEnergyAroundPoint_wh-1SummedEnergy')
+	hM1Counter = fileHandler.getHistogram('hoMuonAnalyzer/averageEnergy/wh1m/averageEnergyAroundPoint_wh-1Counter')
+	hM1Energy = setupEAvplot(hM1Energy, hM1Counter)
+	hM1Energy.SetStats(0)
+
+	h0Energy = fileHandler.getHistogram('hoMuonAnalyzer/averageEnergy/wh0/averageEnergyAroundPoint_wh0SummedEnergy')
+	h0Counter = fileHandler.getHistogram('hoMuonAnalyzer/averageEnergy/wh0/averageEnergyAroundPoint_wh0Counter')
+	h0Energy = setupEAvplot(h0Energy, h0Counter)
+	h0Energy.SetStats(0)
+
+	hP1Energy = fileHandler.getHistogram('hoMuonAnalyzer/averageEnergy/wh1p/averageEnergyAroundPoint_wh1SummedEnergy')
+	hP1Counter = fileHandler.getHistogram('hoMuonAnalyzer/averageEnergy/wh1p/averageEnergyAroundPoint_wh1Counter')
+	hP1Energy = setupEAvplot(hP1Energy, hP1Counter)
+	hP1Energy.SetStats(0)
+
+	canvas.cd(1).SetLogz()
+	hM1Energy.Draw('colz')
+	canvas.Update()
+	setupAxes(hM1Energy)
+	setupPalette(hM1Energy)
+	
+	canvas.cd(2).SetLogz()
+	h0Energy.Draw('colz')
+	h0Counter.Draw('same,text')
+	canvas.Update()
+	setupAxes(h0Energy)
+	setupPalette(h0Energy)
+	
+	canvas.cd(3).SetLogz()
+	hP1Energy.Draw('colz')
+	canvas.Update()
+	setupAxes(hP1Energy)
+	setupPalette(hP1Energy)
+
+	canvas.Update()
+	
+	return hM1Energy,canvas,h0Energy,hP1Energy,h0Counter
+
+	
+def plotEtaPhi():
+	canvas = TCanvas("cEtaPhi","Eta Phi")
+	graph = fileHandler.getGraph('hoMuonAnalyzer/graphs/averageEnergyDeltaPhi1')
+		
+	halfbinwidth = L1_BIN/2.
+	hist = TH2D('hEtaPhiDeltaPhi1',"#eta#phi of #Delta#phi=1 evts.",93,-46*L1_BIN - halfbinwidth
+			,46*L1_BIN + halfbinwidth,289, -math.pi - halfbinwidth,math.pi + halfbinwidth)
+	
+	x = Double(0)
+	y = Double(0)
+	
+	for i in range(0,graph.GetN()):
+		graph.GetPoint(i,x,y)
+		hist.Fill(x,y)
+	
+	hist.Draw('colz')
+	canvas.Update()
+	
+	setupAxes(hist)
+	setupPalette(hist)
+	
+	canvas.Update()
+	
+	return canvas,hist
+	
