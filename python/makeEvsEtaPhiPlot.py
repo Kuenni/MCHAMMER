@@ -6,7 +6,7 @@ from plotting.PlotStyle import setPlotStyle,calcSigma,getLabelCmsPrivateSimulati
 from plotting.PlotStyle import colorRwthMagenta,setupAxes,convertToHcalCoords,chimney1,chimney2,printProgress
 from plotting.PlotStyle import setStatBoxOptions,setStatBoxPosition,pyplotCmsPrivateLabel
 from plotting.RootFileHandler import RootFileHandler
-from matchingLibrary import findBestL1Match
+from plotting.Utils import average2DHistogramBinwise
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -205,20 +205,12 @@ def plotMPVs(fitList):
 	plt.savefig('plots/averageEnergy/mpv.png')
 	plt.show()
 
-def average2DHistogram(histWeights,histCounter):
-	for i in range(0,histWeights.GetNbinsX()):
-		for j in range(0,histWeights.GetNbinsY()):
-			if histCounter.GetBinContent(histCounter.GetBin(i,j)) != 0:
-				histWeights.SetBinContent(histWeights.GetBin(i,j),histWeights.GetBinContent(histWeights.GetBin(i,j))
-										/histCounter.GetBinContent(histCounter.GetBin(i,j)))
-	return histWeights
-
 def compareHistogramMethods():
 	canvas = TCanvas('cComparison','Comparison btween histograms')
 	
 	canvas.Divide(2,1)
 	
-	histNormal = fileHandler.getHistogram('hoMuonAnalyzer/deltaEtaDeltaPhiEnergy/averageEnergyAroundPoint_2dSummedWeights')
+	histNormal = fileHandler.getHistogram('hoMuonAnalyzer/averageEnergy/averageEnergyAroundPoint_2dSummedWeights')
 	histNormalCounter = fileHandler.getHistogram('hoMuonAnalyzer/deltaEtaDeltaPhiEnergy/averageEnergyAroundPoint_2dCounter')
 	
 	histNew = fileHandler.getHistogram('hoMuonAnalyzer/deltaEtaDeltaPhiEnergy/averageEnergyAroundPoint_2dSummedWeightsIEtaIPhi')
@@ -226,7 +218,7 @@ def compareHistogramMethods():
 	
 	canvas.cd(1).SetLogz()
 	
-	histNormal = average2DHistogram(histNormal, histNormalCounter)
+	histNormal = average2DHistogramBinwise(histNormal, histNormalCounter)
 	histNormal.GetXaxis().SetRangeUser(-0.6,0.6)
 	histNormal.GetYaxis().SetRangeUser(-0.6,0.6)
 	histNormal.GetXaxis().SetTitle('#Delta#eta')
@@ -240,7 +232,7 @@ def compareHistogramMethods():
 	
 	canvas.cd(2).SetLogz()
 	
-	histNew = average2DHistogram(histNew, histNewCounter)
+	histNew = average2DHistogramBinwise(histNew, histNewCounter)
 	histNew.GetXaxis().SetRangeUser(-8,8)
 	histNew.GetYaxis().SetRangeUser(-8,8)
 	histNew.GetXaxis().SetTitle('#Delta#eta')
