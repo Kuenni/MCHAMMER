@@ -45,6 +45,7 @@ def getProgressString(done,total):
 	progressbar = '\r[%s%s] %5.2f%% done.' % (nHashes*'#',(80-nHashes)*' ',done*100/float(total))
 	return progressbar
 
+global configTemplate
 configTemplate = os.environ['HOMUONTRIGGER_BASE'] + '/python/runConfig_template.py'
 	
 parser = argparse.ArgumentParser()
@@ -211,6 +212,7 @@ def createRunConfigs():
 		outfileName = 'configs/parallelConfig%d.py' % (i)
 		#Use a dedicated cfg template if given
 		if args.cfgTemplate:
+			global configTemplate
 			configTemplate = args.cfgTemplate
 		with open(configTemplate) as infile:
 			with open(outfileName,'w') as outfile:
