@@ -1229,16 +1229,18 @@ void hoMuonAnalyzer::fillAverageEnergyAroundL1Direction(const l1extra::L1MuonPar
 	int gridSize = 5;
 	for(auto recHitIt = hoRecoHits->begin(); recHitIt != hoRecoHits->end(); recHitIt++){
 		if(hoMatcher->isRecHitInGrid(l1Muon->eta(), l1Muon->phi(),&*recHitIt,gridSize)){
-			histogramBuilder.fillDeltaEtaDeltaPhiHistogramsWithWeights(l1Muon->eta()
-					,float(hoMatcher->getRecHitEta(&*recHitIt))	,l1Muon->phi()
-					,float(hoMatcher->getRecHitPhi(&*recHitIt))	,recHitIt->energy()
-					,"averageEnergyAroundPoint");
+			histogramBuilder.fillAverageEnergyHistograms(l1Muon->eta(),double(hoMatcher->getRecHitEta(&*recHitIt)),
+					l1Muon->phi(),double(hoMatcher->getRecHitPhi(&*recHitIt)),recHitIt->energy(),"averageEnergyAroundPoint");
+//			histogramBuilder.fillDeltaEtaDeltaPhiHistogramsWithWeights(l1Muon->eta()
+	//				,double(hoMatcher->getRecHitEta(&*recHitIt))	,l1Muon->phi()
+		//			,double(hoMatcher->getRecHitPhi(&*recHitIt))	,recHitIt->energy()
+			//		,"averageEnergyAroundPoint");
 			histogramBuilder.fillDeltaEtaDeltaPhiEnergyHistogram(l1Muon->eta()
-					,float(hoMatcher->getRecHitEta(&*recHitIt))	,l1Muon->phi()
-					,float(hoMatcher->getRecHitPhi(&*recHitIt))	,recHitIt->energy()
+					,double(hoMatcher->getRecHitEta(&*recHitIt))	,l1Muon->phi()
+					,double(hoMatcher->getRecHitPhi(&*recHitIt))	,recHitIt->energy()
 					,"averageEnergyAroundPoint");//Use this function for the 1D distributions for each delta eta and delta phi
 
-			float deltaPhi;
+			double deltaPhi;
 			deltaPhi = FilterPlugin::wrapCheck(l1Muon->phi(),hoMatcher->getRecHitPhi(&*recHitIt));
 
 			/**
