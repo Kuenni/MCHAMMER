@@ -1231,10 +1231,6 @@ void hoMuonAnalyzer::fillAverageEnergyAroundL1Direction(const l1extra::L1MuonPar
 		if(hoMatcher->isRecHitInGrid(l1Muon->eta(), l1Muon->phi(),&*recHitIt,gridSize)){
 			histogramBuilder.fillAverageEnergyHistograms(l1Muon->eta(),double(hoMatcher->getRecHitEta(&*recHitIt)),
 					l1Muon->phi(),double(hoMatcher->getRecHitPhi(&*recHitIt)),recHitIt->energy(),"averageEnergyAroundPoint");
-//			histogramBuilder.fillDeltaEtaDeltaPhiHistogramsWithWeights(l1Muon->eta()
-	//				,double(hoMatcher->getRecHitEta(&*recHitIt))	,l1Muon->phi()
-		//			,double(hoMatcher->getRecHitPhi(&*recHitIt))	,recHitIt->energy()
-			//		,"averageEnergyAroundPoint");
 			histogramBuilder.fillDeltaEtaDeltaPhiEnergyHistogram(l1Muon->eta()
 					,double(hoMatcher->getRecHitEta(&*recHitIt))	,l1Muon->phi()
 					,double(hoMatcher->getRecHitPhi(&*recHitIt))	,recHitIt->energy()
@@ -1263,8 +1259,11 @@ void hoMuonAnalyzer::fillAverageEnergyAroundL1Direction(const l1extra::L1MuonPar
 			histogramBuilder.fillCorrelationHistogram(l1Muon->pt(),deltaPhi,"shiftCheckDeltaPhiVsL1Pt",hist);
 			delete hist;
 
-			hist = new TH2D("shiftCheckDeltaPhiVsPhi","#Delta#phi shift check;#phi;#Delta#phi",289,-3.163175, 3.163175,
-					73,-36*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN,36*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN);
+			// y: ho-half bins, zero centered -> shift by quarter Ho bin
+			// x: ho quarter bins, zero centered -> 288 bins + 1 bin, borders shifted by ho eighth bin
+			hist = new TH2D("shiftCheckDeltaPhiVsPhi","#Delta#phi shift check;#phi;#Delta#phi",
+					289,-36*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/4.,36*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/4.,
+					145,-36*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/2.,36*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/2.);
 			histogramBuilder.fillCorrelationHistogram(l1Muon->phi(),deltaPhi,"shiftCheckDeltaPhiVsPhi",hist);
 			delete hist;
 
@@ -1278,14 +1277,14 @@ void hoMuonAnalyzer::fillAverageEnergyAroundL1Direction(const l1extra::L1MuonPar
 
 			//Delta phi vs l1 eta
 			hist = new TH2D("shiftCheckDeltaPhiVsL1Eta","#Delta#phi shift check;#eta_{L1};#Delta#phi",
-					145,-36*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN,36*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN,//Half an HO bin in eta
+					145,-36*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/2.,36*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/2.,//Half an HO bin in eta
 					73,-36*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN,36*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN);
 			histogramBuilder.fillCorrelationHistogram(l1Muon->eta(),deltaPhi,"shiftCheckDeltaPhiVsL1Eta",hist);
 			delete hist;
 
 			//Delta phi vs gen eta
 			hist = new TH2D("shiftCheckDeltaPhiVsGenEta","#Delta#phi shift check;#eta_{Gen};#Delta#phi",
-					145,-36*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN,36*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN,//Half an HO bin in eta,
+					145,-36*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/2.,36*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/2.,//Half an HO bin in eta,
 					73,-36*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN,36*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN);
 			histogramBuilder.fillCorrelationHistogram(gen->eta(),deltaPhi,"shiftCheckDeltaPhiVsGenEta",hist);
 			delete hist;
