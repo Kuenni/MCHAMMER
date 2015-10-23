@@ -1,10 +1,11 @@
 #!/usr/bin/python
 
 from phishift.DeltaPhi import *
-
-resWheelwise = plotEAveragePerWheel()
-raw_input('-->')
 resEtaPhiMap = plotEtaPhi()
+
+raw_input('-->')
+resWheelwise = plotEAveragePerWheel()
+
 resDeltaPhi = plotDeltaPhiHistogram()
 resEta = plotDeltaPhiVsL1Eta()
 res4 = plotL1PhiVsHoPhi()

@@ -2,10 +2,16 @@ import sys
 from plotting.RootFileHandler import RootFileHandler
 from plotting.PlotStyle import drawLabelCmsPrivateSimulation, setupAxes,\
 	setupPalette
-from plotting.Utils import average2DHistogramBinwise
+from plotting.Utils import setupEAvplot
 from ROOT import TCanvas,TLine,TLegend,Double,TH2D
-import math
+import math,os
 
+
+if( not os.path.exists('plots')):
+	os.mkdir('plots')
+if( not os.path.exists('plots/averageEnergy')):
+	os.mkdir('plots/averageEnergy')
+	
 L1_BIN = math.pi/72.
 
 fileHandler = RootFileHandler(sys.argv[1])
@@ -50,13 +56,13 @@ def plotDeltaPhiVsL1Phi():
 	HO_BIN = math.pi/36.
 	
 	for i in range(-31,32):
-		line = TLine(HO_BIN*i,-.6, HO_BIN*i,.6)
+		line = TLine(HO_BIN*i - HO_BIN/2.,-.6, HO_BIN*i - HO_BIN/2.,.6)
 		line.SetLineWidth(2)
 	#	line.Draw()
 		phiBorderLines.append(line)
 		
 	legend = TLegend(0.6,0.8,0.9,0.85)
-	legend.AddEntry(phiBorderLines[0],"HO Tile border","e")
+	legend.AddEntry(phiBorderLines[0],"HO Tile center","e")
 	#legend.Draw()
 	
 	label = drawLabelCmsPrivateSimulation()
@@ -152,15 +158,6 @@ def plotDeltaPhiHistogram():
 	
 	return hist,canvas,label
 
-def setupEAvplot(histE,histC):
-	histE = average2DHistogramBinwise(histE,histC)
-	histE.GetXaxis().SetRangeUser(-0.2,0.2)
-	histE.GetYaxis().SetRangeUser(-0.2,0.2)
-	histE.GetXaxis().SetTitle('#Delta#eta')
-	histE.GetYaxis().SetTitle('#Delta#phi')
-	histE.GetZaxis().SetTitle('Reconstructed Energy / GeV')
-	return histE
-
 def plotEAveragePerWheel():
 	canvas = TCanvas('cEAvPerWheel',"E Average per Wheel",1800,800)
 	canvas.Divide(3,1)
@@ -188,7 +185,7 @@ def plotEAveragePerWheel():
 	
 	canvas.cd(2).SetLogz()
 	h0Energy.Draw('colz')
-	h0Counter.Draw('same,text')
+	#h0Counter.Draw('same,text')
 	canvas.Update()
 	setupAxes(h0Energy)
 	setupPalette(h0Energy)
@@ -201,11 +198,13 @@ def plotEAveragePerWheel():
 
 	canvas.Update()
 	
+	canvas.SaveAs('plots/averageEnergy/eAveragePerWheel.pdf')
+	
 	return hM1Energy,canvas,h0Energy,hP1Energy,h0Counter
 
 	
 def plotEtaPhi():
-	canvas = TCanvas("cEtaPhi","Eta Phi")
+	canvas = TCanvas("cEtaPhi","Eta Phi",1200,1200)
 	graph = fileHandler.getGraph('hoMuonAnalyzer/graphs/averageEnergyDeltaPhi1')
 		
 	halfbinwidth = L1_BIN/2.
@@ -219,13 +218,18 @@ def plotEtaPhi():
 		graph.GetPoint(i,x,y)
 		hist.Fill(x,y)
 	
+	hist.SetStats(0)
+	hist.GetXaxis().SetRangeUser(-1,1)
+	hist.SetTitle(hist.GetTitle() + ';#eta;#phi;Entries')
+	setupAxes(hist)
 	hist.Draw('colz')
 	canvas.Update()
 	
-	setupAxes(hist)
 	setupPalette(hist)
 	
 	canvas.Update()
+	
+	canvas.SaveAs('plots/etaPhiForDeltaPhiOne.pdf')
 	
 	return canvas,hist
 	
