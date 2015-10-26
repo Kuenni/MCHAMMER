@@ -402,7 +402,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		}
 		//Look for matches in grid around L1
 		GlobalPoint l1Direction(bl1Muon->p4().X(),bl1Muon->p4().Y(),bl1Muon->p4().Z());
-		calculateGridMatchingEfficiency(l1Direction,bl1Muon->pt(),"L1Muon");
+		calculateGridMatchingEfficiency(l1Direction,bl1Muon->pt(),"L1Muon",bl1Muon->eta(),bl1Muon->phi());
 		fillGridMatchingQualityCodes(&*bl1Muon,bl1Muon->pt(),"L1Muon");
 
 		if(MuonHOAcceptance::inGeomAccept(l1Muon_eta,l1Muon_phi)&& !hoMatcher->isInChimney(l1Muon_eta,l1Muon_phi)){
