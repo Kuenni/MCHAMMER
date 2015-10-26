@@ -50,6 +50,8 @@ def plotDeltaPhiVsL1Phi():
 	hist.GetZaxis().SetTitle('#')
 	hist.SetStats(0)
 	hist.SetTitle('#Delta#phi vs. L1#phi')
+	setupAxes(hist)
+
 	hist.Draw('colz')
 	phiBorderLines = []
 	
@@ -68,7 +70,6 @@ def plotDeltaPhiVsL1Phi():
 	label = drawLabelCmsPrivateSimulation()
 	canvas.Update()
 	
-	setupAxes(hist)
 	setupPalette(hist)
 	
 	canvas.Update()
@@ -178,22 +179,28 @@ def plotEAveragePerWheel():
 	hP1Energy.SetStats(0)
 
 	canvas.cd(1).SetLogz()
+	setupAxes(hM1Energy)
+	hM1Energy.SetMaximum(1.2)
+	hM1Energy.SetMinimum(5e-3)
 	hM1Energy.Draw('colz')
 	canvas.Update()
-	setupAxes(hM1Energy)
 	setupPalette(hM1Energy)
 	
 	canvas.cd(2).SetLogz()
+	setupAxes(h0Energy)
+	h0Energy.SetMaximum(1.2)
+	h0Energy.SetMinimum(5e-3)
 	h0Energy.Draw('colz')
 	#h0Counter.Draw('same,text')
 	canvas.Update()
-	setupAxes(h0Energy)
 	setupPalette(h0Energy)
 	
 	canvas.cd(3).SetLogz()
+	setupAxes(hP1Energy)
+	hP1Energy.SetMaximum(1.2)
+	hP1Energy.SetMinimum(5e-3)
 	hP1Energy.Draw('colz')
 	canvas.Update()
-	setupAxes(hP1Energy)
 	setupPalette(hP1Energy)
 
 	canvas.Update()
