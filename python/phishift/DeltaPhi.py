@@ -210,8 +210,8 @@ def plotEAveragePerWheel():
 	return hM1Energy,canvas,h0Energy,hP1Energy,h0Counter
 
 	
-def plotEtaPhi():
-	canvas = TCanvas("cEtaPhi","Eta Phi",1200,1200)
+def plotEtaPhiForDeltaPhiOne():
+	canvas = TCanvas("cEtaPhiDeltaPhiOne","Eta Phi For DPhi 1",1200,1200)
 	graph = fileHandler.getGraph('hoMuonAnalyzer/graphs/averageEnergyDeltaPhi1')
 		
 	halfbinwidth = L1_BIN/2.
@@ -239,4 +239,51 @@ def plotEtaPhi():
 	canvas.SaveAs('plots/etaPhiForDeltaPhiOne.pdf')
 	
 	return canvas,hist
+
+def plotEtaPhiForAllL1():
+	canvas = TCanvas("cEtaPhi","Eta Phi",1200,1200)
+	canvas.Divide(2,1)
+	graphAll = fileHandler.getGraph('hoMuonAnalyzer/graphs/L1Muon')
+	graphWithHo = fileHandler.getGraph('hoMuonAnalyzer/graphs/L1Muon3x3')
+			
+	halfbinwidth = L1_BIN/2.
+	histAll = TH2D('hEtaPhiAll',"#eta#phi for all L1",93,-46*L1_BIN - halfbinwidth
+			,46*L1_BIN + halfbinwidth,289, -math.pi - halfbinwidth,math.pi + halfbinwidth)
+	histWithHo = TH2D('hEtaPhiWithHO',"#eta#phi L1 + HO (3x3)",93,-46*L1_BIN - halfbinwidth
+			,46*L1_BIN + halfbinwidth,289, -math.pi - halfbinwidth,math.pi + halfbinwidth)
+	
+	x = Double(0)
+	y = Double(0)
+	
+	for i in range(0,graphAll.GetN()):
+		graphAll.GetPoint(i,x,y)
+		histAll.Fill(x,y)
+		
+	for i in range(0,graphWithHo.GetN()):
+		graphWithHo.GetPoint(i,x,y)
+		histWithHo.Fill(x,y)
+	
+	canvas.cd(1)
+	histAll.SetStats(0)
+	histAll.GetXaxis().SetRangeUser(-1,1)
+	histAll.SetTitle(histAll.GetTitle() + ';#eta;#phi;Entries')
+	setupAxes(histAll)
+	histAll.Draw('colz')
+	canvas.Update()
+	
+	setupPalette(histAll)
+	
+	canvas.cd(2)
+	histWithHo.SetStats(0)
+	histWithHo.GetXaxis().SetRangeUser(-1,1)
+	histWithHo.SetTitle(histAll.GetTitle() + ';#eta;#phi;Entries')
+	setupAxes(histWithHo)
+	histWithHo.Draw('colz')
+	
+	canvas.Update()
+	
+	canvas.SaveAs('plots/etaPhiForAllL1.pdf')
+	
+	return canvas,histAll,histWithHo
+
 	

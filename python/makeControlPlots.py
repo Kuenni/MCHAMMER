@@ -115,6 +115,6 @@ def plotEfficiencyCountCheck():
 output('Plotting digi matches per det id')
 #res = plotHoDigiMatchesPerDetId()
 output('Plot N L1 per Pt')
-res2 = plotL1PerPt()
+#res2 = plotL1PerPt()
 res3 = plotEfficiencyCountCheck()
 raw_input('-->')
