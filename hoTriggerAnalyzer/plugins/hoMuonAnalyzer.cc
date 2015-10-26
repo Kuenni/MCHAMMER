@@ -662,7 +662,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 						muMatch->trkGlobPosAtHO.Y(),
 						muMatch->trkGlobPosAtHO.Z()
 				);
-				calculateGridMatchingEfficiency(muMatchDirection,genIt->pt(),"tdmi");
+				calculateGridMatchingEfficiency(muMatchDirection,genIt->pt(),"tdmi",muMatchEta,muMatchPhi);
 			}
 			delete muMatch;
 
@@ -1186,7 +1186,7 @@ void hoMuonAnalyzer::analyzeWithGenLoop(const edm::Event& iEvent,const edm::Even
 					l1Part->p4().Y(),
 					l1Part->p4().Z()
 			);
-			calculateGridMatchingEfficiency(l1Direction,l1Part->pt(),"L1MuonTruth");
+			calculateGridMatchingEfficiency(l1Direction,l1Part->pt(),"L1MuonTruth",l1Part->eta(),l1Part->phi());
 			fillGridMatchingQualityCodes(&*l1Part,genIt->pt(),"L1MuonTruth");
 			fillAverageEnergyAroundL1Direction(l1Part);
 			/**
@@ -1422,14 +1422,6 @@ void hoMuonAnalyzer::fillGridMatchingHistograms(bool passed, int grid, double pt
 			histogramBuilder.fillEfficiency(false,pt,key + gridString);
 			histogramBuilder.fillEtaPhiGraph(eta,phi,key + gridString + "Fail");
 		}
-}
-
-/**
- * Automatically fill efficiency and count histograms for the grid matching for grid sizes
- * central, 3x3 and 5x5. The position information is always 0 if this function is used
- */
-void hoMuonAnalyzer::calculateGridMatchingEfficiency(GlobalPoint direction, float pt, std::string key){
-	calculateGridMatchingEfficiency(direction,pt,key,0,0);
 }
 
 /**

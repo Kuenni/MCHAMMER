@@ -84,7 +84,6 @@ private:
 	void fillAverageEnergyAroundL1Direction(const l1extra::L1MuonParticle*);
 	void fillGridMatchingHistograms(bool passed, int grid, double pt, double time, std::string key, double eta, double phi);
 	void fillGridMatchingQualityCodes(const l1extra::L1MuonParticle* l1muon, float pt, std::string key);
-	void calculateGridMatchingEfficiency(GlobalPoint direction, float pt, std::string key);
 	void calculateGridMatchingEfficiency(GlobalPoint direction, float pt, std::string key, float eta, float phi);
 
 	const reco::GenParticle* getBestGenMatch(float,float);
