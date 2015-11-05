@@ -46,12 +46,16 @@ void HistogramBuilder::fillVzHistogram(float vz, std::string key){
 /**
  * Fill a 2d histogram
  */
-void HistogramBuilder::fillCorrelationHistogram(double x, double y, std::string key){
+void HistogramBuilder::fillCorrelationHistogram(double x, double y, std::string key,TH2D* histogram){
 	TFileDirectory correlationDir = _fileService->mkdir( "correlation" );
 	if(!_h2Correlation.count(key)){
 		_h2Correlation[key] = correlationDir.make<TH2D>(Form("%s_Correlation",key.c_str()),
-					Form("%s Correlation;x;y",key.c_str()),
-					500, 0,500,500,0,500);
+				Form("%s Correlation;x;y",key.c_str()),
+				500, 0,500,500,0,500);
+		if(histogram){
+			histogram->Copy(*_h2Correlation[key]);
+			_h2Correlation[key]->SetDirectory(correlationDir.getBareDirectory());
+		}
 	}
 	_h2Correlation[key]->Fill(x,y);
 }
@@ -91,8 +95,9 @@ void HistogramBuilder::fillCountHistogram(std::string key){
 }                                                                               
 
 void HistogramBuilder::fillMultiplicityHistogram(int nEvents, std::string key){
+	TFileDirectory dir = _fileService->mkdir("multiplicity");
 	if(!_h1Multiplicity.count(key)){
-		_h1Multiplicity[key] = _fileService->make<TH1D>(Form("%s_Multiplicity",key.c_str()),
+		_h1Multiplicity[key] = dir.make<TH1D>(Form("%s_Multiplicity",key.c_str()),
 				Form("%s Multiplicity",key.c_str()),
 				3001, -0.5, 3000.5);
 	}
@@ -246,14 +251,14 @@ void HistogramBuilder::fillDeltaEtaDeltaPhiHistogramsWithWeights(float eta1, flo
 	//DeltaEta Delta Phi Histograms Fill
 	if(!_h2DeltaEtaDeltaPhiWeights.count(key)){
 		_h2DeltaEtaDeltaPhiWeights[key] = etaPhiDir.make<TH2D>(Form("%s_2dSummedWeights",key.c_str()),Form("%s #Delta#eta #Delta#Phi Energy",key.c_str()),
-				11, -0.4785, 0.4785, 	//eta
-				11, -0.4785, 0.4785);	//phi
+				23, -1.0005, 1.0005, 	//eta
+				23, -1.0005, 1.0005);	//phi
 	}
 	//DeltaEta Delta Phi Histograms Fill
 	if(!_h2DeltaEtaDeltaPhiCounter.count(key)){
 		_h2DeltaEtaDeltaPhiCounter[key] = etaPhiDir.make<TH2D>(Form("%s_2dCounter",key.c_str()),Form("%s #Delta#eta #Delta#Phi Energy",key.c_str()),
-				11, -0.4785, 0.4785, 	//eta
-				11, -0.4785, 0.4785);	//phi
+				23, -1.0005, 1.0005, 	//eta
+				23, -1.0005, 1.0005);	//phi
 	}
 	_h2DeltaEtaDeltaPhiWeights[key]->Fill(deltaEta, deltaPhi, weight);
 	_h2DeltaEtaDeltaPhiCounter[key]->Fill(deltaEta, deltaPhi);
