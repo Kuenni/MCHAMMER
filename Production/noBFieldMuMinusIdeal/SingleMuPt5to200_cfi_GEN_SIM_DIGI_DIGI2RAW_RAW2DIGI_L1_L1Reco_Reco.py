@@ -20,8 +20,8 @@ process = cms.Process('L1')
 #globalTag = "PHYS14_25_V1::All"
 #globalTag = "MCRUN2_71_V1::All"
 #globalTag = "POSTLS170_V3::All"   
-globalTag = "MCRUN2_72_V3A::All"
-
+#globalTag = "MCRUN2_72_V3A::All"
+globalTag = "DESIGN72_V2::All"
 
 # The eta range for GEN muon production
 # the present DTTF goes up to |eta|<1.04, the BarrelTF will go roughly up to
@@ -52,8 +52,7 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 
-# new_geometry added on  Nov 28, 2014
-process.load('Configuration.Geometry.GeometryIdeal_cff')
+process.load('Configuration.Geometry.GeometryExtended2015Reco_cff')
 process.load('Configuration.StandardSequences.MagneticField_0T_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedRealistic8TeVCollision_cfi')
