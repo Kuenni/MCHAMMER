@@ -2,7 +2,7 @@ import sys
 from plotting.RootFileHandler import RootFileHandler
 from plotting.PlotStyle import drawLabelCmsPrivateSimulation, setupAxes,\
 	setupPalette
-from plotting.Utils import setupEAvplot
+from plotting.Utils import setupEAvplot,fillGraphIn2DHist
 from ROOT import TCanvas,TLine,TLegend,Double,TH2D
 import math,os
 
@@ -101,6 +101,8 @@ def plotDeltaPhiVsL1Eta():
 
 def plotL1PhiVsHoPhi():
 	canvas = TCanvas('cL1PhiVsHoPhi','L1PhiVsHoPhi',1200,1200)
+	canvas.Divide(1,2)
+	canvas.cd(1)
 	graph = fileHandler.getGraph('hoMuonAnalyzer/correlation/l1PhiVsHoPhi')
 	graph.SetTitle('L1 #phi vs. HO #phi;HO #phi;L1 #phi')
 	graph.SetMarkerStyle(2)
@@ -108,7 +110,17 @@ def plotL1PhiVsHoPhi():
 	graph.Draw('AP')
 	canvas.Update()
 	
-	return canvas,graph
+	canvas.cd(2)
+	halfbinwidth = L1_BIN/2.
+	hist = TH2D('hL1PhiVsHoPhi','L1 Phi vs. iPhi',289, -math.pi - halfbinwidth,math.pi + halfbinwidth
+			,289, -math.pi - halfbinwidth,math.pi + halfbinwidth)
+	hist = fillGraphIn2DHist(graph, hist)
+	hist.Draw('colz')
+	canvas.Update()
+	setupPalette(hist)
+	canvas.Update()
+	
+	return canvas,graph,hist
 
 def plotL1PhiVsHoIPhi():
 	canvas = TCanvas('cL1PhiVsHoIPhi','L1PhiVsHoIPhi',1200,1200)
@@ -125,13 +137,8 @@ def plotL1PhiVsHoIPhi():
 	
 	halfbinwidth = L1_BIN/2.
 	
-	hist = TH2D('hL1PhiVsHoPhi','L1 Phi vs. iPhi',73,0.5,72.5,289, -math.pi - halfbinwidth,math.pi + halfbinwidth)
-	x = Double(0)
-	y = Double(0)
-	for i in range(0,graph.GetN()):
-		graph.GetPoint(i,x,y)
-		hist.Fill(x,y)
-	
+	hist = TH2D('hL1PhiVsHoIPhi','L1 Phi vs. iPhi',73,0.5,72.5,289, -math.pi - halfbinwidth,math.pi + halfbinwidth)
+	hist = fillGraphIn2DHist(graph, hist)
 	hist.Draw('colz')
 	
 	canvas.Update()
@@ -269,6 +276,7 @@ def plotEtaPhiForAllL1():
 	histAll.SetTitle(histAll.GetTitle() + ';#eta;#phi;Entries')
 	setupAxes(histAll)
 	histAll.Draw('colz')
+	label1 = drawLabelCmsPrivateSimulation()
 	canvas.Update()
 	
 	setupPalette(histAll)
@@ -276,14 +284,18 @@ def plotEtaPhiForAllL1():
 	canvas.cd(2)
 	histWithHo.SetStats(0)
 	histWithHo.GetXaxis().SetRangeUser(-1,1)
-	histWithHo.SetTitle(histAll.GetTitle() + ';#eta;#phi;Entries')
+	histWithHo.SetTitle(histWithHo.GetTitle() + ';#eta;#phi;Entries')
 	setupAxes(histWithHo)
 	histWithHo.Draw('colz')
+	label2 = drawLabelCmsPrivateSimulation()
+	
+	canvas.Update()
+	setupPalette(histWithHo)
 	
 	canvas.Update()
 	
 	canvas.SaveAs('plots/etaPhiForAllL1.pdf')
 	
-	return canvas,histAll,histWithHo
+	return canvas,histAll,histWithHo,label1,label2
 
 	
