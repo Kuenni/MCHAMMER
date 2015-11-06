@@ -2,12 +2,27 @@ import math
 
 #Calculate delta phi in CMS
 def calculateDeltaPhi(phi1,phi2):
-	delta = phi1 - phi2
+	delta = phi2 - phi1
 	if delta < -math.pi:
 		return delta + 2*math.pi
 	if delta > math.pi:
 		return 2*math.pi - delta
 	return delta
+
+def calculateDeltaEta(eta1,eta2):
+	return eta2 - eta1
+
+def getDeltaPhiList(pairList):
+	deltaPhiList = []
+	for pair in pairList:
+		deltaPhiList.append(calculateDeltaPhi(pair[0].phi,pair[1].phi))
+	return deltaPhiList
+
+def getDeltaEtaList(pairList):
+	deltaEtaList = []
+	for pair in pairList:
+		deltaEtaList.append(calculateDeltaEta(pair[0].eta,pair[1].eta))
+	return deltaEtaList
 
 #Calculate delta R
 def calculateDeltaR(eta1,phi1,eta2,phi2):
