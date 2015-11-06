@@ -28,10 +28,9 @@ class RootFileHandler:
 	
 	#Get a tChain for the dataTree in the result root files
 	def getTChain(self):
-		chain = TChain('hoMuonAnalyzer/dataTree')
+		chain = TChain('hoDataTreeFiller/dataTree')
 		for f in self.fileNameList:
 			chain.Add(f)
-			pass
 		return chain
 	
 	#Print status information
@@ -65,7 +64,7 @@ class RootFileHandler:
 		rootfile = TFile(self.fileNameList[0],'READ')
 		graph = rootfile.Get(graphname)
 		nTotal = 0
-		counter = 0
+		counter = graph.GetN()
 		
 		#Check whether a number of result files to process is given
 		fileRange = filesToProcess if (filesToProcess != -1) else len(self.fileNameList)
@@ -84,7 +83,7 @@ class RootFileHandler:
 			y = Double(0)
 			for j in range(0,g2.GetN()):
 				counter += 1
-				if (counter % 100000 == 0):
+				if (counter % 10000 == 0):
 					commandLine.printProgress(counter,nTotal)
 				g2.GetPoint(j,x,y)
 				graph.SetPoint(graph.GetN(),x,y)
