@@ -1,6 +1,9 @@
 from plotting import OutputModule
 from plotting.PlotStyle import setupAxes
 
+from ROOT import Double
+from plotting.RootFileHandler import commandLine
+
 commandLine = OutputModule.CommandLineHandler('[Utils.py] ')
 
 def average2DHistogramBinwise(histWeights,histCounter):
@@ -11,6 +14,7 @@ def average2DHistogramBinwise(histWeights,histCounter):
 										/histCounter.GetBinContent(histCounter.GetBin(i,j)))
 	return histWeights
 
+#Set axis range and labels for the 2D histograms showing E Average around L1 direction
 def setupEAvplot(histE,histC = None,xmin = -0.4, xmax = 0.4, ymin = -0.4, ymax = 0.4,same = False, borderAll = None):
 	if histC != None:
 		histE = average2DHistogramBinwise(histE,histC)
@@ -29,3 +33,18 @@ def setupEAvplot(histE,histC = None,xmin = -0.4, xmax = 0.4, ymin = -0.4, ymax =
 	histE.GetZaxis().SetTitle('Reconstructed Energy / GeV')
 	setupAxes(histE)
 	return histE
+
+def fillGraphIn2DHist(graph,hist):
+	x = Double(0)
+	y = Double(0)
+	commandLine.output('Filling graph in 2D histogram:')
+	nTotal = graph.GetN()
+	for i in range(0,nTotal):
+		graph.GetPoint(i,x,y)
+		hist.Fill(x,y)
+		if(not i%10000):
+			commandLine.printProgress(i,nTotal)
+		if(i == nTotal - 1):
+			commandLine.printProgress(nTotal, nTotal)
+	print
+	return hist
