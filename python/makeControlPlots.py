@@ -1,10 +1,12 @@
 #!/usr/bin/python
 import os,sys
 from ROOT import TCanvas,ROOT,TFile,TLegend,TF1,TLine,gROOT,TPaveText,TH1D,Double,TH2D,THStack,gStyle
-from plotting.PlotStyle import setPlotStyle,drawLabelCmsPrivateSimulation,colorRwthDarkBlue
+from plotting.PlotStyle import setPlotStyle,drawLabelCmsPrivateSimulation,colorRwthDarkBlue,\
+	setStatBoxOptions, setStatBoxPosition
 from plotting.PlotStyle import colorRwthMagenta,setupAxes,printProgress
 from plotting.RootFileHandler import RootFileHandler
 from array import array
+import math
 
 setPlotStyle()
 
@@ -112,9 +114,53 @@ def plotEfficiencyCountCheck():
 	
 	return c,l1AndGenHist,plusHoHist,genHist
 
+def plotGenEtaPhi():
+	c = TCanvas('cGenEta','Gen eta phi',1200,1600)
+	c.Divide(2,1)
+	gen = fileHandler.getGraph('hoMuonAnalyzer/graphs/gen')
+	
+	histEta = TH1D('hEtaGen',"#eta GEN;#eta;#",288, -math.pi,math.pi)
+	histPhi = TH1D('hPhiGen',"#phi GEN;#phi;#",288, -math.pi,math.pi)
+	
+	x = Double(0)
+	y = Double(0)
+	
+	for i in range(0,gen.GetN()):
+		gen.GetPoint(i,x,y)
+		histPhi.Fill(y)
+		histEta.Fill(x)
+	
+	setupAxes(histEta)
+	setupAxes(histPhi)
+
+	histEta.GetXaxis().SetRangeUser(-1,1)
+
+	c.cd(1)
+	histEta.Draw()
+	label1 = drawLabelCmsPrivateSimulation()
+	c.cd(2)
+
+	histPhi.Draw()
+	label2 = drawLabelCmsPrivateSimulation()
+	
+	c.Update()
+	
+	setStatBoxOptions(histEta,10)
+	setStatBoxPosition(histEta,y1=0.85)
+	setStatBoxOptions(histPhi,10)
+	setStatBoxPosition(histPhi,y1=0.85)
+	
+	c.Update()
+	
+	c.SaveAs('plots/controlPlots/genEtaPhi.pdf')
+	
+	return c,gen,histEta,histPhi,label1,label2
+
 output('Plotting digi matches per det id')
 #res = plotHoDigiMatchesPerDetId()
 output('Plot N L1 per Pt')
 #res2 = plotL1PerPt()
+resGen = plotGenEtaPhi()
+raw_input('-->')
 res3 = plotEfficiencyCountCheck()
 raw_input('-->')
