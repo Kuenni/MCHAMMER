@@ -303,13 +303,13 @@ void HistogramBuilder::fillAverageEnergyHistograms(double eta1, double etaHo, do
 	//Here I'am using the double resolution than what HO can do
 	if(!_h2AverageEnergy.count(histNameEnergy)){
 		_h2AverageEnergy[histNameEnergy] = subdir.make<TH2D>(histNameEnergy.c_str(),histTitle.c_str(),
-						41,-10*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/2.,10*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/2.,
-						41,-10*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/2.,10*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/2.);
+						81,-10*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/4.,10*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/4.,
+						81,-10*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/4.,10*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/4.);
 	}
 	if(!_h2AverageEnergy.count(histNameCounter)){
 		_h2AverageEnergy[histNameCounter] = subdir.make<TH2D>(histNameCounter.c_str(),histTitle.c_str(),
-						41,-10*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/2.,10*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/2.,
-						41,-10*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/2.,10*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/2.);
+						81,-10*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/4.,10*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/4.,
+						81,-10*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/4.,10*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/4.);
 	}
 	_h2AverageEnergy[histNameEnergy]->Fill(deltaEta, deltaPhi, energy);
 	_h2AverageEnergy[histNameCounter]->Fill(deltaEta, deltaPhi);
@@ -317,13 +317,13 @@ void HistogramBuilder::fillAverageEnergyHistograms(double eta1, double etaHo, do
 	//Also fill a histogram for all wheels together
 	if(!_h2AverageEnergy.count(histNameAllEnergies)){
 		_h2AverageEnergy[histNameAllEnergies] = averageEnergyDir.make<TH2D>(histNameAllEnergies.c_str(),(histAllTitle + ";E_{Rec} / GeV").c_str(),
-								41,-10*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/2.,10*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/2.,
-								41,-10*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/2.,10*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/2.);
+								81,-10*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/4.,10*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/4.,
+								81,-10*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/4.,10*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/4.);
 	}
 	if(!_h2AverageEnergy.count(histNameAllCounter)){
 		_h2AverageEnergy[histNameAllCounter] = averageEnergyDir.make<TH2D>(histNameAllCounter.c_str(),(histAllTitle + ";# Entries").c_str(),
-								41,-10*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/2.,10*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/2.,
-								41,-10*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/2.,10*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/2.);
+								81,-10*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/4.,10*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/4.,
+								81,-10*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/4.,10*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/4.);
 	}
 	_h2AverageEnergy[histNameAllEnergies]->Fill(deltaEta, deltaPhi, energy);
 	_h2AverageEnergy[histNameAllCounter]->Fill(deltaEta, deltaPhi);
