@@ -1229,11 +1229,11 @@ void hoMuonAnalyzer::fillAverageEnergyAroundL1Direction(const l1extra::L1MuonPar
 	int gridSize = 5;
 	for(auto recHitIt = hoRecoHits->begin(); recHitIt != hoRecoHits->end(); recHitIt++){
 		if(hoMatcher->isRecHitInGrid(l1Muon->eta(), l1Muon->phi(),&*recHitIt,gridSize)){
-			histogramBuilder.fillAverageEnergyHistograms(l1Muon->eta(),double(hoMatcher->getRecHitEta(&*recHitIt)),
-					l1Muon->phi(),double(hoMatcher->getRecHitPhi(&*recHitIt)),recHitIt->energy(),"averageEnergyAroundPoint");
-			histogramBuilder.fillDeltaEtaDeltaPhiEnergyHistogram(l1Muon->eta()
-					,double(hoMatcher->getRecHitEta(&*recHitIt))	,l1Muon->phi()
-					,double(hoMatcher->getRecHitPhi(&*recHitIt))	,recHitIt->energy()
+			double hoEta = hoMatcher->getRecHitEta(&*recHitIt);
+			double hoPhi = hoMatcher->getRecHitPhi(&*recHitIt);
+
+			histogramBuilder.fillAverageEnergyHistograms(l1Muon->eta(),hoEta, l1Muon->phi(),hoPhi,recHitIt->energy(),"averageEnergyAroundPoint");
+			histogramBuilder.fillDeltaEtaDeltaPhiEnergyHistogram(l1Muon->eta() ,hoEta ,l1Muon->phi() ,hoPhi ,recHitIt->energy()
 					,"averageEnergyAroundPoint");//Use this function for the 1D distributions for each delta eta and delta phi
 
 			double deltaPhi;
@@ -1247,9 +1247,20 @@ void hoMuonAnalyzer::fillAverageEnergyAroundL1Direction(const l1extra::L1MuonPar
 			myfile << l1Muon->phi() << '\t' << deltaPhi << std::endl;
 
 
-			TH1D* hist1D = new TH1D("deltaPhi","#Delta#phi;#Delta#phi;N Entries",89, -1.0035643198967394, 1.0035643198967394);
+			TH1D* hist1D = new TH1D("deltaPhi","#Delta#phi;#Delta#phi;N Entries",81,-40*HoMatcher::HALF_HO_BIN/2. - HoMatcher::HALF_HO_BIN/4.
+					,40*HoMatcher::HALF_HO_BIN/2. + HoMatcher::HALF_HO_BIN/4.);
 			histogramBuilder.fillHistogram(deltaPhi,"deltaPhi",hist1D);
 			delete hist1D;
+
+			TH1D* histL1Phi = new TH1D("averageEnergyL1Phi","L1 #phi;#phi;N Entries",145
+					,-36*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/2.,36 * HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/2.);
+			histogramBuilder.fillHistogram(l1Muon->phi(),"averageEnergyL1Phi",histL1Phi);
+			delete histL1Phi;
+
+			TH1D* histHoPhi = new TH1D("averageEnergyHoPhi","HO #phi;#phi;N Entries",145
+					,-36*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/2.,36 * HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/2.);
+			histogramBuilder.fillHistogram(hoPhi,"averageEnergyHoPhi",histHoPhi);
+			delete histHoPhi;
 
 			double variableBinArray[] = {0,0.5,1,1.5,2,2.5,3,3.5,4,4.5,5,6,7,8,10,12,14,16,18,20,25,30,35,40,45,50,60,70,80,100,120,140,200};
 
