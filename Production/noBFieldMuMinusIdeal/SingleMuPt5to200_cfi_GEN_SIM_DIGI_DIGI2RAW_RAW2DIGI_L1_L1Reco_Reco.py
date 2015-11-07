@@ -138,12 +138,9 @@ process.genstepfilter.triggerConditions=cms.vstring("generation_step")
 process.mix.digitizers =  cms.PSet(process.theDigitizersValid)
 #Prepare for no BField
 process.g4SimHits.UseMagneticField = cms.bool(False)
-from Configuration.AlCa.GlobalTag import GlobalTag
-#process.GlobalTag = GlobalTag(process.GlobalTag, globalTag+'::All', '')
 
-# http://cmslxr.fnal.gov/lxr/source/Configuration/AlCa/python/autoCond.py?view=markup
-from Configuration.AlCa.autoCond import autoCond
-process.GlobalTag.globaltag = autoCond['run2_mc'] #MCRUN2_72_V1::All
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag.globaltag = globalTag#autoCond['run2_mc'] #MCRUN2_72_V1::All
 
 process.generator = cms.EDProducer("FlatRandomPtGunProducer",
   PGunParameters = cms.PSet(
