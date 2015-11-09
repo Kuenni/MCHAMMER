@@ -1286,9 +1286,12 @@ void hoMuonAnalyzer::calculateGridMatchingEfficiency(GlobalPoint direction, floa
 	double etaDir = direction.eta();
 	double phiDir = direction.phi();
 	const HORecHit* recHit = hoMatcher->getClosestRecHitInGrid(etaDir,phiDir,2);
-	//FIXME:null pointer bei rechit->time
+	double time = 999;
+	if(recHit){
+		time = recHit->time();
+	}
 	for(int i = 0; i < 3 ; i++){
-		fillGridMatchingHistograms(hoMatcher->isRecHitInGrid(etaDir,phiDir,recHit,i),i,pt,recHit->time(),key,eta,phi);
+		fillGridMatchingHistograms(false,i,pt,time,key,eta,phi);
 	}
 }
 
