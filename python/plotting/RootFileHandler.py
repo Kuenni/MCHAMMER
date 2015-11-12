@@ -9,7 +9,7 @@ class RootFileHandler:
 	def getNumberOfFiles(self):
 		fileCounter = 0
 		self.fileNameList = []
-		for f in os.listdir('.'):
+		for f in os.listdir(self.filepath):
 			if f.find(self.filename) != -1:
 				fileCounter += 1
 				self.fileNameList.append(f)
@@ -18,22 +18,28 @@ class RootFileHandler:
 	
 	#Initialize object
 	def __init__(self,filename):
-		self.filename = filename
+		self.filepath = '.'
+		directoryIndex = filename.rfind('/')
+		if directoryIndex != -1:
+			self.filepath += '/' + filename[0:directoryIndex+1]
+		self.filename = filename[directoryIndex+1:]
 		self.getNumberOfFiles()
 		pass
 	
 	#Get a tChain for the dataTree in the result root files
 	def getTChain(self):
-		chain = TChain('hoMuonAnalyzer/dataTree')
+		chain = TChain('hoDataTreeFiller/dataTree')
 		for f in self.fileNameList:
 			chain.Add(f)
-			pass
 		return chain
 	
 	#Print status information
 	def printStatus(self):
 		print '[RootFileHandler] Looking for files with naming scheme \'%s\'' % (self.filename)
-		print '[RootFileHandler] Found %d matching files' % (self.numberOfFiles)
+		print '[RootFileHandler] Found %d matching files:' % (self.numberOfFiles)
+		for filename in self.fileNameList:
+			print '[RootFileHandler]\t' + filename
+		print
 		
 	'''
 	Get the histogram with the given name from the result files.
@@ -41,11 +47,11 @@ class RootFileHandler:
 	and then, the histograms from the other files are added in a loop
 	'''
 	def getHistogram(self,histoname):
-		rootfile = TFile(self.fileNameList[0],'READ')
+		rootfile = TFile(self.filepath + '/' + self.fileNameList[0],'READ')
 		histNew = rootfile.Get(histoname).Clone()
 		histNew.SetDirectory(0)
 		for i in range(1,len(self.fileNameList)):
-			rootfile = TFile(self.fileNameList[i],'READ')
+			rootfile = TFile(self.filepath + '/' + self.fileNameList[i],'READ')
 			histNew.Add(rootfile.Get(histoname))
 		return histNew
 	
@@ -58,7 +64,7 @@ class RootFileHandler:
 		rootfile = TFile(self.fileNameList[0],'READ')
 		graph = rootfile.Get(graphname)
 		nTotal = 0
-		counter = 0
+		counter = graph.GetN()
 		
 		#Check whether a number of result files to process is given
 		fileRange = filesToProcess if (filesToProcess != -1) else len(self.fileNameList)
@@ -77,8 +83,10 @@ class RootFileHandler:
 			y = Double(0)
 			for j in range(0,g2.GetN()):
 				counter += 1
-				if (counter % 100000 == 0):
+				if (counter % 10000 == 0):
 					commandLine.printProgress(counter,nTotal)
 				g2.GetPoint(j,x,y)
 				graph.SetPoint(graph.GetN(),x,y)
+		commandLine.printProgress(counter,nTotal)
+		print
 		return graph

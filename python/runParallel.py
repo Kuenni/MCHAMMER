@@ -23,6 +23,11 @@ Author: Andreas Kuensken <kuensken@physik.rwth-aachen.de>
 cmsswSourceFiles = 'cmsswSourceFiles'
 outputFileTrunk = 'sourceList'
 
+globalTags = {
+			'noPU':'autoCond[\'run2_mc\']',
+			'pu52':'\'PHYS14_25_V1::All\''
+			}
+
 print 
 
 prefix = '[runParallel]'
@@ -40,6 +45,7 @@ def getProgressString(done,total):
 	progressbar = '\r[%s%s] %5.2f%% done.' % (nHashes*'#',(80-nHashes)*' ',done*100/float(total))
 	return progressbar
 
+global configTemplate
 configTemplate = os.environ['HOMUONTRIGGER_BASE'] + '/python/runConfig_template.py'
 	
 parser = argparse.ArgumentParser()
@@ -81,10 +87,26 @@ parser.add_argument('--gridpackname','-g'
 				,default='modulegridpack.tar.gz'
 				,help='Set the name of the gridpack file')
 
+parser.add_argument('--config-template'
+				,dest='cfgTemplate'
+				,type = str
+				,help='Give a different config template file')
+
 parser.add_argument('--no-submit'
 				,dest='noSubmit'
 				,action="store_true",default=False
 				,help='Do not submit jobs to CE')
+
+parser.add_argument('--no-pu'
+				,dest='noPu'
+				,action="store_true",default=False
+				,help='Use no pileup case')
+
+parser.add_argument('--pu'
+				,dest='withPu'
+				,action="store_true",default=False
+				,help='Use PU 52 case')
+
 
 args = parser.parse_args()
 
@@ -178,12 +200,25 @@ def createSourceLists():
 
 #create the cms run cfgs
 def createRunConfigs():
+	gt = None
+	if args.noPu:
+		gt = globalTags['noPU']
+	elif args.withPu:
+		gt = globalTags['pu52']
+	else:
+		output('ERROR! Don\'t know which globaltag to use')
+		sys.exit(-1)
 	for i in range(0,args.nJobs):
 		outfileName = 'configs/parallelConfig%d.py' % (i)
+		#Use a dedicated cfg template if given
+		if args.cfgTemplate:
+			global configTemplate
+			configTemplate = args.cfgTemplate
 		with open(configTemplate) as infile:
 			with open(outfileName,'w') as outfile:
 				for line in infile.readlines():
 					line = line.replace('%INSTANCE%', str(i))
+					line = line.replace('%GLOBALTAG%',gt)
 					outfile.write(line)
 				outfile.close()
 				infile.close()
