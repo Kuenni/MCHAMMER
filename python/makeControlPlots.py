@@ -1,9 +1,12 @@
 #!/usr/bin/python
 import os,sys
+from math import sqrt
 from ROOT import TCanvas,ROOT,TFile,TLegend,TF1,TLine,gROOT,TPaveText,TH1D,Double,TH2D,THStack,gStyle
-from plotting.PlotStyle import setPlotStyle,drawLabelCmsPrivateSimulation,colorRwthDarkBlue
-from plotting.PlotStyle import colorRwthMagenta,setupAxes,printProgress
+from plotting.PlotStyle import setPlotStyle,calcSigma,drawLabelCmsPrivateSimulation,colorRwthDarkBlue
+from plotting.PlotStyle import colorRwthMagenta,setupAxes,convertToHcalCoords,chimney1,chimney2,printProgress
+from plotting.PlotStyle import setStatBoxOptions, setStatBoxPosition
 from plotting.RootFileHandler import RootFileHandler
+from matchingLibrary import findBestL1Match
 from array import array
 
 setPlotStyle()
@@ -70,25 +73,25 @@ def plotL1PerPt():
 	liste = []
 	nEvents = chain.GetEntries()
 	for event in chain:
-		eventCounter += 1
+ 		eventCounter += 1
 		for l1 in event.l1MuonData:
 			if not l1.pt in liste:
 				liste.append(l1.pt)
-			hist.Fill(l1.pt)
-		if not eventCounter%10000:
-			printProgress(eventCounter,nEvents)
-		if eventCounter == 50000:
-			break
-	print
-	setupAxes(hist)
-	hist.SetStats(0)
-	hist.Scale(1,"width")
-	hist.Draw()
-	
-	label = drawLabelCmsPrivateSimulation()
-	
-	canvas.Update()
-	
+ 			hist.Fill(l1.pt)
+ 		if not eventCounter%10000:
+ 			printProgress(eventCounter,nEvents)
+ 		if eventCounter == 50000:
+ 			break
+ 	print
+ 	setupAxes(hist)
+ 	hist.SetStats(0)
+ 	hist.Scale(1,"width")
+ 	hist.Draw()
+ 	
+ 	label = drawLabelCmsPrivateSimulation()
+   	
+ 	canvas.Update()
+ 	
 #	print liste
 	return hist, canvas, label
 

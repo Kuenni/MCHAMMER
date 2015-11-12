@@ -107,10 +107,8 @@ def plotDigiTest():
 	return canvas, histBx,label,canvasAdcSum,histAdcSum,canvasTS4,histAdcTS4
 	
 #Make the plots for the simple Digi time reconstruction
-def plotDigiTime(truth = False):
-	
-	additionalString = 'Truth' if truth else ''
-	canvas = TCanvas("canvasDigiSimpleTime" + additionalString,"Simple Digi Time " + additionalString,1200,1200)
+def plotDigiTime():
+	canvas = TCanvas("canvasDigiSimpleTime","Simple Digi Time",1200,1200)
 	canvas.SetLogy()
 	
 	histHoTime = fileHandler.getHistogram('hoDigiAnalyzer/hoTimeFromDigi_Time')
@@ -139,7 +137,7 @@ def plotDigiTime(truth = False):
 	canvas.SaveAs('plots/timing/digiTimeAllHo.png')
 
 	#Now add next plot
-	histHoTimeAboveThr = fileHandler.getHistogram('hoDigiAnalyzer/hoTimeFromDigiAboveThr' + additionalString + '_Time')
+	histHoTimeAboveThr = fileHandler.getHistogram('hoDigiAnalyzer/hoTimeFromDigiAboveThr_Time')
 	histHoTimeAboveThr.SetLineColor(colorRwthTuerkis)
 	histHoTimeAboveThr.SetStats(0)
 	histHoTimeAboveThr.SetLineWidth(3)
@@ -147,12 +145,12 @@ def plotDigiTime(truth = False):
 	histHoTimeAboveThr.SetFillColor(colorRwthTuerkis)
 	histHoTimeAboveThr.Draw('same')
 	
- 	legend.AddEntry(histHoTimeAboveThr,"4 TS sum > E_{Thr} " + additionalString,"f")
+ 	legend.AddEntry(histHoTimeAboveThr,"4 TS sum > E_{Thr}","f")
  	legend.Draw()
 	
 	canvas.Update()
-	canvas.SaveAs('plots/timing/digiTimePlusThr' + additionalString + '.pdf')
-	canvas.SaveAs('plots/timing/digiTimePlusThr' + additionalString + '.png')
+	canvas.SaveAs('plots/timing/digiTimePlusThr.pdf')
+	canvas.SaveAs('plots/timing/digiTimePlusThr.png')
 	
 	#Now add Ho rec hit time plot
 	histHoRecHitTime = fileHandler.getHistogram('hoMuonAnalyzer/hoRecHitsAboveThr_Time')
@@ -166,8 +164,8 @@ def plotDigiTime(truth = False):
  	legend.Draw()
 	
 	canvas.Update()
-	canvas.SaveAs('plots/timing/digiTime' + additionalString + 'PlusRecHits.pdf')
-	canvas.SaveAs('plots/timing/digiTime' + additionalString + 'PlusRecHits.png')
+	canvas.SaveAs('plots/timing/digiTimePlusRecHits.pdf')
+	canvas.SaveAs('plots/timing/digiTimePlusRecHits.png')
 	
 	return canvas,label,histHoTime,legend,histHoTimeAboveThr,histHoRecHitTime
 
@@ -287,9 +285,6 @@ def plotRecHitVsDigiTime():
 	return canvas, label, hoDigiTime
 
 res = plotDigiTime()
-raw_input('-->')
-resTruth = plotDigiTime(True)
-raw_input('-->')
 res2 = plotDigiDeltaTime()
 #res3 = plotDigiVsEta()
 #res4 = plotDigiVsPhi()

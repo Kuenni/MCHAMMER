@@ -270,10 +270,9 @@ def plotRpcVsHo():
 	
 	return hist,canvas,paveTextAboveThr,label
 
-def plotDigiEnergyVsTime(truth = False):
-	additionalString = 'Truth' if truth else ''
-	canvas = TCanvas('cDigiEnergyVsTime' + additionalString,'Digi Time Vs Energy ' + additionalString)
-	graph = fileHandler.getGraph('hoDigiAnalyzer/correlation/digiTimeVs4TSSum' + additionalString)
+def plotDigiEnergyVsTime():
+	canvas = TCanvas()
+	graph = fileHandler.getGraph('hoDigiAnalyzer/correlation/digiTimeVs4TSSum')
 	graph.GetXaxis().SetTitle('Time / ns')
 	graph.GetYaxis().SetTitle('ADC')
 	graph.GetYaxis().SetRangeUser(0,200)
@@ -281,8 +280,8 @@ def plotDigiEnergyVsTime(truth = False):
 	graph.SetMarkerStyle(2)
 	graph.Draw('ap')
 	canvas.Update()
-	canvas.SaveAs('plots/timeCorrelation/adcVsTime' + additionalString + '.pdf')
-	canvas.SaveAs('plots/timeCorrelation/adcVsTime' + additionalString + '.png')
+	canvas.SaveAs('plots/timeCorrelation/adcVsTime.pdf')
+	canvas.SaveAs('plots/timeCorrelation/adcVsTime.png')
 	return graph,canvas
 
 def plotDigiEnergyVsTimeCorrected():
@@ -309,14 +308,11 @@ def plotDigiEnergyVsTimeCorrected():
 	canvas.SaveAs('plots/timeCorrelation/adcVsTimeCorrected.png')
 	return graph,canvas
 
-res5 = plotDigiEnergyVsTime()
-raw_input('-->')
-res6 = plotDigiEnergyVsTime(True)
-raw_input('-->')
 res = plotHoL1Correlation()
 res2 = plotAdcTimeSliceCorrelation()
 res3 = plotDtVsHo()
 res4 = plotRpcVsHo()
+res5 = plotDigiEnergyVsTime()
 res6 = plotDigiEnergyVsTimeCorrected()
 
 raw_input('-->')

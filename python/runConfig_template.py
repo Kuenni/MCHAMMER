@@ -61,7 +61,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
 
 from Configuration.AlCa.autoCond import autoCond
-process.GlobalTag.globaltag = %GLOBALTAG%
+process.GlobalTag.globaltag = autoCond['run2_mc'] #MCRUN2_72_V1
 
 print process.GlobalTag.globaltag
 
@@ -147,10 +147,3 @@ process.schedule = cms.Schedule(
 	process.p
 	)
 
-# Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.postLS1Customs
-from SLHCUpgradeSimulations.Configuration.postLS1Customs import customisePostLS1
-
-#call to customisation function customisePostLS1 imported from SLHCUpgradeSimulations.Configuration.postLS1Customs
-process = customisePostLS1(process)
-
-# End of customisation functions

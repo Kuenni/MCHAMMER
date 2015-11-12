@@ -23,11 +23,6 @@ Author: Andreas Kuensken <kuensken@physik.rwth-aachen.de>
 cmsswSourceFiles = 'cmsswSourceFiles'
 outputFileTrunk = 'sourceList'
 
-globalTags = {
-			'noPU':'autoCond[\'run2_mc\']',
-			'pu52':'\'PHYS14_25_V1::All\''
-			}
-
 print 
 
 prefix = '[runParallel]'
@@ -90,17 +85,6 @@ parser.add_argument('--no-submit'
 				,dest='noSubmit'
 				,action="store_true",default=False
 				,help='Do not submit jobs to CE')
-
-parser.add_argument('--no-pu'
-				,dest='noPu'
-				,action="store_true",default=False
-				,help='Use no pileup case')
-
-parser.add_argument('--pu'
-				,dest='withPu'
-				,action="store_true",default=False
-				,help='Use PU 52 case')
-
 
 args = parser.parse_args()
 
@@ -194,21 +178,12 @@ def createSourceLists():
 
 #create the cms run cfgs
 def createRunConfigs():
-	gt = None
-	if args.noPu:
-		gt = globalTags['noPU']
-	elif args.withPu:
-		gt = globalTags['pu52']
-	else:
-		output('ERROR! Don\'t know which globaltag to use')
-		sys.exit(-1)
 	for i in range(0,args.nJobs):
 		outfileName = 'configs/parallelConfig%d.py' % (i)
 		with open(configTemplate) as infile:
 			with open(outfileName,'w') as outfile:
 				for line in infile.readlines():
 					line = line.replace('%INSTANCE%', str(i))
-					line = line.replace('%GLOBALTAG%',gt)
 					outfile.write(line)
 				outfile.close()
 				infile.close()
