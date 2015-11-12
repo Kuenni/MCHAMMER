@@ -146,9 +146,6 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		//Uncomment again, if needed
 //		printChannelQualities(iSetup);
 		firstRun = false;
-		if(debug){
-//			std::cout << coutPrefix << "Beginning to analyze the data." << std::endl;
-		}
 	}
 
 	if(!isData){
