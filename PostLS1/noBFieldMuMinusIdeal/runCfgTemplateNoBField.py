@@ -28,21 +28,13 @@ process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 process.load('Configuration.Geometry.GeometryExtended2015Reco_cff')
 process.load('Configuration.Geometry.GeometryExtended2015_cff')
-process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
+process.load('Configuration.StandardSequences.MagneticField_0T_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedRealistic8TeVCollision_cfi')
 process.load('GeneratorInterface.Core.genFilterSummary_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.L1Reco_cff')
 
-#From github g. petrucciani code
-#process.load("PhysicsTools.PatAlgos.patSequences_cff")
-process.load("MuonAnalysis.MuonAssociators.muonL1Match_cfi")
-process.muonL1Match.preselection = cms.string("")
-#process.allLayer1Muons.trigPrimMatch = cms.VInputTag(
-#    cms.InputTag("muonL1Match"),
-#    cms.InputTag("muonL1Match","propagatedReco"),
-#)
 
 from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAny_cfi import *
 #process.load('TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAny_cfi')
@@ -59,10 +51,7 @@ process.load('Configuration.StandardSequences.Reconstruction_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 from Configuration.AlCa.GlobalTag import GlobalTag
-
-from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = %GLOBALTAG%
-
 print process.GlobalTag.globaltag
 
 parameters = TrackAssociatorParameterBlock.TrackAssociatorParameters
@@ -132,13 +121,11 @@ process.horeco_step = cms.Path(process.horeco)
 process.l1MuonGenMatch_step = cms.Path(process.l1MuonGenMatch)
 process.demo_step = cms.Path(process.hoMuonAnalyzer)
 process.L1Reco_step = cms.Path(process.L1Reco)
-process.muonL1Match_step = cms.Path(process.muonL1Match)
 
 process.p = cms.Path(process.genfilter*
 					#*process.L1Reco*
 					process.l1MuonGenMatch*
 					process.horeco*
-					process.muonL1Match*
 					process.hoMuonAnalyzer*
 					process.hoDigiAnalyzer)
 

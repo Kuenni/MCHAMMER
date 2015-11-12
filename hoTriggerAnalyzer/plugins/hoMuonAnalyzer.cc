@@ -88,9 +88,7 @@
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 using namespace::std;
 
-hoMuonAnalyzer::hoMuonAnalyzer(const edm::ParameterSet& iConfig)/*:
-				assocParams(iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters"))*/
-{
+hoMuonAnalyzer::hoMuonAnalyzer(const edm::ParameterSet& iConfig){
 	coutPrefix = "[hoMuonAnalyzer] ";
 	//now do what ever initialization is needed
 
@@ -120,22 +118,6 @@ hoMuonAnalyzer::hoMuonAnalyzer(const edm::ParameterSet& iConfig)/*:
 
 	hoMatcher = new HoMatcher(iConfig);
 	functionsHandler = new CommonFunctionsHandler(iConfig);
-
-	/**
-	 * Create the root tree for tuple storage. After that tell root to process the loader
-	 * script which will provide support for the vectors of structs in the tree
-	 */
-	dataTree = _fileService->make<TTree>("dataTree","Tree with L1, Gen, and HO data");
-
-	gROOT->ProcessLine(".L $CMSSW_BASE/src/HoMuonTrigger/loader.C+");
-
-	l1MuonVector = new std::vector<L1MuonData>();
-	genMuonVector = new std::vector<GenMuonData>();
-	hoRecHitVector = new std::vector<HoRecHitData>();
-
-	dataTree->Branch("l1MuonData","vector<L1MuonData>",l1MuonVector);
-	dataTree->Branch("hoRecHitData","vector<HoRecHitData>",hoRecHitVector);
-	dataTree->Branch("genMuonData","vector<GenMuonData>",genMuonVector);
 
 	firstRun = true;
 
@@ -210,141 +192,6 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 //	f->Write();
 //	f->Close();
 
-	/**
-	 * Loop over the collections for gen muons, l1muons and hoRechits
-	 * Fill the information in vectors of structs and write this data to
-	 * the root tree
-	 */
-	genMuonVector->clear();
-	for( reco::GenParticleCollection::const_iterator genPart = truthParticles->begin() ; genPart != truthParticles->end(); genPart++){
-
-		TrackDetMatchInfo * muMatch = getTrackDetMatchInfo(*genPart,iEvent,iSetup);
-		double muMatchEta = muMatch->trkGlobPosAtHO.eta();
-		double muMatchPhi = muMatch->trkGlobPosAtHO.phi();
-
-		genMuonVector->push_back(GenMuonData(
-				genPart->eta(),
-				genPart->phi(),
-				muMatchEta,
-				muMatchPhi,
-				genPart->pt(),
-				genPart->pdgId(),
-				(MuonHOAcceptance::inGeomAccept(genPart->eta(),genPart->phi()) && !hoMatcher->isInChimney(genPart->eta(),genPart->phi())),
-				MuonHOAcceptance::inNotDeadGeom(genPart->eta(),genPart->phi()),
-				MuonHOAcceptance::inSiPMGeom(genPart->eta(),genPart->phi())
-		));
-
-		if( MuonHOAcceptance::inGeomAccept(muMatchEta,muMatchPhi) && MuonHOAcceptance::inNotDeadGeom(muMatchEta,muMatchPhi) ){
-			histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"tdmiInGaNotDead");
-		}
-
-		//The mu match position is inside HO acceptance
-		if(MuonHOAcceptance::inGeomAccept(muMatchEta,muMatchPhi)
-			&& MuonHOAcceptance::inNotDeadGeom(muMatchEta,muMatchPhi)
-			&& !hoMatcher->isInChimney(muMatchEta,muMatchPhi)){
-
-			histogramBuilder.fillCountHistogram("tdmiInGA");
-			histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"tdmiInGA");
-
-			const HORecHit* matchedRecHit = hoMatcher->matchByEMaxDeltaR(muMatch->trkGlobPosAtHO.eta(),muMatch->trkGlobPosAtHO.phi());
-			//Found the Rec Hit with largest E
-			if(matchedRecHit){
-				double ho_eta = caloGeo->getPosition(matchedRecHit->id()).eta();
-				double ho_phi = caloGeo->getPosition(matchedRecHit->id()).phi();
-				histogramBuilder.fillDeltaEtaDeltaPhiHistograms(
-						muMatch->trkGlobPosAtHO.eta(),
-						ho_eta,
-						muMatch->trkGlobPosAtHO.phi(),
-						ho_phi,
-						"tdmiHoMatch"
-				);
-				//Energy is above threshold
-				if(matchedRecHit->energy() > threshold){
-					histogramBuilder.fillDeltaEtaDeltaPhiHistograms(
-							muMatch->trkGlobPosAtHO.eta(),
-							ho_eta,
-							muMatch->trkGlobPosAtHO.phi(),
-							ho_phi,
-							"tdmiHoAboveThr"
-					);
-					//TDMI has energy entry > 0
-					if(muMatch->hoCrossedEnergy() > 0 ){
-						histogramBuilder.fillDeltaEtaDeltaPhiHistograms(
-								muMatch->trkGlobPosAtHO.eta(),
-								ho_eta,
-								muMatch->trkGlobPosAtHO.phi(),
-								ho_phi,
-								"tdmiHoAboveThrGt0"
-						);
-					} else{
-						/**
-						 * In this case, the muMatch from TDMI has 0 energy
-						 * but was found to be in the geom acceptance
-						 */
-						histogramBuilder.fillDeltaEtaDeltaPhiHistograms(
-								muMatch->trkGlobPosAtHO.eta(),
-								ho_eta,
-								muMatch->trkGlobPosAtHO.phi(),
-								ho_phi,
-								"tdmiHoAboveThrEq0"
-						);
-						histogramBuilder.fillEtaPhiGraph(
-								muMatch->trkGlobPosAtHO.eta(),
-								muMatch->trkGlobPosAtHO.phi(),
-								"tdmiHoAboveThrEq0"
-						);
-					}
-				}
-			} else{
-				/**
-				 * There could not be found a rec hit by delta R matching
-				 */
-				histogramBuilder.fillCountHistogram("tdmiMatchHoFail");
-				histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"tdmiMatchHoFail");
-			}
-			delete muMatch;
-
-		}//<-- TDMI in GA
-	}
-
-	l1MuonVector->clear();
-	for( l1extra::L1MuonParticleCollection::const_iterator it = l1Muons->begin();
-			it != l1Muons->end() ; it++ ){
-		l1MuonVector->push_back(
-				L1MuonData(
-						it->eta(),
-						it->phi(),
-						it->pt(),
-						it->bx(),
-						(MuonHOAcceptance::inGeomAccept(it->eta(),it->phi() && !hoMatcher->isInChimney(it->eta(),it->phi()))),
-						MuonHOAcceptance::inNotDeadGeom(it->eta(),it->phi()),
-						MuonHOAcceptance::inSiPMGeom(it->eta(),it->phi())
-				)
-		);
-	}
-
-	hoRecHitVector->clear();
-	for( auto it = hoRecoHits->begin(); it != hoRecoHits->end(); it++ ){
-		histogramBuilder.fillMultiplicityHistogram(hoMatcher->countHoDigisByDetId(it->detid()),"hoDigiMatchesPerDetId");
-		short* adcSamples = new short[10];
-		const HODataFrame* dataFrame = hoMatcher->findHoDigiById(it->detid());
-		for(int i = 0; i < std::min(10,dataFrame->size()); i++){
-			adcSamples[i] = dataFrame->sample(i).adc();
-		}
-		hoRecHitVector->push_back(
-				HoRecHitData(
-						caloGeo->getPosition(it->id()).eta(),
-						caloGeo->getPosition(it->id()).phi(),
-						it->energy(),
-						it->time(),
-						adcSamples
-				)
-		);
-		//Take care of memory! Adc samples are copied in the struct's constructor
-		delete[] adcSamples;
-	}
-
-	dataTree->Fill();
 
 	/**
 	 * ###########################
@@ -543,7 +390,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		histogramBuilder.fillVzHistogram(bl1Muon->vz(),l1muon_key);
 		histogramBuilder.fillEtaPhiGraph(bl1Muon->eta(), bl1Muon->phi(), l1muon_key);
 		//For variable binning
-		listL1MuonPt.push_back(bl1Muon->pt());
+//		listL1MuonPt.push_back(bl1Muon->pt());
 		/*
 		 * Fill histogram for different pt thresholds
 		 * CAREFUL!! THIS IS NOT A REAL RATE YET!!
@@ -555,7 +402,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		}
 		//Look for matches in grid around L1
 		GlobalPoint l1Direction(bl1Muon->p4().X(),bl1Muon->p4().Y(),bl1Muon->p4().Z());
-		fillGridMatchingEfficiency(l1Direction,bl1Muon->pt(),"L1Muon");
+		calculateGridMatchingEfficiency(l1Direction,bl1Muon->pt(),"L1Muon",bl1Muon->eta(),bl1Muon->phi());
 		fillGridMatchingQualityCodes(&*bl1Muon,bl1Muon->pt(),"L1Muon");
 
 		if(MuonHOAcceptance::inGeomAccept(l1Muon_eta,l1Muon_phi)&& !hoMatcher->isInChimney(l1Muon_eta,l1Muon_phi)){
@@ -564,7 +411,6 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				histogramBuilder.fillCountHistogram("L1MuoninGaBx0");
 			histogramBuilder.fillCorrelationGraph(l1Direction.eta(),l1Muon_eta,"Correlationp4AndL1Object");
 		}
-
 		const HORecHit* matchedRecHit = hoMatcher->matchByEMaxDeltaR(l1Muon_eta,l1Muon_phi);
 		if(matchedRecHit){
 			double hoEta,hoPhi;
@@ -574,6 +420,10 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			histogramBuilder.fillTimeHistogram(matchedRecHit->time(),"L1MuonPresentHoMatch");
 			histogramBuilder.fillDeltaTimeHistogram(matchedRecHit->time(),bl1Muon->bx(),"L1MuonPresentHoMatch");
 			histogramBuilder.fillBxIdHistogram(bl1Muon->bx(),"L1MuonPresentHoMatch");
+			histogramBuilder.fillEnergyHistograms(matchedRecHit->energy(),l1MuonWithHoMatch_key);
+			histogramBuilder.fillEtaPhiHistograms(hoEta, hoPhi,l1MuonWithHoMatch_key);
+			histogramBuilder.fillDeltaEtaDeltaPhiHistograms(l1Muon_eta,hoEta,l1Muon_phi, hoPhi,l1MuonWithHoMatch_key);
+			histogramBuilder.fillEnergyVsPosition(hoEta,hoPhi,matchedRecHit->energy(),l1MuonWithHoMatch_key);
 			if (MuonHOAcceptance::inGeomAccept(l1Muon_eta,l1Muon_phi/*,deltaR_Max,deltaR_Max*/)&& !hoMatcher->isInChimney(l1Muon_eta,l1Muon_phi)){
 				histogramBuilder.fillCountHistogram("L1MuonPresentHoMatchInAcc");
 				histogramBuilder.fillBxIdHistogram(bl1Muon->bx(),"L1MuonPresentHoMatchInAcc");
@@ -594,10 +444,16 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 					}
 				}
 			}
-			histogramBuilder.fillEnergyHistograms(matchedRecHit->energy(),l1MuonWithHoMatch_key);
-			histogramBuilder.fillEtaPhiHistograms(hoEta, hoPhi,l1MuonWithHoMatch_key);
-			histogramBuilder.fillDeltaEtaDeltaPhiHistograms(l1Muon_eta,hoEta,l1Muon_phi, hoPhi,l1MuonWithHoMatch_key);
-			histogramBuilder.fillEnergyVsPosition(hoEta,hoPhi,matchedRecHit->energy(),l1MuonWithHoMatch_key);
+			/**
+			 * Dump events where delta i phi is 1
+			 * Maybe cms show can help for the systematic shift
+			 */
+			if(hoMatcher->getDeltaIphi(l1Muon_phi,matchedRecHit) == 1){
+				ofstream myfile;
+				myfile.open ("deltaPhiOneEvents.txt",std::ios::app);
+				myfile << iEvent.id().event() << std::endl;
+			}
+			//Pseudo trigger rate
 			for (int i = 0; i < 200; i+=2) {
 				if(bl1Muon->pt() >= i)
 					histogramBuilder.fillTrigRateHistograms(i,"L1MuonWithHoNoThr");
@@ -607,7 +463,6 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				countGenMatches++;
 				fillEfficiencyHistograms(bl1Muon->pt(),bestGenMatch->pt(),"L1MuonHoReco");
 			}
-
 			//###########################################################
 			//###########################################################
 			//Now fill information for hits above threshold
@@ -620,6 +475,17 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				histogramBuilder.fillDeltaTimeHistogram(matchedRecHit->time(),bl1Muon->bx(),"L1MuonAboveThr");
 				histogramBuilder.fillTimeHistogram(matchedRecHit->time(),"L1MuonAboveThr");
 				histogramBuilder.fillBxIdVsPt(bl1Muon->bx(),bl1Muon->pt(),"L1MuonAboveThr");
+				histogramBuilder.fillEnergyHistograms(matchedRecHit->energy(),"L1MuonWithHoMatchAboveThr");
+				histogramBuilder.fillEtaPhiHistograms(hoEta,hoPhi,"L1MuonWithHoMatchAboveThr_HO");
+				histogramBuilder.fillDeltaEtaDeltaPhiHistograms(l1Muon_eta,hoEta,l1Muon_phi, hoPhi,"L1MuonWithHoMatchAboveThr");
+				histogramBuilder.fillL1MuonPtHistograms(bl1Muon->pt(),"L1MuonWithHoMatchAboveThr");
+				histogramBuilder.fillEnergyVsPosition(hoEta,hoPhi,matchedRecHit->energy(),"L1MuonWithHoMatchAboveThr");
+
+
+				TH2D* hist = new TH2D("hoEnergyVsTime","HO Energy vs. Time;Time / ns;E_{Rec} / GeV",201,-100.5,100.5,2100, -5.0, 100.0);
+				histogramBuilder.fillCorrelationHistogram(matchedRecHit->time(),matchedRecHit->energy(),"hoEnergyVsTime",hist);
+				delete hist;
+
 				//Make time correlation plots depending on the different detector subsystems
 				switch (bl1Muon->gmtMuonCand().detector()) {
 					//RPC
@@ -685,11 +551,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 						}
 					}
 				}
-				histogramBuilder.fillEnergyHistograms(matchedRecHit->energy(),"L1MuonWithHoMatchAboveThr");
-				histogramBuilder.fillEtaPhiHistograms(hoEta,hoPhi,"L1MuonWithHoMatchAboveThr_HO");
-				histogramBuilder.fillDeltaEtaDeltaPhiHistograms(l1Muon_eta,hoEta,l1Muon_phi, hoPhi,"L1MuonWithHoMatchAboveThr");
-				histogramBuilder.fillL1MuonPtHistograms(bl1Muon->pt(),"L1MuonWithHoMatchAboveThr");
-				histogramBuilder.fillEnergyVsPosition(hoEta,hoPhi,matchedRecHit->energy(),"L1MuonWithHoMatchAboveThr");
+
 				//Make the pseudo trig rate plot
 				for (int i = 0; i < 200; i+=2) {
 					if(bl1Muon->pt() >= i)
@@ -800,7 +662,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 						muMatch->trkGlobPosAtHO.Y(),
 						muMatch->trkGlobPosAtHO.Z()
 				);
-				fillGridMatchingEfficiency(muMatchDirection,genIt->pt(),"tdmi");
+				calculateGridMatchingEfficiency(muMatchDirection,genIt->pt(),"tdmi",muMatchEta,muMatchPhi);
 			}
 			delete muMatch;
 
@@ -1234,41 +1096,6 @@ void hoMuonAnalyzer::printChannelQualities(const edm::EventSetup& iSetup){
 }
 
 /**
- * This function analyzes the information in the collection produced by the l1muon and gen matcher
- */
-void hoMuonAnalyzer::analyzeL1AndGenMatch(const edm::Event& iEvent, const edm::EventSetup& iSetup){
-	for(unsigned int i = 0; i < l1Muons->size() ; i++){
-		const l1extra::L1MuonParticle* l1Muon = &(l1Muons->at(i));
-		edm::RefToBase<l1extra::L1MuonParticle> l1MuonCandiateRef(l1MuonView,i);
-		reco::GenParticleRef ref = (*l1MuonGenMatches)[l1MuonCandiateRef];
-		if(ref.isNonnull()){
-			histogramBuilder.fillEfficiency(true,l1Muon->pt(),"L1GenRef");
-			//Once there is a gen ref, get the Track det match info
-			TrackDetMatchInfo * muMatch = getTrackDetMatchInfo(*ref,iEvent,iSetup);
-			double muMatchEta = muMatch->trkGlobPosAtHO.eta();
-			double muMatchPhi = muMatch->trkGlobPosAtHO.phi();
-			delete muMatch;
-			histogramBuilder.fillCountHistogram("L1GenRef");
-			if(MuonHOAcceptance::inGeomAccept(muMatchEta,muMatchPhi)
-						&& MuonHOAcceptance::inNotDeadGeom(muMatchEta,muMatchPhi)
-						&& !hoMatcher->isInChimney(muMatchEta,muMatchPhi)){
-				histogramBuilder.fillCountHistogram("L1GenRefInGa");
-				GlobalPoint l1Direction(
-						l1Muon->p4().X(),
-						l1Muon->p4().Y(),
-						l1Muon->p4().Z()
-				);
-				fillGridMatchingEfficiency(l1Direction,ref->pt(),"L1GenRefInGa",muMatchEta,muMatchPhi);
-			}
-
-		} else {
-			histogramBuilder.fillEfficiency(false,l1Muon->pt(),"L1GenRef");
-			histogramBuilder.fillEtaPhiGraph(l1Muon->eta(),l1Muon->phi(),"L1GenRefFail");
-		}
-	}
-}
-
-/**
  * Analyzer function for events with no single muon trigger.
  * Tries to find l1 muons and match them to ho information
  */
@@ -1294,7 +1121,7 @@ void hoMuonAnalyzer::analyzeNoSingleMuEventsL1Loop(const edm::Event& iEvent,cons
 						l1Muon->p4().Y(),
 						l1Muon->p4().Z()
 				);
-				fillGridMatchingEfficiency(l1Direction, ref->pt(),"L1GenRefNoSingleMuInGa",muMatchEta,muMatchPhi);
+				calculateGridMatchingEfficiency(l1Direction, ref->pt(),"L1GenRefNoSingleMuInGa",muMatchEta,muMatchPhi);
 			}
 
 		} else {
@@ -1329,7 +1156,7 @@ void hoMuonAnalyzer::analyzeNoSingleMuEventsGenLoop(const edm::Event& iEvent,con
 					genIt->p4().Y(),
 					genIt->p4().Z()
 			);
-			fillGridMatchingEfficiency(genDirection, genIt->pt(),"NoSingleMuInGa",muMatchEta,muMatchPhi);
+			calculateGridMatchingEfficiency(genDirection, genIt->pt(),"NoSingleMuInGa",muMatchEta,muMatchPhi);
 		}
 	}
 }
@@ -1347,13 +1174,19 @@ void hoMuonAnalyzer::analyzeWithGenLoop(const edm::Event& iEvent,const edm::Even
 		histogramBuilder.fillCountHistogram("Gen");
 		if(l1Part){
 			fillEfficiencyHistograms(l1Part->pt(),genIt->pt(),"GenAndL1Muon");
+			/**
+			 * Fill Correlation between gen pt and l1 pt.
+			 * Here, only the L1s best matching to the Gen are used. Above, Every L1 is
+			 * used
+			 */
+			histogramBuilder.fillCorrelationHistogram(genIt->pt(),l1Part->pt(),"L1MuonPtGenLoop");
 			histogramBuilder.fillCountHistogram("GenAndL1Muon");
 			GlobalPoint l1Direction(
 					l1Part->p4().X(),
 					l1Part->p4().Y(),
 					l1Part->p4().Z()
 			);
-			fillGridMatchingEfficiency(l1Direction,l1Part->pt(),"L1MuonTruth");
+			calculateGridMatchingEfficiency(l1Direction,l1Part->pt(),"L1MuonTruth",l1Part->eta(),l1Part->phi());
 			fillGridMatchingQualityCodes(&*l1Part,genIt->pt(),"L1MuonTruth");
 			fillAverageEnergyAroundL1Direction(l1Part);
 			/**
@@ -1366,8 +1199,22 @@ void hoMuonAnalyzer::analyzeWithGenLoop(const edm::Event& iEvent,const edm::Even
 			if(matchedRecHit){
 				if(matchedRecHit->energy() > threshold){
 					fillEfficiencyHistograms(l1Part->pt(),genIt->pt(),"GenAndL1MuonAndHoAboveThr");
+					histogramBuilder.fillEnergyHistograms(matchedRecHit->energy(),"l1TruthAndHoMatch");
 					histogramBuilder.fillCountHistogram("GenAndL1MuonAndHoAboveThr");
+					double hoPhi = hoMatcher->getRecHitPhi(matchedRecHit);
+					double hoIPhi = matchedRecHit->id().iphi();
+					histogramBuilder.fillCorrelationGraph(hoPhi,l1Part->phi(),"l1PhiVsHoPhi");
+					histogramBuilder.fillCorrelationGraph(hoIPhi,l1Part->phi(),"l1PhiVsHoIPhi");
+					histogramBuilder.fillCorrelationGraph(hoIPhi,hoPhi,"hoPhiVsHoIPhi");
 
+					TH2D* hist = new TH2D("hoTruthEnergyVsTime","HO Energy vs. Time;Time / ns;E_{Rec} / GeV",201,-100.5,100.5,2100, -5.0, 100.0);
+					histogramBuilder.fillCorrelationHistogram(matchedRecHit->time(),matchedRecHit->energy(),"hoTruthEnergyVsTime",hist);
+					delete hist;
+
+					//Implement efficiency analysis for time window
+					if(matchedRecHit->time() > -12.5 && matchedRecHit->time() < 12.5){
+						//TODO: Put this stuff in the fillGridmatching efficiency function
+					}
 				}
 			}
 		}
@@ -1382,26 +1229,75 @@ void hoMuonAnalyzer::fillAverageEnergyAroundL1Direction(const l1extra::L1MuonPar
 	int gridSize = 5;
 	for(auto recHitIt = hoRecoHits->begin(); recHitIt != hoRecoHits->end(); recHitIt++){
 		if(hoMatcher->isRecHitInGrid(l1Muon->eta(), l1Muon->phi(),&*recHitIt,gridSize)){
-			histogramBuilder.fillDeltaEtaDeltaPhiHistogramsWithWeights(l1Muon->eta()
-					,float(hoMatcher->getRecHitEta(&*recHitIt))	,l1Muon->phi()
-					,float(hoMatcher->getRecHitPhi(&*recHitIt))	,recHitIt->energy()
-					,"averageEnergyAroundPoint");
-			histogramBuilder.fillDeltaEtaDeltaPhiEnergyHistogram(l1Muon->eta()
-					,float(hoMatcher->getRecHitEta(&*recHitIt))	,l1Muon->phi()
-					,float(hoMatcher->getRecHitPhi(&*recHitIt))	,recHitIt->energy()
+			double hoEta = hoMatcher->getRecHitEta(&*recHitIt);
+			double hoPhi = hoMatcher->getRecHitPhi(&*recHitIt);
+
+			histogramBuilder.fillAverageEnergyHistograms(l1Muon->eta(),hoEta, l1Muon->phi(),hoPhi,recHitIt->energy(),"averageEnergyAroundPoint");
+			histogramBuilder.fillDeltaEtaDeltaPhiEnergyHistogram(l1Muon->eta() ,hoEta ,l1Muon->phi() ,hoPhi ,recHitIt->energy()
 					,"averageEnergyAroundPoint");//Use this function for the 1D distributions for each delta eta and delta phi
-			float deltaPhi;
+
+			double deltaPhi;
 			deltaPhi = FilterPlugin::wrapCheck(l1Muon->phi(),hoMatcher->getRecHitPhi(&*recHitIt));
+
+			/**
+			 * Dump delta phi and l1
+			 */
+			ofstream myfile;
+			myfile.open ("deltaPhiVsL1Phi.txt",std::ios::app);
+			myfile << l1Muon->phi() << '\t' << deltaPhi << std::endl;
+
+
+			TH1D* hist1D = new TH1D("deltaPhi","#Delta#phi;#Delta#phi;N Entries",81,-40*HoMatcher::HALF_HO_BIN/2. - HoMatcher::HALF_HO_BIN/4.
+					,40*HoMatcher::HALF_HO_BIN/2. + HoMatcher::HALF_HO_BIN/4.);
+			histogramBuilder.fillHistogram(deltaPhi,"deltaPhi",hist1D);
+			delete hist1D;
+
+			TH1D* histL1Phi = new TH1D("averageEnergyL1Phi","L1 #phi;#phi;N Entries",145
+					,-36*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/2.,36 * HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/2.);
+			histogramBuilder.fillHistogram(l1Muon->phi(),"averageEnergyL1Phi",histL1Phi);
+			delete histL1Phi;
+
+			TH1D* histHoPhi = new TH1D("averageEnergyHoPhi","HO #phi;#phi;N Entries",145
+					,-36*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/2.,36 * HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/2.);
+			histogramBuilder.fillHistogram(hoPhi,"averageEnergyHoPhi",histHoPhi);
+			delete histHoPhi;
+
 			double variableBinArray[] = {0,0.5,1,1.5,2,2.5,3,3.5,4,4.5,5,6,7,8,10,12,14,16,18,20,25,30,35,40,45,50,60,70,80,100,120,140,200};
-			TH2D* hist = new TH2D("shiftCheckDeltaPhiVsL1Pt","#Delta#phi shift check;p_{T} / GeV;#Delta#phi",32,variableBinArray,73, -3.1755, 3.1755);
+
+			TH2D* hist = new TH2D("shiftCheckDeltaPhiVsL1Pt","#Delta#phi shift check;p_{T} / GeV;#Delta#phi",32,variableBinArray,
+					73,-36*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN,36*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN);
+
 			histogramBuilder.fillCorrelationHistogram(l1Muon->pt(),deltaPhi,"shiftCheckDeltaPhiVsL1Pt",hist);
 			delete hist;
-			hist = new TH2D("shiftCheckDeltaPhiVsPhi","#Delta#phi shift check;#phi;#Delta#phi",730, -3.1755, 3.1755,73, -3.1755, 3.1755);
+
+			// y: ho-half bins, zero centered -> shift by quarter Ho bin
+			// x: ho quarter bins, zero centered -> 288 bins + 1 bin, borders shifted by ho eighth bin
+			hist = new TH2D("shiftCheckDeltaPhiVsPhi","#Delta#phi shift check;#phi;#Delta#phi",
+					289,-36*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/4.,36*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/4.,
+					145,-36*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/2.,36*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/2.);
 			histogramBuilder.fillCorrelationHistogram(l1Muon->phi(),deltaPhi,"shiftCheckDeltaPhiVsPhi",hist);
 			delete hist;
+
+			histogramBuilder.fillCorrelationGraph(l1Muon->phi(),deltaPhi,"shiftCheckDeltaPhiVsPhiGraph");
+
 			const reco::GenParticle* gen = getBestGenMatch(l1Muon->eta(),l1Muon->phi());
-			hist = new TH2D("shiftCheckDeltaPhiVsGenPt","#Delta#phi shift check;p_{T} / GeV;#Delta#phi",200,0,200,73, -3.1755, 3.1755);
+			hist = new TH2D("shiftCheckDeltaPhiVsGenPt","#Delta#phi shift check;p_{T} / GeV;#Delta#phi",200,0,200,
+					73,-36*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN,36*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN);
 			histogramBuilder.fillCorrelationHistogram(gen->pt(),deltaPhi,"shiftCheckDeltaPhiVsGenPt",hist);
+			delete hist;
+
+			//Delta phi vs l1 eta
+			hist = new TH2D("shiftCheckDeltaPhiVsL1Eta","#Delta#phi shift check;#eta_{L1};#Delta#phi",
+					145,-36*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/2.,36*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/2.,//Half an HO bin in eta
+					73,-36*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN,36*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN);
+			histogramBuilder.fillCorrelationHistogram(l1Muon->eta(),deltaPhi,"shiftCheckDeltaPhiVsL1Eta",hist);
+			delete hist;
+
+			//Delta phi vs gen eta
+			hist = new TH2D("shiftCheckDeltaPhiVsGenEta","#Delta#phi shift check;#eta_{Gen};#Delta#phi",
+					145,-36*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/2.,36*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/2.,//Half an HO bin in eta,
+					73,-36*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN,36*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN);
+			histogramBuilder.fillCorrelationHistogram(gen->eta(),deltaPhi,"shiftCheckDeltaPhiVsGenEta",hist);
 			delete hist;
 		}
 	}
@@ -1446,13 +1342,15 @@ void hoMuonAnalyzer::fillGridMatchingQualityCodes(const l1extra::L1MuonParticle*
 	//#####
 	// Central tile
 	//#####
+	double variableBinArray[] = {0,0.5,1,1.5,2,2.5,3,3.5,4,4.5,5,6,7,8,9,10,12,14,16,18,20,25,30,35,40,45,50,60,70,80,100,120,140,180};
 	int l1MuonQuality = l1muon->gmtMuonCand().quality();
+	histogramBuilder.fillMultiplicityHistogram(l1MuonQuality,key+"AllQualityCodes");
 	if(hoMatcher->hasHoHitInGrid(direction,0)){
 		histogramBuilder.fillMultiplicityHistogram(l1MuonQuality,key + "QualityCodesCentral" );
 		fillEfficiencyHistograms(l1muon->pt(),truePt,key + "GenPtCentral");
 	} else{
 		histogramBuilder.fillMultiplicityHistogram(l1MuonQuality,key + "QualityCodesCentralFail" );
-		TH2D* hist = new TH2D((key + "pTvsQCCentralFail").c_str(),"p_{T} vs. QC (Central);QC;p_{T} / Gev",5,3.5,8.5,200,0,200);
+		TH2D* hist = new TH2D((key + "pTvsQCCentralFail").c_str(),"p_{T} vs. QC (Central);QC;p_{T} / Gev",7,1.5,8.5,33,variableBinArray);
 		histogramBuilder.fillCorrelationHistogram(l1MuonQuality,l1muon->pt(),key + "pTvsQCCentralFail",hist);
 		delete hist;
 	}
@@ -1464,7 +1362,7 @@ void hoMuonAnalyzer::fillGridMatchingQualityCodes(const l1extra::L1MuonParticle*
 		fillEfficiencyHistograms(l1muon->pt(),truePt,key + "GenPt3x3");
 	} else {
 		histogramBuilder.fillMultiplicityHistogram(l1MuonQuality,key + "QualityCodes3x3Fail");
-		TH2D* hist = new TH2D((key + "pTvsQC3x3Fail").c_str(),"p_{T} vs. QC (3x3);QC;p_{T} / Gev",5,3.5,8.5,200,0,200);
+		TH2D* hist = new TH2D((key + "pTvsQC3x3Fail").c_str(),"p_{T} vs. QC (3x3);QC;p_{T} / Gev",7,1.5,8.5,33,variableBinArray);
 		histogramBuilder.fillCorrelationHistogram(l1MuonQuality,l1muon->pt(),key + "pTvsQC3x3Fail",hist);
 		delete hist;
 	}
@@ -1476,7 +1374,7 @@ void hoMuonAnalyzer::fillGridMatchingQualityCodes(const l1extra::L1MuonParticle*
 		fillEfficiencyHistograms(l1muon->pt(),truePt,key + "GenPt5x5");
 	} else {
 		histogramBuilder.fillMultiplicityHistogram(l1MuonQuality,key + "QualityCodes5x5Fail");
-		TH2D* hist = new TH2D((key + "pTvsQC5x5Fail").c_str(),"p_{T} vs. QC (5x5);QC;p_{T} / Gev",5,3.5,8.5,200,0,200);
+		TH2D* hist = new TH2D((key + "pTvsQC5x5Fail").c_str(),"p_{T} vs. QC (5x5);QC;p_{T} / Gev",7,1.5,8.5,33,variableBinArray);
 		histogramBuilder.fillCorrelationHistogram(l1MuonQuality,l1muon->pt(),key + "pTvsQC5x5Fail",hist);
 		delete hist;
 	}
@@ -1487,51 +1385,54 @@ void hoMuonAnalyzer::fillGridMatchingQualityCodes(const l1extra::L1MuonParticle*
  * Automatically fill efficiency and count histograms for the grid matching for grid sizes
  * central, 3x3 and 5x5. Also store the position information
  */
-void hoMuonAnalyzer::fillGridMatchingEfficiency(GlobalPoint direction, float pt, std::string key, float eta, float phi){
+void hoMuonAnalyzer::calculateGridMatchingEfficiency(GlobalPoint direction, float pt, std::string key, float eta, float phi){
 	//#####
 	// Central tile
 	//#####
-	if(hoMatcher->hasHoHitInGrid(direction,0)){
-		histogramBuilder.fillCountHistogram(key + "Central");
-		histogramBuilder.fillEfficiency(true,pt,key + "Central");
-		histogramBuilder.fillEtaPhiGraph(eta,phi,key + "Central");
-	} else{
-		histogramBuilder.fillEfficiency(false,pt,key + "Central");
-		histogramBuilder.fillEtaPhiGraph(eta,phi,key + "CentralFail");
-	}
-	//#####
-	// 3 x 3
-	//#####
-	if(hoMatcher->hasHoHitInGrid(direction,1)){
-		histogramBuilder.fillCountHistogram(key + "3x3");
-		histogramBuilder.fillEfficiency(true,pt,key + "3x3");
-		histogramBuilder.fillEtaPhiGraph(eta,phi,key + "3x3");
-
-	} else {
-		histogramBuilder.fillEfficiency(false,pt,key + "3x3");
-		histogramBuilder.fillEtaPhiGraph(eta,phi,key + "3x3Fail");
-	}
-	//#####
-	// 5 x 5
-	//#####
-	if(hoMatcher->hasHoHitInGrid(direction,2)){
-		histogramBuilder.fillCountHistogram(key + "5x5");
-		histogramBuilder.fillEfficiency(true,pt,key + "5x5");
-		histogramBuilder.fillEtaPhiGraph(eta,phi,key + "5x5");
-
-
-	} else {
-		histogramBuilder.fillEfficiency(false,pt,key + "5x5");
-		histogramBuilder.fillEtaPhiGraph(eta,phi,key + "5x5Fail");
+	double etaDir = direction.eta();
+	double phiDir = direction.phi();
+	const HORecHit* recHit = hoMatcher->getClosestRecHitInGrid(etaDir,phiDir,2);
+	for(int i = 0; i < 3 ; i++){
+		if(!recHit){
+			fillGridMatchingHistograms(false,i,pt,999,key,eta,phi);
+		} else{
+			fillGridMatchingHistograms(hoMatcher->isRecHitInGrid(etaDir,phiDir,recHit,i),i,pt,recHit->time(),key,eta,phi);
+		}
 	}
 }
 
 /**
- * Automatically fill efficiency and count histograms for the grid matching for grid sizes
- * central, 3x3 and 5x5. The position information is always 0 if this function is used
+ * This function automatically fills the corresponding histograms for the grid matching efficiency and the time window
  */
-void hoMuonAnalyzer::fillGridMatchingEfficiency(GlobalPoint direction, float pt, std::string key){
-	fillGridMatchingEfficiency(direction,pt,key,0,0);
+void hoMuonAnalyzer::fillGridMatchingHistograms(bool passed, int grid, double pt, double time, std::string key, double eta, double phi){
+	std::string gridString = "";
+	switch (grid) {
+		case 0:
+			gridString = "Central";
+			break;
+		case 1:
+			gridString = "3x3";
+			break;
+		case 2:
+			gridString = "5x5";
+			break;
+		default:
+			gridString = "UnkownGridSize";
+			break;
+	}
+	if(passed){
+			histogramBuilder.fillCountHistogram(key + gridString);
+			histogramBuilder.fillEfficiency(true,pt,key + gridString);
+			histogramBuilder.fillEtaPhiGraph(eta,phi,key + gridString);
+			if(isInTimeWindow(time)){
+				histogramBuilder.fillEfficiency(true,pt,key + "TimeWindow" + gridString);
+			} else{
+				histogramBuilder.fillEfficiency(false,pt,key + "TimeWindow" + gridString);
+			}
+		} else{
+			histogramBuilder.fillEfficiency(false,pt,key + gridString);
+			histogramBuilder.fillEtaPhiGraph(eta,phi,key + gridString + "Fail");
+		}
 }
 
 /**

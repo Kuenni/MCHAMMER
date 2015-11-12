@@ -66,6 +66,7 @@ private:
 	virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
 
 	void analyzeHoDigiTiming(const edm::Event& iEvent);
+	void analyzeTruthDigiTiming(const edm::Event& iEvent);
 
 	bool isFrameAboveThr(const HODataFrame* dataFrame);
 	double calculateHitTimeFromDigi(const HODataFrame* dataFrame);
@@ -82,8 +83,10 @@ private:
 	edm::ESHandle<CaloGeometry> caloGeo;
 
 	edm::InputTag hoDigiInput;
+	edm::InputTag genInput;
 
 	edm::Handle<HODigiCollection> hoDigis;
+	edm::Handle<reco::GenParticleCollection> genParticles;
 	/**
 	 * ADC Threshold for 4 TS HO Digi
 	 */

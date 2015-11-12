@@ -14,6 +14,8 @@
 
 #include "TH1F.h"
 #include "TH2D.h"
+
+#include "HoMuonTrigger/hoTriggerAnalyzer/interface/HoMatcher.h"
 #include "HoMuonTrigger/hoTriggerAnalyzer/interface/FilterPlugin.h"
 
 /**
@@ -44,7 +46,7 @@ void HistogramBuilder::fillVzHistogram(float vz, std::string key){
 }
 
 /**
- * Fill a 2d histogram
+ * Fill a 2D histogram
  */
 void HistogramBuilder::fillCorrelationHistogram(double x, double y, std::string key,TH2D* histogram){
 	TFileDirectory correlationDir = _fileService->mkdir( "correlation" );
@@ -58,6 +60,23 @@ void HistogramBuilder::fillCorrelationHistogram(double x, double y, std::string 
 		}
 	}
 	_h2Correlation[key]->Fill(x,y);
+}
+
+/**
+ * Fill a 1D histogram
+ */
+void HistogramBuilder::fillHistogram(double x, std::string key,TH1D* histogram){
+	TFileDirectory correlationDir = _fileService->mkdir( "histograms1D" );
+	if(!_h1histograms.count(key)){
+		_h1histograms[key] = correlationDir.make<TH1D>(Form("%s",key.c_str()),
+				Form("%s",key.c_str()),
+				500, 0,500);
+		if(histogram){
+			histogram->Copy(*_h1histograms[key]);
+			_h1histograms[key]->SetDirectory(correlationDir.getBareDirectory());
+		}
+	}
+	_h1histograms[key]->Fill(x);
 }
 
 void HistogramBuilder::fillEfficiency(bool passed, float pt, std::string key){
@@ -142,8 +161,8 @@ void HistogramBuilder::fillTrigRateHistograms(float ptThreshold,std::string key)
  * Trig rate histogram with special x binning for L1 resolution
  */
 void HistogramBuilder::fillTrigRateL1Histograms(float ptThreshold, std::string key){
-	float variableBinArray[] = {0,0.5,1,1.5,2,2.5,3,3.5,4,4.5,5,6,7,8,9,10,12,14,16,18,20,25,30,35,40,45,50,60,70,80,100,120,140,180};
 	if(!_h1TrigRate.count(key)){
+		float variableBinArray[] = {0,0.5,1,1.5,2,2.5,3,3.5,4,4.5,5,6,7,8,9,10,12,14,16,18,20,25,30,35,40,45,50,60,70,80,100,120,140,180};
 		_h1TrigRate[key] = _fileService->make<TH1D>(Form("%s_TrigRate",key.c_str()),
 				Form("%s Trigger Pseudo Rate",key.c_str()),
 				33,variableBinArray);
@@ -239,29 +258,130 @@ void HistogramBuilder::fillDeltaEtaDeltaPhiHistograms(float eta1, float eta2,
 } 
 
 /**
+ * Dedicated function for the average energy plots
+ */
+void HistogramBuilder::fillAverageEnergyHistograms(double eta1, double etaHo, double phi1, double phiHo, double energy, std::string key){
+	TFileDirectory averageEnergyDir = _fileService->mkdir("averageEnergy");
+	TFileDirectory subdir;
+	int wheel = 9;
+	/**
+	 * Check the L1 direction but use the wheel boundaries from HO
+	 */
+	if(eta1 <= -0.868){	wheel = -2;	}
+	else if (eta1 > -0.868 && eta1 <= -0.336){ wheel = -1;}
+	else if (eta1 > -0.336 && eta1 < 0.336) {wheel = 0;}
+	else if (eta1 >= 0.336 && eta1 < 0.868) {wheel = 1;}
+	else if (eta1 >= 0.868) {wheel = 2;}
+	switch (wheel) {
+		case -2:
+			subdir = averageEnergyDir.mkdir("wh2m");
+			break;
+		case -1:
+			subdir = averageEnergyDir.mkdir("wh1m");
+			break;
+		case -0:
+			subdir = averageEnergyDir.mkdir("wh0");
+			break;
+		case 1:
+			subdir = averageEnergyDir.mkdir("wh1p");
+			break;
+		case 2:
+			subdir = averageEnergyDir.mkdir("wh2p");
+			break;
+		default:
+			break;
+	}
+	std::string histNameEnergy = Form("%s_wh%dSummedEnergy",key.c_str(),wheel);
+	std::string histNameCounter = Form("%s_wh%dCounter",key.c_str(),wheel);
+	std::string histNameAllEnergies = Form("%s_SummedEnergy",key.c_str());
+	std::string histNameAllCounter = Form("%s_Counter",key.c_str());
+	std::string histTitle = Form("Wheel %d;#Delta#Eta;#Delta#phi;E_{Rec} / GeV",wheel);
+	std::string histAllTitle = Form("AverageEnergyHistogram;#Delta#eta;#Delta#phi");
+	double deltaEta, deltaPhi;
+	deltaEta = etaHo - eta1;
+	deltaPhi = FilterPlugin::wrapCheck(phi1, phiHo);
+	//Here I'am using the double resolution than what HO can do
+	if(!_h2AverageEnergy.count(histNameEnergy)){
+		_h2AverageEnergy[histNameEnergy] = subdir.make<TH2D>(histNameEnergy.c_str(),histTitle.c_str(),
+						81,-10*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/4.,10*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/4.,
+						81,-10*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/4.,10*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/4.);
+	}
+	if(!_h2AverageEnergy.count(histNameCounter)){
+		_h2AverageEnergy[histNameCounter] = subdir.make<TH2D>(histNameCounter.c_str(),histTitle.c_str(),
+						81,-10*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/4.,10*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/4.,
+						81,-10*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/4.,10*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/4.);
+	}
+	_h2AverageEnergy[histNameEnergy]->Fill(deltaEta, deltaPhi, energy);
+	_h2AverageEnergy[histNameCounter]->Fill(deltaEta, deltaPhi);
+
+	//Also fill a histogram for all wheels together
+	if(!_h2AverageEnergy.count(histNameAllEnergies)){
+		_h2AverageEnergy[histNameAllEnergies] = averageEnergyDir.make<TH2D>(histNameAllEnergies.c_str(),(histAllTitle + ";E_{Rec} / GeV").c_str(),
+								81,-10*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/4.,10*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/4.,
+								81,-10*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/4.,10*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/4.);
+	}
+	if(!_h2AverageEnergy.count(histNameAllCounter)){
+		_h2AverageEnergy[histNameAllCounter] = averageEnergyDir.make<TH2D>(histNameAllCounter.c_str(),(histAllTitle + ";# Entries").c_str(),
+								81,-10*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/4.,10*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/4.,
+								81,-10*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/4.,10*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/4.);
+	}
+	_h2AverageEnergy[histNameAllEnergies]->Fill(deltaEta, deltaPhi, energy);
+	_h2AverageEnergy[histNameAllCounter]->Fill(deltaEta, deltaPhi);
+
+	if(HoMatcher::getDeltaIphi(phi1,phiHo) == 1){
+		fillEtaPhiGraph(eta1,phi1,"averageEnergyDeltaPhi1");
+	}
+}
+
+/**
  * Fill a delta eta delta phi histogram bin by a given weight
  */
-void HistogramBuilder::fillDeltaEtaDeltaPhiHistogramsWithWeights(float eta1, float eta2,
-		float phi1, float phi2, double weight, std::string key){
+void HistogramBuilder::fillDeltaEtaDeltaPhiHistogramsWithWeights(double eta1, double eta2,
+		double phi1, double phi2, double weight, std::string key){
 	TFileDirectory etaPhiDir = _fileService->mkdir("deltaEtaDeltaPhiEnergy");
-	float deltaEta, deltaPhi;
+	double deltaEta, deltaPhi;
 	deltaEta = eta2 - eta1;
 	deltaPhi = FilterPlugin::wrapCheck(phi1, phi2);
 
 	//DeltaEta Delta Phi Histograms Fill
 	if(!_h2DeltaEtaDeltaPhiWeights.count(key)){
 		_h2DeltaEtaDeltaPhiWeights[key] = etaPhiDir.make<TH2D>(Form("%s_2dSummedWeights",key.c_str()),Form("%s #Delta#eta #Delta#Phi Energy",key.c_str()),
-				23, -1.0005, 1.0005, 	//eta
-				23, -1.0005, 1.0005);	//phi
+				41,-10*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/2.,10*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/2.,
+				41,-10*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/2.,10*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/2.);
 	}
 	//DeltaEta Delta Phi Histograms Fill
 	if(!_h2DeltaEtaDeltaPhiCounter.count(key)){
 		_h2DeltaEtaDeltaPhiCounter[key] = etaPhiDir.make<TH2D>(Form("%s_2dCounter",key.c_str()),Form("%s #Delta#eta #Delta#Phi Energy",key.c_str()),
-				23, -1.0005, 1.0005, 	//eta
-				23, -1.0005, 1.0005);	//phi
+				41,-10*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/2.,10*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/2.,
+				41,-10*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/2.,10*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/2.);
 	}
 	_h2DeltaEtaDeltaPhiWeights[key]->Fill(deltaEta, deltaPhi, weight);
 	_h2DeltaEtaDeltaPhiCounter[key]->Fill(deltaEta, deltaPhi);
+
+
+	//#####################################
+	//Delta I Eta Delta I Phi Histograms Fill
+	//Same as above but doing the grid binning online.
+	//Check for the phi systematic
+	//#####################################
+	if(!_h2DeltaIEtaDeltaIPhiWeights.count(key)){
+		_h2DeltaIEtaDeltaIPhiWeights[key] = etaPhiDir.make<TH2D>(Form("%s_2dSummedWeightsIEtaIPhi",key.c_str()),
+				Form("%s #Deltai#eta #Deltai#Phi Energy",key.c_str()),
+				21,-10,10,
+				21,-10,10);
+	}
+	//Delta I Eta Delta I Phi Histograms Fill
+	if(!_h2DeltaIEtaDeltaIPhiCounter.count(key)){
+		_h2DeltaIEtaDeltaIPhiCounter[key] = etaPhiDir.make<TH2D>(Form("%s_2dCounterIEtaIPhi",key.c_str()),
+				Form("%s #Deltai#eta #Deltai#Phi Energy",key.c_str()),
+				21,-10,10,
+				21,-10,10);
+	}
+
+	int deltaIEta = HoMatcher::getDeltaIeta(eta1,eta2);
+	int deltaIPhi = HoMatcher::getDeltaIphi(phi1,phi2);
+	_h2DeltaIEtaDeltaIPhiWeights[key]->Fill(deltaIEta, deltaIPhi, weight);
+	_h2DeltaIEtaDeltaIPhiCounter[key]->Fill(deltaIEta, deltaIPhi);
 }
 
 /*
@@ -295,24 +415,24 @@ void HistogramBuilder::fillEnergyCorrelationHistogram(double simHitEnergy, doubl
 	TFileDirectory energyDir = _fileService->mkdir("energy");
 
 	//Fill Sim hit energy histo
-	TString simHitKey(key);
+	std::string simHitKey(key);
 	key.append("simHits");
-	if(!_h1Energy.count(simHitKey.Data())){
-		_h1Energy[simHitKey.Data()] = energyDir.make<TH1F>(Form("%s_Energy_SimHits",key.c_str()),
+	if(!_h1Energy.count(simHitKey.c_str())){
+		_h1Energy[simHitKey.c_str()] = energyDir.make<TH1F>(Form("%s_Energy_SimHits",key.c_str()),
 				Form("%s Energy;Sim Hits / GeV;#",key.c_str()),
 				2100, -5.0, 100.0);
 	}
-	_h1Energy[simHitKey.Data()]->Fill(simHitEnergy);
+	_h1Energy[simHitKey.c_str()]->Fill(simHitEnergy);
 
 	//Fill rec hit energy histo
-	TString recHitKey(key);
+	std::string recHitKey(key);
 	key.append("recHits");
-	if(!_h1Energy.count(recHitKey.Data())){
-		_h1Energy[recHitKey.Data()] = energyDir.make<TH1F>(Form("%s_Energy_RecHits",key.c_str()),
+	if(!_h1Energy.count(recHitKey.c_str())){
+		_h1Energy[recHitKey.c_str()] = energyDir.make<TH1F>(Form("%s_Energy_RecHits",key.c_str()),
 				Form("%s Energy;Rec Hits / GeV;#",key.c_str()),
 				2100, -5.0, 100.0);
 	}
-	_h1Energy[recHitKey.Data()]->Fill(recHitEnergy);
+	_h1Energy[recHitKey.c_str()]->Fill(recHitEnergy);
 
 	//Fill correlation
 	if(!_h2EnergyCorrelation.count(key)){

@@ -8,6 +8,10 @@
 #include "HoMuonTrigger/hoTriggerAnalyzer/interface/HoMatcher.h"
 #include "HoMuonTrigger/hoTriggerAnalyzer/interface/FilterPlugin.h"
 
+//Bin size definitions
+const double HoMatcher::HO_BIN = 3.1415926535897931/36.;
+const double HoMatcher::HALF_HO_BIN = HO_BIN/2.;
+
 HoMatcher::~HoMatcher() {
 }
 
@@ -118,14 +122,22 @@ const HORecHit* HoMatcher::findEMaxHitInGrid(double eta, double phi, int gridSiz
  * Returns the eta value from a rec hits det id value
  */
 double HoMatcher::getRecHitEta(const HORecHit* recHit){
-	return caloGeometry->getPosition(recHit->detid()).eta();
+	return getEtaFromDetId(recHit->detid());
 }
 
 /**
  * Returns the phi value from a rec hits det id value
  */
 double HoMatcher::getRecHitPhi(const HORecHit* recHit){
-	return caloGeometry->getPosition(recHit->detid()).phi();
+	return getPhiFromDetId(recHit->detid());
+}
+
+double HoMatcher::getPhiFromDetId(DetId id){
+	return caloGeometry->getPosition(id).phi();
+}
+
+double HoMatcher::getEtaFromDetId(DetId id){
+	return caloGeometry->getPosition(id).eta();
 }
 
 /**
@@ -133,8 +145,7 @@ double HoMatcher::getRecHitPhi(const HORecHit* recHit){
  */
 int HoMatcher::getDeltaIeta(double eta, const HORecHit* recHit){
 	double hoEta = caloGeometry->getPosition(recHit->detid()).eta();
-	double deltaEta = hoEta - eta;
-	return (deltaEta >= 0) ? int(deltaEta/getHoBinSize() + getHoBinSize()/2.) : int(deltaEta/getHoBinSize() - getHoBinSize()/2.);
+	return HoMatcher::getDeltaIeta(eta,hoEta);
 }
 
 /**
@@ -142,8 +153,36 @@ int HoMatcher::getDeltaIeta(double eta, const HORecHit* recHit){
  */
 int HoMatcher::getDeltaIphi(double phi, const HORecHit* recHit){
 	double hoPhi = caloGeometry->getPosition(recHit->detid()).phi();
-	double deltaPhi = FilterPlugin::wrapCheck(hoPhi,phi);
-	return (deltaPhi >= 0) ? int(deltaPhi/getHoBinSize() + getHoBinSize()/2.) : int(deltaPhi/getHoBinSize() - getHoBinSize()/2.);
+	return HoMatcher::getDeltaIphi(phi,hoPhi);
+}
+
+//Calculate delta i eta between two given eta coordinates
+int HoMatcher::getDeltaIeta(double eta, double hoEta){
+	double deltaEta = hoEta - eta;
+	int deltaIEta = 0;
+	if(deltaEta > HALF_HO_BIN){
+		deltaIEta = 1 + int((deltaEta - HALF_HO_BIN)/HO_BIN);
+	} else if(deltaEta < -HALF_HO_BIN){
+		deltaIEta = -1 + int((deltaEta + HALF_HO_BIN)/HO_BIN);
+	}
+	return deltaIEta;
+}
+
+//Calculate delta i phi between two phi coordinates
+int HoMatcher::getDeltaIphi(double phi, double hoPhi){
+	double deltaPhi = FilterPlugin::wrapCheck(phi,hoPhi);
+		int deltaIPhi = 0;
+		/**
+		 * Assume L1 direction as the center of a tile.
+		 * This gives one half tile in each direction before
+		 * the next tile starts
+		 */
+		if(deltaPhi > HALF_HO_BIN){
+			deltaIPhi = 1 + int((deltaPhi - HALF_HO_BIN)/HO_BIN);
+		} else if(deltaPhi < -HALF_HO_BIN){
+			deltaIPhi = -1 + int((deltaPhi + HALF_HO_BIN)/HO_BIN);
+		}
+		return deltaIPhi;
 }
 
 /**
@@ -193,6 +232,39 @@ bool HoMatcher::hasHoHitInGrid(GlobalPoint direction, int gridSize){
 }
 
 /**
+ * Look for the closest HO Rec Hit (in terms of grid distance) in a given direction, that passes
+ * the Energy threshold
+ */
+const HORecHit* HoMatcher::getClosestRecHitInGrid(double eta, double phi, int gridSize){
+	const HORecHit* match = 0;
+	int bestAbsDeltaIEta = 999;
+	int bestAbsDeltaIPhi = 999;
+
+	for(auto itRecHits = hoRecoHits->begin(); itRecHits != hoRecoHits->end(); itRecHits++){
+		//First filter out all rec hits that are either not in the matching grid or
+		//do not pass the energy threshold
+		if(isRecHitInGrid(eta,phi,&*itRecHits,gridSize)){
+			if(itRecHits->energy() > threshold){
+				int absDeltaIEta = abs(getDeltaIeta(eta,&*itRecHits));
+				int absDeltaIPhi = abs(getDeltaIphi(phi,&*itRecHits));
+				/**
+				 * If one delta i X is better that before, check whether the other
+				 * does not get worse. In that case update the match
+				 */
+				if(absDeltaIEta < bestAbsDeltaIEta || absDeltaIPhi < bestAbsDeltaIPhi){
+					if(!(absDeltaIEta > bestAbsDeltaIEta || absDeltaIPhi > bestAbsDeltaIPhi)){
+						bestAbsDeltaIEta = absDeltaIEta;
+						bestAbsDeltaIPhi = absDeltaIPhi;
+						match = &*itRecHits;
+					}
+				}
+			}
+		}
+	}
+	return match;
+}
+
+/**
  * Check whether a given combination of eta, phi and HORecHit (its coordinates)
  * are within a given tile grid
  */
@@ -205,3 +277,21 @@ bool HoMatcher::isRecHitInGrid(double eta, double phi, const HORecHit* recHit, i
 	return false;
 }
 
+/**
+ * Returns a pointer to the closest Ho Data frame
+ */
+const HODataFrame* HoMatcher::getBestHoDataFrameMatch(double eta, double phi){
+	const HODataFrame* bestDataFrame = 0;
+	float bestDR = 999.;
+	auto dataFrameIterator = hoDigis->begin();
+	for(; dataFrameIterator!=hoDigis->end(); ++dataFrameIterator) {
+		float hoPhi = getPhiFromDetId(dataFrameIterator->id());
+		float hoEta = getEtaFromDetId(dataFrameIterator->id());
+		float dR = deltaR(eta,phi,hoEta,hoPhi);
+		if (dR < deltaR_Max && dR < bestDR) {
+			bestDR = dR;
+			bestDataFrame = &(*dataFrameIterator);
+		}
+	}
+	return bestDataFrame;
+}

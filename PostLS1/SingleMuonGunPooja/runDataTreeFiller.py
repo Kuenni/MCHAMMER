@@ -3,17 +3,17 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("Demo")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+process.MessageLogger.cerr.FwkReport.reportEvery = 100
 
 process.TFileService = cms.Service("TFileService",
-                                   	fileName=cms.string('L1MuonHistogramPooja%INSTANCE%.root'),
+                                   	fileName=cms.string('L1MuonDataTree.root'),
                                    )
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1))
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100000))
 
 
 import FWCore.Utilities.FileUtils as FileUtils
-mylist = FileUtils.loadListFromFile('sourceList%INSTANCE%')
+mylist = FileUtils.loadListFromFile('cmsswSourceFiles')
 
 process.source = cms.Source("PoolSource",
     # replace 'myfile.root' with the source file you want to use
@@ -49,6 +49,20 @@ from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAny_cfi imp
 
 from TrackingTools.TrackAssociator.default_cfi import TrackAssociatorParameterBlock
 
+process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
+    splitLevel = cms.untracked.int32(0),
+    eventAutoFlushCompressedSize = cms.untracked.int32(1048576),
+    outputCommands = process.FEVTDEBUGHLTEventContent.outputCommands,
+    fileName = cms.untracked.string('SingleMuPt100_WithL1Extra.root'),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string(''),
+        dataTier = cms.untracked.string('')
+    )
+#    ,SelectEvents = cms.untracked.PSet(
+#        SelectEvents = cms.vstring('l1extra_step')
+#    )
+)
+
 #L1Extra
 process.load('L1Trigger.Configuration.L1Extra_cff')
 
@@ -61,7 +75,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
 
 from Configuration.AlCa.autoCond import autoCond
-process.GlobalTag.globaltag = %GLOBALTAG%
+process.GlobalTag.globaltag = autoCond['run2_mc'] #MCRUN2_72_V1
 
 print process.GlobalTag.globaltag
 
@@ -69,38 +83,22 @@ parameters = TrackAssociatorParameterBlock.TrackAssociatorParameters
 parameters.useEcal = False
 parameters.useHcal = False
 parameters.useMuon = False
-
-#ho Muon anlyzer module for studies on rec hits
-process.hoMuonAnalyzer = cms.EDAnalyzer(
-    'hoMuonAnalyzer',
+process.hoDataTreeFiller = cms.EDAnalyzer(
+    'DataTreeFiller',
     genSrc = cms.InputTag("genParticles"),
     l1MuonSrc=cms.InputTag("l1extraParticles"),
     horecoSrc = cms.InputTag("horeco"),
-    hltSumAODSrc = cms.InputTag("hltTriggerSummaryAOD"),
-    l1MuonGenMatchSrc = cms.InputTag("l1MuonGenMatch"),
+#    hltSumAODSrc = cms.InputTag("hltTriggerSummaryAOD"),
+#    l1MuonGenMatchSrc = cms.InputTag("l1MuonGenMatch"),
     hoEnergyThreshold = cms.double(0.2),
 	maxDeltaR = cms.double(0.3),
 	debug = cms.bool(True),
-	maxDeltaRL1MuonMatching = cms.double(1.),
+#	maxDeltaRL1MuonMatching = cms.double(1.),
 	TrackAssociatorParameters=parameters,
 	hoDigiSrc = cms.InputTag('simHcalDigis'),
 	hoAdcThreshold = cms.int32(60)
     )
 
-#Create the HO digi analyzer module
-process.hoDigiAnalyzer = cms.EDAnalyzer(
-    'HoDigiAnalyzer',
-    genSrc = cms.InputTag("genParticles"),
-    l1MuonSrc=cms.InputTag("l1extraParticles"),
-    horecoSrc = cms.InputTag("horeco"),
-    hltSumAODSrc = cms.InputTag("hltTriggerSummaryAOD"),
-    l1MuonGenMatchSrc = cms.InputTag("l1MuonGenMatch"),
-    hoEnergyThreshold = cms.double(0.2),
-	maxDeltaR = cms.double(0.3),
-	TrackAssociatorParameters=parameters,
-	hoDigiSrc = cms.InputTag('simHcalDigis'),
-	hoAdcThreshold = cms.int32(60)
-    )
 
 #Alternative matcher: TrivialDeltaRMatcher
 process.l1MuonGenMatch = cms.EDProducer("MCTruthDeltaRMatcherNew",
@@ -130,7 +128,7 @@ process.horeco.digiLabel = cms.InputTag('simHcalDigis')
 process.genFilter_step = cms.Path(process.genfilter)
 process.horeco_step = cms.Path(process.horeco)
 process.l1MuonGenMatch_step = cms.Path(process.l1MuonGenMatch)
-process.demo_step = cms.Path(process.hoMuonAnalyzer)
+process.FEVTDEBUGHLToutput_step = cms.EndPath(process.FEVTDEBUGHLToutput)
 process.L1Reco_step = cms.Path(process.L1Reco)
 process.muonL1Match_step = cms.Path(process.muonL1Match)
 
@@ -139,18 +137,10 @@ process.p = cms.Path(process.genfilter*
 					process.l1MuonGenMatch*
 					process.horeco*
 					process.muonL1Match*
-					process.hoMuonAnalyzer*
-					process.hoDigiAnalyzer)
+					process.hoDataTreeFiller)
 
 #Schedule Definition
 process.schedule = cms.Schedule(
 	process.p
 	)
 
-# Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.postLS1Customs
-from SLHCUpgradeSimulations.Configuration.postLS1Customs import customisePostLS1
-
-#call to customisation function customisePostLS1 imported from SLHCUpgradeSimulations.Configuration.postLS1Customs
-process = customisePostLS1(process)
-
-# End of customisation functions

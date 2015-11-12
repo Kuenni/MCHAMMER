@@ -34,6 +34,7 @@ class HistogramBuilder {
    * Functions for HistogramBuilder                                       
    */
   
+  void fillAverageEnergyHistograms(double eta1, double eta2, double phi1, double phi2, double weight, std::string key);
   void fillBxIdHistogram(int bxId,std::string key);
   void fillBxIdVsPt(int bxId,double pt,std::string key);
   void fillCorrelationGraph(double xVal, double yVal, std::string key);
@@ -41,7 +42,7 @@ class HistogramBuilder {
   void fillCountHistogram(std::string key);
   void fillDeltaEtaDeltaPhiEnergyHistogram(float,float,float,float,float,std::string);
   void fillDeltaEtaDeltaPhiHistograms(float eta1, float eta2, float phi1, float phi2,  std::string key);
-  void fillDeltaEtaDeltaPhiHistogramsWithWeights(float eta1, float eta2, float phi1, float phi2, double weight, std::string key);
+  void fillDeltaEtaDeltaPhiHistogramsWithWeights(double eta1, double eta2, double phi1, double phi2, double weight, std::string key);
   void fillDeltaTimeHistogram(double, int, std::string);
   void fillDeltaVzHistogam(float,std::string);
   void fillEfficiency(bool,float,std::string);
@@ -53,6 +54,7 @@ class HistogramBuilder {
   void fillEtaPhiPtHistogram(double eta, double phi, double pt, std::string key);
   void fillGraph(double x, double y, std::string key);
   void fillGraph2D(double x, double y, double z, std::string key);
+  void fillHistogram(double x, std::string key,TH1D* histogram = 0);
   void fillHltIndexHistogram(int hltIndex, std::string key);
   void fillL1MuonPtHistograms(float pt, std::string key);
   void fillMultiplicityHistogram(int , std::string );
@@ -63,6 +65,12 @@ class HistogramBuilder {
   void fillTrigRateHistograms(float ptThreshold, std::string key);
   void fillTrigRateL1Histograms(float,std::string);
   void fillVzHistogram(float,std::string);
+
+  ~HistogramBuilder(){
+	  for(std::map<std::string,TH1D**>::const_iterator it = _hArrDeltaEtaDeltaPhiEnergy.begin(); it != _hArrDeltaEtaDeltaPhiEnergy.end(); it++){
+		  delete[] it->second;
+	  }
+  }
 
  private:
 
@@ -84,6 +92,7 @@ class HistogramBuilder {
   std::map<std::string,TH1D*> _h1DeltaTime;
   std::map<std::string,TH1D*> _h1TrigRate;
   std::map<std::string,TH1D**> _hArrDeltaEtaDeltaPhiEnergy;
+  std::map<std::string,TH1D*> _h1histograms;
 
   std::map<std::string,TH2D*> _h2EnergyCorrelation;
   std::map<std::string,TH2D*> _h2EnergyVsPhi;
@@ -96,7 +105,10 @@ class HistogramBuilder {
   std::map<std::string,TH2D*> _h2DeltaEtaDeltaPhi;
   std::map<std::string,TH2D*> _h2DeltaEtaDeltaPhiWeights;
   std::map<std::string,TH2D*> _h2DeltaEtaDeltaPhiCounter;
+  std::map<std::string,TH2D*> _h2DeltaIEtaDeltaIPhiWeights;
+  std::map<std::string,TH2D*> _h2DeltaIEtaDeltaIPhiCounter;
   std::map<std::string,TH2D*> _h2Correlation;
+  std::map<std::string,TH2D*> _h2AverageEnergy;
 
   std::map<std::string,TGraph*> _grEtaPhi;
   std::map<std::string,TGraph*> _grCorrelation;

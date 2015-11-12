@@ -110,6 +110,7 @@ HoDigiAnalyzer::HoDigiAnalyzer(const edm::ParameterSet& iConfig){
 	deltaR_Max = iConfig.getParameter<double>("maxDeltaR");
 	ADC_THR = iConfig.getParameter<int>("hoAdcThreshold");
 	hoDigiInput = iConfig.getParameter<edm::InputTag>("hoDigiSrc");
+	genInput = iConfig.getParameter<edm::InputTag>("genSrc");
 	functionsHandler =  new CommonFunctionsHandler(iConfig);
 	hoMatcher = new HoMatcher(iConfig);
 }
@@ -117,6 +118,10 @@ HoDigiAnalyzer::HoDigiAnalyzer(const edm::ParameterSet& iConfig){
 
 HoDigiAnalyzer::~HoDigiAnalyzer()
 {
+	delete functionsHandler;
+	delete hoMatcher;
+	hoMatcher = 0;
+	functionsHandler = 0;
 }
 
 // ------------ method called when starting to processes a run  ------------
@@ -149,6 +154,7 @@ HoDigiAnalyzer::analyze(const edm::Event& iEvent,
 {
 	iSetup.get<CaloGeometryRecord>().get(caloGeo);
 	iEvent.getByLabel( hoDigiInput, hoDigis);
+	iEvent.getByLabel( genInput,genParticles);
 
 	//Do this at the beginning to get the correct collections for the event
 	functionsHandler->getEvent(iEvent);
@@ -156,6 +162,25 @@ HoDigiAnalyzer::analyze(const edm::Event& iEvent,
 
 	//Call the analyzer functions
 	analyzeHoDigiTiming(iEvent);
+	analyzeTruthDigiTiming(iEvent);
+}
+
+/**
+ * Do some plots on the digi timing with the gen muon match to a single digi
+ */
+void HoDigiAnalyzer::analyzeTruthDigiTiming(const edm::Event& iEvent){
+	auto genPart = genParticles->begin();
+	for(;genPart != genParticles->end();genPart++){
+		const HODataFrame* dataFrame = hoMatcher->getBestHoDataFrameMatch(double(genPart->eta()),double(genPart->phi()));
+		if(dataFrame){
+			double hitTime = calculateHitTimeFromDigi(&*dataFrame);
+			int maxTSIdx = findMaximumTimeSlice(&*dataFrame);
+			histogramBuilder.fillCorrelationGraph(hitTime,get4TsAdcSum(&*dataFrame,maxTSIdx),"digiTimeVs4TSSumTruth");
+			if(isFrameAboveThr(&*dataFrame)){
+				histogramBuilder.fillTimeHistogram(hitTime,"hoTimeFromDigiAboveThrTruth");
+			}
+		}
+	}
 }
 
 /**

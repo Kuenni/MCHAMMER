@@ -13,7 +13,6 @@ class FilterPlugin {
 
  public:
 
- static HORecHitCollection cleanHoRecHits(HORecHitCollection, double);
  /*
   * Takes the difference of two phis, makes
   * sure they are not more than 2 pi.

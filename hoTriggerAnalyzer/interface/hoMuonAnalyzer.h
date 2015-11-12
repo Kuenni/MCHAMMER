@@ -75,7 +75,6 @@ private:
 
 	void defineTriggersOfInterest();
 	void printChannelQualities(const edm::EventSetup & iEvent);
-	void analyzeL1AndGenMatch(const edm::Event& iEvent,const edm::EventSetup& iSetup);
 	void analyzeNoSingleMuEventsL1Loop(const edm::Event& iEvent,const edm::EventSetup& iSetup);
 	void analyzeNoSingleMuEventsGenLoop(const edm::Event& iEvent,const edm::EventSetup& iSetup);
 	void analyzeWithGenLoop(const edm::Event& iEvent,const edm::EventSetup& iSetup);
@@ -83,14 +82,17 @@ private:
 	void fillEfficiencyHistograms(double ptMeasured,double ptReal,std::string key);
 	void fillHoGeomAcceptanceGraph(reco::GenParticle genParticle);
 	void fillAverageEnergyAroundL1Direction(const l1extra::L1MuonParticle*);
+	void fillGridMatchingHistograms(bool passed, int grid, double pt, double time, std::string key, double eta, double phi);
 	void fillGridMatchingQualityCodes(const l1extra::L1MuonParticle* l1muon, float pt, std::string key);
-	void fillGridMatchingEfficiency(GlobalPoint direction, float pt, std::string key);
-	void fillGridMatchingEfficiency(GlobalPoint direction, float pt, std::string key, float eta, float phi);
+	void calculateGridMatchingEfficiency(GlobalPoint direction, float pt, std::string key, float eta, float phi);
 
 	const reco::GenParticle* getBestGenMatch(float,float);
 	const l1extra::L1MuonParticle* getMatchedL1Object(trigger::TriggerObject,edm::Handle<l1extra::L1MuonParticleCollection>);
 
 	bool processTriggerDecision(string algorithmName,const edm::Event& );
+	bool isInTimeWindow(double time){
+		return fabs(time) <= 12.5;
+	}
 
 	TrackDetMatchInfo* getTrackDetMatchInfo(reco::GenParticle,const edm::Event& iEvent,const edm::EventSetup& iSetup);
 
@@ -143,18 +145,7 @@ private:
 	bool singleMu3Trig,doubleMu0Trig;
 	bool debug;
 	bool firstRun;
-	/**
-	 * Prepare a TTree and some vectors for storing the data.
-	 * Analysis and adding of new plots should be faster, and cmssw would only needed
-	 * to be rerun if a new data member is needed. The data in the vectors is stored in structs
-	 * for the different objects (L1, HoRechit, Gen)
-	 */
 
-	TTree* dataTree;
-
-	std::vector<L1MuonData>* l1MuonVector;
-	std::vector<HoRecHitData>* hoRecHitVector;
-	std::vector<GenMuonData>* genMuonVector;
 
 	/**
 	 * Energy threshold for HO rec hits
