@@ -141,15 +141,11 @@ hoMuonAnalyzer::~hoMuonAnalyzer()
 void
 hoMuonAnalyzer::analyze(const edm::Event& iEvent, 
 		const edm::EventSetup& iSetup){
-	std::cout << coutPrefix << "Beginning to analyze the data." << std::endl;
 	if(firstRun){
 		//for now we do not need the channel qualities any more
 		//Uncomment again, if needed
 //		printChannelQualities(iSetup);
 		firstRun = false;
-		if(debug){
-			std::cout << coutPrefix << "Beginning to analyze the data." << std::endl;
-		}
 	}
 
 	if(!isData){
@@ -202,7 +198,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			}
 		}
 		if(debug && !hasMuonsInAcceptance){
-			std::cout << coutPrefix << "Found no muon in acceptance in this Event." << std::endl;
+	//		std::cout << coutPrefix << "Found no muon in acceptance in this Event." << std::endl;
 		}
 	}
 	//Assume, that we simulated muons only in our preferred acceptance
