@@ -28,7 +28,7 @@ process.maxEvents = cms.untracked.PSet(
 # This might prove useful when running over lots of data
 
 import FWCore.Utilities.FileUtils as FileUtils
-mylist = FileUtils.loadListFromFile('Run2015B_SingleMu')
+mylist = FileUtils.loadListFromFile('Run2015B_Commissioning')
  
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(*mylist)
@@ -46,7 +46,7 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 #process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 process.TFileService = cms.Service("TFileService",
-                                   	fileName=cms.string('collisionData.root'),
+                                   	fileName=cms.string('collisionDataRun2015BCommissioning.root'),
                                    )
 
 # Production Info
