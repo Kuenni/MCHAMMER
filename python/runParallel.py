@@ -24,8 +24,9 @@ cmsswSourceFiles = 'cmsswSourceFiles'
 outputFileTrunk = 'sourceList'
 
 globalTags = {
-			'noPU':'autoCond[\'run2_mc\']',
-			'pu52':'\'PHYS14_25_V1::All\''
+			'noPu':'autoCond[\'run2_mc\']',
+			'pu':'\'PHYS14_25_V1::All\'',
+			'design':'\'DESIGN72_V5::All\''
 			}
 
 print 
@@ -97,16 +98,11 @@ parser.add_argument('--no-submit'
 				,action="store_true",default=False
 				,help='Do not submit jobs to CE')
 
-parser.add_argument('--no-pu'
-				,dest='noPu'
-				,action="store_true",default=False
-				,help='Use no pileup case')
-
-parser.add_argument('--pu'
-				,dest='withPu'
-				,action="store_true",default=False
-				,help='Use PU 52 case')
-
+parser.add_argument('--conditions'
+				,dest='conditions'
+				,type = str
+				,help='Give the conditions (GlobalTag) to be used. Valid parameters:'\
+				'[noPu,pu,ideal]')
 
 args = parser.parse_args()
 
@@ -200,14 +196,11 @@ def createSourceLists():
 
 #create the cms run cfgs
 def createRunConfigs():
-	gt = None
-	if args.noPu:
-		gt = globalTags['noPU']
-	elif args.withPu:
-		gt = globalTags['pu52']
-	else:
-		output('ERROR! Don\'t know which globaltag to use')
+	if  not globalTags.has_key(args.conditions):
+		output('ERROR! %s is no conditions parameter known.' % (args.conditions))
 		sys.exit(-1)
+
+	gt = globalTags[args.conditions]
 	for i in range(0,args.nJobs):
 		outfileName = 'configs/parallelConfig%d.py' % (i)
 		#Use a dedicated cfg template if given
