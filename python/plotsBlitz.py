@@ -7,8 +7,9 @@ from ROOT import gROOT
 gROOT.ProcessLine(".L $HOMUONTRIGGER_BASE/python/loader.C+");
 
 
-#from makeControlPlots import ControlPlots
+from makeControlPlots import ControlPlots
 from makeEvsEtaPhiPlot import EvsEtaPhi
+from phishift.DeltaPhi import DeltaPhi
 
 parser = argparse.ArgumentParser()
 parser.add_argument('scripts', metavar='scripts', type=str, nargs='+',
@@ -41,5 +42,19 @@ for script in args.scripts:
 		res3 = lib.plot1DEnergyAroundL1()
 		res4 = lib.plot1DEMaxAroundL1()
 		res5 = lib.compareHistogramMethods()
+		raw_input('-->')
+	if(script == 'phiShift'):
+		lib = DeltaPhi(filename = args.source,data=args.data)
+		resAllEtaPhi = lib.plotEtaPhiForAllL1()
+		resEtaPhiMap = lib.plotEtaPhiForDeltaPhiOne()
+		resWheelwise = lib.plotEAveragePerWheel()
+		resDeltaPhi = lib.plotDeltaPhiHistogram()
+		resEta = lib.plotDeltaPhiVsL1Eta()
+		if not args.data:
+			res3 = lib.plotDeltaPhiVsGenPt()
+			res4 = lib.plotL1PhiVsHoPhi()
+			res5 = lib.plotL1PhiVsHoIPhi()
+			res = lib.plotDeltaPhiVsL1Phi()
+			res2 = lib.plotDeltaPhiVsL1Pt()
 		raw_input('-->')
 		

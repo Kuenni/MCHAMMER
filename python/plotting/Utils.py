@@ -5,7 +5,11 @@ from ROOT import Double
 from plotting.RootFileHandler import commandLine
 from array import array
 
+import math
+
 commandLine = OutputModule.CommandLineHandler('[Utils.py] ')
+
+L1_BIN = math.pi/72.
 
 def average2DHistogramBinwise(histWeights,histCounter):
 	for i in range(0,histWeights.GetNbinsX()):
