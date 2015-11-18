@@ -56,6 +56,7 @@ class HistogramBuilder {
   void fillGraph2D(double x, double y, double z, std::string key);
   void fillHistogram(double x, std::string key,TH1D* histogram = 0);
   void fillHltIndexHistogram(int hltIndex, std::string key);
+  void fillIEtaIPhiHistogram(int iEta, int iPhi, std::string key);
   void fillL1MuonPtHistograms(float pt, std::string key);
   void fillMultiplicityHistogram(int , std::string );
   void fillPdgIdHistogram(int pdgId,std::string key);
@@ -102,6 +103,7 @@ class HistogramBuilder {
   std::map<std::string,TH2D*> _h2BxIdVsPt;
   std::map<std::string,TH2D*> _h2TimeCorrelation;
   std::map<std::string,TH2D*> _h2EtaPhiMap;
+  std::map<std::string,TH2D*> _h2iEtaIPhiMap;
   std::map<std::string,TH2D*> _h2DeltaEtaDeltaPhi;
   std::map<std::string,TH2D*> _h2DeltaEtaDeltaPhiWeights;
   std::map<std::string,TH2D*> _h2DeltaEtaDeltaPhiCounter;

@@ -348,6 +348,9 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		if(hoRecoIt->energy() >= threshold){
 			histogramBuilder.fillTimeHistogram(hoRecoIt->time(),"hoRecHitsAboveThr");
 			histogramBuilder.fillEtaPhiHistograms(ho_eta, ho_phi,"hoRecHitsAboveThr");
+			int hoIEta = hoRecoIt->id().ieta();
+			int hoIPhi = hoRecoIt->id().iphi();
+			histogramBuilder.fillIEtaIPhiHistogram(hoIEta,hoIPhi,"hoRecHitsAboveThr");
 			recHitAbThrCounter++;
 		}
 		histogramBuilder.fillCountHistogram(horeco_key);

@@ -186,7 +186,6 @@ void HistogramBuilder::fillEnergyHistograms(float energy, std::string key){
 /*                                                                              
  *Eta Phi Histograms                                                            
  */
-
 void HistogramBuilder::fillEtaPhiHistograms(float eta, float phi, std::string key){
 	TFileDirectory etaPhiDir = _fileService->mkdir("etaPhi");
 	if(!_h1Eta.count(key)){
@@ -210,8 +209,16 @@ void HistogramBuilder::fillEtaPhiHistograms(float eta, float phi, std::string ke
 				720, -3.132, 3.132);
 	}
 	_h2EtaPhiMap[key]->Fill(eta, phi);
+}
 
-};
+void HistogramBuilder::fillIEtaIPhiHistogram(int iEta, int iPhi, std::string key){
+	TFileDirectory etaPhiDir = _fileService->mkdir("etaPhi");
+	if(!_h2iEtaIPhiMap.count(key)){
+		_h2iEtaIPhiMap[key] = etaPhiDir.make<TH2D>(Form("%s_iEtaIPhi",key.c_str()),Form("%s iEta iPhi",key.c_str())
+				,33,-16.5,16.5,74,-0.5,73.5);
+	}
+	_h2iEtaIPhiMap[key]->Fill(iEta,iPhi);
+}
 
 /**
  * Delta Eta Delta Phi Histograms
