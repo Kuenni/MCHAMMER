@@ -3,6 +3,7 @@ from plotting.PlotStyle import setupAxes
 
 from ROOT import Double
 from plotting.RootFileHandler import commandLine
+from array import array
 
 commandLine = OutputModule.CommandLineHandler('[Utils.py] ')
 
@@ -48,3 +49,39 @@ def fillGraphIn2DHist(graph,hist):
 			commandLine.printProgress(nTotal, nTotal)
 	print
 	return hist
+
+#Returns a 2D hisotgram containing the binwise difference of both objects
+#Python histogram means the entries matrix coming from numpy histogram 2d 
+def comparePythonAndRoot2DHist(pythonHist, rootHist):
+	contourLevels = [-1,-.2,-.1,.1,.2,1]
+	
+	if not (len(pythonHist) == rootHist.GetNbinsY() and len(pythonHist[0]) == rootHist.GetNbinsX()):
+		commandLine.output('Error! Cannot compare python and root histogram with different number of bins!')
+		return
+	
+	comparisonHist = rootHist.Clone('comparison' + rootHist.GetName())
+	comparisonHist.Reset()
+	comparisonHist.SetStats(0)
+	comparisonHist.SetContour(len(contourLevels),array('d',contourLevels))
+	for j,y in enumerate(reversed(pythonHist)):
+		for i,x in enumerate(y):
+			comparisonHist.SetBinContent(i+1,len(pythonHist)-j, x - rootHist.GetBinContent( i+1 , len(pythonHist) - j))
+			#sys.stdout.write( str(x - histNormalBins.GetBinContent( i+1 , len(pythonHist) - j)) + '\t' )
+			pass
+	return comparisonHist
+
+#Returns a 2D hisotgram containing the binwise difference of both objects
+def compareTwoRoot2DHists(rootHist1, rootHist2):
+	contourLevels = [-3.4e48,-.2,-.1,.1,.2,1]
+	if not (rootHist1.GetNbinsX() == rootHist2.GetNbinsX() and rootHist1.GetNbinsY() == rootHist2.GetNbinsY()):
+		commandLine.output('Error! Cannot compare two root histograms with different number of bins!')
+		return
+	comparisonHist = rootHist1.Clone('comparison' + rootHist1.GetName())
+	comparisonHist.Reset()
+	comparisonHist.SetStats(0)
+	comparisonHist.SetContour(len(contourLevels),array('d',contourLevels))
+	for x in range(0,rootHist1.GetNbinsX()):
+		for y in range(0,rootHist1.GetNbinsY()):
+			comparisonHist.SetBinContent(x,y,rootHist1.GetBinContent(x,y) - rootHist2.GetBinContent(x,y))
+			pass
+	return comparisonHist
