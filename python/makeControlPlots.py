@@ -2,7 +2,7 @@
 import os,sys
 from ROOT import TCanvas,ROOT,TFile,TLegend,TF1,TLine,gROOT,TPaveText,TH1D,Double,TH2D,THStack,gStyle
 from plotting.PlotStyle import setPlotStyle,drawLabelCmsPrivateSimulation,colorRwthDarkBlue,\
-	setStatBoxOptions, setStatBoxPosition
+	setStatBoxOptions, setStatBoxPosition, setupPalette
 from plotting.PlotStyle import colorRwthMagenta,setupAxes,printProgress
 from plotting.RootFileHandler import RootFileHandler
 from array import array
@@ -25,6 +25,23 @@ if( not os.path.exists('plots')):
 	os.mkdir('plots')
 if( not os.path.exists('plots/controlPlots')):
 	os.mkdir('plots/controlPlots')
+
+
+'''
+Plot the eta phi distribution of HO > Thr
+'''
+def plotHoEtaPhi():
+	canvas = TCanvas('cHoEtaPhi','HO iEta iPhi')
+	hoEtaPhi = fileHandler.getHistogram('hoMuonAnalyzer/etaPhi/hoRecHitsAboveThr_iEtaIPhi')
+	hoEtaPhi.SetTitle('HO RecHits > 0.2GeV;i#eta;i#phi')
+	hoEtaPhi.Draw('colz')
+	canvas.Update()
+	hoEtaPhi.SetStats(0)
+	setupAxes(hoEtaPhi)
+	setupPalette(hoEtaPhi)
+	label = drawLabelCmsPrivateSimulation()
+	canvas.Update()
+	return label,canvas,hoEtaPhi
 
 '''
 Control Plot that shows the number of matches in Det Ids for a given RecHit Det id
@@ -155,6 +172,9 @@ def plotGenEtaPhi():
 	c.SaveAs('plots/controlPlots/genEtaPhi.pdf')
 	
 	return c,gen,histEta,histPhi,label1,label2
+
+resHoEtaPhi = plotHoEtaPhi()
+raw_input('-->')
 
 output('Plotting digi matches per det id')
 #res = plotHoDigiMatchesPerDetId()
