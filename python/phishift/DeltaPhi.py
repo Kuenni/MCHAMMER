@@ -250,7 +250,7 @@ def plotEtaPhiForDeltaPhiOne():
 def plotEtaPhiForAllL1():
 	canvas = TCanvas("cEtaPhi","Eta Phi",1200,1200)
 	canvas.Divide(2,1)
-	graphAll = fileHandler.getGraph('hoMuonAnalyzer/graphs/L1Muon')
+	graphAll = fileHandler.getGraph('hoMuonAnalyzer/graphs/L1MuonPresent')
 	graphWithHo = fileHandler.getGraph('hoMuonAnalyzer/graphs/L1Muon3x3')
 			
 	halfbinwidth = L1_BIN/2.
