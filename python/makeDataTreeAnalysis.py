@@ -5,6 +5,7 @@ from plotting.RootFileHandler import RootFileHandler
 from ROOT import TH1D,TCanvas,gROOT,TH2D
 from OfflineAnalysis.matchingLibrary import calculateDeltaPhi,getDeltaEtaList,getDeltaPhiList
 from OfflineAnalysis.HoMatcher import isHoHitInGrid,getEMaxHoHitInGrid,HO_BIN,getEMaxMatches
+from plotting.Utils import comparePythonAndRoot2DHist,compareTwoRoot2DHists
 import matplotlib
 from matplotlib.colors import LogNorm
 
@@ -94,7 +95,7 @@ def histogramDeltaPhiEMax():
 def histogram2DEMax():
 	bins = []
 	HO_BIN = math.pi/36.
-	for i in range(0.,12):
+	for i in range(0,12):
 		bins.append(-5*HO_BIN - HO_BIN/2. + i*(HO_BIN))
 	entries,xEdges,yEdges = np.histogram2d(eMaxDeltaEtaList,eMaxDeltaPhiList, bins=bins)
 	# H needs to be rotated and flipped
@@ -121,7 +122,7 @@ def histogram2DEMax():
 	ax2 = fig2.add_subplot(122)
 	bins = []
 	HO_BIN = HO_BIN + 0.01
-	for i in range(0.,12):
+	for i in range(0,12):
 		bins.append(-5*HO_BIN - HO_BIN/2. + i*(HO_BIN))
 	ax2.hist2d(eMaxDeltaEtaList,eMaxDeltaPhiList,bins,norm = matplotlib.colors.LogNorm())
 	cbar2 = plt.colorbar()
@@ -142,31 +143,25 @@ def histogram2DEMax():
 		histNormalBins.Fill(x,y)
 		histWiderBins.Fill(x,y)
 	
-	canvas = TCanvas('c','c',1200,800)
-	canvas.Divide(2,1)
+	canvas = TCanvas('c','c',1800,800)
+	canvas.Divide(3,1)
 	canvas.cd(1).SetLogz()
 	histNormalBins.Draw('colz')
-	canvas.cd(2).SetLogz()
+	canvas.cd(2)
 	histWiderBins.Draw('colz')
+
+	canvas.cd(3)
+	newHist = compareTwoRoot2DHists(histWiderBins, histNormalBins)
+	res = newHist.DrawClone('col text')
+	newHist.GetZaxis().SetRangeUser(-1,1)
+	newHist.Draw('z,same')
 	
-	
-	for j,y in enumerate(reversed(entries)):
-		for i,x in enumerate(y):
-			sys.stdout.write( str(x - histNormalBins.GetBinContent( i+1 , len(entries) - j)) + '\t' )
-		print
-	print
-	
-	print
-	
-	for i,y in enumerate(entries):
-		for j,x in enumerate(y):
-			sys.stdout.write(str(histNormalBins.GetBinContent( (j+1) ,len(entries) - i)) + '\t')
-		print
-	print
-	plt.show()
-	
+	canvas.Update()
+
+	return canvas, newHist,res, histNormalBins,histWiderBins
 	
 	
 #histogramDeltaPhi()
 #histogramDeltaPhiEMax()
-histogram2DEMax()
+res = histogram2DEMax()
+raw_input('-->')
