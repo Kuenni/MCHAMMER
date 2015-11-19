@@ -62,7 +62,8 @@ for script in args.scripts:
 		raw_input('-->')
 	if(script == 'timeWindow'):
 		lib = TimeWindow(filename=args.source,data=args.data)
-		resTimeWindowAlone = lib.plotTimeWindowAlone()
 		resAllL1 = lib.plotAllL1Together()
-		resTruthL1 = lib.plotTruthL1Together()
+		if not args.data:
+			resTimeWindowAlone = lib.plotTimeWindowAlone()
+			resTruthL1 = lib.plotTruthL1Together()
 		raw_input('-->')
