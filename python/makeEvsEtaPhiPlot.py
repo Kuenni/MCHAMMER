@@ -72,8 +72,8 @@ class EvsEtaPhi:
 		canvas = TCanvas('canvasAverageEMax','Average EMax',1200,1200)
 		canvas.cd().SetLogz()
 		
-		hSum = self.fileHandler.getHistogram('hoMuonAnalyzer/deltaEtaDeltaPhiEnergy/averageEMaxAroundPoint_2dSummedWeights')
-		hCounter = self.fileHandler.getHistogram('hoMuonAnalyzer/deltaEtaDeltaPhiEnergy/averageEMaxAroundPoint_2dCounter')
+		hSum = self.fileHandler.getHistogram('hoMuonAnalyzer/deltaEtaDeltaPhiEnergy/averageEMaxAroundPoint' + self.key + '_2dSummedWeights')
+		hCounter = self.fileHandler.getHistogram('hoMuonAnalyzer/deltaEtaDeltaPhiEnergy/averageEMaxAroundPoint' + self.key + '_2dCounter')
 		
 		hSum = setupEAvplot(hSum, hCounter,same=True,borderAll=0.3)
 		hSum.SetTitle('Mean E_{Max} in HO tiles around L1 direction')
@@ -139,9 +139,9 @@ class EvsEtaPhi:
 		for p in reversed(range(-2,3)):
 			for e in range(-2,3):
 				if e == 0 and p == 0:
-					histList.append(self.fileHandler.getHistogram('hoMuonAnalyzer/etaPhi/energy1D/central_averageEMaxAroundPoint'))
+					histList.append(self.fileHandler.getHistogram('hoMuonAnalyzer/etaPhi/energy1D/central_averageEMaxAroundPoint' + self.key))
 				else:
-					histName = 'hoMuonAnalyzer/etaPhi/energy1D/eta%s%dPhi%s%d_averageEMaxAroundPoint' % ('P' if e >= 0 else 'M',abs(e),'P' if p >= 0 else 'M',abs(p))
+					histName = ('hoMuonAnalyzer/etaPhi/energy1D/eta%s%dPhi%s%d_averageEMaxAroundPoint' + self.key) % ('P' if e >= 0 else 'M',abs(e),'P' if p >= 0 else 'M',abs(p))
 					histList.append(self.fileHandler.getHistogram(histName))
 		canvas.Divide(5,5)
 		for i,hist in enumerate(histList):
