@@ -81,6 +81,7 @@ process.hoMuonAnalyzer = cms.EDAnalyzer(
     hoEnergyThreshold = cms.double(0.2),
 	maxDeltaR = cms.double(0.3),
 	debug = cms.bool(True),
+	isData = cms.bool(False),
 	maxDeltaRL1MuonMatching = cms.double(1.),
 	TrackAssociatorParameters=parameters,
 	hoDigiSrc = cms.InputTag('simHcalDigis'),
