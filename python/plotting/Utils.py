@@ -91,3 +91,17 @@ def compareTwoRoot2DHists(rootHist1, rootHist2):
 			comparisonHist.SetBinContent(x,y,rootHist1.GetBinContent(x,y) - rootHist2.GetBinContent(x,y))
 			pass
 	return comparisonHist
+
+def extractTEfficiencyToList(tEffObject):
+	xVals = []
+	yVals = []
+	yErrLow = []
+	yErrUp = []
+	for i in range(tEffObject.GetPassedHistogram().GetNbinsX()):
+		if tEffObject.GetTotalHistogram().GetBinContent(i) != 0:
+			yVals.append(tEffObject.GetPassedHistogram().GetBinContent(i)/tEffObject.GetTotalHistogram().GetBinContent(i)*100)
+			xVals.append(tEffObject.GetTotalHistogram().GetBinCenter(i))
+			yErrLow.append(tEffObject.GetEfficiencyErrorLow(i))
+			yErrUp.append(tEffObject.GetEfficiencyErrorUp(i))
+	return xVals, yVals,yErrLow,yErrUp
+	
