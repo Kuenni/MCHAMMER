@@ -1330,18 +1330,18 @@ void hoMuonAnalyzer::fillGridMatchingHistograms(bool passed, int grid, double pt
 			break;
 	}
 	if(passed){
-			histogramBuilder.fillCountHistogram(key + gridString);
-			histogramBuilder.fillEfficiency(true,pt,key + gridString);
-			histogramBuilder.fillEtaPhiGraph(eta,phi,key + gridString);
-			if(isInTimeWindow(time)){
-				histogramBuilder.fillEfficiency(true,pt,key + "TimeWindow" + gridString);
-			} else{
-				histogramBuilder.fillEfficiency(false,pt,key + "TimeWindow" + gridString);
-			}
-		} else{
-			histogramBuilder.fillEfficiency(false,pt,key + gridString);
-			histogramBuilder.fillEtaPhiGraph(eta,phi,key + gridString + "Fail");
-		}
+		histogramBuilder.fillCountHistogram(key + gridString);
+		histogramBuilder.fillEfficiency(true,pt,key + gridString);
+		histogramBuilder.fillEtaPhiGraph(eta,phi,key + gridString);
+	} else{
+		histogramBuilder.fillEfficiency(false,pt,key + gridString);
+		histogramBuilder.fillEtaPhiGraph(eta,phi,key + gridString + "Fail");
+	}
+	if(passed && isInTimeWindow(time)){
+		histogramBuilder.fillEfficiency(true,pt,key + "TimeWindow" + gridString);
+	} else{
+		histogramBuilder.fillEfficiency(false,pt,key + "TimeWindow" + gridString);
+	}
 }
 
 void hoMuonAnalyzer::processGenInformation(const edm::Event& iEvent,const edm::EventSetup& iSetup){
