@@ -7,6 +7,8 @@ from array import array
 
 import math
 
+import math
+
 commandLine = OutputModule.CommandLineHandler('[Utils.py] ')
 
 L1_BIN = math.pi/72.
