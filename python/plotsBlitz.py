@@ -10,6 +10,7 @@ gROOT.ProcessLine(".L $HOMUONTRIGGER_BASE/python/loader.C+");
 from makeControlPlots import ControlPlots
 from makeEvsEtaPhiPlot import EvsEtaPhi
 from phishift.DeltaPhi import DeltaPhi
+from efficiency.TimeWindow import TimeWindow
 
 parser = argparse.ArgumentParser()
 parser.add_argument('scripts', metavar='scripts', type=str, nargs='+',
@@ -31,6 +32,7 @@ for script in args.scripts:
 		plots = ControlPlots(filename=args.source,data=args.data)
 		res1 = plots.plotL1PerPt()
 		res2 = plots.plotHoEtaPhi()
+		res3 = plots.plotHoEtaPhiMatchedToL1()
 		#res2 = plots.plotHoDigiMatchesPerDetId()
 		if not args.data:
 			res3 = plots.plotEfficiencyCountCheck()
@@ -58,4 +60,9 @@ for script in args.scripts:
 			res = lib.plotDeltaPhiVsL1Phi()
 			res2 = lib.plotDeltaPhiVsL1Pt()
 		raw_input('-->')
-		
+	if(script == 'timeWindow'):
+		lib = TimeWindow(filename=args.source,data=args.data)
+		resTimeWindowAlone = lib.plotTimeWindowAlone()
+		resAllL1 = lib.plotAllL1Together()
+		resTruthL1 = lib.plotTruthL1Together()
+		raw_input('-->')
