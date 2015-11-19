@@ -26,9 +26,9 @@ class ControlPlots:
 	'''
 	Plot the eta phi distribution of HO > Thr
 	'''
-	def plotHoEtaPhi():
+	def plotHoEtaPhi(self):
 		canvas = TCanvas('cHoEtaPhi','HO iEta iPhi')
-		hoEtaPhi = fileHandler.getHistogram('hoMuonAnalyzer/etaPhi/hoRecHitsAboveThr_iEtaIPhi')
+		hoEtaPhi = self.fileHandler.getHistogram('hoMuonAnalyzer/etaPhi/hoRecHitsAboveThr_iEtaIPhi')
 		hoEtaPhi.SetTitle('HO RecHits > 0.2GeV;i#eta;i#phi')
 		hoEtaPhi.Draw('colz')
 		canvas.Update()
@@ -85,25 +85,25 @@ class ControlPlots:
 		liste = []
 		nEvents = chain.GetEntries()
 		for event in chain:
-	 		eventCounter += 1
+			eventCounter += 1
 			for l1 in event.l1MuonData:
 				if not l1.pt in liste:
 					liste.append(l1.pt)
-	 			hist.Fill(l1.pt)
-	 		if not eventCounter%10000:
-	 			printProgress(eventCounter,nEvents)
-	 		if eventCounter == 50000:
-	 			break
-	 	print
-	 	setupAxes(hist)
-	 	hist.SetStats(0)
-	 	hist.Scale(1,"width")
-	 	hist.Draw()
-	 	
-	 	label = drawLabelCmsPrivateSimulation()
-	   	
-	 	canvas.Update()
-	 	
+				hist.Fill(l1.pt)
+			if not eventCounter%10000:
+				printProgress(eventCounter,nEvents)
+			if eventCounter == 50000:
+				break
+		print
+		setupAxes(hist)
+		hist.SetStats(0)
+		hist.Scale(1,"width")
+		hist.Draw()
+		
+		label = drawLabelCmsPrivateSimulation()
+		
+		canvas.Update()
+		
 	#	print liste
 		return hist, canvas, label
 	

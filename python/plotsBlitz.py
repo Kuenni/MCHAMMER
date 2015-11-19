@@ -30,6 +30,7 @@ for script in args.scripts:
 	if(script == 'controlPlots'):
 		plots = ControlPlots(filename=args.source,data=args.data)
 		res1 = plots.plotL1PerPt()
+		res2 = plots.plotHoEtaPhi()
 		#res2 = plots.plotHoDigiMatchesPerDetId()
 		if not args.data:
 			res3 = plots.plotEfficiencyCountCheck()
