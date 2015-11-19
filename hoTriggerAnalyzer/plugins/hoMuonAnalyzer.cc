@@ -291,15 +291,14 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			}
 		}
 		//Look for matches in grid around L1
-		GlobalPoint l1Direction(bl1Muon->p4().X(),bl1Muon->p4().Y(),bl1Muon->p4().Z());
-		calculateGridMatchingEfficiency(l1Direction,bl1Muon->pt(),"L1Muon",bl1Muon->eta(),bl1Muon->phi());
+
+		calculateGridMatchingEfficiency(&*bl1Muon,bl1Muon->pt(),"L1Muon");
 		fillGridMatchingQualityCodes(&*bl1Muon,bl1Muon->pt(),"L1Muon");
 
 		if(MuonHOAcceptance::inGeomAccept(l1Muon_eta,l1Muon_phi)&& !hoMatcher->isInChimney(l1Muon_eta,l1Muon_phi)){
 			histogramBuilder.fillCountHistogram("L1MuonInGA_L1Dir");
 			if(bl1Muon->bx() == 0)
 				histogramBuilder.fillCountHistogram("L1MuoninGaBx0");
-			histogramBuilder.fillCorrelationGraph(l1Direction.eta(),l1Muon_eta,"Correlationp4AndL1Object");
 		}
 		const HORecHit* matchedRecHit = hoMatcher->matchByEMaxDeltaR(l1Muon_eta,l1Muon_phi);
 		if(matchedRecHit){
@@ -553,12 +552,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				if(MuonHOAcceptance::inGeomAccept(muMatchEta,muMatchPhi)&& !hoMatcher->isInChimney(muMatchEta,muMatchPhi)){
 					histogramBuilder.fillCountHistogram("TdmiInGA_TdmiDir");
 					std::vector<const HORecHit*> crossedHoRecHits = muMatch->crossedHORecHits;
-					GlobalPoint muMatchDirection(
-							muMatch->trkGlobPosAtHO.X(),
-							muMatch->trkGlobPosAtHO.Y(),
-							muMatch->trkGlobPosAtHO.Z()
-					);
-					calculateGridMatchingEfficiency(muMatchDirection,genIt->pt(),"tdmi",muMatchEta,muMatchPhi);
+					calculateGridMatchingEfficiency(muMatchEta,muMatchPhi,genIt->pt(),"tdmi");
 				}
 				delete muMatch;
 
@@ -1025,12 +1019,7 @@ void hoMuonAnalyzer::analyzeNoSingleMuEventsL1Loop(const edm::Event& iEvent,cons
 			&& MuonHOAcceptance::inNotDeadGeom(muMatchEta,muMatchPhi)
 			&& !hoMatcher->isInChimney(muMatchEta,muMatchPhi)){
 				histogramBuilder.fillCountHistogram("L1GenRefNoSingleMuInGa");
-				GlobalPoint l1Direction(
-						l1Muon->p4().X(),
-						l1Muon->p4().Y(),
-						l1Muon->p4().Z()
-				);
-				calculateGridMatchingEfficiency(l1Direction, ref->pt(),"L1GenRefNoSingleMuInGa",muMatchEta,muMatchPhi);
+				calculateGridMatchingEfficiency(&*l1Muon, ref->pt(),"L1GenRefNoSingleMuInGa");
 			}
 
 		} else {
@@ -1060,12 +1049,7 @@ void hoMuonAnalyzer::analyzeNoSingleMuEventsGenLoop(const edm::Event& iEvent,con
 		&& MuonHOAcceptance::inNotDeadGeom(muMatchEta,muMatchPhi)
 		&& !hoMatcher->isInChimney(muMatchEta,muMatchPhi)){
 			histogramBuilder.fillCountHistogram("NoSingleMuInGa");
-			GlobalPoint genDirection(
-					genIt->p4().X(),
-					genIt->p4().Y(),
-					genIt->p4().Z()
-			);
-			calculateGridMatchingEfficiency(genDirection, genIt->pt(),"NoSingleMuInGa",muMatchEta,muMatchPhi);
+			calculateGridMatchingEfficiency(genIt->eta(),genIt->phi(), genIt->pt(),"NoSingleMuInGa");
 		}
 	}
 }
@@ -1090,12 +1074,7 @@ void hoMuonAnalyzer::analyzeWithGenLoop(const edm::Event& iEvent,const edm::Even
 			 */
 			histogramBuilder.fillCorrelationHistogram(genIt->pt(),l1Part->pt(),"L1MuonPtGenLoop");
 			histogramBuilder.fillCountHistogram("GenAndL1Muon");
-			GlobalPoint l1Direction(
-					l1Part->p4().X(),
-					l1Part->p4().Y(),
-					l1Part->p4().Z()
-			);
-			calculateGridMatchingEfficiency(l1Direction,l1Part->pt(),"L1MuonTruth",l1Part->eta(),l1Part->phi());
+			calculateGridMatchingEfficiency(&*l1Part,l1Part->pt(),"L1MuonTruth");
 			fillGridMatchingQualityCodes(&*l1Part,genIt->pt(),"L1MuonTruth");
 			fillAverageEnergyAroundL1Direction(l1Part,"L1MuonTruth");
 			/**
@@ -1291,44 +1270,46 @@ void hoMuonAnalyzer::fillGridMatchingQualityCodes(const l1extra::L1MuonParticle*
 }
 
 /**
+ * Overloaded function. Some additional stuff is done with the BX ID information from the L1 Object
+ */
+void hoMuonAnalyzer::calculateGridMatchingEfficiency(const l1extra::L1MuonParticle* l1muon, float pt, std::string key){
+	calculateGridMatchingEfficiency(l1muon->eta(), l1muon->phi(),pt, key);
+	//Analyze the BX ID of L1 objects that do not have a match in the grid
+	const HORecHit* recHit = hoMatcher->getClosestRecHitInGrid(l1muon->eta(),l1muon->phi(),2);
+	for(int i = 0; i < 3 ; i++){
+		std::string gridString = CommonFunctionsHandler::getGridString(i);
+		if(!recHit){
+			histogramBuilder.fillBxIdVsPt(l1muon->bx(),l1muon->pt(),key + gridString + "Fail");
+		} else {
+			if(hoMatcher->isRecHitInGrid(l1muon->eta(),l1muon->phi(), recHit,i)){
+				histogramBuilder.fillBxIdVsPt(l1muon->bx(),l1muon->pt(),key + gridString + "Match");
+			} else {
+				histogramBuilder.fillBxIdVsPt(l1muon->bx(),l1muon->pt(),key + gridString + "Fail");
+			}
+		}
+	}
+}
+
+/**
  * Automatically fill efficiency and count histograms for the grid matching for grid sizes
  * central, 3x3 and 5x5. Also store the position information
  */
-void hoMuonAnalyzer::calculateGridMatchingEfficiency(GlobalPoint direction, float pt, std::string key, float eta, float phi){
-	//#####
-	// Central tile
-	//#####
-	double etaDir = direction.eta();
-	double phiDir = direction.phi();
-	const HORecHit* recHit = hoMatcher->getClosestRecHitInGrid(etaDir,phiDir,2);
-	for(int i = 0; i < 3 ; i++){
-		if(!recHit){
-			fillGridMatchingHistograms(false,i,pt,999,key,eta,phi);
-		} else{
-			fillGridMatchingHistograms(hoMatcher->isRecHitInGrid(etaDir,phiDir,recHit,i),i,pt,recHit->time(),key,eta,phi);
+void hoMuonAnalyzer::calculateGridMatchingEfficiency(double eta, double phi, float pt, std::string key){
+	const HORecHit* recHit = hoMatcher->getClosestRecHitInGrid(eta,phi,2);
+		for(int i = 0; i < 3 ; i++){
+			if(!recHit){
+				fillGridMatchingHistograms(false,i,pt,999,key,eta,phi);
+			} else{
+				fillGridMatchingHistograms(hoMatcher->isRecHitInGrid(eta,phi,recHit,i),i,pt,recHit->time(),key,eta,phi);
+			}
 		}
-	}
 }
 
 /**
  * This function automatically fills the corresponding histograms for the grid matching efficiency and the time window
  */
 void hoMuonAnalyzer::fillGridMatchingHistograms(bool passed, int grid, double pt, double time, std::string key, double eta, double phi){
-	std::string gridString = "";
-	switch (grid) {
-		case 0:
-			gridString = "Central";
-			break;
-		case 1:
-			gridString = "3x3";
-			break;
-		case 2:
-			gridString = "5x5";
-			break;
-		default:
-			gridString = "UnkownGridSize";
-			break;
-	}
+	std::string gridString = CommonFunctionsHandler::getGridString(grid);
 	if(passed){
 		histogramBuilder.fillCountHistogram(key + gridString);
 		histogramBuilder.fillEfficiency(true,pt,key + gridString);

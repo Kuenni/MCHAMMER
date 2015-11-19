@@ -84,7 +84,8 @@ private:
 	void fillAverageEnergyAroundL1Direction(const l1extra::L1MuonParticle*,std::string);
 	void fillGridMatchingHistograms(bool passed, int grid, double pt, double time, std::string key, double eta, double phi);
 	void fillGridMatchingQualityCodes(const l1extra::L1MuonParticle* l1muon, float pt, std::string key);
-	void calculateGridMatchingEfficiency(GlobalPoint direction, float pt, std::string key, float eta, float phi);
+	void calculateGridMatchingEfficiency(const l1extra::L1MuonParticle* l1muon, float pt, std::string key);
+	void calculateGridMatchingEfficiency(double eta, double phi, float pt, std::string key);
 
 	void processGenInformation(const edm::Event& iEvent,const edm::EventSetup& iSetup);
 
