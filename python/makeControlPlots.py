@@ -39,6 +39,24 @@ class ControlPlots:
 		canvas.Update()
 		return label,canvas,hoEtaPhi
 
+	
+	'''
+	Plot the eta phi distribution of HO > Thr matched to L1
+	'''
+	def plotHoEtaPhiMatchedToL1(self):
+		canvas = TCanvas('cHoEtaPhiAndL1','HO Eta Phi And L1')
+		hoEtaPhi = self.fileHandler.getHistogram('hoMuonAnalyzer/etaPhi/L1MuonWithHoMatchAboveThr_HO_EtaPhi')
+		hoEtaPhi.SetTitle('L1 matched to HO RecHits > 0.2GeV;#eta;#phi')
+		hoEtaPhi.Draw('colz')
+		canvas.Update()
+		hoEtaPhi.SetStats(0)
+		setupAxes(hoEtaPhi)
+		setupPalette(hoEtaPhi)
+		label = drawLabelCmsPrivateSimulation()
+		canvas.Update()
+		return label,canvas,hoEtaPhi
+	
+
 	'''
 	Control Plot that shows the number of matches in Det Ids for a given RecHit Det id
 	'''
