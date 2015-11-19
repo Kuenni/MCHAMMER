@@ -19,7 +19,7 @@ public:
 	CommonFunctionsHandler(const edm::ParameterSet& iConfig);
 	const l1extra::L1MuonParticle* getBestL1MuonMatch(double eta, double phi);
 	void getEvent(const edm::Event& iEvent);
-
+	static std::string getGridString(int grid);
 private:
 	//Handles to access the collections
 	edm::Handle<l1extra::L1MuonParticleCollection> l1Muons;

@@ -38,3 +38,22 @@ const l1extra::L1MuonParticle* CommonFunctionsHandler::getBestL1MuonMatch(double
 	}
 	return bestL1;
 }
+
+std::string CommonFunctionsHandler::getGridString(int grid){
+	std::string gridString = "";
+	switch (grid) {
+	case 0:
+		gridString = "Central";
+		break;
+	case 1:
+		gridString = "3x3";
+		break;
+	case 2:
+		gridString = "5x5";
+		break;
+	default:
+		gridString = "UnkownGridSize";
+		break;
+	}
+	return gridString;
+}
