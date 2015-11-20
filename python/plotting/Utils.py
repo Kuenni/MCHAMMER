@@ -11,7 +11,8 @@ import math
 
 commandLine = OutputModule.CommandLineHandler('[Utils.py] ')
 
-L1_BIN = math.pi/72.
+L1_PHI_BIN = math.pi/72.
+L1_ETA_BIN = 0.1
 
 def average2DHistogramBinwise(histWeights,histCounter):
 	for i in range(0,histWeights.GetNbinsX()):

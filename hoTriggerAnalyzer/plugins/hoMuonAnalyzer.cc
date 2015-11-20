@@ -1176,7 +1176,7 @@ void hoMuonAnalyzer::fillAverageEnergyAroundL1Direction(const l1extra::L1MuonPar
 
 			//Delta phi vs l1 eta
 			hist = new TH2D(("shiftCheckDeltaPhiVsL1Eta" + key).c_str(),"#Delta#phi shift check;#eta_{L1};#Delta#phi",
-					145,-36*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/2.,36*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/2.,//Half an HO bin in eta
+					30,-15*0.1,15*0.1,//L1 has 0.1 bins in eta
 					73,-36*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN,36*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN);
 			histogramBuilder.fillCorrelationHistogram(l1Muon->eta(),deltaPhi,"shiftCheckDeltaPhiVsL1Eta" + key,hist);
 			delete hist;

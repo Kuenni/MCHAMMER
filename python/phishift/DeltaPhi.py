@@ -2,7 +2,7 @@ import sys
 from plotting.RootFileHandler import RootFileHandler
 from plotting.PlotStyle import drawLabelCmsPrivateSimulation, setupAxes,\
 	setupPalette
-from plotting.Utils import setupEAvplot,fillGraphIn2DHist,L1_BIN
+from plotting.Utils import setupEAvplot,fillGraphIn2DHist,L1_PHI_BIN,L1_ETA_BIN
 from ROOT import TCanvas,TLine,TLegend,Double,TH2D
 import math,os
 
@@ -112,7 +112,7 @@ class DeltaPhi:
 		canvas.Update()
 		
 		canvas.cd(2)
-		halfbinwidth = L1_BIN/2.
+		halfbinwidth = L1_PHI_BIN/2.
 		hist = TH2D('hL1PhiVsHoPhi','L1 Phi vs. iPhi',289, -math.pi - halfbinwidth,math.pi + halfbinwidth
 				,289, -math.pi - halfbinwidth,math.pi + halfbinwidth)
 		hist = fillGraphIn2DHist(graph, hist)
@@ -136,7 +136,7 @@ class DeltaPhi:
 		
 		canvas.cd(2)
 		
-		halfbinwidth = L1_BIN/2.
+		halfbinwidth = L1_PHI_BIN/2.
 		
 		hist = TH2D('hL1PhiVsHoIPhi','L1 Phi vs. iPhi',73,0.5,72.5,289, -math.pi - halfbinwidth,math.pi + halfbinwidth)
 		hist = fillGraphIn2DHist(graph, hist)
@@ -222,9 +222,9 @@ class DeltaPhi:
 		canvas = TCanvas("cEtaPhiDeltaPhiOne","Eta Phi For DPhi 1",1200,1200)
 		graph = self.fileHandler.getGraph('hoMuonAnalyzer/graphs/averageEnergyDeltaPhi1')
 			
-		halfbinwidth = L1_BIN/2.
-		hist = TH2D('hEtaPhiDeltaPhi1',"#eta#phi of #Delta#phi=1 evts.",93,-46*L1_BIN - halfbinwidth
-				,46*L1_BIN + halfbinwidth,289, -math.pi - halfbinwidth,math.pi + halfbinwidth)
+		halfbinwidth = L1_PHI_BIN/2.
+		hist = TH2D('hEtaPhiDeltaPhi1',"#eta#phi of #Delta#phi=1 evts.",30,-15*L1_ETA_BIN	,15*L1_ETA_BIN,
+				289, -math.pi - halfbinwidth,math.pi + halfbinwidth)
 		
 		x = Double(0)
 		y = Double(0)
@@ -254,11 +254,13 @@ class DeltaPhi:
 		graphAll = self.fileHandler.getGraph('hoMuonAnalyzer/graphs/L1MuonPresent')
 		graphWithHo = self.fileHandler.getGraph('hoMuonAnalyzer/graphs/L1Muon3x3')
 				
-		halfbinwidth = L1_BIN/2.
-		histAll = TH2D('hEtaPhiAll',"#eta#phi for all L1",93,-46*L1_BIN - halfbinwidth
-				,46*L1_BIN + halfbinwidth,289, -math.pi - halfbinwidth,math.pi + halfbinwidth)
-		histWithHo = TH2D('hEtaPhiWithHO',"#eta#phi L1 + HO (3x3)",93,-46*L1_BIN - halfbinwidth
-				,46*L1_BIN + halfbinwidth,289, -math.pi - halfbinwidth,math.pi + halfbinwidth)
+		halfPhiBinwidth = L1_PHI_BIN/2.
+		halfEtaBinwidth = L1_ETA_BIN/2.
+		
+		histAll = TH2D('hEtaPhiAll',"#eta#phi for all L1",30,-15*L1_ETA_BIN	,15*L1_ETA_BIN,
+					289, -math.pi - halfPhiBinwidth,math.pi + halfPhiBinwidth)
+		histWithHo = TH2D('hEtaPhiWithHO',"#eta#phi L1 + HO (3x3)",30,-15*L1_ETA_BIN,15*L1_ETA_BIN,
+					289, -math.pi - halfPhiBinwidth,math.pi + halfPhiBinwidth)
 		
 		x = Double(0)
 		y = Double(0)
