@@ -42,6 +42,7 @@ class ControlPlots:
 		else:
 			label = drawLabelCmsPrivateSimulation()
 		canvas.Update()
+		canvas.SaveAs('plots/controlPlots/HoEtaPhi.pdf')
 		return label,canvas,hoEtaPhi
 
 	
@@ -65,6 +66,7 @@ class ControlPlots:
 		else:
 			label = drawLabelCmsPrivateSimulation()
 		canvas.Update()
+		canvas.SaveAs('plots/controlPlots/L1MatchedToHoEtaPhi.pdf')
 		return label,canvas,hoEtaPhi
 	
 
