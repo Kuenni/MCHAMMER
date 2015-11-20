@@ -308,15 +308,25 @@ void HistogramBuilder::fillAverageEnergyHistograms(double eta1, double etaHo, do
 	deltaEta = etaHo - eta1;
 	deltaPhi = FilterPlugin::wrapCheck(phi1, phiHo);
 	//Here I'am using the double resolution than what HO can do
+
+	int nBinsPerHO = 4;
+	double hoShiftForZeroCentered = 1/double(nBinsPerHO*2);
+	int lateralSpreadForPlot = 10;
+	int nTotalBins = 2*nBinsPerHO*lateralSpreadForPlot + 1;
+
 	if(!_h2AverageEnergy.count(histNameEnergy)){
 		_h2AverageEnergy[histNameEnergy] = subdir.make<TH2D>(histNameEnergy.c_str(),histTitle.c_str(),
-						81,-10*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/8.,10*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/8.,
-						81,-10*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/8.,10*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/8.);
+				nTotalBins,-lateralSpreadForPlot*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/hoShiftForZeroCentered,
+				lateralSpreadForPlot*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/hoShiftForZeroCentered,
+				nTotalBins,-lateralSpreadForPlot*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/hoShiftForZeroCentered,
+				lateralSpreadForPlot*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/hoShiftForZeroCentered);
 	}
 	if(!_h2AverageEnergy.count(histNameCounter)){
 		_h2AverageEnergy[histNameCounter] = subdir.make<TH2D>(histNameCounter.c_str(),histTitle.c_str(),
-						81,-10*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/8.,10*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/8.,
-						81,-10*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/8.,10*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/8.);
+				nTotalBins,-lateralSpreadForPlot*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/hoShiftForZeroCentered,
+				lateralSpreadForPlot*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/hoShiftForZeroCentered,
+				nTotalBins,-lateralSpreadForPlot*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/hoShiftForZeroCentered,
+				lateralSpreadForPlot*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/hoShiftForZeroCentered);
 	}
 	_h2AverageEnergy[histNameEnergy]->Fill(deltaEta, deltaPhi, energy);
 	_h2AverageEnergy[histNameCounter]->Fill(deltaEta, deltaPhi);
@@ -324,13 +334,17 @@ void HistogramBuilder::fillAverageEnergyHistograms(double eta1, double etaHo, do
 	//Also fill a histogram for all wheels together
 	if(!_h2AverageEnergy.count(histNameAllEnergies)){
 		_h2AverageEnergy[histNameAllEnergies] = averageEnergyDir.make<TH2D>(histNameAllEnergies.c_str(),(histAllTitle + ";E_{Rec} / GeV").c_str(),
-								81,-10*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/8.,10*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/8.,
-								81,-10*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/8.,10*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/8.);
+				nTotalBins,-lateralSpreadForPlot*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/hoShiftForZeroCentered,
+				lateralSpreadForPlot*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/hoShiftForZeroCentered,
+				nTotalBins,-lateralSpreadForPlot*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/hoShiftForZeroCentered,
+				lateralSpreadForPlot*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/hoShiftForZeroCentered);
 	}
 	if(!_h2AverageEnergy.count(histNameAllCounter)){
 		_h2AverageEnergy[histNameAllCounter] = averageEnergyDir.make<TH2D>(histNameAllCounter.c_str(),(histAllTitle + ";# Entries").c_str(),
-								81,-10*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/8.,10*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/8.,
-								81,-10*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/8.,10*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/8.);
+				nTotalBins,-lateralSpreadForPlot*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/hoShiftForZeroCentered,
+				lateralSpreadForPlot*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/hoShiftForZeroCentered,
+				nTotalBins,-lateralSpreadForPlot*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/hoShiftForZeroCentered,
+				lateralSpreadForPlot*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/hoShiftForZeroCentered);
 	}
 	_h2AverageEnergy[histNameAllEnergies]->Fill(deltaEta, deltaPhi, energy);
 	_h2AverageEnergy[histNameAllCounter]->Fill(deltaEta, deltaPhi);
