@@ -35,8 +35,8 @@ for script in args.scripts:
 		res3 = plots.plotHoEtaPhiMatchedToL1()
 		#res2 = plots.plotHoDigiMatchesPerDetId()
 		if not args.data:
-			res3 = plots.plotEfficiencyCountCheck()
-			res4 = plots.plotGenEtaPhi()
+			res4 = plots.plotEfficiencyCountCheck()
+			res5 = plots.plotGenEtaPhi()
 		raw_input('-->')
 	if(script == 'eVsEtaPhi'):
 		lib = EvsEtaPhi(filename = args.source, data=args.data)

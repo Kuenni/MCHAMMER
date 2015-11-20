@@ -157,3 +157,45 @@ class ControlPlots:
 		plusHoHist.Draw('same')
 		
 		return c,l1AndGenHist,plusHoHist,genHist
+
+	def plotGenEtaPhi(self):
+		c = TCanvas('cGenEta','Gen eta phi',1200,1600)
+		c.Divide(2,1)
+		gen = self.fileHandler.getGraph('hoMuonAnalyzer/graphs/gen')
+		
+		histEta = TH1D('hEtaGen',"#eta GEN;#eta;#",288, -math.pi,math.pi)
+		histPhi = TH1D('hPhiGen',"#phi GEN;#phi;#",288, -math.pi,math.pi)
+		
+		x = Double(0)
+		y = Double(0)
+		
+		for i in range(0,gen.GetN()):
+			gen.GetPoint(i,x,y)
+			histPhi.Fill(y)
+			histEta.Fill(x)
+		
+		setupAxes(histEta)
+		setupAxes(histPhi)
+	
+		histEta.GetXaxis().SetRangeUser(-1,1)
+	
+		c.cd(1)
+		histEta.Draw()
+		label1 = drawLabelCmsPrivateSimulation()
+		c.cd(2)
+	
+		histPhi.Draw()
+		label2 = drawLabelCmsPrivateSimulation()
+		
+		c.Update()
+		
+		setStatBoxOptions(histEta,10)
+		setStatBoxPosition(histEta,y1=0.85)
+		setStatBoxOptions(histPhi,10)
+		setStatBoxPosition(histPhi,y1=0.85)
+		
+		c.Update()
+		
+		c.SaveAs('plots/controlPlots/genEtaPhi.pdf')
+		
+		return c,gen,histEta,histPhi,label1,label2

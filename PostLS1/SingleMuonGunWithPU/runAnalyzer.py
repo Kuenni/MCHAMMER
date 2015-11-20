@@ -27,7 +27,6 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 process.load('Configuration.Geometry.GeometryExtended2015Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2015_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedRealistic8TeVCollision_cfi')
@@ -73,6 +72,7 @@ process.hoMuonAnalyzer = cms.EDAnalyzer(
     hoEnergyThreshold = cms.double(0.2),
 	maxDeltaR = cms.double(0.3),
 	debug = cms.bool(True),
+	isData = cms.bool(False),
 	maxDeltaRL1MuonMatching = cms.double(1.),
 	TrackAssociatorParameters=parameters,
 	hoDigiSrc = cms.InputTag('simHcalDigis'),
