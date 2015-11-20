@@ -2,7 +2,7 @@
 import os,sys
 from ROOT import TCanvas,ROOT,TFile,TLegend,TF1,TLine,gROOT,TPaveText,TH1D,Double,TH2D,THStack,gStyle
 from plotting.PlotStyle import setPlotStyle,drawLabelCmsPrivateSimulation,colorRwthDarkBlue,\
-	setStatBoxOptions, setStatBoxPosition, setupPalette
+	setStatBoxOptions, setStatBoxPosition, setupPalette, drawLabelCmsPrivateData
 from plotting.PlotStyle import colorRwthMagenta,setupAxes,printProgress
 from plotting.RootFileHandler import RootFileHandler
 from plotting.OutputModule import CommandLineHandler
@@ -14,6 +14,7 @@ class ControlPlots:
 	
 	def __init__(self,filename,data = False):
 		setPlotStyle()
+		self.data = data
 		gROOT.ProcessLine(".L $HOMUONTRIGGER_BASE/python/loader.C+");
 		self.commandLine = CommandLineHandler( '[makeEvsEtaPhiPlot] ')
 		self.fileHandler = RootFileHandler(filename)
@@ -29,13 +30,17 @@ class ControlPlots:
 	def plotHoEtaPhi(self):
 		canvas = TCanvas('cHoEtaPhi','HO iEta iPhi')
 		hoEtaPhi = self.fileHandler.getHistogram('hoMuonAnalyzer/etaPhi/hoRecHitsAboveThr_iEtaIPhi')
-		hoEtaPhi.SetTitle('HO RecHits > 0.2GeV;i#eta;i#phi')
+		hoEtaPhi.SetTitle('HO RecHits > 0.2GeV;i#eta;i#phi;# entries')
 		hoEtaPhi.Draw('colz')
 		canvas.Update()
 		hoEtaPhi.SetStats(0)
 		setupAxes(hoEtaPhi)
 		setupPalette(hoEtaPhi)
-		label = drawLabelCmsPrivateSimulation()
+		label = None
+		if self.data:
+			label = drawLabelCmsPrivateData()
+		else:
+			label = drawLabelCmsPrivateSimulation()
 		canvas.Update()
 		return label,canvas,hoEtaPhi
 
@@ -46,13 +51,19 @@ class ControlPlots:
 	def plotHoEtaPhiMatchedToL1(self):
 		canvas = TCanvas('cHoEtaPhiAndL1','HO Eta Phi And L1')
 		hoEtaPhi = self.fileHandler.getHistogram('hoMuonAnalyzer/etaPhi/L1MuonWithHoMatchAboveThr_HO_EtaPhi')
-		hoEtaPhi.SetTitle('L1 matched to HO RecHits > 0.2GeV;#eta;#phi')
+		hoEtaPhi.SetTitle('L1 matched to HO RecHits > 0.2GeV;#eta;#phi;# entries')
+		hoEtaPhi.Rebin2D(10,10)
+		hoEtaPhi.GetXaxis().SetRangeUser(-1.5,1.5)
 		hoEtaPhi.Draw('colz')
 		canvas.Update()
 		hoEtaPhi.SetStats(0)
 		setupAxes(hoEtaPhi)
 		setupPalette(hoEtaPhi)
-		label = drawLabelCmsPrivateSimulation()
+		label = None
+		if self.data:
+			label = drawLabelCmsPrivateData()
+		else:
+			label = drawLabelCmsPrivateSimulation()
 		canvas.Update()
 		return label,canvas,hoEtaPhi
 	
