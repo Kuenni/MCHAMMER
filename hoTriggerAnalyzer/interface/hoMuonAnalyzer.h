@@ -79,6 +79,7 @@ private:
 	void analyzeNoSingleMuEventsGenLoop(const edm::Event& iEvent,const edm::EventSetup& iSetup);
 	void analyzeWithGenLoop(const edm::Event& iEvent,const edm::EventSetup& iSetup);
 	void analyzeL1MuonsForGhosts(const edm::Event& iEvent,const edm::EventSetup& iSetup);
+	void analyzeL1Resolution();
 	void fillEfficiencyHistograms(double ptMeasured,double ptReal,std::string key);
 	void fillHoGeomAcceptanceGraph(reco::GenParticle genParticle);
 	void fillAverageEnergyAroundL1Direction(const l1extra::L1MuonParticle*,std::string);
@@ -88,6 +89,7 @@ private:
 	void calculateGridMatchingEfficiency(double eta, double phi, float pt, std::string key);
 
 	void processGenInformation(const edm::Event& iEvent,const edm::EventSetup& iSetup);
+	void processRecoInformation(const edm::Event& iEvent,const edm::EventSetup& iSetup);
 
 	const reco::GenParticle* getBestGenMatch(float,float);
 	const l1extra::L1MuonParticle* getMatchedL1Object(trigger::TriggerObject,edm::Handle<l1extra::L1MuonParticleCollection>);

@@ -731,3 +731,18 @@ void HistogramBuilder::fillEtaPhiPtHistogram(double eta, double phi, double pt, 
 	_h3EtaPhiPt[key]->Fill(eta,phi,pt);
 
 }
+
+void HistogramBuilder::fillL1ResolutionHistogram(double l1Pt, double recoPt, std::string key){
+	TFileDirectory resolutionDir = _fileService->mkdir("l1PtResolution");
+	float variableBinArray[] = {0,0.5,1,1.5,2,2.5,3,3.5,4,4.5,5,6,7,8,10,12,14,16,18,20,25,30,35,40,45,50,60,70,80,100,120,140,180};
+	int ptBin = int (recoPt/2);
+	if (ptBin > 200){
+		ptBin = 200;
+	}
+	std::string histoKey = Form("%sBin%d",key.c_str(),ptBin);
+	if(!_h1L1Resolution.count(histoKey)){
+		_h1L1Resolution[histoKey] = resolutionDir.make<TH1D>(Form("%s",histoKey.c_str()),Form("%s",histoKey.c_str())
+				,32,variableBinArray);
+	}
+	_h1L1Resolution[histoKey]->Fill(l1Pt);
+}

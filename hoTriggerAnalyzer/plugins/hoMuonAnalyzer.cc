@@ -213,7 +213,8 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	histogramBuilder.fillCountHistogram("Events");
 	if(!isData)
 		processGenInformation(iEvent,iSetup);
-
+	else
+		processRecoInformation(iEvent,iSetup);
 	//###############################
 	// Loop over L1MuonObjects DONE
 	//###############################
@@ -1323,6 +1324,28 @@ void hoMuonAnalyzer::fillGridMatchingHistograms(bool passed, int grid, double pt
 	} else{
 		histogramBuilder.fillEfficiency(false,pt,key + "TimeWindow" + gridString);
 	}
+}
+
+//{}
+void hoMuonAnalyzer::analyzeL1Resolution(){
+	for(auto recoIt = recoMuons->begin(); recoIt != recoMuons->end(); recoIt++){
+		const l1extra::L1MuonParticle* l1Part = 0;
+		l1Part = functionsHandler->getBestL1MuonMatch(recoIt->eta(),recoIt->phi());
+		if(l1Part){
+			histogramBuilder.fillL1ResolutionHistogram(l1Part->pt(), recoIt->pt(), "L1MuonTruth");
+			const HORecHit* matchedRecHit = 0;
+			matchedRecHit = hoMatcher->matchByEMaxDeltaR(l1Part->eta(),l1Part->phi());
+			if(matchedRecHit){
+				histogramBuilder.fillL1ResolutionHistogram(l1Part->pt(), recoIt->pt(), "L1MuonTruthHoMatch");
+			}
+		}
+	}
+}
+/**
+ * Call all function that process information coming from RECO
+ */
+void hoMuonAnalyzer::processRecoInformation(const edm::Event& iEvent, const edm::EventSetup& iSetup){
+	analyzeL1Resolution();
 }
 
 void hoMuonAnalyzer::processGenInformation(const edm::Event& iEvent,const edm::EventSetup& iSetup){
