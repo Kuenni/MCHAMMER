@@ -11,6 +11,7 @@ from makeControlPlots import ControlPlots
 from makeEvsEtaPhiPlot import EvsEtaPhi
 from phishift.DeltaPhi import DeltaPhi
 from efficiency.TimeWindow import TimeWindow
+from dataQuality.PtResolution import PtResolution
 
 parser = argparse.ArgumentParser()
 parser.add_argument('scripts', metavar='scripts', type=str, nargs='+',
@@ -38,7 +39,7 @@ for script in args.scripts:
 			res4 = plots.plotEfficiencyCountCheck()
 			res5 = plots.plotGenEtaPhi()
 		raw_input('-->')
-	if(script == 'eVsEtaPhi'):
+	elif(script == 'eVsEtaPhi'):
 		lib = EvsEtaPhi(filename = args.source, data=args.data)
 		res = lib.plotAverageEnergyAroundL1()
 		res2 = lib.plotAverageEMaxAroundL1()
@@ -46,7 +47,7 @@ for script in args.scripts:
 		res4 = lib.plot1DEMaxAroundL1()
 		res5 = lib.compareHistogramMethods()
 		raw_input('-->')
-	if(script == 'phiShift'):
+	elif(script == 'phiShift'):
 		lib = DeltaPhi(filename = args.source,data=args.data)
 		resAllEtaPhi = lib.plotEtaPhiForAllL1()
 		resEtaPhiMap = lib.plotEtaPhiForDeltaPhiOne()
@@ -54,16 +55,21 @@ for script in args.scripts:
 		resDeltaPhi = lib.plotDeltaPhiHistogram()
 		resEta = lib.plotDeltaPhiVsL1Eta()
 		if not args.data:
-			res3 = lib.plotDeltaPhiVsGenPt()
+			#res3 = lib.plotDeltaPhiVsGenPt()
 			res4 = lib.plotL1PhiVsHoPhi()
 			res5 = lib.plotL1PhiVsHoIPhi()
-			res = lib.plotDeltaPhiVsL1Phi()
-			res2 = lib.plotDeltaPhiVsL1Pt()
+			#res = lib.plotDeltaPhiVsL1Phi()
+			#res2 = lib.plotDeltaPhiVsL1Pt()
 		raw_input('-->')
-	if(script == 'timeWindow'):
+	elif(script == 'timeWindow'):
 		lib = TimeWindow(filename=args.source,data=args.data)
 		resAllL1 = lib.plotAllL1Together()
 		if not args.data:
 			resTimeWindowAlone = lib.plotTimeWindowAlone()
 			resTruthL1 = lib.plotTruthL1Together()
 		raw_input('-->')
+	elif(script == 'ptResolution'):
+		lib = PtResolution(filename=args.source,data=args.data)
+		raw_input('-->')
+	else:
+		print 'Unknown script requested: %s' % (script)
