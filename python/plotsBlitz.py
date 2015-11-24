@@ -64,6 +64,8 @@ for script in args.scripts:
 	elif(script == 'timeWindow'):
 		lib = TimeWindow(filename=args.source,data=args.data)
 		resAllL1 = lib.plotAllL1Together()
+		resBxidFail = lib.plotBxidVsPtFails()
+		resBxidSucc = lib.plotBxidVsPtMatch()
 		if not args.data:
 			resTimeWindowAlone = lib.plotTimeWindowAlone()
 			resTruthL1 = lib.plotTruthL1Together()

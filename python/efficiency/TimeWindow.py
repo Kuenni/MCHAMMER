@@ -112,3 +112,30 @@ class TimeWindow:
 		c.Update()
 		return c, label, effL1Muon3x3, effL1Muon3x3TW, legend
 	
+	def plotBxidVsPtFails(self):
+		c = TCanvas('cBxidVsPtFails','BxidVsPtFails')
+		c.SetLogz()
+		c.cd().SetRightMargin(.15)
+		hist = self.fileHandler.getHistogram('hoMuonAnalyzer/time/L1Muon3x3Fail_BxIdVsPt')
+		setupAxes(hist)
+		hist.SetTitle('Failed matching in 3x3;p_{T} / GeV;BX ID;# entries')
+		hist.SetStats(0)
+		hist.Draw('colz')
+		c.Update()
+		setupPalette(hist)
+		c.Update()
+		return c, hist
+	
+	def plotBxidVsPtMatch(self):
+		c = TCanvas('cBxidVsPtMatch','BxidVsPtMatch')
+		c.SetLogz()
+		c.cd().SetRightMargin(.15)
+		hist = self.fileHandler.getHistogram('hoMuonAnalyzer/time/L1Muon3x3Match_BxIdVsPt')
+		hist.SetStats(0)
+		setupAxes(hist)
+		hist.SetTitle('Successful matching in 3x3;p_{T} / GeV;BX ID;# entries')
+		hist.Draw('colz')
+		c.Update()
+		setupPalette(hist)
+		c.Update()
+		return c, hist
