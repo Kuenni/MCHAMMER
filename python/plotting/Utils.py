@@ -1,7 +1,7 @@
 from plotting import OutputModule
 from plotting.PlotStyle import setupAxes
 
-from ROOT import Double
+from ROOT import Double,TGraphErrors,TLegend
 from plotting.RootFileHandler import commandLine
 from array import array
 
@@ -106,3 +106,12 @@ def extractTEfficiencyToList(tEffObject):
 			yErrUp.append(tEffObject.GetEfficiencyErrorUp(i))
 	return xVals, yVals,yErrLow,yErrUp
 	
+def getTGraphErrors(x,y,ex = None,ey = None):
+	if (ex == None):
+		ex = [0]*len(x)
+	if (ey == None):
+		ey = [0]*len(x)
+	return TGraphErrors(len(x),array('f',x),array('f',y),array('f',ex),array('f',ey))
+	
+def getLegend(x1=.6,y1=.8,x2=.9,y2=.85):
+	return TLegend(x1,y1,x2,y2)

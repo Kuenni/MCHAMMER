@@ -70,6 +70,7 @@ for script in args.scripts:
 		raw_input('-->')
 	elif(script == 'ptResolution'):
 		lib = PtResolution(filename=args.source,data=args.data)
+		res1 = lib.plotPtResolutionHistograms()
 		raw_input('-->')
 	else:
 		print 'Unknown script requested: %s' % (script)
