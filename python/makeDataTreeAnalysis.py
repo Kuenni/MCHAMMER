@@ -147,6 +147,7 @@ def histogram2DEMax():
 	canvas.Divide(3,1)
 	canvas.cd(1).SetLogz()
 	histNormalBins.Draw('colz')
+	histNormalBins.SaveAs('histogramDataTree.root')
 	canvas.cd(2)
 	histWiderBins.Draw('colz')
 
