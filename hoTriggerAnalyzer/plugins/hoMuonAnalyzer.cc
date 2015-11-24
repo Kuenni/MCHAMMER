@@ -1189,7 +1189,7 @@ void hoMuonAnalyzer::fillAverageEnergyAroundL1Direction(const l1extra::L1MuonPar
 //			histogramBuilder.fillCorrelationHistogram(gen->eta(),deltaPhi,"shiftCheckDeltaPhiVsGenEta" + key,hist);
 //			delete hist;
 		}
-	}
+	}//for loop
 
 	//Filling the average energy only for the highest energetic particle
 	const HORecHit* matchedRecHit = 0;

@@ -23,7 +23,7 @@ class EvsEtaPhi:
 			os.mkdir('plots')
 		if( not os.path.exists('plots/averageEnergy')):
 			os.mkdir('plots/averageEnergy')
-		self.key = 'L1MuonPresent' if data else 'L1Truth'
+		self.key = 'L1MuonPresent' if data else 'L1MuonTruth'
 		
 	'''
 	Plots the average energy seen in in the tiles around the direction
@@ -90,6 +90,8 @@ class EvsEtaPhi:
 		
 		canvas.Update()
 		canvas.SaveAs('plots/averageEnergy/averageEmax.pdf')
+
+		hCounter.SaveAs('histogramEMaxCounter.root')
 		
 		return canvas,hSum,label,hCounter
 	

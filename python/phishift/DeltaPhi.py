@@ -15,7 +15,7 @@ class DeltaPhi:
 			os.mkdir('plots/averageEnergy')
 		self.fileHandler = RootFileHandler(filename)
 		self.fileHandler.printStatus()
-		self.key = 'L1MuonPresent' if data else 'L1Truth'
+		self.key = 'L1MuonPresent' if data else 'L1MuonTruth'
 	
 	def plotDeltaPhiVsL1Pt(self):
 		canvas = TCanvas('cDeltaPhiVsL1Pt','DeltaPhiVsL1Pt',1200,1200)
@@ -82,7 +82,7 @@ class DeltaPhi:
 		canvas = TCanvas('cDeltaPhiVsL1Eta','DeltaPhiVsL1Eta',1200,1200)
 		hist = self.fileHandler.getHistogram('hoMuonAnalyzer/correlation/shiftCheckDeltaPhiVsL1Eta' + self.key)
 		hist.GetYaxis().SetRangeUser(-1,1)
-		hist.GetXaxis().SetRangeUser(-.5,.5)
+	#	hist.GetXaxis().SetRangeUser(-.5,.5)
 		hist.GetXaxis().SetTitle('L1 #eta')
 		hist.GetZaxis().SetTitle('#')
 		hist.SetStats(0)
