@@ -1,6 +1,6 @@
 #!/usr/bin/python
 import os,sys
-from ROOT import TCanvas,ROOT,TFile,TLegend,TF1,TLine,gROOT,TPaveText,TH1D,Double,TH2D,THStack,gStyle
+from ROOT import TCanvas,ROOT,TFile,TF1,TLine,gROOT,TPaveText,TH1D,Double,TH2D,THStack,gStyle
 from plotting.PlotStyle import setPlotStyle,drawLabelCmsPrivateSimulation,colorRwthDarkBlue,\
 	setStatBoxOptions, setStatBoxPosition, setupPalette, drawLabelCmsPrivateData
 from plotting.PlotStyle import colorRwthMagenta,setupAxes,printProgress
