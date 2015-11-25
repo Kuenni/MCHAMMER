@@ -651,13 +651,14 @@ void HistogramBuilder::fillDeltaTimeHistogram(double time, int bx, std::string k
  */
 void HistogramBuilder::fillBxIdVsPt(int bxId, double pt, std::string key){
 	TFileDirectory timeDir = _fileService->mkdir("time");
+	double variableBinArray[] = {0,0.5,1,1.5,2,2.5,3,3.5,4,4.5,5,6,7,8,10,12,14,16,18,20,25,30,35,40,45,50,60,70,80,100,120,140,180};
 
 	//Fill energy vs eta
 	if(!_h2BxIdVsPt.count(key)){
 		_h2BxIdVsPt[key] = timeDir.make<TH2D>(Form("%s_BxIdVsPt",key.c_str()),
 				Form("%s BX ID vs p_{T};p_{T} / GeV;BX ID",key.c_str()),
-				200,0,100, //0.5 GeV Bins
-				5,-2.5,2.5
+				32,variableBinArray,
+				25,-12.5,12.5
 		);
 	}
 	_h2BxIdVsPt[key]->Fill(pt,bxId);

@@ -3,7 +3,8 @@ from ROOT import TCanvas,TLegend
 from plotting.RootFileHandler import RootFileHandler
 from plotting.PlotStyle import setupAxes,setPlotStyle, colorRwthDarkBlue,\
 	drawLabelCmsPrivateSimulation, colorRwthLightBlue, colorRwthGruen,\
-	colorRwthTuerkis, colorRwthRot, colorRwthMagenta, setupPalette, pyplotCmsPrivateLabel
+	colorRwthTuerkis, colorRwthRot, colorRwthMagenta, setupPalette, pyplotCmsPrivateLabel,\
+	drawLabelCmsPrivateData
 from plotting.OutputModule import CommandLineHandler,CliColors
 from plotting.Utils import extractTEfficiencyToList
 import matplotlib.pyplot as plt
@@ -11,7 +12,7 @@ import matplotlib.pyplot as plt
 
 class TimeWindow:
 	
-	def __init__(self,filename,data =False):
+	def __init__(self,filename,data = False):
 		self.commandLine = CommandLineHandler('[TimeWindow] ')
 		self.fileHandler = RootFileHandler(filename)
 		self.fileHandler.printStatus()
@@ -20,6 +21,7 @@ class TimeWindow:
 		if( not os.path.exists('plots/efficiencyWithTime')):
 			os.mkdir('plots/efficiencyWithTime')
 		setPlotStyle()
+		self.data = data
 			
 	def plotTimeWindowAlone(self):
 		c = TCanvas('cTimeWindowAlone',"Time Window Alone")
@@ -46,7 +48,11 @@ class TimeWindow:
 		legend.AddEntry(effL1Muon3x3Truth,'Matches  to truth in 3x3 grid','ep')
 		legend.Draw()
 		
-		label = drawLabelCmsPrivateSimulation()
+		label = None
+		if self.data:
+			label = drawLabelCmsPrivateData()
+		else:
+			label = drawLabelCmsPrivateSimulation()
 		
 		c.Update()
 		
@@ -63,7 +69,7 @@ class TimeWindow:
 		effL1Muon3x3.SetTitle('Efficiency in 3x3 grid;p_{T} / GeV;rel. fraction')
 		effL1Muon3x3.Draw()
 		c.Update()
-		effL1Muon3x3.GetPaintedGraph().GetXaxis().SetRangeUser(0,40)
+		#effL1Muon3x3.GetPaintedGraph().GetXaxis().SetRangeUser(0,40)
 		#effL1Muon3x3.GetPaintedGraph().GetYaxis().SetRangeUser(0.996,1.001)
 		effL1Muon3x3TW.SetMarkerStyle(23)
 		effL1Muon3x3TW.SetMarkerColor(colorRwthMagenta)
@@ -77,8 +83,12 @@ class TimeWindow:
 		legend.AddEntry(effL1Muon3x3TW,'Matches in 3x3 grid and time window','ep')
 		legend.Draw()
 		
-		label = drawLabelCmsPrivateSimulation()
-		
+		label = None
+		if self.data:
+			label = drawLabelCmsPrivateData()
+		else:
+			label = drawLabelCmsPrivateSimulation()
+					
 		c.Update()
 		return c, label, effL1Muon3x3, effL1Muon3x3TW, legend
 		
@@ -107,35 +117,91 @@ class TimeWindow:
 		legend.AddEntry(effL1Muon3x3TW,'Matches to L1 Truth in 3x3 grid and time window','ep')
 		legend.Draw()
 		
-		label = drawLabelCmsPrivateSimulation()
-		
+		label = None
+		if self.data:
+			label = drawLabelCmsPrivateData()
+		else:
+			label = drawLabelCmsPrivateSimulation()
+					
 		c.Update()
 		return c, label, effL1Muon3x3, effL1Muon3x3TW, legend
 	
 	def plotBxidVsPtFails(self):
-		c = TCanvas('cBxidVsPtFails','BxidVsPtFails')
-		c.SetLogz()
-		c.cd().SetRightMargin(.15)
+		c = TCanvas('cBxidVsPtFails','BxidVsPtFails',800,1200)
+		c.Divide(1,2)
+		c.cd(1).SetLogz()
 		hist = self.fileHandler.getHistogram('hoMuonAnalyzer/time/L1Muon3x3Fail_BxIdVsPt')
 		setupAxes(hist)
 		hist.SetTitle('Failed matching in 3x3;p_{T} / GeV;BX ID;# entries')
 		hist.SetStats(0)
+		hist.GetYaxis().SetRangeUser(-3,3)
+		histCopy = hist.DrawCopy('colz')
+		c.Update()
+		setupPalette(histCopy)
+		c.Update()
+		label = None
+		if self.data:
+			label = drawLabelCmsPrivateData()
+		else:
+			label = drawLabelCmsPrivateSimulation()
+			
+		c.cd(2).SetLogz()
+		hist.Scale(1,'width')
+		hist.SetTitle(hist.GetTitle() + ', by bin width')
+		hist.GetZaxis().SetTitle('# entries / GeV')
 		hist.Draw('colz')
 		c.Update()
 		setupPalette(hist)
 		c.Update()
-		return c, hist
+		
+		labelBottom = None
+		if self.data:
+			labelBottom = drawLabelCmsPrivateData()
+		else:
+			labelBottom = drawLabelCmsPrivateSimulation()
+	
+		c.Update()
+		c.SaveAs('plots/efficiencyWithTime/bxIdVsPt3x3Fail.gif')
+		return c, hist,label,labelBottom
 	
 	def plotBxidVsPtMatch(self):
-		c = TCanvas('cBxidVsPtMatch','BxidVsPtMatch')
-		c.SetLogz()
-		c.cd().SetRightMargin(.15)
+		c = TCanvas('cBxidVsPtMatch','BxidVsPtMatch',800,1200)
+		c.Divide(1,2)
+		c.cd(1).SetLogz()
 		hist = self.fileHandler.getHistogram('hoMuonAnalyzer/time/L1Muon3x3Match_BxIdVsPt')
 		hist.SetStats(0)
 		setupAxes(hist)
 		hist.SetTitle('Successful matching in 3x3;p_{T} / GeV;BX ID;# entries')
+		hist.GetYaxis().SetRangeUser(-3,3)
+		
+		histCopy = hist.DrawCopy('colz')
+		c.Update()
+		setupPalette(histCopy)
+		c.Update()
+		
+		label = None
+		if self.data:
+			label = drawLabelCmsPrivateData()
+		else:
+			label = drawLabelCmsPrivateSimulation()
+			
+		c.cd(2).SetLogz()
+		hist.Scale(1,'width')
+		hist.SetTitle(hist.GetTitle() + ', by bin width')
+		hist.GetZaxis().SetTitle('# entries / GeV')
 		hist.Draw('colz')
 		c.Update()
 		setupPalette(hist)
 		c.Update()
-		return c, hist
+		
+		labelBottom = None
+		if self.data:
+			labelBottom = drawLabelCmsPrivateData()
+		else:
+			labelBottom = drawLabelCmsPrivateSimulation()
+		
+		c.Update()
+		c.SaveAs('plots/efficiencyWithTime/bxIdVsPt3x3Match.gif')
+		
+		return c, hist,label,labelBottom
+	
