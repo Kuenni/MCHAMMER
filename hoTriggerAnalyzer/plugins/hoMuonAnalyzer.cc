@@ -213,8 +213,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	histogramBuilder.fillCountHistogram("Events");
 	if(!isData)
 		processGenInformation(iEvent,iSetup);
-	else
-		processRecoInformation(iEvent,iSetup);
+	processRecoInformation(iEvent,iSetup);
 	//###############################
 	// Loop over L1MuonObjects DONE
 	//###############################
