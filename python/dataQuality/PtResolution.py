@@ -5,7 +5,7 @@ from plotting.RootFileHandler import RootFileHandler
 from plotting.PlotStyle import *
 from plotting.Utils import getTGraphErrors,getLegend
 
-from ROOT import TCanvas
+from ROOT import TCanvas,TF1,TGraphErrors
 
 class PtResolution:
 	def __init__(self,filename,data =False):
@@ -24,12 +24,16 @@ class PtResolution:
 		rmsL1Err = []
 		rmsL1AndHo = []
 		rmsL1AndHoErr = []
+		fitL1 = []
+		fitL1Err = []
+		
+		graphL1Fit = TGraphErrors()
 		
 		for i in range(0,101):
 			#Change "xGev" to "Binx"
 			#Then calculate pt range from bin number
-			histPt = self.fileHandler.getHistogram('hoMuonAnalyzer/l1PtResolution/L1MuonTruth%dGeV' % i)
-			histPtMatch = self.fileHandler.getHistogram('hoMuonAnalyzer/l1PtResolution/L1MuonTruthHoMatch%dGeV' % i)
+			histPt = self.fileHandler.getHistogram('hoMuonAnalyzer/l1PtResolution/L1MuonTruthBin%d' % i)
+			histPtMatch = self.fileHandler.getHistogram('hoMuonAnalyzer/l1PtResolution/L1MuonTruthHoMatchBin%d' % i)
 			c = TCanvas()
 			ptVals.append(i*2)
 			if histPt == None:
@@ -42,6 +46,12 @@ class PtResolution:
 			histPt.SetLineWidth(3)
 			histPt.SetLineColor(colorRwthDarkBlue)
 			histPt.Draw()
+			if(i < 20):
+				f1 = TF1("f1", "gaus", histPt.GetBinCenter(histPt.GetMaximumBin()) - 5, 2*i + 5);
+				histPt.Fit(f1,"R")
+				graphL1Fit.SetPoint(graphL1Fit.GetN(),i*2,f1.GetParameter(2))#,0,f1.GetParameter(3))
+				#raw_input('-')
+				
 			if histPtMatch != None:
 				rmsL1AndHo.append(histPtMatch.GetRMS())
 				rmsL1AndHoErr.append(histPtMatch.GetRMSError())
@@ -79,6 +89,10 @@ class PtResolution:
 		c.SaveAs('plots/ptResolution/rmsVsPt.gif')
 		c.SaveAs('plots/ptResolution/rmsVsPt.pdf')
 		
-		return c,graphL1,graphL1AndHo,legend
+		c2 = TCanvas('cfitResults','fitResults',800,0,800,600)
+		graphL1Fit.Draw('AP')
+
+		
+		return c,graphL1,graphL1AndHo,legend,c2,graphL1Fit
 			
 			
