@@ -649,6 +649,24 @@ void HistogramBuilder::fillDeltaTimeHistogram(double time, int bx, std::string k
 /**
  * Fill a 2D histogram with BX id vs pt information
  */
+void HistogramBuilder::fillQualityCodeVsPt(int qc, double pt, std::string key){
+	TFileDirectory timeDir = _fileService->mkdir("qualityCode");
+	double variableBinArray[] = {0,0.5,1,1.5,2,2.5,3,3.5,4,4.5,5,6,7,8,10,12,14,16,18,20,25,30,35,40,45,50,60,70,80,100,120,140,180};
+
+	//Fill energy vs eta
+	if(!_h2qualityCodeVsPt.count(key)){
+		_h2qualityCodeVsPt[key] = timeDir.make<TH2D>(Form("%s_QcVsPt",key.c_str()),
+				Form("%s QC vs p_{T};p_{T} / GeV;QC;# Entries",key.c_str()),
+				32,variableBinArray,
+				401,-200.5,200.5
+		);
+	}
+	_h2qualityCodeVsPt[key]->Fill(pt,qc);
+}
+
+/**
+ * Fill a 2D histogram with BX id vs pt information
+ */
 void HistogramBuilder::fillBxIdVsPt(int bxId, double pt, std::string key){
 	TFileDirectory timeDir = _fileService->mkdir("time");
 	double variableBinArray[] = {0,0.5,1,1.5,2,2.5,3,3.5,4,4.5,5,6,7,8,10,12,14,16,18,20,25,30,35,40,45,50,60,70,80,100,120,140,180};

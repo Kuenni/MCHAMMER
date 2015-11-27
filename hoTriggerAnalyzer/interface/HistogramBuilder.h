@@ -62,6 +62,7 @@ class HistogramBuilder {
   void fillMultiplicityHistogram(int , std::string );
   void fillPdgIdHistogram(int pdgId,std::string key);
   void fillPtHistogram(float,std::string);
+  void fillQualityCodeVsPt(int qc,double pt,std::string key);
   void fillTimeHistogram(double,std::string);
   void fillTrigHistograms(bool trigDecision,std::string key);
   void fillTrigRateHistograms(float ptThreshold, std::string key);
@@ -98,22 +99,23 @@ class HistogramBuilder {
   std::map<std::string,TH1D**> _hArrDeltaEtaDeltaPhiEnergy;
 
 
-  std::map<std::string,TH2D*> _h2EnergyCorrelation;
-  std::map<std::string,TH2D*> _h2EnergyVsPhi;
-  std::map<std::string,TH2D*> _h2EnergyVsEta;
-  std::map<std::string,TH2D*> _h2EnergyEtaPhiEnergies;
-  std::map<std::string,TH2D*> _h2EnergyEtaPhiCounter;
+  std::map<std::string,TH2D*> _h2AverageEnergy;
   std::map<std::string,TH2D*> _h2BxIdVsPt;
-  std::map<std::string,TH2D*> _h2TimeCorrelation;
+  std::map<std::string,TH2D*> _h2Correlation;
+  std::map<std::string,TH2D*> _h2DeltaEtaDeltaPhi;
+  std::map<std::string,TH2D*> _h2DeltaEtaDeltaPhiCounter;
+  std::map<std::string,TH2D*> _h2DeltaEtaDeltaPhiWeights;
+  std::map<std::string,TH2D*> _h2DeltaIEtaDeltaIPhiCounter;
+  std::map<std::string,TH2D*> _h2DeltaIEtaDeltaIPhiWeights;
+  std::map<std::string,TH2D*> _h2EnergyCorrelation;
+  std::map<std::string,TH2D*> _h2EnergyEtaPhiCounter;
+  std::map<std::string,TH2D*> _h2EnergyEtaPhiEnergies;
+  std::map<std::string,TH2D*> _h2EnergyVsEta;
+  std::map<std::string,TH2D*> _h2EnergyVsPhi;
   std::map<std::string,TH2D*> _h2EtaPhiMap;
   std::map<std::string,TH2D*> _h2iEtaIPhiMap;
-  std::map<std::string,TH2D*> _h2DeltaEtaDeltaPhi;
-  std::map<std::string,TH2D*> _h2DeltaEtaDeltaPhiWeights;
-  std::map<std::string,TH2D*> _h2DeltaEtaDeltaPhiCounter;
-  std::map<std::string,TH2D*> _h2DeltaIEtaDeltaIPhiWeights;
-  std::map<std::string,TH2D*> _h2DeltaIEtaDeltaIPhiCounter;
-  std::map<std::string,TH2D*> _h2Correlation;
-  std::map<std::string,TH2D*> _h2AverageEnergy;
+  std::map<std::string,TH2D*> _h2qualityCodeVsPt;
+  std::map<std::string,TH2D*> _h2TimeCorrelation;
 
   std::map<std::string,TGraph*> _grEtaPhi;
   std::map<std::string,TGraph*> _grCorrelation;

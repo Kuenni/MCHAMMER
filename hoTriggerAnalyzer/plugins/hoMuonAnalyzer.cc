@@ -1273,6 +1273,15 @@ void hoMuonAnalyzer::fillGridMatchingQualityCodes(const l1extra::L1MuonParticle*
  * Overloaded function. Some additional stuff is done with the BX ID information from the L1 Object
  */
 void hoMuonAnalyzer::calculateGridMatchingEfficiency(const l1extra::L1MuonParticle* l1muon, float pt, std::string key){
+
+	/**
+	 * Implement a quality code for the 3x3 matching
+	 *
+	 * 10 * Bx ID + L1 QC + HO Wime window information
+	 *
+	 */
+
+
 	calculateGridMatchingEfficiency(l1muon->eta(), l1muon->phi(),pt, key);
 	//Analyze the BX ID of L1 objects that do not have a match in the grid
 	const HORecHit* recHit = hoMatcher->getClosestRecHitInGrid(l1muon->eta(),l1muon->phi(),2);
@@ -1281,10 +1290,14 @@ void hoMuonAnalyzer::calculateGridMatchingEfficiency(const l1extra::L1MuonPartic
 		if(!recHit){
 			histogramBuilder.fillBxIdVsPt(l1muon->bx(),l1muon->pt(),key + gridString + "Fail");
 		} else {
+			int qualityCode = l1muon->gmtMuonCand().quality() + l1muon->bx()*10
+					+ isInTimeWindow(recHit->time()) ? 0 : 100*(recHit->time() > 0 ? 1 : -1);
 			if(hoMatcher->isRecHitInGrid(l1muon->eta(),l1muon->phi(), recHit,i)){
 				histogramBuilder.fillBxIdVsPt(l1muon->bx(),l1muon->pt(),key + gridString + "Match");
+				histogramBuilder.fillQualityCodeVsPt(qualityCode,l1muon->pt(),key + gridString + "Match");
 			} else {
 				histogramBuilder.fillBxIdVsPt(l1muon->bx(),l1muon->pt(),key + gridString + "Fail");
+				histogramBuilder.fillQualityCodeVsPt(qualityCode,l1muon->pt(),key + gridString + "Fail");
 			}
 		}
 	}
