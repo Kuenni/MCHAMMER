@@ -1290,8 +1290,12 @@ void hoMuonAnalyzer::calculateGridMatchingEfficiency(const l1extra::L1MuonPartic
 		if(!recHit){
 			histogramBuilder.fillBxIdVsPt(l1muon->bx(),l1muon->pt(),key + gridString + "Fail");
 		} else {
-			int qualityCode = l1muon->gmtMuonCand().quality() + l1muon->bx()*10
-					+ isInTimeWindow(recHit->time()) ? 0 : 100*(recHit->time() > 0 ? 1 : -1);
+			int qualityCode = 0;
+			qualityCode = l1muon->gmtMuonCand().quality();
+			qualityCode += l1muon->bx()*10;
+			qualityCode += isInTimeWindow(recHit->time()) ? 0 : 100;
+			qualityCode *= (recHit->time() > 0 ? 1 : -1);
+
 			if(hoMatcher->isRecHitInGrid(l1muon->eta(),l1muon->phi(), recHit,i)){
 				histogramBuilder.fillBxIdVsPt(l1muon->bx(),l1muon->pt(),key + gridString + "Match");
 				histogramBuilder.fillQualityCodeVsPt(qualityCode,l1muon->pt(),key + gridString + "Match");
