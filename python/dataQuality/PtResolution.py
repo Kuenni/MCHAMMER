@@ -84,6 +84,12 @@ class PtResolution:
 		legend.AddEntry(graphL1AndHo,'RMS L1 and HO','ep')
 		legend.Draw()
 		
+		label = None
+		if self.data:
+			label = drawLabelCmsPrivateData()
+		else:
+			label = drawLabelCmsPrivateSimulation()
+		
 		c.Update()
 		
 		c.SaveAs('plots/ptResolution/rmsVsPt.gif')
@@ -93,6 +99,6 @@ class PtResolution:
 		graphL1Fit.Draw('AP')
 
 		
-		return c,graphL1,graphL1AndHo,legend,c2,graphL1Fit
+		return c,graphL1,graphL1AndHo,legend,c2,graphL1Fit,label
 			
 			
