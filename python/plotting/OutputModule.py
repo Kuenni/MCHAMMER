@@ -5,7 +5,7 @@ class CommandLineHandler:
 	#Output function for the progress in a python script
 	def getProgressString(self,done,total):
 		nHashes = int(done/float(total)*80)
-		progressbar = '\r[%s%s] %5.2f%% done.' % (nHashes*'#',(80-nHashes)*' ',done*100/float(total))
+		progressbar = '[%s%s] %5.2f%% done.\r' % (nHashes*'#',(80-nHashes)*' ',done*100/float(total))
 		return progressbar
 
 	#Output function for the progress in a python script
