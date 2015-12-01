@@ -91,6 +91,8 @@ private:
 	void processGenInformation(const edm::Event& iEvent,const edm::EventSetup& iSetup);
 	void processRecoInformation(const edm::Event& iEvent,const edm::EventSetup& iSetup);
 
+	void recoControlPlots();
+
 	const reco::GenParticle* getBestGenMatch(float,float);
 	const l1extra::L1MuonParticle* getMatchedL1Object(trigger::TriggerObject,edm::Handle<l1extra::L1MuonParticleCollection>);
 

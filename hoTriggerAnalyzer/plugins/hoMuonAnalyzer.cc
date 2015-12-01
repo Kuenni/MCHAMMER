@@ -1357,11 +1357,21 @@ void hoMuonAnalyzer::analyzeL1Resolution(){
 		}
 	}
 }
+
+void hoMuonAnalyzer::recoControlPlots(){
+	for(auto recoIt = recoMuons->begin(); recoIt != recoMuons->end(); recoIt++){
+		histogramBuilder.fillPtHistogram(recoIt->pt(),"recoMuons");
+		histogramBuilder.fillEtaPhiGraph(recoIt->eta(), recoIt->phi(),"recoMuons");
+		histogramBuilder.fillEtaPhiHistograms(recoIt->eta(),recoIt->phi(),"recoMuons");
+	}
+}
+
 /**
  * Call all function that process information coming from RECO
  */
 void hoMuonAnalyzer::processRecoInformation(const edm::Event& iEvent, const edm::EventSetup& iSetup){
 	analyzeL1Resolution();
+	recoControlPlots();
 }
 
 void hoMuonAnalyzer::processGenInformation(const edm::Event& iEvent,const edm::EventSetup& iSetup){
