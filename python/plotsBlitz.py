@@ -12,6 +12,8 @@ from makeEvsEtaPhiPlot import EvsEtaPhi
 from phishift.DeltaPhi import DeltaPhi
 from efficiency.TimeWindow import TimeWindow
 from dataQuality.PtResolution import PtResolution
+from dataQuality.QualityCode import QualityCode
+from dataQuality.Timing import Timing
 
 parser = argparse.ArgumentParser()
 parser.add_argument('scripts', metavar='scripts', type=str, nargs='+',
@@ -73,6 +75,27 @@ for script in args.scripts:
 	elif(script == 'ptResolution'):
 		lib = PtResolution(filename=args.source,data=args.data)
 		res1 = lib.plotPtResolutionHistograms()
+		raw_input('-->')
+	elif(script == 'qualityCodes'):
+		lib = QualityCode(filename=args.source,data=args.data)
+		res1 = lib.plot3x3MatchQualityCodes()
+		res2 = lib.plot3x3FailQualityCodes()
+		raw_input('-->')
+	elif (script=='timing'):
+		lib = Timing(filename=args.source,data=args.data)
+		resEvsTime = lib.plotHoEnergyVsTime()
+		lib.plotDeltaTime()
+		lib.plotL1BxId()
+		res = lib.plotHoTime()
+		res6 = lib.plotHoTimeLog()
+		if not args.data:
+			lib.plotEtaOfWrongBxId()
+			lib.plotEtaPhiOfWrongBxId()
+			lib.plotFractionsOfBxId()
+			res2 = lib.plotDetectorContributionsToTiming()
+			res5 = lib.plotPtAndPhiOfWrongBxId()
+			res4 = lib.plotImprovementInDt()
+			res3 = lib.plotPtAndEtaOfWrongBxId()
 		raw_input('-->')
 	else:
 		print 'Unknown script requested: %s' % (script)
