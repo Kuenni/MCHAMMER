@@ -17,6 +17,7 @@ class PtResolution:
 		if( not os.path.exists('plots/ptResolution')):
 			os.mkdir('plots/ptResolution')
 		setPlotStyle()
+		self.data = data
 		
 	def plotPtResolutionHistograms(self):
 		ptVals = []

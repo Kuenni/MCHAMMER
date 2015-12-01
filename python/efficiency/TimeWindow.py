@@ -55,7 +55,9 @@ class TimeWindow:
 			label = drawLabelCmsPrivateSimulation()
 		
 		c.Update()
-		
+
+		c.SaveAs('plots/efficiencyWithTime/allL1AndL1Truth3x3.gif')
+
 		return c, effL1Muon3x3,effL1Muon3x3Truth,label,legend
 	
 	def plotAllL1Together(self):
@@ -90,6 +92,9 @@ class TimeWindow:
 			label = drawLabelCmsPrivateSimulation()
 					
 		c.Update()
+		
+		c.SaveAs('plots/efficiencyWithTime/allL13x3.gif')
+		
 		return c, label, effL1Muon3x3, effL1Muon3x3TW, legend
 		
 	def plotTruthL1Together(self):
