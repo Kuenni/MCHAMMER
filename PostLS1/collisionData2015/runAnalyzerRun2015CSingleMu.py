@@ -70,6 +70,7 @@ process.RECOSIMoutput = cms.OutputModule("PoolOutputModule",
 
 
 process.load('PhysicsTools/PatAlgos/producersLayer1/muonProducer_cfi')
+process.load('PhysicsTools/PatAlgos/selectionLayer1/muonSelector_cfi')
 process.patMuons.addGenMatch = cms.bool(False)
 
 # Additional output definition
@@ -97,7 +98,8 @@ process.hoMuonAnalyzer = cms.EDAnalyzer(
 
 # Path and EndPath definitions
 
-process.patMuon_step = cms.Path(process.patMuons)
+process.patMuonProducer_step = cms.Path(process.patMuons)
+process.patMuonSelector_step = cms.Path(process.selectedPatMuons)
 process.hoMuonAnalyzer_step = cms.Path(process.hoMuonAnalyzer)
 #process.raw2digi_step = cms.Path(process.RawToDigi)
 #process.reconstruction_step = cms.Path(process.reconstruction)
@@ -106,7 +108,8 @@ process.RECOSIMoutput_step = cms.EndPath(process.RECOSIMoutput)
 
 # Schedule definition
 process.schedule = cms.Schedule(
-							process.patMuon_step
+							process.patMuonProducer_step
+							,process.patMuonSelector_step
 							,process.hoMuonAnalyzer_step
 							,process.endjob_step
 							)
