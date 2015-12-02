@@ -22,6 +22,8 @@
 #include <DataFormats/L1Trigger/interface/L1MuonParticleFwd.h>
 #include <DataFormats/MuonReco/interface/Muon.h>
 #include <DataFormats/MuonReco/interface/MuonFwd.h>
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include <FWCore/ParameterSet/interface/ConfigurationDescriptions.h>
 #include <FWCore/ServiceRegistry/interface/Service.h>
@@ -31,6 +33,7 @@
 #include <TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h>
 #include <TrackingTools/TrackAssociator/plugins/HODetIdAssociator.h>
 
+#include <DataFormats/PatCandidates/interface/Muon.h>
 
 #include <list>
 #include <map>
@@ -88,6 +91,8 @@ private:
 	void calculateGridMatchingEfficiency(const l1extra::L1MuonParticle* l1muon, float pt, std::string key);
 	void calculateGridMatchingEfficiency(double eta, double phi, float pt, std::string key);
 
+	void gridMatchingWithTightMuons();
+
 	void processGenInformation(const edm::Event& iEvent,const edm::EventSetup& iSetup);
 	void processRecoInformation(const edm::Event& iEvent,const edm::EventSetup& iSetup);
 
@@ -95,6 +100,7 @@ private:
 
 	const reco::GenParticle* getBestGenMatch(float,float);
 	const l1extra::L1MuonParticle* getMatchedL1Object(trigger::TriggerObject,edm::Handle<l1extra::L1MuonParticleCollection>);
+	const reco::Vertex getPrimaryVertex();
 
 	bool processTriggerDecision(string algorithmName,const edm::Event& );
 	bool isInTimeWindow(double time){
@@ -111,12 +117,15 @@ private:
 	edm::InputTag _l1MuonGenMatchInput;
 	edm::InputTag _hltSumAODInput;
 
+	edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
 	edm::Handle<reco::GenParticleCollection> truthParticles;
 	edm::Handle<l1extra::L1MuonParticleCollection> l1Muons;
 	edm::Handle<HORecHitCollection> hoRecoHits;
 	edm::Handle<reco::GenParticleMatch> l1MuonGenMatches;
 	edm::Handle<edm::View<l1extra::L1MuonParticle> > l1MuonView;
 	edm::Handle<reco::MuonCollection> recoMuons;
+	edm::Handle<std::vector<pat::Muon>> patMuons;
+	edm::Handle<reco::VertexCollection> vertexColl;
 
 	edm::ESHandle<CaloGeometry> caloGeo;
 	edm::ESHandle<MagneticField> theMagField;

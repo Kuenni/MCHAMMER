@@ -159,6 +159,8 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	iEvent.getByLabel(_l1MuonInput,l1MuonView);
 	iEvent.getByLabel(edm::InputTag("muons"),recoMuons);
 
+	iEvent.getByLabel(edm::InputTag("selectedPatMuons"),patMuons);
+
 	iSetup.get<IdealMagneticFieldRecord>().get(theMagField );
 	iSetup.get<CaloGeometryRecord>().get(caloGeo);
 
@@ -209,6 +211,9 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	if(!hasMuonsInAcceptance){
 		return;
 	}
+
+	iEvent.getByLabel(edm::InputTag("offlinePrimaryVertices"), vertexColl);
+	iEvent.getByLabel(edm::InputTag("offlineBeamSpot"),recoBeamSpotHandle);
 
 	histogramBuilder.fillCountHistogram("Events");
 	if(!isData)
@@ -1364,6 +1369,30 @@ void hoMuonAnalyzer::recoControlPlots(){
 		histogramBuilder.fillEtaPhiGraph(recoIt->eta(), recoIt->phi(),"recoMuons");
 		histogramBuilder.fillEtaPhiHistograms(recoIt->eta(),recoIt->phi(),"recoMuons");
 	}
+	for(auto patMuonIt = patMuons->begin(); patMuonIt != patMuons->end(); ++patMuonIt){
+		histogramBuilder.fillPtHistogram(patMuonIt->pt(),"patMuons");
+		histogramBuilder.fillEtaPhiGraph(patMuonIt->eta(), patMuonIt->phi(),"patMuons");
+		histogramBuilder.fillEtaPhiHistograms(patMuonIt->eta(),patMuonIt->phi(),"patMuons");
+		if(patMuonIt->isTightMuon(getPrimaryVertex())){
+			histogramBuilder.fillPtHistogram(patMuonIt->pt(),"patMuonsTight");
+			histogramBuilder.fillEtaPhiGraph(patMuonIt->eta(), patMuonIt->phi(),"patMuonsTight");
+			histogramBuilder.fillEtaPhiHistograms(patMuonIt->eta(),patMuonIt->phi(),"patMuonsTight");
+		}
+	}
+}
+
+void hoMuonAnalyzer::gridMatchingWithTightMuons(){
+	for(auto patMuonIt = patMuons->begin(); patMuonIt != patMuons->end(); ++patMuonIt){
+		if(patMuonIt->isTightMuon(getPrimaryVertex())){
+			const l1extra::L1MuonParticle* l1Part = 0;
+			l1Part = functionsHandler->getBestL1MuonMatch(patMuonIt->eta(),patMuonIt->phi());
+			if(l1Part){
+				//TODO: Why would there be events with tight muons without L1 match
+				calculateGridMatchingEfficiency(&*l1Part,l1Part->pt(),"L1TightMuons");
+				fillAverageEnergyAroundL1Direction(&*l1Part,"L1TightMuons");
+			}
+		}
+	}
 }
 
 /**
@@ -1372,6 +1401,7 @@ void hoMuonAnalyzer::recoControlPlots(){
 void hoMuonAnalyzer::processRecoInformation(const edm::Event& iEvent, const edm::EventSetup& iSetup){
 	analyzeL1Resolution();
 	recoControlPlots();
+	gridMatchingWithTightMuons();
 }
 
 void hoMuonAnalyzer::processGenInformation(const edm::Event& iEvent,const edm::EventSetup& iSetup){
@@ -1473,6 +1503,38 @@ void hoMuonAnalyzer::processGenInformation(const edm::Event& iEvent,const edm::E
 		if(failedMatches && !successfulMatches){
 			histogramBuilder.fillCountHistogram("allL1ToGenFailed");
 		}
+}
+
+const reco::Vertex hoMuonAnalyzer::getPrimaryVertex(){
+	// =================================================================================
+	// Look for the Primary Vertex (and use the BeamSpot instead, if you can't find it):
+	reco::Vertex::Point posVtx;
+	reco::Vertex::Error errVtx;
+	unsigned int theIndexOfThePrimaryVertex = 999.;
+
+	if (vertexColl.isValid()){
+		for (unsigned int ind=0; ind<vertexColl->size(); ++ind) {
+			if ( (*vertexColl)[ind].isValid() && !((*vertexColl)[ind].isFake()) ) {
+				theIndexOfThePrimaryVertex = ind;
+				break;
+			}
+		}
+	}
+
+	if (theIndexOfThePrimaryVertex<100) {
+		posVtx = ((*vertexColl)[theIndexOfThePrimaryVertex]).position();
+		errVtx = ((*vertexColl)[theIndexOfThePrimaryVertex]).error();
+	}
+	else {
+		reco::BeamSpot bs = *recoBeamSpotHandle;
+		posVtx = bs.position();
+		errVtx(0,0) = bs.BeamWidthX();
+		errVtx(1,1) = bs.BeamWidthY();
+		errVtx(2,2) = bs.sigmaZ();
+	}
+
+	const reco::Vertex vtx(posVtx,errVtx);
+	return vtx;
 }
 
 /**
