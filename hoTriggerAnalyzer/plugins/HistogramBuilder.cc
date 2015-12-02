@@ -70,7 +70,7 @@ void HistogramBuilder::fillHistogram(double x, std::string key,TH1D* histogram){
 	if(!_h1histograms.count(key)){
 		_h1histograms[key] = correlationDir.make<TH1D>(Form("%s",key.c_str()),
 				Form("%s",key.c_str()),
-				500, 0,500);
+				101, -0.5,100.5);
 		if(histogram){
 			histogram->Copy(*_h1histograms[key]);
 			_h1histograms[key]->SetDirectory(correlationDir.getBareDirectory());
