@@ -8,7 +8,7 @@ gROOT.ProcessLine(".L $HOMUONTRIGGER_BASE/python/loader.C+");
 
 
 from makeControlPlots import ControlPlots
-from makeEvsEtaPhiPlot import EvsEtaPhi
+from dataQuality.EvsEtaPhi import EvsEtaPhi
 from phishift.DeltaPhi import DeltaPhi
 from efficiency.TimeWindow import TimeWindow
 from dataQuality.PtResolution import PtResolution
