@@ -1,31 +1,21 @@
 #!/usr/bin/python
-import os,sys
-from math import sqrt
 from ROOT import TCanvas,ROOT,TFile,TF1,TLine,gROOT,TPaveText,TH1D,Double,TH2D,THStack,gStyle
-from plotting.PlotStyle import setPlotStyle,calcSigma,getLabelCmsPrivateSimulation,colorRwthDarkBlue,setupPalette,\
-	drawLabelCmsPrivateData, drawLabelCmsPrivateSimulation
-from plotting.PlotStyle import colorRwthMagenta,setupAxes,convertToHcalCoords,chimney1,chimney2,printProgress
+from plotting.PlotStyle import getLabelCmsPrivateSimulation,setupPalette
+from plotting.PlotStyle import setupAxes
 from plotting.PlotStyle import setStatBoxOptions,setStatBoxPosition,pyplotCmsPrivateLabel
-from plotting.RootFileHandler import RootFileHandler
 from plotting.Utils import setupEAvplot
-from plotting.OutputModule import CommandLineHandler
+
+from plotting.Plot import Plot
 
 import numpy as np
 import matplotlib.pyplot as plt
 
-class EvsEtaPhi:
+class EvsEtaPhi(Plot):
 	
 	def __init__(self,filename,data = False):
-		setPlotStyle()
-		self.commandLine = CommandLineHandler('[makeEvsEtaPhiPlot] ')
-		self.fileHandler = RootFileHandler(filename)
-		self.fileHandler.printStatus()
-		if( not os.path.exists('plots')):
-			os.mkdir('plots')
-		if( not os.path.exists('plots/averageEnergy')):
-			os.mkdir('plots/averageEnergy')
-		self.key = 'L1MuonPresent' if data else 'L1MuonTruth'
-		self.data = data
+		Plot.__init__(self,filename,data)
+		self.createPlotSubdir('averageEnergy')
+
 	'''
 	Plots the average energy seen in in the tiles around the direction
 	of the L1 muons
@@ -256,17 +246,10 @@ class EvsEtaPhi:
 		hSum.SetTitle('Average E_{Rec} in HO tiles around tight L1 direction')
 		hSum.SetMaximum(2)
 		hSum.Draw('colz')
-#		setupEAvplot(hCounter,same=True,borderAll=0.3).Draw('same,text')
-		label = None
-		if self.data:
-			label = drawLabelCmsPrivateData()
-		else:
-			label = drawLabelCmsPrivateSimulation()
-					
+		label = self.drawLabel()
 		canvas.Update()		
-				
 		setupPalette(hSum)
-		
 		canvas.Update()
 		canvas.SaveAs('plots/averageEnergy/eAverageTightMuons.gif')
 		return canvas,hSum,label
+	
