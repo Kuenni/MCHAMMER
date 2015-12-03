@@ -7,7 +7,7 @@ from ROOT import gROOT
 gROOT.ProcessLine(".L $HOMUONTRIGGER_BASE/python/loader.C+");
 
 
-from makeControlPlots import ControlPlots
+from dataQuality.ControlPlots import ControlPlots
 from dataQuality.EvsEtaPhi import EvsEtaPhi
 from phishift.DeltaPhi import DeltaPhi
 from efficiency.TimeWindow import TimeWindow
@@ -49,6 +49,7 @@ for script in args.scripts:
 		res4 = lib.plot1DEMaxAroundL1()
 		res5 = lib.compareHistogramMethods()
 		res6 = lib.plotEavForTightMuons()
+		res7 = lib.plotEavPerWheelForTightMuons()
 		raw_input('-->')
 	elif(script == 'phiShift'):
 		lib = DeltaPhi(filename = args.source,data=args.data)
