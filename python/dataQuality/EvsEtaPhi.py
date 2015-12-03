@@ -163,7 +163,6 @@ class EvsEtaPhi(Plot):
 		
 		z = np.reshape(z, [len(x), len(y)])
 		z = np.flipud(z)
-		data = np.random.rand(4,4)
 		
 		fig, ax = plt.subplots()
 		im = ax.pcolor(z)
@@ -252,4 +251,57 @@ class EvsEtaPhi(Plot):
 		canvas.Update()
 		canvas.SaveAs('plots/averageEnergy/eAverageTightMuons.gif')
 		return canvas,hSum,label
+	
+	def plotEavPerWheelForTightMuons(self):
+		canvas = TCanvas('canvasEavPerWheelTightMuons','EAv Per Wheel Tight muons',1800,800)
+		canvas.Divide(3,1)
+				
+		hM1Energy = self.fileHandler.getHistogram('hoMuonAnalyzer/averageEnergy/wh1m/averageEnergyAroundPointL1TightMuons_wh-1SummedEnergy')
+		hM1Counter = self.fileHandler.getHistogram('hoMuonAnalyzer/averageEnergy/wh1m/averageEnergyAroundPointL1TightMuons_wh-1Counter')
+		hM1Energy = setupEAvplot(hM1Energy, hM1Counter)
+		hM1Energy.SetStats(0)
+	
+		h0Energy = self.fileHandler.getHistogram('hoMuonAnalyzer/averageEnergy/wh0/averageEnergyAroundPointL1TightMuons_wh0SummedEnergy')
+		h0Counter = self.fileHandler.getHistogram('hoMuonAnalyzer/averageEnergy/wh0/averageEnergyAroundPointL1TightMuons_wh0Counter')
+		h0Energy = setupEAvplot(h0Energy, h0Counter)
+		h0Energy.SetStats(0)
+	
+		hP1Energy = self.fileHandler.getHistogram('hoMuonAnalyzer/averageEnergy/wh1p/averageEnergyAroundPointL1TightMuons_wh1SummedEnergy')
+		hP1Counter = self.fileHandler.getHistogram('hoMuonAnalyzer/averageEnergy/wh1p/averageEnergyAroundPointL1TightMuons_wh1Counter')
+		hP1Energy = setupEAvplot(hP1Energy, hP1Counter)
+		hP1Energy.SetStats(0)
+	
+		canvas.cd(1).SetLogz()
+		setupAxes(hM1Energy)
+		hM1Energy.SetMaximum(1.2)
+		hM1Energy.SetMinimum(5e-3)
+		hM1Energy.Draw('colz')
+		canvas.Update()
+		setupPalette(hM1Energy)
+		label1 = self.drawLabel()
+		
+		canvas.cd(2).SetLogz()
+		setupAxes(h0Energy)
+		h0Energy.SetMaximum(1.2)
+		h0Energy.SetMinimum(5e-3)
+		h0Energy.Draw('colz')
+		canvas.Update()
+		setupPalette(h0Energy)
+		label2 = self.drawLabel()
+		
+		canvas.cd(3).SetLogz()
+		setupAxes(hP1Energy)
+		hP1Energy.SetMaximum(1.2)
+		hP1Energy.SetMinimum(5e-3)
+		hP1Energy.Draw('colz')
+		canvas.Update()
+		setupPalette(hP1Energy)
+		label3 = self.drawLabel()
+	
+		canvas.Update()
+		
+		canvas.SaveAs('plots/averageEnergy/eAveragePerWheelTightMuons.gif')
+		
+		return hM1Energy,canvas,h0Energy,hP1Energy,h0Counter,label1,label2,label3
+
 	
