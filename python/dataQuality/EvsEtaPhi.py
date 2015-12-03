@@ -2,7 +2,8 @@
 import os,sys
 from math import sqrt
 from ROOT import TCanvas,ROOT,TFile,TF1,TLine,gROOT,TPaveText,TH1D,Double,TH2D,THStack,gStyle
-from plotting.PlotStyle import setPlotStyle,calcSigma,getLabelCmsPrivateSimulation,colorRwthDarkBlue,setupPalette
+from plotting.PlotStyle import setPlotStyle,calcSigma,getLabelCmsPrivateSimulation,colorRwthDarkBlue,setupPalette,\
+	drawLabelCmsPrivateData, drawLabelCmsPrivateSimulation
 from plotting.PlotStyle import colorRwthMagenta,setupAxes,convertToHcalCoords,chimney1,chimney2,printProgress
 from plotting.PlotStyle import setStatBoxOptions,setStatBoxPosition,pyplotCmsPrivateLabel
 from plotting.RootFileHandler import RootFileHandler
@@ -24,7 +25,7 @@ class EvsEtaPhi:
 		if( not os.path.exists('plots/averageEnergy')):
 			os.mkdir('plots/averageEnergy')
 		self.key = 'L1MuonPresent' if data else 'L1MuonTruth'
-		
+		self.data = data
 	'''
 	Plots the average energy seen in in the tiles around the direction
 	of the L1 muons
@@ -244,14 +245,28 @@ class EvsEtaPhi:
 		
 		return canvas, histNormal,label#,histNew,label2
 	
-	
-	# res4 = plotAverageEMaxAroundL1()
-	# 
-	# raw_input('-->')
-	# res6 = compareHistogramMethods()
-	# res5 = plot1DEMaxAroundL1()
-	# res = plotAverageEnergyAroundL1()
-	# res2 = plot1DEnergyAroundL1()
-	# res3 = plotMPVs(fitList=res2[2])
-	# 
-	# raw_input('-->')
+	def plotEavForTightMuons(self):
+		canvas = TCanvas('canvasEavTightMuons','EAv Tight muons',1200,1200)
+		canvas.cd().SetLogz()
+			
+		hSum = self.fileHandler.getHistogram('hoMuonAnalyzer/averageEnergy/averageEnergyAroundPointL1TightMuons_SummedEnergy')
+		hCounter = self.fileHandler.getHistogram('hoMuonAnalyzer/averageEnergy/averageEnergyAroundPointL1TightMuons_Counter')
+		
+		hSum = setupEAvplot(hSum, hCounter,same=True,borderAll=0.3)
+		hSum.SetTitle('Average E_{Rec} in HO tiles around tight L1 direction')
+		hSum.SetMaximum(2)
+		hSum.Draw('colz')
+#		setupEAvplot(hCounter,same=True,borderAll=0.3).Draw('same,text')
+		label = None
+		if self.data:
+			label = drawLabelCmsPrivateData()
+		else:
+			label = drawLabelCmsPrivateSimulation()
+					
+		canvas.Update()		
+				
+		setupPalette(hSum)
+		
+		canvas.Update()
+		canvas.SaveAs('plots/averageEnergy/eAverageTightMuons.gif')
+		return canvas,hSum,label

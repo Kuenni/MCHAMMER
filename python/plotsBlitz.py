@@ -48,6 +48,7 @@ for script in args.scripts:
 		res3 = lib.plot1DEnergyAroundL1()
 		res4 = lib.plot1DEMaxAroundL1()
 		res5 = lib.compareHistogramMethods()
+		res6 = lib.plotEavForTightMuons()
 		raw_input('-->')
 	elif(script == 'phiShift'):
 		lib = DeltaPhi(filename = args.source,data=args.data)
