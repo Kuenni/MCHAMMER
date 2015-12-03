@@ -166,57 +166,6 @@ class DeltaPhi:
 		label = drawLabelCmsPrivateSimulation()
 		
 		return hist,canvas,label
-	
-	def plotEAveragePerWheel(self):
-		canvas = TCanvas('cEAvPerWheel',"E Average per Wheel",1800,800)
-		canvas.Divide(3,1)
-	
-		hM1Energy = self.fileHandler.getHistogram('hoMuonAnalyzer/averageEnergy/wh1m/averageEnergyAroundPoint' + self.key + '_wh-1SummedEnergy')
-		hM1Counter = self.fileHandler.getHistogram('hoMuonAnalyzer/averageEnergy/wh1m/averageEnergyAroundPoint' + self.key + '_wh-1Counter')
-		hM1Energy = setupEAvplot(hM1Energy, hM1Counter)
-		hM1Energy.SetStats(0)
-	
-		h0Energy = self.fileHandler.getHistogram('hoMuonAnalyzer/averageEnergy/wh0/averageEnergyAroundPoint' + self.key + '_wh0SummedEnergy')
-		h0Counter = self.fileHandler.getHistogram('hoMuonAnalyzer/averageEnergy/wh0/averageEnergyAroundPoint' + self.key + '_wh0Counter')
-		h0Energy = setupEAvplot(h0Energy, h0Counter)
-		h0Energy.SetStats(0)
-	
-		hP1Energy = self.fileHandler.getHistogram('hoMuonAnalyzer/averageEnergy/wh1p/averageEnergyAroundPoint' + self.key + '_wh1SummedEnergy')
-		hP1Counter = self.fileHandler.getHistogram('hoMuonAnalyzer/averageEnergy/wh1p/averageEnergyAroundPoint' + self.key + '_wh1Counter')
-		hP1Energy = setupEAvplot(hP1Energy, hP1Counter)
-		hP1Energy.SetStats(0)
-	
-		canvas.cd(1).SetLogz()
-		setupAxes(hM1Energy)
-		hM1Energy.SetMaximum(1.2)
-		hM1Energy.SetMinimum(5e-3)
-		hM1Energy.Draw('colz')
-		canvas.Update()
-		setupPalette(hM1Energy)
-		
-		canvas.cd(2).SetLogz()
-		setupAxes(h0Energy)
-		h0Energy.SetMaximum(1.2)
-		h0Energy.SetMinimum(5e-3)
-		h0Energy.Draw('colz')
-		#h0Counter.Draw('same,text')
-		canvas.Update()
-		setupPalette(h0Energy)
-		
-		canvas.cd(3).SetLogz()
-		setupAxes(hP1Energy)
-		hP1Energy.SetMaximum(1.2)
-		hP1Energy.SetMinimum(5e-3)
-		hP1Energy.Draw('colz')
-		canvas.Update()
-		setupPalette(hP1Energy)
-	
-		canvas.Update()
-		
-		canvas.SaveAs('plots/averageEnergy/eAveragePerWheel.pdf')
-		
-		return hM1Energy,canvas,h0Energy,hP1Energy,h0Counter
-	
 		
 	def plotEtaPhiForDeltaPhiOne(self):
 		canvas = TCanvas("cEtaPhiDeltaPhiOne","Eta Phi For DPhi 1",1200,1200)

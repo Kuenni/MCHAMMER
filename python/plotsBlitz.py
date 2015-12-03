@@ -50,12 +50,13 @@ for script in args.scripts:
 		res5 = lib.compareHistogramMethods()
 		res6 = lib.plotEavForTightMuons()
 		res7 = lib.plotEavPerWheelForTightMuons()
+		resWheelwise = lib.plotEAveragePerWheel()
+		resEtaPhiTight = lib.plotEtaPhiForTightL1()
 		raw_input('-->')
 	elif(script == 'phiShift'):
 		lib = DeltaPhi(filename = args.source,data=args.data)
 		resAllEtaPhi = lib.plotEtaPhiForAllL1()
 		resEtaPhiMap = lib.plotEtaPhiForDeltaPhiOne()
-		resWheelwise = lib.plotEAveragePerWheel()
 		resDeltaPhi = lib.plotDeltaPhiHistogram()
 		resEta = lib.plotDeltaPhiVsL1Eta()
 		if not args.data:

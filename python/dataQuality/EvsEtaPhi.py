@@ -3,12 +3,13 @@ from ROOT import TCanvas,ROOT,TFile,TF1,TLine,gROOT,TPaveText,TH1D,Double,TH2D,T
 from plotting.PlotStyle import getLabelCmsPrivateSimulation,setupPalette
 from plotting.PlotStyle import setupAxes
 from plotting.PlotStyle import setStatBoxOptions,setStatBoxPosition,pyplotCmsPrivateLabel
-from plotting.Utils import setupEAvplot
+from plotting.Utils import setupEAvplot, L1_PHI_BIN, L1_ETA_BIN
 
 from plotting.Plot import Plot
 
 import numpy as np
 import matplotlib.pyplot as plt
+import math
 
 class EvsEtaPhi(Plot):
 	
@@ -304,4 +305,109 @@ class EvsEtaPhi(Plot):
 		
 		return hM1Energy,canvas,h0Energy,hP1Energy,h0Counter,label1,label2,label3
 
+	def plotEAveragePerWheel(self):
+		canvas = TCanvas('cEAvPerWheel',"E Average per Wheel",1800,800)
+		canvas.Divide(3,1)
+	
+		hM1Energy = self.fileHandler.getHistogram('hoMuonAnalyzer/averageEnergy/wh1m/averageEnergyAroundPoint' + self.key + '_wh-1SummedEnergy')
+		hM1Counter = self.fileHandler.getHistogram('hoMuonAnalyzer/averageEnergy/wh1m/averageEnergyAroundPoint' + self.key + '_wh-1Counter')
+		hM1Energy = setupEAvplot(hM1Energy, hM1Counter)
+		hM1Energy.SetStats(0)
+	
+		h0Energy = self.fileHandler.getHistogram('hoMuonAnalyzer/averageEnergy/wh0/averageEnergyAroundPoint' + self.key + '_wh0SummedEnergy')
+		h0Counter = self.fileHandler.getHistogram('hoMuonAnalyzer/averageEnergy/wh0/averageEnergyAroundPoint' + self.key + '_wh0Counter')
+		h0Energy = setupEAvplot(h0Energy, h0Counter)
+		h0Energy.SetStats(0)
+	
+		hP1Energy = self.fileHandler.getHistogram('hoMuonAnalyzer/averageEnergy/wh1p/averageEnergyAroundPoint' + self.key + '_wh1SummedEnergy')
+		hP1Counter = self.fileHandler.getHistogram('hoMuonAnalyzer/averageEnergy/wh1p/averageEnergyAroundPoint' + self.key + '_wh1Counter')
+		hP1Energy = setupEAvplot(hP1Energy, hP1Counter)
+		hP1Energy.SetStats(0)
+	
+		canvas.cd(1).SetLogz()
+		setupAxes(hM1Energy)
+		hM1Energy.SetMaximum(1.2)
+		hM1Energy.SetMinimum(5e-3)
+		hM1Energy.Draw('colz')
+		canvas.Update()
+		setupPalette(hM1Energy)
+		label1 = self.drawLabel()
+
+		canvas.cd(2).SetLogz()
+		setupAxes(h0Energy)
+		h0Energy.SetMaximum(1.2)
+		h0Energy.SetMinimum(5e-3)
+		h0Energy.Draw('colz')
+		#h0Counter.Draw('same,text')
+		canvas.Update()
+		setupPalette(h0Energy)
+		label2 = self.drawLabel()
+		
+		canvas.cd(3).SetLogz()
+		setupAxes(hP1Energy)
+		hP1Energy.SetMaximum(1.2)
+		hP1Energy.SetMinimum(5e-3)
+		hP1Energy.Draw('colz')
+		canvas.Update()
+		setupPalette(hP1Energy)
+		label3 = self.drawLabel()
+	
+		canvas.Update()
+		
+		canvas.SaveAs('plots/averageEnergy/eAveragePerWheel.pdf')
+		
+		return hM1Energy,canvas,h0Energy,hP1Energy,h0Counter,label1,label2,label3
+	
+	def plotEtaPhiForTightL1(self):
+		canvas = TCanvas("cEtaPhi","Eta Phi",1200,1200)
+		canvas.Divide(2,1)
+		#graphAll = self.fileHandler.getGraph('hoMuonAnalyzer/graphs/L1TightMuons')
+		graphWithHo = self.fileHandler.getGraph('hoMuonAnalyzer/graphs/L1TightMuons3x3')
+				
+		halfPhiBinwidth = L1_PHI_BIN/2.
+		halfEtaBinwidth = L1_ETA_BIN/2.
+		
+		histAll = TH2D('hEtaPhiAll',"#eta#phi for all L1",30,-15*L1_ETA_BIN	,15*L1_ETA_BIN,
+					289, -math.pi - halfPhiBinwidth,math.pi + halfPhiBinwidth)
+		histWithHo = TH2D('hEtaPhiWithHO',"#eta#phi tight L1 + HO (3x3)",30,-15*L1_ETA_BIN,15*L1_ETA_BIN,
+					289, -math.pi - halfPhiBinwidth,math.pi + halfPhiBinwidth)
+		
+		x = Double(0)
+		y = Double(0)
+		
+# 		for i in range(0,graphAll.GetN()):
+# 			graphAll.GetPoint(i,x,y)
+# 			histAll.Fill(x,y)
+			
+		for i in range(0,graphWithHo.GetN()):
+			graphWithHo.GetPoint(i,x,y)
+			histWithHo.Fill(x,y)
+		
+# 		canvas.cd(1)
+# 		histAll.SetStats(0)
+# 		histAll.GetXaxis().SetRangeUser(-1,1)
+# 		histAll.SetTitle(histAll.GetTitle() + ';#eta;#phi;Entries')
+# 		setupAxes(histAll)
+# 		histAll.Draw('colz')
+# 		label1 = drawLabelCmsPrivateSimulation()
+# 		canvas.Update()
+# 		
+# 		setupPalette(histAll)
+# 		
+		canvas.cd(2)
+		histWithHo.SetStats(0)
+		histWithHo.GetXaxis().SetRangeUser(-1,1)
+		histWithHo.SetTitle(histWithHo.GetTitle() + ';#eta;#phi;Entries')
+		setupAxes(histWithHo)
+		histWithHo.Draw('colz')
+		label2 = self.drawLabel()
+		
+		canvas.Update()
+		setupPalette(histWithHo)
+		
+		canvas.Update()
+		
+		canvas.SaveAs('plots/etaPhiForAllL1.pdf')
+		
+		return canvas,histAll,histWithHo#,label1,label2
 	
