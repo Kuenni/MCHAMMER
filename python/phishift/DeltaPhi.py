@@ -1,28 +1,21 @@
-import sys
-from plotting.RootFileHandler import RootFileHandler
-from plotting.PlotStyle import drawLabelCmsPrivateSimulation, setupAxes,\
-	setupPalette
-from plotting.Utils import setupEAvplot,fillGraphIn2DHist,L1_PHI_BIN,L1_ETA_BIN
+from plotting.Plot import Plot
+from plotting.PlotStyle import setupAxes,setupPalette
+from plotting.Utils import fillGraphIn2DHist,L1_PHI_BIN,L1_ETA_BIN
 from ROOT import TCanvas,TLine,TLegend,Double,TH2D
-import math,os
+import math
 
-class DeltaPhi:
+class DeltaPhi(Plot):
 
 	def __init__(self,filename,data = False):
-		if( not os.path.exists('plots')):
-			os.mkdir('plots')
-		if( not os.path.exists('plots/averageEnergy')):
-			os.mkdir('plots/averageEnergy')
-		self.fileHandler = RootFileHandler(filename)
-		self.fileHandler.printStatus()
-		self.key = 'L1MuonPresent' if data else 'L1MuonTruth'
+		Plot.__init__(self,filename,data)
+		self.createPlotSubdir('averageEnergy')
 	
 	def plotDeltaPhiVsL1Pt(self):
 		canvas = TCanvas('cDeltaPhiVsL1Pt','DeltaPhiVsL1Pt',1200,1200)
 		hist = self.fileHandler.getHistogram('hoMuonAnalyzer/correlation/shiftCheckDeltaPhiVsL1Pt')
 		hist.Scale(1,'width')
 		hist.Draw('colz')
-		label = drawLabelCmsPrivateSimulation()
+		label = self.drawLabel()
 		canvas.Update()
 		
 		return canvas,hist,label
@@ -37,7 +30,7 @@ class DeltaPhi:
 		setupPalette(hist)
 		setupAxes(hist)
 		
-		label = drawLabelCmsPrivateSimulation()
+		label = self.drawLabel()
 		canvas.Update()
 		
 		return canvas,hist,label
@@ -68,7 +61,7 @@ class DeltaPhi:
 		legend.AddEntry(phiBorderLines[0],"HO Tile center","e")
 		#legend.Draw()
 		
-		label = drawLabelCmsPrivateSimulation()
+		label = self.drawLabel()
 		canvas.Update()
 		
 		setupPalette(hist)
@@ -89,7 +82,7 @@ class DeltaPhi:
 		hist.SetTitle('#Delta#phi vs. L1#eta')
 		hist.Draw('colz')
 		
-		label = drawLabelCmsPrivateSimulation()
+		label = self.drawLabel()
 		canvas.Update()
 		
 		setupAxes(hist)
@@ -163,7 +156,7 @@ class DeltaPhi:
 		hist = self.fileHandler.getHistogram('hoMuonAnalyzer/histograms1D/deltaPhi' + self.key)
 		hist.Draw()
 		
-		label = drawLabelCmsPrivateSimulation()
+		label = self.drawLabel()
 		
 		return hist,canvas,label
 		
@@ -228,7 +221,7 @@ class DeltaPhi:
 		histAll.SetTitle(histAll.GetTitle() + ';#eta;#phi;Entries')
 		setupAxes(histAll)
 		histAll.Draw('colz')
-		label1 = drawLabelCmsPrivateSimulation()
+		label1 = self.drawLabel()
 		canvas.Update()
 		
 		setupPalette(histAll)
@@ -239,7 +232,7 @@ class DeltaPhi:
 		histWithHo.SetTitle(histWithHo.GetTitle() + ';#eta;#phi;Entries')
 		setupAxes(histWithHo)
 		histWithHo.Draw('colz')
-		label2 = drawLabelCmsPrivateSimulation()
+		label2 = self.drawLabel()
 		
 		canvas.Update()
 		setupPalette(histWithHo)
