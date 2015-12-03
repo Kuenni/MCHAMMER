@@ -288,7 +288,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 //		listL1MuonPt.push_back(bl1Muon->pt());
 		/*
 		 * Fill histogram for different pt thresholds
-		 * CAREFUL!! THIS IS NOT A REAL RATE YET!!
+		 * CAUTION!! THIS IS NOT A REAL RATE YET!!
 		 */
 		for (int j = 0; j < 200; j+=2) {
 			if(bl1Muon->pt() >= j){
@@ -296,7 +296,6 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			}
 		}
 		//Look for matches in grid around L1
-
 		calculateGridMatchingEfficiency(&*bl1Muon,bl1Muon->pt(),"L1Muon");
 		fillGridMatchingQualityCodes(&*bl1Muon,bl1Muon->pt(),"L1Muon");
 
@@ -1304,6 +1303,9 @@ void hoMuonAnalyzer::calculateGridMatchingEfficiency(const l1extra::L1MuonPartic
 			if(hoMatcher->isRecHitInGrid(l1muon->eta(),l1muon->phi(), recHit,i)){
 				histogramBuilder.fillBxIdVsPt(l1muon->bx(),l1muon->pt(),key + gridString + "Match");
 				histogramBuilder.fillQualityCodeVsPt(qualityCode,l1muon->pt(),key + gridString + "Match");
+				int hoIEta = recHit->id().ieta();
+				int hoIPhi = recHit->id().iphi();
+				histogramBuilder.fillIEtaIPhiHistogram(hoIEta,hoIPhi,key + gridString);
 			} else {
 				histogramBuilder.fillBxIdVsPt(l1muon->bx(),l1muon->pt(),key + gridString + "Fail");
 				histogramBuilder.fillQualityCodeVsPt(qualityCode,l1muon->pt(),key + gridString + "Fail");
@@ -1387,9 +1389,14 @@ void hoMuonAnalyzer::gridMatchingWithTightMuons(){
 			const l1extra::L1MuonParticle* l1Part = 0;
 			l1Part = functionsHandler->getBestL1MuonMatch(patMuonIt->eta(),patMuonIt->phi());
 			if(l1Part){
+				histogramBuilder.fillEtaPhiGraph(l1Part->eta(),l1Part->phi(),"L1TightMuons");
 				//TODO: Why would there be events with tight muons without L1 match
 				calculateGridMatchingEfficiency(&*l1Part,l1Part->pt(),"L1TightMuons");
 				fillAverageEnergyAroundL1Direction(&*l1Part,"L1TightMuons");
+			} else{
+				/**
+				 * Dump events with tigh mu but no l1 match
+				 */
 			}
 		}
 	}
