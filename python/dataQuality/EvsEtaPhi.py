@@ -361,13 +361,12 @@ class EvsEtaPhi(Plot):
 	def plotEtaPhiForTightL1(self):
 		canvas = TCanvas("cEtaPhi","Eta Phi",1200,1200)
 		canvas.Divide(2,1)
-		#graphAll = self.fileHandler.getGraph('hoMuonAnalyzer/graphs/L1TightMuons')
+		graphAll = self.fileHandler.getGraph('hoMuonAnalyzer/graphs/L1TightMuons')
 		graphWithHo = self.fileHandler.getGraph('hoMuonAnalyzer/graphs/L1TightMuons3x3')
 				
 		halfPhiBinwidth = L1_PHI_BIN/2.
-		halfEtaBinwidth = L1_ETA_BIN/2.
 		
-		histAll = TH2D('hEtaPhiAll',"#eta#phi for all L1",30,-15*L1_ETA_BIN	,15*L1_ETA_BIN,
+		histAll = TH2D('hEtaPhiAll',"#eta#phi for tight L1",30,-15*L1_ETA_BIN	,15*L1_ETA_BIN,
 					289, -math.pi - halfPhiBinwidth,math.pi + halfPhiBinwidth)
 		histWithHo = TH2D('hEtaPhiWithHO',"#eta#phi tight L1 + HO (3x3)",30,-15*L1_ETA_BIN,15*L1_ETA_BIN,
 					289, -math.pi - halfPhiBinwidth,math.pi + halfPhiBinwidth)
@@ -375,29 +374,29 @@ class EvsEtaPhi(Plot):
 		x = Double(0)
 		y = Double(0)
 		
-# 		for i in range(0,graphAll.GetN()):
-# 			graphAll.GetPoint(i,x,y)
-# 			histAll.Fill(x,y)
+		for i in range(0,graphAll.GetN()):
+			graphAll.GetPoint(i,x,y)
+			histAll.Fill(x,y)
 			
 		for i in range(0,graphWithHo.GetN()):
 			graphWithHo.GetPoint(i,x,y)
 			histWithHo.Fill(x,y)
 		
-# 		canvas.cd(1)
-# 		histAll.SetStats(0)
-# 		histAll.GetXaxis().SetRangeUser(-1,1)
-# 		histAll.SetTitle(histAll.GetTitle() + ';#eta;#phi;Entries')
-# 		setupAxes(histAll)
-# 		histAll.Draw('colz')
-# 		label1 = drawLabelCmsPrivateSimulation()
-# 		canvas.Update()
-# 		
-# 		setupPalette(histAll)
-# 		
+		canvas.cd(1)
+		histAll.SetStats(0)
+		histAll.GetXaxis().SetRangeUser(-1,1)
+		histAll.SetTitle(histAll.GetTitle() + ';#eta_{L1};#phi_{L1};Entries')
+		setupAxes(histAll)
+		histAll.Draw('colz')
+		label1 = self.drawLabel()
+		canvas.Update()
+		
+		setupPalette(histAll)
+		
 		canvas.cd(2)
 		histWithHo.SetStats(0)
 		histWithHo.GetXaxis().SetRangeUser(-1,1)
-		histWithHo.SetTitle(histWithHo.GetTitle() + ';#eta;#phi;Entries')
+		histWithHo.SetTitle(histWithHo.GetTitle() + ';#eta_{L1};#phi_{L1};Entries')
 		setupAxes(histWithHo)
 		histWithHo.Draw('colz')
 		label2 = self.drawLabel()
@@ -407,7 +406,7 @@ class EvsEtaPhi(Plot):
 		
 		canvas.Update()
 		
-		canvas.SaveAs('plots/etaPhiForAllL1.pdf')
+		canvas.SaveAs('plots/etaPhiForTightL1.pdf')
 		
-		return canvas,histAll,histWithHo#,label1,label2
+		return canvas,histAll,histWithHo,label1,label2
 	
