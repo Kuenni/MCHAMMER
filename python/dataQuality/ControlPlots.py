@@ -1,5 +1,6 @@
 #!/usr/bin/python
-import os,sys
+import os
+from plotting.Plot import Plot
 from ROOT import TCanvas,ROOT,TFile,TF1,TLine,gROOT,TPaveText,TH1D,Double,TH2D,THStack,gStyle
 from plotting.PlotStyle import setPlotStyle,drawLabelCmsPrivateSimulation,colorRwthDarkBlue,\
 	setStatBoxOptions, setStatBoxPosition, setupPalette, drawLabelCmsPrivateData
@@ -10,25 +11,60 @@ from array import array
 import math
 
 
-class ControlPlots:
+class ControlPlots(Plot):
 	
 	def __init__(self,filename,data = False):
-		setPlotStyle()
-		self.data = data
+		Plot.__init__(self,filename,data)
 		gROOT.ProcessLine(".L $HOMUONTRIGGER_BASE/python/loader.C+");
-		self.commandLine = CommandLineHandler( '[makeEvsEtaPhiPlot] ')
-		self.fileHandler = RootFileHandler(filename)
-		self.fileHandler.printStatus()
-		if( not os.path.exists('plots')):
-			os.mkdir('plots')
-		if( not os.path.exists('plots/controlPlots')):
-			os.mkdir('plots/controlPlots')
+		self.createPlotSubdir('controlPlots')
 
+	def getIEtaIPhiPlot(self,key):
+	#	canvas = TCanvas('cHoIEtaIPhi' + key,'HO iEta iPhi',0,50,600,500)
+		hoEtaPhi = self.fileHandler.getHistogram('hoMuonAnalyzer/etaPhi/' + key + '_iEtaIPhi')
+		hoEtaPhi.SetTitle('HO RecHits > 0.2GeV;i#eta;i#phi;# entries')
+		hoEtaPhi.Draw('colz')
+	#	canvas.Update()
+		hoEtaPhi.SetStats(0)
+		setupAxes(hoEtaPhi)
+	#	setupPalette(hoEtaPhi)
+	#	label = self.drawLabel()
+	#	canvas.Update()
+		return hoEtaPhi#,label,canvas
+
+	def plotIEtaIPhiOnSameScales(self):
+		canvas = TCanvas('gfdhgfdhg','kjfgkjhg',1900,500)
+		canvas.Divide(3,1)
+		canvas.cd(1).SetLogz()
+		res1 = self.getIEtaIPhiPlot('hoRecHitsAboveThr')
+		canvas.cd(2).SetLogz()
+		res2 = self.getIEtaIPhiPlot('L1Muon3x3')
+		res2.SetMaximum(res1.GetMaximum())
+		canvas.cd(3).SetLogz()
+		res3 = self.getIEtaIPhiPlot('L1TightMuons3x3')
+		res3.SetMaximum(res1.GetMaximum())
+		canvas.Update()
+		res2.SetTitle('L1 #Rightarrow ' + res2.GetTitle())
+		res3.SetTitle('L1 Tight #Rightarrow ' + res3.GetTitle())
+		canvas.cd(1)
+		setupPalette(res1)
+		label1 = self.drawLabel()
+		canvas.cd(1).Update()
+		canvas.cd(2)
+		setupPalette(res2)
+		label2 = self.drawLabel()
+		canvas.Update()
+		canvas.cd(3)
+		setupPalette(res3)
+		label3 = self.drawLabel()
+		canvas.Update()
+		canvas.SaveAs('plots/controlPlots/hoIEtaIPhiSameScales.gif')
+		return res1,res2,res3,canvas,label1,label2,label3
+		
 	'''
 	Plot the eta phi distribution of HO > Thr
 	'''
-	def plotHoEtaPhi(self):
-		canvas = TCanvas('cHoEtaPhi','HO iEta iPhi')
+	def plotHoIEtaIPhi(self):
+		canvas = TCanvas('cHoIEtaIPhi','HO iEta iPhi',0,50,600,500)
 		hoEtaPhi = self.fileHandler.getHistogram('hoMuonAnalyzer/etaPhi/hoRecHitsAboveThr_iEtaIPhi')
 		hoEtaPhi.SetTitle('HO RecHits > 0.2GeV;i#eta;i#phi;# entries')
 		hoEtaPhi.Draw('colz')
@@ -36,11 +72,7 @@ class ControlPlots:
 		hoEtaPhi.SetStats(0)
 		setupAxes(hoEtaPhi)
 		setupPalette(hoEtaPhi)
-		label = None
-		if self.data:
-			label = drawLabelCmsPrivateData()
-		else:
-			label = drawLabelCmsPrivateSimulation()
+		label = self.drawLabel()
 		canvas.Update()
 		canvas.SaveAs('plots/controlPlots/HoEtaPhi.pdf')
 		return label,canvas,hoEtaPhi
@@ -52,7 +84,7 @@ class ControlPlots:
 	def plotHoEtaPhiMatchedToL1(self):
 		canvas = TCanvas('cHoEtaPhiAndL1','HO Eta Phi And L1')
 		hoEtaPhi = self.fileHandler.getHistogram('hoMuonAnalyzer/etaPhi/L1MuonWithHoMatchAboveThr_HO_EtaPhi')
-		hoEtaPhi.SetTitle('L1 matched to HO RecHits > 0.2GeV;#eta;#phi;# entries')
+		hoEtaPhi.SetTitle('L1 matched to HO RecHits > 0.2GeV;#eta_{HO};#phi_{HO};# entries')
 		hoEtaPhi.Rebin2D(10,10)
 		hoEtaPhi.GetXaxis().SetRangeUser(-1.5,1.5)
 		hoEtaPhi.Draw('colz')
@@ -60,15 +92,63 @@ class ControlPlots:
 		hoEtaPhi.SetStats(0)
 		setupAxes(hoEtaPhi)
 		setupPalette(hoEtaPhi)
-		label = None
-		if self.data:
-			label = drawLabelCmsPrivateData()
-		else:
-			label = drawLabelCmsPrivateSimulation()
+		label = self.drawLabel()
 		canvas.Update()
 		canvas.SaveAs('plots/controlPlots/L1MatchedToHoEtaPhi.pdf')
 		return label,canvas,hoEtaPhi
-	
+		
+	'''
+	Plot the eta phi distribution of HO > Thr matched to Tight L1
+	'''
+	def plotHoEtaPhiMatchedToTightL1(self):
+		canvas = TCanvas('cHoEtaPhiAndTightL1','HO Eta Phi And Tight L1')
+		hoEtaPhi = self.fileHandler.getHistogram('hoMuonAnalyzer/etaPhi/patMuonsTight_HO_EtaPhi')
+		hoEtaPhi.SetTitle('Tight L1 matched to HO RecHits > 0.2GeV;#eta_{HO};#phi_{HO};# entries')
+		hoEtaPhi.Rebin2D(10,10)
+		hoEtaPhi.GetXaxis().SetRangeUser(-1.5,1.5)
+		hoEtaPhi.Draw('colz')
+		canvas.Update()
+		hoEtaPhi.SetStats(0)
+		setupAxes(hoEtaPhi)
+		setupPalette(hoEtaPhi)
+		label = self.drawLabel()
+		canvas.Update()
+		canvas.SaveAs('plots/controlPlots/tightPatToHoEtaPhi.pdf')
+		return label,canvas,hoEtaPhi
+		
+	'''
+	Plot the ieta iphi distribution of HO > Thr matched to tight L1
+	'''
+	def plotHoIEtaIPhiMatchedToTightL1(self):
+		canvas = TCanvas('cHoIEtaIPhiAndTightL1','HO iEta iPhi And Tight L1',1300,50,600,500)
+		hoEtaPhi = self.fileHandler.getHistogram('hoMuonAnalyzer/etaPhi/L1TightMuons3x3_iEtaIPhi')
+		hoEtaPhi.SetTitle('Tight L1 matched to HO RecHits > 0.2GeV;i#eta;i#phi;# entries')
+		hoEtaPhi.Draw('colz')
+		canvas.Update()
+		hoEtaPhi.SetStats(0)
+		setupAxes(hoEtaPhi)
+		setupPalette(hoEtaPhi)
+		label = self.drawLabel()
+		canvas.Update()
+		canvas.SaveAs('plots/controlPlots/tightL1MatchedToHoIEtaIPhi.pdf')
+		return label,canvas,hoEtaPhi
+
+	'''
+	Plot the ieta iphi distribution of HO > Thr matched to L1
+	'''
+	def plotHoIEtaIPhiMatchedToL1(self):
+		canvas = TCanvas('cHoIEtaIPhiAndL1','HO iEta iPhi And L1',650,50,600,500)
+		hoEtaPhi = self.fileHandler.getHistogram('hoMuonAnalyzer/etaPhi/L1Muon3x3_iEtaIPhi')
+		hoEtaPhi.SetTitle('L1 matched to HO RecHits > 0.2GeV;i#eta;i#phi;# entries')
+		hoEtaPhi.Draw('colz')
+		canvas.Update()
+		hoEtaPhi.SetStats(0)
+		setupAxes(hoEtaPhi)
+		setupPalette(hoEtaPhi)
+		label = self.drawLabel()
+		canvas.Update()
+		canvas.SaveAs('plots/controlPlots/l1MatchedToHoIEtaIPhi.pdf')
+		return label,canvas,hoEtaPhi
 
 	'''
 	Control Plot that shows the number of matches in Det Ids for a given RecHit Det id
