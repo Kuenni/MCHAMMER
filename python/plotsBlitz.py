@@ -34,8 +34,12 @@ for script in args.scripts:
 	if(script == 'controlPlots'):
 		plots = ControlPlots(filename=args.source,data=args.data)
 		res1 = plots.plotL1PerPt()
-		res2 = plots.plotHoEtaPhi()
+		res2 = plots.plotHoIEtaIPhi()
 		res3 = plots.plotHoEtaPhiMatchedToL1()
+		resTightAndHoIetaIphi = plots.plotHoIEtaIPhiMatchedToTightL1()
+		resL1AndHoIetaIphi = plots.plotHoIEtaIPhiMatchedToL1()
+		resPatTightHoEtaPhi = plots.plotHoEtaPhiMatchedToTightL1()
+		resSameScale = plots.plotIEtaIPhiOnSameScales()
 		#res2 = plots.plotHoDigiMatchesPerDetId()
 		if not args.data:
 			res4 = plots.plotEfficiencyCountCheck()
