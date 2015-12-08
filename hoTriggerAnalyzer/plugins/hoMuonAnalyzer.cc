@@ -1306,6 +1306,7 @@ void hoMuonAnalyzer::calculateGridMatchingEfficiency(const l1extra::L1MuonPartic
 				int hoIEta = recHit->id().ieta();
 				int hoIPhi = recHit->id().iphi();
 				histogramBuilder.fillIEtaIPhiHistogram(hoIEta,hoIPhi,key + gridString);
+				histogramBuilder.fillEtaPhiHistograms(hoMatcher->getRecHitEta(recHit),hoMatcher->getRecHitPhi(recHit),key + gridString);
 			} else {
 				histogramBuilder.fillBxIdVsPt(l1muon->bx(),l1muon->pt(),key + gridString + "Fail");
 				histogramBuilder.fillQualityCodeVsPt(qualityCode,l1muon->pt(),key + gridString + "Fail");
@@ -1379,6 +1380,10 @@ void hoMuonAnalyzer::recoControlPlots(){
 			histogramBuilder.fillPtHistogram(patMuonIt->pt(),"patMuonsTight");
 			histogramBuilder.fillEtaPhiGraph(patMuonIt->eta(), patMuonIt->phi(),"patMuonsTight");
 			histogramBuilder.fillEtaPhiHistograms(patMuonIt->eta(),patMuonIt->phi(),"patMuonsTight");
+			const HORecHit* recHit = hoMatcher->matchByEMaxDeltaR(patMuonIt->eta(), patMuonIt->phi());
+			if(recHit){
+				histogramBuilder.fillEtaPhiHistograms(hoMatcher->getRecHitEta(recHit),hoMatcher->getRecHitPhi(recHit),"patMuonsTight_HO");
+			}
 		}
 	}
 }
@@ -1390,6 +1395,7 @@ void hoMuonAnalyzer::gridMatchingWithTightMuons(){
 			l1Part = functionsHandler->getBestL1MuonMatch(patMuonIt->eta(),patMuonIt->phi());
 			if(l1Part){
 				histogramBuilder.fillEtaPhiGraph(l1Part->eta(),l1Part->phi(),"L1TightMuons");
+				histogramBuilder.fillCountHistogram("L1TightMuons");
 				//TODO: Why would there be events with tight muons without L1 match
 				calculateGridMatchingEfficiency(&*l1Part,l1Part->pt(),"L1TightMuons");
 				fillAverageEnergyAroundL1Direction(&*l1Part,"L1TightMuons");
