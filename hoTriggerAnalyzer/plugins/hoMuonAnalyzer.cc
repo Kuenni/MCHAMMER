@@ -493,7 +493,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				recHitAbThrNoL1Counter++;
 				double ho_eta = caloGeo->getPosition(hoRecoIt->id()).eta();
 				double ho_phi = caloGeo->getPosition(hoRecoIt->id()).phi();
-				histogramBuilder.fillCountHistogram(horeco_key);
+				histogramBuilder.fillCountHistogram("NoL1");
 				histogramBuilder.fillEnergyHistograms(hoRecoIt->energy(),"NoL1");
 				histogramBuilder.fillEtaPhiHistograms(ho_eta, ho_phi, "NoL1");
 				histogramBuilder.fillEnergyVsPosition(ho_eta,ho_phi,hoRecoIt->energy(),"NoL1");
@@ -1313,6 +1313,33 @@ void hoMuonAnalyzer::calculateGridMatchingEfficiency(const l1extra::L1MuonPartic
 			}
 		}
 	}
+}
+
+void hoMuonAnalyzer::fillTriggerRatesForQualityCodes(){
+	//Todo: For L1 pt use the l1 binning
+	//Normalize per bin width
+	//Do this as stacked plot?
+	//Use tight information only?
+	//Quality codes as bit field
+	// 0 - 7 	L1 Quality		-> Bit 0 - 2
+	// 8, 16 	HO time window	-> Bit 3 - 4
+	//32,64,xx 	L1 BX ID		-> Bit 5 - 11
+
+	//MSB first
+	//L1 Quality best 	xxx111
+	//	Second best		xxx110
+	//	third best		xxx101
+	// ...
+	#define HO_time_good 11xxxb
+#define HO_time_lo	01xxx
+#define HO_time_hi	10xxx
+#define L1BXID0		0001000xxxx....
+#define L1BXID_P_1		0010000xxxx....
+#define L1BXID_P_2		0100000xxxx....
+#define L1BXID_P_3		1000000xxxx....
+#define L1BXID_M_1		0000100xxxx....
+#define L1BXID_M_2		0000010xxxx....
+#define L1BXID_M_3		0000001xxxx....
 }
 
 /**
