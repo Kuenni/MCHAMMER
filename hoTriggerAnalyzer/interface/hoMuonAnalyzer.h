@@ -96,6 +96,8 @@ private:
 	void processGenInformation(const edm::Event& iEvent,const edm::EventSetup& iSetup);
 	void processRecoInformation(const edm::Event& iEvent,const edm::EventSetup& iSetup);
 
+	void fillTriggerRatesForQualityCodes();
+
 	void recoControlPlots();
 
 	const reco::GenParticle* getBestGenMatch(float,float);
