@@ -3,6 +3,7 @@
 import argparse
 
 from ROOT import gROOT
+from efficiency.Counters import Counters
 
 gROOT.ProcessLine(".L $HOMUONTRIGGER_BASE/python/loader.C+");
 
@@ -103,6 +104,11 @@ for script in args.scripts:
 			res5 = lib.plotPtAndPhiOfWrongBxId()
 			res4 = lib.plotImprovementInDt()
 			res3 = lib.plotPtAndEtaOfWrongBxId()
+		raw_input('-->')
+	elif (script == 'counters'):
+		lib = Counters(filename=args.source,data=args.data)
+		res = lib.plotL1AndTightL1Counters()
+		res2 = lib.plotTightL1EtaPhiRatio()
 		raw_input('-->')
 	else:
 		print 'Unknown script requested: %s' % (script)
