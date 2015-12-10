@@ -1381,7 +1381,7 @@ void hoMuonAnalyzer::fillGridMatchingHistograms(bool passed, int grid, double pt
 }
 
 void hoMuonAnalyzer::analyzeL1Resolution(){
-	for(auto patMuonIt = patMuons->begin(); patMuons != recoMuons->end(); patMuons++){
+	for(auto patMuonIt = patMuons->begin(); patMuonIt != patMuons->end(); patMuonIt++){
 		const l1extra::L1MuonParticle* l1Part = 0;
 		l1Part = functionsHandler->getBestL1MuonMatch(patMuonIt->eta(),patMuonIt->phi());
 		if(l1Part){
