@@ -244,7 +244,8 @@ class EvsEtaPhi(Plot):
 		
 		hSum = setupEAvplot(hSum, hCounter,same=True,borderAll=0.3)
 		hSum.SetTitle('Average E_{Rec} in HO tiles around tight L1 direction')
-		hSum.SetMaximum(2)
+		hSum.SetMaximum(1.2)
+		hSum.SetMinimum(5e-3)
 		hSum.Draw('colz')
 		label = self.drawLabel()
 		canvas.Update()		
