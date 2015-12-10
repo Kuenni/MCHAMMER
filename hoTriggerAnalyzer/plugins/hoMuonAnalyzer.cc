@@ -1284,7 +1284,10 @@ void hoMuonAnalyzer::calculateGridMatchingEfficiency(const l1extra::L1MuonPartic
 	 * 10 * Bx ID + L1 QC + HO Wime window information
 	 *
 	 */
-
+	//Restrict L1 information to be within HO
+	if(fabs(l1muon->eta()) > 1.25){
+		return;
+	}
 
 	calculateGridMatchingEfficiency(l1muon->eta(), l1muon->phi(),pt, key);
 	//Analyze the BX ID of L1 objects that do not have a match in the grid
@@ -1379,15 +1382,15 @@ void hoMuonAnalyzer::fillGridMatchingHistograms(bool passed, int grid, double pt
 
 //{}
 void hoMuonAnalyzer::analyzeL1Resolution(){
-	for(auto recoIt = recoMuons->begin(); recoIt != recoMuons->end(); recoIt++){
+	for(auto patMuonIt = patMuons->begin(); patMuons != recoMuons->end(); patMuons++){
 		const l1extra::L1MuonParticle* l1Part = 0;
-		l1Part = functionsHandler->getBestL1MuonMatch(recoIt->eta(),recoIt->phi());
+		l1Part = functionsHandler->getBestL1MuonMatch(patMuonIt->eta(),patMuonIt->phi());
 		if(l1Part){
-			histogramBuilder.fillL1ResolutionHistogram(l1Part->pt(), recoIt->pt(), "L1MuonTruth");
+			histogramBuilder.fillL1ResolutionHistogram(l1Part->pt(), patMuonIt->pt(), "L1MuonTruth");
 			const HORecHit* matchedRecHit = 0;
 			matchedRecHit = hoMatcher->matchByEMaxDeltaR(l1Part->eta(),l1Part->phi());
 			if(matchedRecHit){
-				histogramBuilder.fillL1ResolutionHistogram(l1Part->pt(), recoIt->pt(), "L1MuonTruthHoMatch");
+				histogramBuilder.fillL1ResolutionHistogram(l1Part->pt(), patMuonIt->pt(), "L1MuonTruthHoMatch");
 			}
 		}
 	}
@@ -1421,6 +1424,10 @@ void hoMuonAnalyzer::gridMatchingWithTightMuons(){
 			const l1extra::L1MuonParticle* l1Part = 0;
 			l1Part = functionsHandler->getBestL1MuonMatch(patMuonIt->eta(),patMuonIt->phi());
 			if(l1Part){
+				//Restrict the L1 information to Ho range
+				if(fabs(l1Part->eta()) > 1.25){
+					continue;
+				}
 				histogramBuilder.fillEtaPhiGraph(l1Part->eta(),l1Part->phi(),"L1TightMuons");
 				histogramBuilder.fillCountHistogram("L1TightMuons");
 				//TODO: Why would there be events with tight muons without L1 match
