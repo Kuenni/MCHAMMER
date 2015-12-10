@@ -18,10 +18,13 @@ class RootFileHandler:
 	
 	#Initialize object
 	def __init__(self,filename):
-		self.filepath = '.'
+		if filename[0] == '/':
+			self.filepath = ''
+		else:
+			self.filepath = './'
 		directoryIndex = filename.rfind('/')
 		if directoryIndex != -1:
-			self.filepath += '/' + filename[0:directoryIndex+1]
+			self.filepath += filename[0:directoryIndex+1]
 		self.filename = filename[directoryIndex+1:]
 		self.getNumberOfFiles()
 		pass
