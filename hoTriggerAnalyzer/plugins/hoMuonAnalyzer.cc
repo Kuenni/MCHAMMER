@@ -1380,7 +1380,6 @@ void hoMuonAnalyzer::fillGridMatchingHistograms(bool passed, int grid, double pt
 	}
 }
 
-//{}
 void hoMuonAnalyzer::analyzeL1Resolution(){
 	for(auto patMuonIt = patMuons->begin(); patMuons != recoMuons->end(); patMuons++){
 		const l1extra::L1MuonParticle* l1Part = 0;
@@ -1391,6 +1390,9 @@ void hoMuonAnalyzer::analyzeL1Resolution(){
 			matchedRecHit = hoMatcher->matchByEMaxDeltaR(l1Part->eta(),l1Part->phi());
 			if(matchedRecHit){
 				histogramBuilder.fillL1ResolutionHistogram(l1Part->pt(), patMuonIt->pt(), "L1MuonTruthHoMatch");
+				if(patMuonIt->isTightMuon(getPrimaryVertex())){
+					histogramBuilder.fillL1ResolutionHistogram(l1Part->pt(), patMuonIt->pt(), "L1MuonTightTruthHoMatch");
+				}
 			}
 		}
 	}
