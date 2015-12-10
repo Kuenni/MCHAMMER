@@ -252,7 +252,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	}
 	histogramBuilder.fillMultiplicityHistogram(recHitAbThrCounter,horecoT_key);
 	histogramBuilder.fillMultiplicityHistogram(hoRecoHits->size(),horeco_key);
-
+	makeHoRecHitThresholdScan();
 	/*
 	 * L1 Trigger Decisions
 	 */
@@ -1554,6 +1554,10 @@ void hoMuonAnalyzer::processGenInformation(const edm::Event& iEvent,const edm::E
 		}
 }
 
+/**
+ * Get the primary vertex for the current event
+ * Used to identify tight muons
+ */
 const reco::Vertex hoMuonAnalyzer::getPrimaryVertex(){
 	// =================================================================================
 	// Look for the Primary Vertex (and use the BeamSpot instead, if you can't find it):
@@ -1584,6 +1588,23 @@ const reco::Vertex hoMuonAnalyzer::getPrimaryVertex(){
 
 	const reco::Vertex vtx(posVtx,errVtx);
 	return vtx;
+}
+
+/**
+ * Make threshold scan for the number of passing rec hits for different energy thresholds
+ */
+void hoMuonAnalyzer::makeHoRecHitThresholdScan(){
+	int iterationCounter = 0;
+	for(double eThr = 0.025; eThr <= 5; eThr += 0.025){
+		int thrCounter = 0;
+		for(auto recHitIt = hoRecoHits->begin(); recHitIt != hoRecoHits->end(); ++recHitIt){
+			if(recHitIt->energy() >= eThr){
+				thrCounter++;
+			}
+		}
+		histogramBuilder.fillMultiplicityHistogram(thrCounter,"recHitThrScan" + iterationCounter);
+		iterationCounter++;
+	}
 }
 
 /**

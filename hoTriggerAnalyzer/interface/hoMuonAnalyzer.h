@@ -90,6 +90,7 @@ private:
 	void fillGridMatchingQualityCodes(const l1extra::L1MuonParticle* l1muon, float pt, std::string key);
 	void calculateGridMatchingEfficiency(const l1extra::L1MuonParticle* l1muon, float pt, std::string key);
 	void calculateGridMatchingEfficiency(double eta, double phi, float pt, std::string key);
+	void makeHoRecHitThresholdScan();
 
 	void gridMatchingWithTightMuons();
 
