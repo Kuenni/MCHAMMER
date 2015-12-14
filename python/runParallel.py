@@ -26,7 +26,8 @@ outputFileTrunk = 'sourceList'
 globalTags = {
 			'noPu':'autoCond[\'run2_mc\']',
 			'pu':'\'PHYS14_25_V1::All\'',
-			'design':'\'DESIGN72_V5::All\''
+			'design':'autoCond[\'run2_design\']',
+			'data':'autoCond[\'run2_data\']'
 			}
 
 print 
@@ -102,7 +103,18 @@ parser.add_argument('--conditions'
 				,dest='conditions'
 				,type = str
 				,help='Give the conditions (GlobalTag) to be used. Valid parameters:'\
-				'[noPu,pu,ideal]')
+				'[noPu,pu,design,data]')
+
+parser.add_argument('--lumiFile'
+				,dest='lumiFile'
+				,type = str
+				,help='Provide json file with lumi sections when running on data')
+
+parser.add_argument('--sourceFiles'
+				,dest='sourceFiles'
+				,type = str
+				,help='Choose a different file that contains the list of the source files.'\
+				'By default the script looks for a file named ' + cmsswSourceFiles + '.')
 
 args = parser.parse_args()
 
@@ -110,6 +122,12 @@ if not args.nJobs and not args.test and not args.collect:
 	output('If no test run is requested, the number of jobs has to be set!')
 	parser.print_help()
 	sys.exit(1)
+
+nJobs = 0
+if args.test:
+	nJobs = 1
+else:
+	nJobs = args.nJobs
 
 def hasJobFailed(resultsPath):
 	errFile = open(os.path.abspath(resultsPath) + '/out.txt')
@@ -169,13 +187,18 @@ def createDirectories():
 		
 #call the other script
 def createSourceLists():
+	if args.sourceFiles != None:
+		global cmsswSourceFiles
+		cmsswSourceFiles = args.sourceFiles
 	if not os.path.exists(cmsswSourceFiles):
 		output('Error! File %s does not exist!' % (cmsswSourceFiles))
 		sys.exit(1)
 	nSourceFiles = getLineCount(cmsswSourceFiles)
 	#round the number
-	nSourcesPerFile = math.ceil(nSourceFiles/args.nJobs)
-	output('Creating %d source files' % (args.nJobs))
+	nSourcesPerFile = math.ceil(nSourceFiles/nJobs)
+	if args.test:
+		nSourcesPerFile = 1
+	output('Creating %d source files' % (nJobs))
 	output('Found %d sample files in total.' % nSourceFiles)
 	output('\t=> %d sources per file' % nSourcesPerFile)
 	
@@ -201,17 +224,24 @@ def createRunConfigs():
 		sys.exit(-1)
 
 	gt = globalTags[args.conditions]
-	for i in range(0,args.nJobs):
+	for i in range(0,nJobs):
 		outfileName = 'configs/parallelConfig%d.py' % (i)
 		#Use a dedicated cfg template if given
-		if args.cfgTemplate:
+		if args.conditions == 'data':
 			global configTemplate
+			configTemplate = os.environ['HOMUONTRIGGER_BASE'] + '/python/runConfigData_template.py'
+			if args.lumiFile == None:
+				output("Error! Data conditions requested but no lumi file given!")
+				sys.exit(1)
+		if args.cfgTemplate:
 			configTemplate = args.cfgTemplate
 		with open(configTemplate) as infile:
 			with open(outfileName,'w') as outfile:
 				for line in infile.readlines():
 					line = line.replace('%INSTANCE%', str(i))
 					line = line.replace('%GLOBALTAG%',gt)
+					if args.lumiFile:
+						line = line.replace('%LUMIFILE%',args.lumiFile)
 					outfile.write(line)
 				outfile.close()
 				infile.close()
@@ -220,13 +250,17 @@ def createRunConfigs():
 
 #Eventually send the jobs
 def sendJobs():
-	cmdList = ['submit.py','--nJobs',str(1 if args.test else args.nJobs)]
+	from submit import Submitter
+	submitter = Submitter(nJobs)
 	if args.gridpackname != None:
-		cmdList.extend(['--gridpackname',args.gridpackname])
-	ret = call(cmdList)
-	if ret:
-		output('Something went wrong while creating the sample file lists!')
-	sys.exit(1)
+		submitter.setGridPackName(args.gridpackname)
+	if args.lumiFile:
+		submitter.addGridPackContent(args.lumiFile)
+	if args.conditions == 'data':
+		submitter.cmsswVersion = 'CMSSW_7_4_15'
+		submitter.scramArch = 'slc6_amd64_gcc491'
+	submitter.submit()
+	sys.exit(0)
 
 def main():
 	if args.nJobs or args.test:

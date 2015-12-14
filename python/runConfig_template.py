@@ -1,12 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("Demo")
+process = cms.Process("HoMuonAnalyzer")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 process.TFileService = cms.Service("TFileService",
-                                   	fileName=cms.string('L1MuonHistogramPooja%INSTANCE%.root'),
+                                   	fileName=cms.string('jobOutput%INSTANCE%.root'),
                                    )
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1))
