@@ -43,6 +43,10 @@ process.muonL1Match.preselection = cms.string("")
 #    cms.InputTag("muonL1Match","propagatedReco"),
 #)
 
+process.load('PhysicsTools/PatAlgos/producersLayer1/muonProducer_cfi')
+process.load('PhysicsTools/PatAlgos/selectionLayer1/muonSelector_cfi')
+process.patMuons.addGenMatch = cms.bool(False)
+
 from TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAny_cfi import *
 #process.load('TrackPropagation.SteppingHelixPropagator.SteppingHelixPropagatorAny_cfi')
 
@@ -218,6 +222,8 @@ process.p = cms.Path(process.genfilter*
 					process.l1MuonGenMatch*
 					process.horeco*
 					process.muonL1Match*
+					process.patMuonProducer_step*
+					process.patMuonSelector_step*
 					process.hoMuonAnalyzer*
 					process.hoDigiAnalyzer)
 
