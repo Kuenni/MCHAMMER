@@ -5,10 +5,9 @@ server = "srmls srm://grid-srm.physik.rwth-aachen.de:8443/pnfs/physik.rwth-aache
 
 lsResults = open('dcacheFiles','w+')
 
-cmd = server + '/store/user/akunsken/SingleMuMinus/CRAB_PrivateMC/crab_noBMuMinusIdeal_DESIGN72_V5/151111_190713/0000'
+cmd = server + '/store/user/akunsken/SingleMuMinus/CRAB_PrivateMC/crab_noBMuMinusIdeal_DESIGN72_V5/151211_092300/0000'
 call(cmd, shell=True, stdout=lsResults, stderr=open('/dev/null'))
 	
-
 lsResults.seek(0)
 cmsswRunSources = open('cmsswSourceFiles','w+')
 
