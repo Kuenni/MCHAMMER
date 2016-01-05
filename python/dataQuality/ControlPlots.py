@@ -9,6 +9,7 @@ from plotting.RootFileHandler import RootFileHandler
 from plotting.OutputModule import CommandLineHandler
 from array import array
 import math
+from plotting.Utils import fillGraphIn2DHist
 
 
 class ControlPlots(Plot):
@@ -17,6 +18,18 @@ class ControlPlots(Plot):
 		Plot.__init__(self,filename,data)
 		gROOT.ProcessLine(".L $HOMUONTRIGGER_BASE/python/loader.C+");
 		self.createPlotSubdir('controlPlots')
+
+	def plotL1PresentMultiplicity(self):
+		canvas = TCanvas('cL1Multiplicity')
+		hist = self.fileHandler.getHistogram('hoMuonAnalyzer/multiplicity/L1MuonPresent_Multiplicity')
+		hist.GetXaxis().SetRangeUser(0,20)
+		canvas.SetLogy()
+		hist.SetLineWidth(3)
+		hist.SetLineColor(colorRwthDarkBlue)
+		setupAxes(hist)
+		hist.SetTitle('L1Muon Multiplicity;# L1 Objects per event;#')
+		hist.Draw()
+		return hist,canvas
 
 	def getIEtaIPhiPlot(self,key):
 	#	canvas = TCanvas('cHoIEtaIPhi' + key,'HO iEta iPhi',0,50,600,500)
@@ -32,7 +45,7 @@ class ControlPlots(Plot):
 		return hoEtaPhi#,label,canvas
 
 	def plotIEtaIPhiOnSameScales(self):
-		canvas = TCanvas('gfdhgfdhg','kjfgkjhg',1900,500)
+		canvas = TCanvas('cSameScales','same scales',1900,500)
 		canvas.Divide(3,1)
 		canvas.cd(1).SetLogz()
 		res1 = self.getIEtaIPhiPlot('hoRecHitsAboveThr')
@@ -58,6 +71,7 @@ class ControlPlots(Plot):
 		label3 = self.drawLabel()
 		canvas.Update()
 		canvas.SaveAs('plots/controlPlots/hoIEtaIPhiSameScales.gif')
+		
 		return res1,res2,res3,canvas,label1,label2,label3
 		
 	'''
