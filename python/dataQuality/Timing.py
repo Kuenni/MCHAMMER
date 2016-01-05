@@ -58,7 +58,7 @@ class Timing:
 		label.Draw()
 		c.Update()
 		
-		c.SaveAs("plots/timing/deltaTimeAllHo.png")
+		c.SaveAs("plots/timing/deltaTimeAllHo.gif")
 		c.SaveAs("plots/timing/deltaTimeAllHo.pdf")
 		
 		hDeltaTCleanHo.Draw('same')
@@ -104,7 +104,7 @@ class Timing:
 		c.Update()
 		
 		
-		c.SaveAs("plots/timing/deltaTime.png")
+		c.SaveAs("plots/timing/deltaTime.gif")
 		c.SaveAs("plots/timing/deltaTime.pdf")
 	
 	def plotL1BxId(self):
@@ -141,7 +141,7 @@ class Timing:
 		label = getLabelCmsPrivateSimulation()
 		label.Draw()
 		
-		c2.SaveAs("plots/timing/bxId.png")
+		c2.SaveAs("plots/timing/bxId.gif")
 		c2.SaveAs("plots/timing/bxId.pdf")
 		
 		c4 = TCanvas("c4","BX L1Muon in ns",1200,1200)
@@ -198,7 +198,7 @@ class Timing:
 		pText.Draw()
 		
 		c3.Update()
-		c3.SaveAs("plots/timing/hoTimeLog.png")
+		c3.SaveAs("plots/timing/hoTimeLog.gif")
 		c3.SaveAs("plots/timing/hoTimeLog.pdf")
 		
 		return c3,pText,hHoTimeAboveThr
@@ -257,7 +257,7 @@ class Timing:
 		pText.Draw()
 		
 		c3.Update()
-		c3.SaveAs("plots/timing/hoTime.png")
+		c3.SaveAs("plots/timing/hoTime.gif")
 		c3.SaveAs("plots/timing/hoTime.pdf")
 		
 		return c3,label,hHoTimeAboveThr,pText
@@ -391,7 +391,7 @@ class Timing:
 		
 		canvasEtaPhiBxWrong.Update()
 		canvasEtaPhiBxWrong.SaveAs("plots/timing/bxWrongEtaPhi.pdf")
-		canvasEtaPhiBxWrong.SaveAs("plots/timing/bxWrongEtaPhi.png")
+		canvasEtaPhiBxWrong.SaveAs("plots/timing/bxWrongEtaPhi.gif")
 	
 	def plotEtaOfWrongBxId(self):
 		#Make eta histogram of the graph before
@@ -407,7 +407,7 @@ class Timing:
 		histEtaBxWrong.Draw()
 		canvasEtaBxWrong.Update()
 		canvasEtaBxWrong.SaveAs("plots/timing/bxWrongEta.pdf")
-		canvasEtaBxWrong.SaveAs("plots/timing/bxWrongEta.png")
+		canvasEtaBxWrong.SaveAs("plots/timing/bxWrongEta.gif")
 		
 		#
 		# Create a binwise normalized histogram of eta
@@ -421,7 +421,7 @@ class Timing:
 			etaPhiTotalNC.GetPoint(i,x,y)
 			histEtaBxTotal.Fill(x)
 		histEtaBxTotal.Draw()
-		canvasEtaBxTotal.SaveAs("plots/timing/bxEtaTotal.png")
+		canvasEtaBxTotal.SaveAs("plots/timing/bxEtaTotal.gif")
 		
 		canvasEtaBxWrongNorm = TCanvas("canvasEtaBxWrongNorm","canvasEtaBxWrongNorm",1200,1200)
 		histEtaBxWrongNorm = TH1D("histEtaBxWrongNorm","Fraction of L1 with BX ID Wrong;#eta Gen;fraction / 0.08 #eta (%)",20,-0.8,0.8)
@@ -438,7 +438,7 @@ class Timing:
 		histEtaBxWrongNorm.Draw("ehist")
 		canvasEtaBxWrongNorm.Update()
 		canvasEtaBxWrongNorm.SaveAs("plots/timing/bxWrongEtaNorm.pdf")
-		canvasEtaBxWrongNorm.SaveAs("plots/timing/bxWrongEtaNorm.png")
+		canvasEtaBxWrongNorm.SaveAs("plots/timing/bxWrongEtaNorm.gif")
 	
 	def plotDetectorContributionsToTiming(self):
 		#Prepare canvas
@@ -520,7 +520,7 @@ class Timing:
 		
 		canvas.Update()
 		canvas.SaveAs('plots/timing/bxWrongDetectorContributions.pdf')
-		canvas.SaveAs('plots/timing/bxWrongDetectorContributions.png')
+		canvas.SaveAs('plots/timing/bxWrongDetectorContributions.gif')
 		
 		
 		
@@ -555,7 +555,7 @@ class Timing:
 		
 		canvas.Update()
 		canvas.SaveAs('plots/timing/bxWrongEtaPt.pdf')
-		canvas.SaveAs('plots/timing/bxWrongEtaPt.png')
+		canvas.SaveAs('plots/timing/bxWrongEtaPt.gif')
 		return canvas,hist,stack,histNew,label
 	
 	def plotPtAndPhiOfWrongBxId(self):
@@ -588,7 +588,7 @@ class Timing:
 		
 		canvas.Update()
 		canvas.SaveAs('plots/timing/bxWrongPtPhi.pdf')
-		canvas.SaveAs('plots/timing/bxWrongPtPhi.png')
+		canvas.SaveAs('plots/timing/bxWrongPtPhi.gif')
 		return canvas,hist,stack,histNew,label
 	
 	
@@ -706,7 +706,7 @@ class Timing:
 		
 		canvas.Update()
 		canvas.SaveAs('plots/timing/correctedDt.pdf')
-		canvas.SaveAs('plots/timing/correctedDt.png')
+		canvas.SaveAs('plots/timing/correctedDt.gif')
 		canvas.SaveAs('plots/timing/correctedDt.root')
 		return canvas, histDt,histNew,label,legend,pText2,pText
 		
