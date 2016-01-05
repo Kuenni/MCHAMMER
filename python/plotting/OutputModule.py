@@ -1,4 +1,3 @@
-from math import sqrt,pi
 import sys
 
 class CommandLineHandler:
@@ -19,6 +18,12 @@ class CommandLineHandler:
 	def output(self,outString):
 		print self.prefix,outString
 
+	def warning(self,outString):
+		print CliColors.WARNING + self.prefix + outString + CliColors.ENDC
+		
+	def error(self,outString):
+		print CliColors.FAIL + self.prefix + outString + CliColors.ENDC
+		
 	def __init__(self,outputPrefix):
 		self.prefix = outputPrefix
 		
