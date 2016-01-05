@@ -6,7 +6,7 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 process.TFileService = cms.Service("TFileService",
-                                   	fileName=cms.string('L1MuonHistogramPooja%INSTANCE%.root'),
+                                   	fileName=cms.string('jobOutput%INSTANCE%.root'),
                                    )
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1))
@@ -49,6 +49,7 @@ process.load('Configuration.StandardSequences.Reconstruction_cff')
 #process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
+from Configuration.AlCa.autoCond import autoCond
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag.globaltag = %GLOBALTAG%
 print process.GlobalTag.globaltag
@@ -66,6 +67,7 @@ process.hoMuonAnalyzer = cms.EDAnalyzer(
     horecoSrc = cms.InputTag("horeco"),
     hltSumAODSrc = cms.InputTag("hltTriggerSummaryAOD"),
     l1MuonGenMatchSrc = cms.InputTag("l1MuonGenMatch"),
+   	isData = cms.bool(False),
     hoEnergyThreshold = cms.double(0.2),
 	maxDeltaR = cms.double(0.3),
 	debug = cms.bool(True),
@@ -111,6 +113,10 @@ process.genfilter = cms.EDFilter("MCSingleParticleFilter",
 	 )
 
 
+process.load('PhysicsTools/PatAlgos/producersLayer1/muonProducer_cfi')
+process.load('PhysicsTools/PatAlgos/selectionLayer1/muonSelector_cfi')
+process.patMuons.addGenMatch = cms.bool(False)
+
 #Try using different source for hoReco
 process.horeco.digiLabel = cms.InputTag('simHcalDigis')
 
@@ -124,8 +130,10 @@ process.L1Reco_step = cms.Path(process.L1Reco)
 process.p = cms.Path(process.genfilter*
 					#*process.L1Reco*
 					process.l1MuonGenMatch*
-					process.horeco*
-					process.hoMuonAnalyzer*
+					#process.reconstruction*
+					#process.patMuons*
+					#process.selectedPatMuons*
+					#process.hoMuonAnalyzer*
 					process.hoDigiAnalyzer)
 
 #Schedule Definition
