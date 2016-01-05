@@ -115,7 +115,7 @@ hoMuonAnalyzer::hoMuonAnalyzer(const edm::ParameterSet& iConfig){
 	deltaR_L1MuonMatching = iConfig.getParameter<double>("maxDeltaRL1MuonMatching");
 
 
-	singleMu3TrigName = "L1_SingleMuOpen";
+	singleMuOpenTrigName = "L1_SingleMuOpen";
 	doubleMu0TrigName = "L1_DoubleMu_10_Open";
 	doubleMu5TrigName = "L1_DoubleMu5 ";
 
@@ -256,7 +256,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	/*
 	 * L1 Trigger Decisions
 	 */
-	singleMu3Trig = processTriggerDecision(singleMu3TrigName,iEvent);
+	singleMuOpenTrig = processTriggerDecision(singleMuOpenTrigName,iEvent);
 	doubleMu0Trig = processTriggerDecision(doubleMu0TrigName,iEvent);
 	//	processTriggerDecision(doubleMu5TrigName,iEvent);
 	//###############################
@@ -591,7 +591,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	//#############################################################
 
 
-	if(!singleMu3Trig){
+	if(!singleMuOpenTrig){
 		histogramBuilder.fillMultiplicityHistogram(l1Muons->size(),"NoSingleMu_L1Muon");
 		if(!isData){
 			analyzeNoSingleMuEventsL1Loop(iEvent,iSetup);

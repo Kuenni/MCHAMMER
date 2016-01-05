@@ -157,11 +157,11 @@ private:
 	//edm::InputTag m_l1GtTmLInputTag;
 
 	L1GtUtils m_l1GtUtils;
-	string singleMu3TrigName;
+	string singleMuOpenTrigName;
 	string doubleMu0TrigName;
 	string doubleMu5TrigName;
 	bool trigDecision;
-	bool singleMu3Trig,doubleMu0Trig;
+	bool singleMuOpenTrig,doubleMu0Trig;
 	bool debug;
 	bool firstRun;
 	bool isData;
