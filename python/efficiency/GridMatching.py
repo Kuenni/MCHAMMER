@@ -21,6 +21,19 @@ if( not os.path.exists('plots')):
 	os.mkdir('plots')
 if( not os.path.exists('plots/efficiency')):
 	os.mkdir('plots/efficiency')
+	
+	
+class GridMatching:
+	def __init__(self,filename,data =False):
+		self.commandLine = CommandLineHandler('[PtResolution] ')
+		self.fileHandler = RootFileHandler(filename)
+		self.fileHandler.printStatus()
+		if( not os.path.exists('plots')):
+			os.mkdir('plots')
+		if( not os.path.exists('plots/ptResolution')):
+			os.mkdir('plots/ptResolution')
+		setPlotStyle()
+		self.data = data
 
 def plotL1GridMatchingEfficiency():
 	effL1MuonCentral = fileHandler.getHistogram('hoMuonAnalyzer/efficiency/L1MuonCentral_Efficiency')

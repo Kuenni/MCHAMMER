@@ -11,6 +11,7 @@ gROOT.ProcessLine(".L $HOMUONTRIGGER_BASE/python/loader.C+");
 from dataQuality.ControlPlots import ControlPlots
 from dataQuality.EvsEtaPhi import EvsEtaPhi
 from phishift.DeltaPhi import DeltaPhi
+from efficiency.HoThresholdScan import HoThresholdScan 
 from efficiency.TimeWindow import TimeWindow
 from dataQuality.PtResolution import PtResolution
 from dataQuality.QualityCode import QualityCode
@@ -41,6 +42,7 @@ for script in args.scripts:
 		resL1AndHoIetaIphi = plots.plotHoIEtaIPhiMatchedToL1()
 		resPatTightHoEtaPhi = plots.plotHoEtaPhiMatchedToTightL1()
 		resSameScale = plots.plotIEtaIPhiOnSameScales()
+		resL1Multiplicity = plots.plotL1PresentMultiplicity()
 		#res2 = plots.plotHoDigiMatchesPerDetId()
 		if not args.data:
 			res4 = plots.plotEfficiencyCountCheck()
@@ -109,6 +111,10 @@ for script in args.scripts:
 		lib = Counters(filename=args.source,data=args.data)
 		res = lib.plotL1AndTightL1Counters()
 		res2 = lib.plotTightL1EtaPhiRatio()
+		raw_input('-->')
+	elif (script == 'thresholdScan'):
+		lib = HoThresholdScan(filename=args.source,data=args.data)
+		res = lib.plotHoThresholdScan()
 		raw_input('-->')
 	else:
 		print 'Unknown script requested: %s' % (script)

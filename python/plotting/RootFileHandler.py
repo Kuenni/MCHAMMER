@@ -54,12 +54,16 @@ class RootFileHandler:
 		try:
 			histNew = rootfile.Get(histoname).Clone()
 		except ReferenceError:
-			commandLine.output('Could not get histogram %s' % histoname)
+			commandLine.warning('Could not get histogram %s' % histoname)
 			return None
 		histNew.SetDirectory(0)
 		for i in range(1,len(self.fileNameList)):
 			rootfile = TFile(self.filepath + '/' + self.fileNameList[i],'READ')
-			histNew.Add(rootfile.Get(histoname))
+			try:
+				hist = rootfile.Get(histoname).Clone()
+				histNew.Add(hist)
+			except ReferenceError:
+				commandLine.warning('Could not get histogram %s for every source file' % histoname)
 		return histNew
 	
 	'''

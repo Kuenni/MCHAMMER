@@ -116,6 +116,10 @@ hoMuonAnalyzer::hoMuonAnalyzer(const edm::ParameterSet& iConfig){
 
 
 	singleMuOpenTrigName = "L1_SingleMuOpen";
+	singleMu3TrigName = "L1_SingleMu3";
+	singleMu7TrigName = "L1_SingleMu7";
+	singleMu10TrigName = "L1_SingleMu10";
+
 	doubleMu0TrigName = "L1_DoubleMu_10_Open";
 	doubleMu5TrigName = "L1_DoubleMu5 ";
 
@@ -257,6 +261,9 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	 * L1 Trigger Decisions
 	 */
 	singleMuOpenTrig = processTriggerDecision(singleMuOpenTrigName,iEvent);
+	singleMu3Trig = processTriggerDecision(singleMu3TrigName,iEvent);
+	singleMu7Trig = processTriggerDecision(singleMu7TrigName,iEvent);
+	singleMu10Trig = processTriggerDecision(singleMu10TrigName,iEvent);
 	doubleMu0Trig = processTriggerDecision(doubleMu0TrigName,iEvent);
 	//	processTriggerDecision(doubleMu5TrigName,iEvent);
 	//###############################
@@ -1385,12 +1392,16 @@ void hoMuonAnalyzer::analyzeL1Resolution(){
 		const l1extra::L1MuonParticle* l1Part = 0;
 		l1Part = functionsHandler->getBestL1MuonMatch(patMuonIt->eta(),patMuonIt->phi());
 		if(l1Part){
+			bool isTight = patMuonIt->isTightMuon(getPrimaryVertex());
 			histogramBuilder.fillL1ResolutionHistogram(l1Part->pt(), patMuonIt->pt(), "L1MuonTruth");
+			if(isTight){
+				histogramBuilder.fillL1ResolutionHistogram(l1Part->pt(), patMuonIt->pt(), "L1MuonTightTruth");
+			}
 			const HORecHit* matchedRecHit = 0;
 			matchedRecHit = hoMatcher->matchByEMaxDeltaR(l1Part->eta(),l1Part->phi());
 			if(matchedRecHit){
 				histogramBuilder.fillL1ResolutionHistogram(l1Part->pt(), patMuonIt->pt(), "L1MuonTruthHoMatch");
-				if(patMuonIt->isTightMuon(getPrimaryVertex())){
+				if(isTight){
 					histogramBuilder.fillL1ResolutionHistogram(l1Part->pt(), patMuonIt->pt(), "L1MuonTightTruthHoMatch");
 				}
 			}
@@ -1602,7 +1613,7 @@ void hoMuonAnalyzer::makeHoRecHitThresholdScan(){
 				thrCounter++;
 			}
 		}
-		histogramBuilder.fillMultiplicityHistogram(thrCounter,"recHitThrScan" + iterationCounter);
+		histogramBuilder.fillMultiplicityHistogram(thrCounter,Form("recHitThrScan%d",iterationCounter));
 		iterationCounter++;
 	}
 }

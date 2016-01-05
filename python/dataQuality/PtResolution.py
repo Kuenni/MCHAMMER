@@ -6,18 +6,12 @@ from plotting.PlotStyle import *
 from plotting.Utils import getTGraphErrors,getLegend
 
 from ROOT import TCanvas,TF1,TGraphErrors
+from plotting.Plot import Plot
 
-class PtResolution:
+class PtResolution(Plot):
 	def __init__(self,filename,data =False):
-		self.commandLine = CommandLineHandler('[PtResolution] ')
-		self.fileHandler = RootFileHandler(filename)
-		self.fileHandler.printStatus()
-		if( not os.path.exists('plots')):
-			os.mkdir('plots')
-		if( not os.path.exists('plots/ptResolution')):
-			os.mkdir('plots/ptResolution')
-		setPlotStyle()
-		self.data = data
+		Plot.__init__(self,filename,data)
+		self.createPlotSubdir('ptResolution')
 		
 	def plotPtResolutionHistograms(self):
 		ptVals = []
@@ -25,16 +19,18 @@ class PtResolution:
 		rmsL1Err = []
 		rmsL1AndHo = []
 		rmsL1AndHoErr = []
+		rmsL1TightAndHo = []
+		rmsL1TightAndHoErr = []
 		fitL1 = []
 		fitL1Err = []
 		
 		graphL1Fit = TGraphErrors()
 		
 		for i in range(0,101):
-			#Change "xGev" to "Binx"
-			#Then calculate pt range from bin number
+			#calculate pt range from bin number
 			histPt = self.fileHandler.getHistogram('hoMuonAnalyzer/l1PtResolution/L1MuonTruthBin%d' % i)
 			histPtMatch = self.fileHandler.getHistogram('hoMuonAnalyzer/l1PtResolution/L1MuonTruthHoMatchBin%d' % i)
+			histPtTightMatch = self.fileHandler.getHistogram('hoMuonAnalyzer/l1PtResolution/L1MuonTightTruthHoMatchBin%d' % i)
 			c = TCanvas()
 			ptVals.append(i*2)
 			if histPt == None:
@@ -62,6 +58,16 @@ class PtResolution:
 			else:
 				rmsL1AndHo.append(0)
 				rmsL1AndHoErr.append(0)
+				
+			if histPtTightMatch != None:
+				rmsL1TightAndHo.append(histPtTightMatch.GetRMS())
+				rmsL1TightAndHoErr.append(histPtTightMatch.GetRMSError())
+				histPtTightMatch.SetLineWidth(3)
+				histPtTightMatch.SetLineColor(colorRwthTuerkis)
+				histPtTightMatch.Draw('same')
+			else:
+				rmsL1TightAndHo.append(0)
+				rmsL1TightAndHoErr.append(0)
 			c.SaveAs('plots/ptResolution/L1Muon%d.gif' % i)
 		
 		c = TCanvas()
@@ -78,18 +84,21 @@ class PtResolution:
 		graphL1AndHo.SetLineColor(colorRwthMagenta)
 		graphL1AndHo.Draw('samep')
 		
+		graphL1TightAndHo = getTGraphErrors(ptVals,rmsL1TightAndHo,ey = rmsL1TightAndHoErr)
+		graphL1TightAndHo.SetMarkerStyle(22)
+		graphL1TightAndHo.SetMarkerColor(colorRwthTuerkis)
+		graphL1TightAndHo.SetLineColor(colorRwthTuerkis)
+		graphL1TightAndHo.Draw('samep')
+		
 		setupAxes(graphL1)
 		
 		legend = getLegend(y2 = .9)
 		legend.AddEntry(graphL1,'RMS L1','ep')
 		legend.AddEntry(graphL1AndHo,'RMS L1 and HO','ep')
+		legend.AddEntry(graphL1TightAndHo,'RMS L1 Tight and HO','ep')
 		legend.Draw()
 		
-		label = None
-		if self.data:
-			label = drawLabelCmsPrivateData()
-		else:
-			label = drawLabelCmsPrivateSimulation()
+		label = self.drawLabel()
 		
 		c.Update()
 		
@@ -98,8 +107,5 @@ class PtResolution:
 		
 		c2 = TCanvas('cfitResults','fitResults',800,0,800,600)
 		graphL1Fit.Draw('AP')
-
-		
-		return c,graphL1,graphL1AndHo,legend,c2,graphL1Fit,label
-			
+		return c,graphL1,graphL1AndHo,legend,c2,graphL1Fit,label,graphL1TightAndHo
 			

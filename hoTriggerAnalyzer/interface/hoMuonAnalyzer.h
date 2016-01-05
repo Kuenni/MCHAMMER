@@ -158,10 +158,13 @@ private:
 
 	L1GtUtils m_l1GtUtils;
 	string singleMuOpenTrigName;
+	string singleMu3TrigName;
+	string singleMu7TrigName;
+	string singleMu10TrigName;
 	string doubleMu0TrigName;
 	string doubleMu5TrigName;
 	bool trigDecision;
-	bool singleMuOpenTrig,doubleMu0Trig;
+	bool singleMu3Trig,singleMu7Trig,singleMu10Trig,singleMuOpenTrig,doubleMu0Trig;
 	bool debug;
 	bool firstRun;
 	bool isData;
