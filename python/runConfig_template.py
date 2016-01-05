@@ -124,6 +124,10 @@ process.genfilter = cms.EDFilter("MCSingleParticleFilter",
 	 )
 
 
+process.load('PhysicsTools/PatAlgos/producersLayer1/muonProducer_cfi')
+process.load('PhysicsTools/PatAlgos/selectionLayer1/muonSelector_cfi')
+process.patMuons.addGenMatch = cms.bool(False)
+
 #Try using different source for hoReco
 process.horeco.digiLabel = cms.InputTag('simHcalDigis')
 
@@ -134,6 +138,8 @@ process.l1MuonGenMatch_step = cms.Path(process.l1MuonGenMatch)
 process.demo_step = cms.Path(process.hoMuonAnalyzer)
 process.L1Reco_step = cms.Path(process.L1Reco)
 process.muonL1Match_step = cms.Path(process.muonL1Match)
+process.patMuonProducer_step = cms.Path(process.patMuons)
+process.patMuonSelector_step = cms.Path(process.selectedPatMuons)
 
 process.p = cms.Path(process.genfilter*
 					#*process.L1Reco*
