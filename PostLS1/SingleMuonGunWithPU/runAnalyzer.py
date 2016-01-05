@@ -217,13 +217,15 @@ process.l1MuonGenMatch_step = cms.Path(process.l1MuonGenMatch)
 process.demo_step = cms.Path(process.hoMuonAnalyzer)
 process.L1Reco_step = cms.Path(process.L1Reco)
 process.muonL1Match_step = cms.Path(process.muonL1Match)
+process.patMuonProducer_step = cms.Path(process.patMuons)
+process.patMuonSelector_step = cms.Path(process.selectedPatMuons)
 
 process.p = cms.Path(process.genfilter*
 					process.l1MuonGenMatch*
 					process.horeco*
 					process.muonL1Match*
-					process.patMuonProducer_step*
-					process.patMuonSelector_step*
+					process.patMuons*
+					process.selectedPatMuons*
 					process.hoMuonAnalyzer*
 					process.hoDigiAnalyzer)
 
