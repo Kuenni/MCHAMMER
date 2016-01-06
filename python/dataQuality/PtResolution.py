@@ -31,7 +31,7 @@ class PtResolution(Plot):
 		for i in range(0,101):
 			#calculate pt range from bin number
 			histPt = self.fileHandler.getHistogram('hoMuonAnalyzer/l1PtResolution/L1MuonTruthBin%d' % i)
-			histPtTight = self.fileHandler.getHistogram('hoMuonAnalyzer/l1PtResolution/L1TightMuonTruthBin%d' % i)
+			histPtTight = self.fileHandler.getHistogram('hoMuonAnalyzer/l1PtResolution/L1MuonTightTruthBin%d' % i)
 			histPtMatch = self.fileHandler.getHistogram('hoMuonAnalyzer/l1PtResolution/L1MuonTruthHoMatchBin%d' % i)
 			histPtTightMatch = self.fileHandler.getHistogram('hoMuonAnalyzer/l1PtResolution/L1MuonTightTruthHoMatchBin%d' % i)
 			c = TCanvas()
