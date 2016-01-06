@@ -3,6 +3,7 @@
 import os,sys,math
 from subprocess import call
 import argparse
+from plotting.OutputModule import CommandLineHandler
 '''
 Creates the run configs with the different subsets of samples
 as well as the files with the subsets
@@ -32,20 +33,7 @@ globalTags = {
 
 print 
 
-prefix = '[runParallel]'
-def output(outString):
-	print prefix,outString
-
-def printProgress(done,total):
-	s = getProgressString(done, total)
-	sys.stdout.write(s)
-	sys.stdout.flush()
-	pass
-	
-def getProgressString(done,total):
-	nHashes = int(done/float(total)*80)
-	progressbar = '\r[%s%s] %5.2f%% done.' % (nHashes*'#',(80-nHashes)*' ',done*100/float(total))
-	return progressbar
+cli = CommandLineHandler('[runParallel]')
 
 global configTemplate
 configTemplate = os.environ['HOMUONTRIGGER_BASE'] + '/python/runConfig_template.py'
@@ -119,7 +107,7 @@ parser.add_argument('--sourceFiles'
 args = parser.parse_args()
 
 if not args.nJobs and not args.test and not args.collect:
-	output('If no test run is requested, the number of jobs has to be set!')
+	cli.error('If no test run is requested, the number of jobs has to be set!')
 	parser.print_help()
 	sys.exit(1)
 
@@ -140,7 +128,7 @@ def collectOutput():
 	fileBatches = []
 	filesToProcess = []
 	if not args.dir:
-		output('You have to provide the task directory')
+		cli.error('You have to provide the task directory')
 		sys.exit(1)
 	for sourceFile in os.listdir(args.dir):
 		if len(filesToProcess) == args.split:
@@ -157,16 +145,16 @@ def collectOutput():
 	filenameTrunk = args.outfile[0:args.outfile.rfind('.root')]
 	for i,batch in enumerate(fileBatches):
 		filename = '%s%d.root' % (filenameTrunk,i)
-		output('Merging into file %s' % filename)
+		cli.output('Merging into file %s' % filename)
 		cmd = ['hadd',filename]
 		cmd.extend(batch)
 		ret = call(cmd)
 		if ret != 0:
-			output('Error on merging root files')
+			cli.error('Error on merging root files')
 			sys.exit(1)
 		else:
-			output('All files merged')
-			output(getProgressString(i+1, len(fileBatches)))
+			cli.output('All files merged')
+			cli.output(cli.getProgressString(i+1, len(fileBatches)))
 	
 	
 #Get the number of lines in a file
@@ -179,10 +167,10 @@ def getLineCount(filename):
 #Create the necessary output dirs
 def createDirectories():
 	if not os.path.exists('configs'):
-		output('Creating folder "configs"')
+		cli.output('Creating folder "configs"')
 		os.mkdir('configs')
 	if not os.path.exists('sources'):
-		output('Creating folder "sources"')
+		cli.output('Creating folder "sources"')
 		os.mkdir('sources')
 		
 #call the other script
@@ -191,16 +179,16 @@ def createSourceLists():
 		global cmsswSourceFiles
 		cmsswSourceFiles = args.sourceFiles
 	if not os.path.exists(cmsswSourceFiles):
-		output('Error! File %s does not exist!' % (cmsswSourceFiles))
+		cli.error('Error! File %s does not exist!' % (cmsswSourceFiles))
 		sys.exit(1)
 	nSourceFiles = getLineCount(cmsswSourceFiles)
 	#round the number
 	nSourcesPerFile = math.ceil(nSourceFiles/nJobs)
 	if args.test:
 		nSourcesPerFile = 1
-	output('Creating %d source files' % (nJobs))
-	output('Found %d sample files in total.' % nSourceFiles)
-	output('\t=> %d sources per file' % nSourcesPerFile)
+	cli.output('Creating %d source files' % (nJobs))
+	cli.output('Found %d sample files in total.' % nSourceFiles)
+	cli.output('\t=> %d sources per file' % nSourcesPerFile)
 	
 	#loop over sources and create the new files
 	with open(cmsswSourceFiles,'r') as f:
@@ -220,7 +208,7 @@ def createSourceLists():
 #create the cms run cfgs
 def createRunConfigs():
 	if  not globalTags.has_key(args.conditions):
-		output('ERROR! %s is no conditions parameter known.' % (args.conditions))
+		cli.error('ERROR! %s is no conditions parameter known.' % (args.conditions))
 		sys.exit(-1)
 
 	gt = globalTags[args.conditions]
@@ -231,7 +219,7 @@ def createRunConfigs():
 			global configTemplate
 			configTemplate = os.environ['HOMUONTRIGGER_BASE'] + '/python/runConfigData_template.py'
 			if args.lumiFile == None:
-				output("Error! Data conditions requested but no lumi file given!")
+				cli.error("Error! Data conditions requested but no lumi file given!")
 				sys.exit(1)
 		if args.cfgTemplate:
 			configTemplate = args.cfgTemplate
@@ -245,7 +233,7 @@ def createRunConfigs():
 					outfile.write(line)
 				outfile.close()
 				infile.close()
-	output('Created configs')
+	cli.output('Created configs')
 	pass
 
 #Eventually send the jobs
@@ -270,7 +258,7 @@ def main():
 		if not args.noSubmit:
 			sendJobs()
 		else:
-			output('As requested, no jobs were submitted.')
+			cli.warning('As requested, no jobs were submitted.')
 	else:
 		collectOutput()
 
