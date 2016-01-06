@@ -146,6 +146,8 @@ process.p = cms.Path(process.genfilter*
 					process.l1MuonGenMatch*
 					process.horeco*
 					process.muonL1Match*
+					process.patMuons*
+					process.selectedPatMuons*
 					process.hoMuonAnalyzer*
 					process.hoDigiAnalyzer)
 
