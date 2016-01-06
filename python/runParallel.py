@@ -108,6 +108,7 @@ args = parser.parse_args()
 
 if not args.nJobs and not args.test and not args.collect:
 	cli.error('If no test run is requested, the number of jobs has to be set!')
+	print
 	parser.print_help()
 	sys.exit(1)
 
