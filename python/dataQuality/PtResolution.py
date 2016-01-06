@@ -93,19 +93,19 @@ class PtResolution(Plot):
 		graphL1.Draw('ap')
 		
 		graphL1Tight = getTGraphErrors(ptVals,rmsL1Tight,ey = rmsL1TightErr)
-		graphL1Tight.SetMarkerStyle(23)
+		graphL1Tight.SetMarkerStyle(25)
 		graphL1Tight.SetMarkerColor(colorRwthGruen)
 		graphL1Tight.SetLineColor(colorRwthGruen)
 		graphL1Tight.Draw('samep')
 		
 		graphL1AndHo = getTGraphErrors(ptVals,rmsL1AndHo,ey = rmsL1AndHoErr)
-		graphL1AndHo.SetMarkerStyle(21)
+		graphL1AndHo.SetMarkerStyle(26)
 		graphL1AndHo.SetMarkerColor(colorRwthMagenta)
 		graphL1AndHo.SetLineColor(colorRwthMagenta)
 		graphL1AndHo.Draw('samep')
 		
 		graphL1TightAndHo = getTGraphErrors(ptVals,rmsL1TightAndHo,ey = rmsL1TightAndHoErr)
-		graphL1TightAndHo.SetMarkerStyle(22)
+		graphL1TightAndHo.SetMarkerStyle(27)
 		graphL1TightAndHo.SetMarkerColor(colorRwthTuerkis)
 		graphL1TightAndHo.SetLineColor(colorRwthTuerkis)
 		graphL1TightAndHo.Draw('samep')
