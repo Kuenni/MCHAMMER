@@ -1,21 +1,6 @@
-#!/usr/bin/python
+#! /usr/bin/python
 
 import argparse
-
-from ROOT import gROOT
-from efficiency.Counters import Counters
-
-gROOT.ProcessLine(".L $HOMUONTRIGGER_BASE/python/loader.C+");
-
-
-from dataQuality.ControlPlots import ControlPlots
-from dataQuality.EvsEtaPhi import EvsEtaPhi
-from phishift.DeltaPhi import DeltaPhi
-from efficiency.HoThresholdScan import HoThresholdScan 
-from efficiency.TimeWindow import TimeWindow
-from dataQuality.PtResolution import PtResolution
-from dataQuality.QualityCode import QualityCode
-from dataQuality.Timing import Timing
 
 parser = argparse.ArgumentParser()
 parser.add_argument('scripts', metavar='scripts', type=str, nargs='+',
@@ -31,6 +16,19 @@ parser.add_argument('--source','-s'
 					,help='File name scheme for the source of events')
 
 args = parser.parse_args()
+
+from ROOT import gROOT
+gROOT.ProcessLine(".L $HOMUONTRIGGER_BASE/python/loader.C+");
+
+from dataQuality.ControlPlots import ControlPlots
+from dataQuality.EvsEtaPhi import EvsEtaPhi
+from phishift.DeltaPhi import DeltaPhi
+from efficiency.Counters import Counters
+from efficiency.HoThresholdScan import HoThresholdScan 
+from efficiency.TimeWindow import TimeWindow
+from dataQuality.PtResolution import PtResolution
+from dataQuality.QualityCode import QualityCode
+from dataQuality.Timing import Timing
 
 for script in args.scripts:
 	if(script == 'controlPlots'):
