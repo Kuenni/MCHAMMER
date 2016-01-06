@@ -261,9 +261,9 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	 * L1 Trigger Decisions
 	 */
 	singleMuOpenTrig = processTriggerDecision(singleMuOpenTrigName,iEvent);
-	singleMu3Trig = processTriggerDecision(singleMu3TrigName,iEvent);
-	singleMu7Trig = processTriggerDecision(singleMu7TrigName,iEvent);
-	singleMu10Trig = processTriggerDecision(singleMu10TrigName,iEvent);
+//	singleMu3Trig = processTriggerDecision(singleMu3TrigName,iEvent);
+//	singleMu7Trig = processTriggerDecision(singleMu7TrigName,iEvent);
+//	singleMu10Trig = processTriggerDecision(singleMu10TrigName,iEvent);
 	doubleMu0Trig = processTriggerDecision(doubleMu0TrigName,iEvent);
 	//	processTriggerDecision(doubleMu5TrigName,iEvent);
 	//###############################
