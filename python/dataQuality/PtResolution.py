@@ -35,6 +35,7 @@ class PtResolution(Plot):
 			histPtMatch = self.fileHandler.getHistogram('hoMuonAnalyzer/l1PtResolution/L1MuonTruthHoMatchBin%d' % i)
 			histPtTightMatch = self.fileHandler.getHistogram('hoMuonAnalyzer/l1PtResolution/L1MuonTightTruthHoMatchBin%d' % i)
 			c = TCanvas()
+			c.SetLogy()
 			ptVals.append(i*2)
 			if histPt == None:
 				rmsL1.append(0)
@@ -65,9 +66,11 @@ class PtResolution(Plot):
 			if histPtTight != None:
 				rmsL1Tight.append(histPtMatch.GetRMS())
 				rmsL1TightErr.append(histPtMatch.GetRMSError())
-				histPtMatch.SetLineWidth(3)
-				histPtMatch.SetLineColor(colorRwthGruen)
-				histPtMatch.Draw('same')
+				histPtTight.SetLineWidth(3)
+				histPtTight.SetLineColor(colorRwthGruen)
+				histPtTight.SetFillStyle(3002)
+				histPtTight.SetFillColor(colorRwthGruen)
+				histPtTight.Draw('same')
 			else:
 				rmsL1Tight.append(0)
 				rmsL1TightErr.append(0)
