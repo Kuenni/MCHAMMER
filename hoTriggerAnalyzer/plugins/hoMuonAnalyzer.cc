@@ -1392,6 +1392,9 @@ void hoMuonAnalyzer::analyzeL1Resolution(){
 		const l1extra::L1MuonParticle* l1Part = 0;
 		l1Part = functionsHandler->getBestL1MuonMatch(patMuonIt->eta(),patMuonIt->phi());
 		if(l1Part){
+			if(fabs(l1Part->eta()) > 1.25){
+				continue;
+			}
 			bool isTight = patMuonIt->isTightMuon(getPrimaryVertex());
 			histogramBuilder.fillL1ResolutionHistogram(l1Part->pt(), patMuonIt->pt(), "L1MuonTruth");
 			if(isTight){
