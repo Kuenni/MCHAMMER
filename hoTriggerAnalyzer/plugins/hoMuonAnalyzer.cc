@@ -1436,6 +1436,7 @@ void hoMuonAnalyzer::gridMatchingWithTightMuons(){
 		if(patMuonIt->isTightMuon(getPrimaryVertex())){
 			const l1extra::L1MuonParticle* l1Part = 0;
 			l1Part = functionsHandler->getBestL1MuonMatch(patMuonIt->eta(),patMuonIt->phi());
+			//Look only at tight muons, that were "seeded" by L1
 			if(l1Part){
 				//Restrict the L1 information to Ho range
 				if(fabs(l1Part->eta()) > 1.25){
@@ -1443,13 +1444,8 @@ void hoMuonAnalyzer::gridMatchingWithTightMuons(){
 				}
 				histogramBuilder.fillEtaPhiGraph(l1Part->eta(),l1Part->phi(),"L1TightMuons");
 				histogramBuilder.fillCountHistogram("L1TightMuons");
-				//TODO: Why would there be events with tight muons without L1 match
 				calculateGridMatchingEfficiency(&*l1Part,l1Part->pt(),"L1TightMuons");
 				fillAverageEnergyAroundL1Direction(&*l1Part,"L1TightMuons");
-			} else{
-				/**
-				 * Dump events with tigh mu but no l1 match
-				 */
 			}
 		}
 	}
