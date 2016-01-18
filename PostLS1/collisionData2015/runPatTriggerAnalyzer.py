@@ -20,6 +20,10 @@ process.source = cms.Source("PoolSource",
 )
 process.maxEvents.input = 100
 
+process.TFileService = cms.Service("TFileService",
+	fileName=cms.string('patTriggerAnalyzerOutput.root'),
+	)
+
 ## --
 ## Switch on PAT trigger
 ## --
@@ -27,6 +31,7 @@ from PhysicsTools.PatAlgos.tools.trigTools import *
 from PhysicsTools.PatAlgos.triggerLayer1.triggerMatcherExamples_cfi import somePatMuonTriggerMatchTriggerMuon
 process.myMatcher = somePatMuonTriggerMatchTriggerMuon.clone()
 switchOnTrigger( process ) # This is optional and can be omitted.
+switchOnTriggerMatching(process,['myMatcher'])
 switchOnTriggerMatchEmbedding( process, [ 'myMatcher' ])
 
 process.patTriggerAnalyzer = cms.EDAnalyzer('HoPatTriggerAnalyzer',
