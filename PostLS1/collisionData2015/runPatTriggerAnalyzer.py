@@ -30,17 +30,32 @@ process.TFileService = cms.Service("TFileService",
 from PhysicsTools.PatAlgos.tools.trigTools import *
 from PhysicsTools.PatAlgos.triggerLayer1.triggerMatcherExamples_cfi import somePatMuonTriggerMatchTriggerMuon
 process.myMatcher = somePatMuonTriggerMatchTriggerMuon.clone()
-switchOnTrigger( process ) # This is optional and can be omitted.
+switchOnTrigger( process )
 switchOnTriggerMatching(process,['myMatcher'])
 switchOnTriggerMatchEmbedding( process, [ 'myMatcher' ])
-
+process.patTrigger.addL1Algos = cms.bool(True)
+process.patTrigger.saveL1Refs = cms.bool(True)
+process.patTrigger.l1ExtraMu = cms.InputTag('l1extraParticles','')
+switchOnTrigger(process)
+#switchOnTriggerMatching(process,['myMatcher'])
+switchOnTriggerMatchEmbedding( process, [ 'myMatcher' ])
 process.patTriggerAnalyzer = cms.EDAnalyzer('HoPatTriggerAnalyzer',
 	trigger      = cms.InputTag( "patTrigger" ),
     triggerEvent = cms.InputTag( "patTriggerEvent" ),
     muons        = cms.InputTag( "selectedPatMuons" ),
     muonMatch    = cms.string( 'myMatcher' ),
-    minID = cms.uint32( 81 ),
-    maxID = cms.uint32( 96 ))
+
+#   minID = cms.uint32( 81 ), 	//Those to are from the original PAT Trigger Analyzer
+#   maxID = cms.uint32( 96 )	//The IDs are the TriggerObjectTypes
+
+	#I have to add these parameters again for the HOMatcher class
+	#Maybe there is a better way to do this
+	horecoSrc = cms.InputTag("horeco"),
+	hoEnergyThreshold = cms.double(0.2),	#0.2 GeV
+	maxDeltaR = cms.double(0.3),
+	hoDigiSrc = cms.InputTag('simHcalDigis')
+    
+    )
 
 process.patTriggerAnalyzerSequence = cms.Sequence(process.patTriggerAnalyzer)
 process.p = cms.Path(process.patTriggerAnalyzer)
