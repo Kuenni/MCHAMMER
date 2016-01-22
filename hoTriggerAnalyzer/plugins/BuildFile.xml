@@ -21,4 +21,5 @@
 <use name="TrackingTools/TrajectoryState"/>
 <use name="TrackingTools/TransientTrack"/>
 <use name="TrackingTools/Records"/>
+<use name="PhysicsTools/PatUtils"/>
 <flags EDM_PLUGIN="1"/>
