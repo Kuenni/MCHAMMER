@@ -11,24 +11,36 @@ parser.add_argument('--data','-d'
 					,action="store_true",default=False
 					,help='Skip anything that has to do with GEN')
 
+parser.add_argument('--list','-l'
+					,dest='list'
+					,action="store_true",default=False
+					,help='Show list of available scripts')
+
 parser.add_argument('--source','-s'
 					,dest='source'
 					,help='File name scheme for the source of events')
 
 args = parser.parse_args()
 
-from ROOT import gROOT
-gROOT.ProcessLine(".L $HOMUONTRIGGER_BASE/python/loader.C+");
-
 from dataQuality.ControlPlots import ControlPlots
 from dataQuality.EvsEtaPhi import EvsEtaPhi
 from phishift.DeltaPhi import DeltaPhi
 from efficiency.Counters import Counters
+from efficiency.GridMatching import GridMatching
 from efficiency.HoThresholdScan import HoThresholdScan 
 from efficiency.TimeWindow import TimeWindow
 from dataQuality.PtResolution import PtResolution
 from dataQuality.QualityCode import QualityCode
 from dataQuality.Timing import Timing
+
+from ROOT import gROOT
+gROOT.ProcessLine(".L $HOMUONTRIGGER_BASE/python/loader.C+");
+
+if args.list:
+	scripts = ['controlPlots','eVsEtaPhi','timeWindow','ptResolution','qualityCodes','counters','thresholdScan','efficiency']
+	print "Available Scripts:"
+	for script in scripts:
+		print '\t',script
 
 for script in args.scripts:
 	if(script == 'controlPlots'):
@@ -113,6 +125,16 @@ for script in args.scripts:
 	elif (script == 'thresholdScan'):
 		lib = HoThresholdScan(filename=args.source,data=args.data)
 		res = lib.plotHoThresholdScan()
+		raw_input('-->')
+	elif (script == 'efficiency'):
+		lib = GridMatching(filename=args.source, data=args.data)
+		res = lib.plotL1GridMatchingEfficiency()
+		res2 = lib.plotL13x3AndL1Tight3x3()
+		if not args.data:
+			resL1Truth = lib.plotL1TruthGridMatchingPlot()
+			res3x3Together = lib.plot3x3GridTogether()
+			resN3x3 = lib.plotNtotalGridMatching3x3()
+			res5x5Together = lib.plot5x5GridTogether()
 		raw_input('-->')
 	else:
 		print 'Unknown script requested: %s' % (script)
