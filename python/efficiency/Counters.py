@@ -68,6 +68,15 @@ class Counters(Plot):
 		
 		label = self.drawLabel()
 		
+		self.commandLine.output('###############################################')
+		self.commandLine.output('n Events: \t\t%d' % nEvents)
+		self.commandLine.output('n L1: \t\t%d \t=> %5.2f' 		% (nAll,nAll/float(nEvents)*100))
+		self.commandLine.output('n L1 3x3: \t\t%d \t=> %5.2f (%5.2f)' 	% (nAll3x3,nAll3x3/float(nEvents)*100,nAll3x3/float(nAll)*100))
+		self.commandLine.output('n tight L1: \t%d \t=> %5.2f'	% (nTight,nTight/float(nEvents)*100))
+		self.commandLine.output('n tight L1 3x3: \t%d \t=> %5.2f (%5.2f)' % (nTight3x3,nTight3x3/float(nEvents)*100,nTight3x3/float(nTight)*100))
+		self.commandLine.output('###############################################')
+		
+		
 		c.Update()
 		c.SaveAs('plots/efficiency/l1AndTightL1Counters.gif')
 		
