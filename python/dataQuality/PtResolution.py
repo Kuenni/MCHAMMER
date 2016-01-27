@@ -9,12 +9,13 @@ from ROOT import TCanvas,TF1,TGraphErrors
 from plotting.Plot import Plot
 
 class PtResolution(Plot):
-	def __init__(self,filename,data =False):
+	def __init__(self,filename,data = False):
 		Plot.__init__(self,filename,data)
 		self.createPlotSubdir('ptResolution')
 		
 	def plotPtResolutionHistograms(self):
 		ptVals = []
+		ptErr = []
 		rmsL1 = []
 		rmsL1Err = []
 		rmsL1Tight = []
@@ -28,7 +29,7 @@ class PtResolution(Plot):
 		
 		graphL1Fit = TGraphErrors()
 		
-		for i in range(0,101):
+		for i in range(0,121):
 			#calculate pt range from bin number
 			histPt = self.fileHandler.getHistogram('hoMuonAnalyzer/l1PtResolution/L1MuonTruthBin%d' % i)
 			histPtTight = self.fileHandler.getHistogram('hoMuonAnalyzer/l1PtResolution/L1MuonTightTruthBin%d' % i)
@@ -36,7 +37,12 @@ class PtResolution(Plot):
 			histPtTightMatch = self.fileHandler.getHistogram('hoMuonAnalyzer/l1PtResolution/L1MuonTightTruthHoMatchBin%d' % i)
 			c = TCanvas()
 			c.SetLogy()
-			ptVals.append(i*2)
+			if i < 40:
+				ptVals.append(i + 0.5)
+				ptErr.append(0.5)
+			else:
+				ptVals.append(i*2 - 40 + 1)
+				ptErr.append(1)
 			if histPt == None:
 				rmsL1.append(0)
 				rmsL1Err.append(0)
@@ -64,8 +70,8 @@ class PtResolution(Plot):
 				rmsL1AndHoErr.append(0)
 			
 			if histPtTight != None:
-				rmsL1Tight.append(histPtMatch.GetRMS())
-				rmsL1TightErr.append(histPtMatch.GetRMSError())
+				rmsL1Tight.append(histPtTight.GetRMS())
+				rmsL1TightErr.append(histPtTight.GetRMSError())
 				histPtTight.SetLineWidth(3)
 				histPtTight.SetLineColor(colorRwthGruen)
 				histPtTight.SetFillStyle(3002)
@@ -87,7 +93,7 @@ class PtResolution(Plot):
 			c.SaveAs('plots/ptResolution/L1Muon%d.gif' % i)
 		
 		c = TCanvas()
-		graphL1 = getTGraphErrors(ptVals,rmsL1,ey = rmsL1Err)
+		graphL1 = getTGraphErrors(ptVals,rmsL1,ey = rmsL1Err,ex=ptErr)
 		graphL1.SetMarkerStyle(20)
 		graphL1.SetMarkerColor(colorRwthDarkBlue)
 		graphL1.SetLineColor(colorRwthDarkBlue)
@@ -95,22 +101,22 @@ class PtResolution(Plot):
 		graphL1.GetYaxis().SetRangeUser(0,75)
 		graphL1.Draw('ap')
 		
-		graphL1Tight = getTGraphErrors(ptVals,rmsL1Tight,ey = rmsL1TightErr)
-		graphL1Tight.SetMarkerStyle(25)
+		graphL1Tight = getTGraphErrors(ptVals,rmsL1Tight,ey = rmsL1TightErr,ex=ptErr)
+		graphL1Tight.SetMarkerStyle(21)
 		graphL1Tight.SetMarkerColor(colorRwthGruen)
 		graphL1Tight.SetLineColor(colorRwthGruen)
 		graphL1Tight.Draw('samep')
 		
-		graphL1AndHo = getTGraphErrors(ptVals,rmsL1AndHo,ey = rmsL1AndHoErr)
+		graphL1AndHo = getTGraphErrors(ptVals,rmsL1AndHo,ey = rmsL1AndHoErr,ex=ptErr)
 		graphL1AndHo.SetMarkerStyle(26)
 		graphL1AndHo.SetMarkerColor(colorRwthMagenta)
 		graphL1AndHo.SetLineColor(colorRwthMagenta)
 		graphL1AndHo.Draw('samep')
 		
-		graphL1TightAndHo = getTGraphErrors(ptVals,rmsL1TightAndHo,ey = rmsL1TightAndHoErr)
+		graphL1TightAndHo = getTGraphErrors(ptVals,rmsL1TightAndHo,ey = rmsL1TightAndHoErr,ex=ptErr)
 		graphL1TightAndHo.SetMarkerStyle(27)
-		graphL1TightAndHo.SetMarkerColor(colorRwthTuerkis)
-		graphL1TightAndHo.SetLineColor(colorRwthTuerkis)
+		graphL1TightAndHo.SetMarkerColor(colorRwthRot)
+		graphL1TightAndHo.SetLineColor(colorRwthRot)
 		graphL1TightAndHo.Draw('samep')
 		
 		setupAxes(graphL1)
