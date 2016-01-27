@@ -284,6 +284,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		const l1extra::L1MuonParticle* bl1Muon = &(l1Muons->at(i));
 		float l1Muon_eta = bl1Muon->eta();
 		float l1Muon_phi = bl1Muon->phi();
+		histogramBuilder.fillCountHistogram("L1Muon");
 		histogramBuilder.fillBxIdHistogram(bl1Muon->bx(),"L1MuonPresent");
 		histogramBuilder.fillBxIdVsPt(bl1Muon->bx(),bl1Muon->pt(),"L1MuonPresent");
 		histogramBuilder.fillL1MuonPtHistograms(bl1Muon->pt(),"L1MuonPresent");
