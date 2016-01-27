@@ -43,3 +43,6 @@ PostLS1/SingleMuonGunPooja/configs
 PostLS1/SingleMuPlus/configs
 PostLS1/noBFieldMuPlus/configs
 *.gif
+PostLS1/collisionData2015/configs
+PostLS1/collisionData2015/muonAnalyzerTask
+PostLS1/collisionData2015/sources
