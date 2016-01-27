@@ -33,7 +33,7 @@ globalTags = {
 
 print 
 
-cli = CommandLineHandler('[runParallel]')
+cli = CommandLineHandler('[runParallel] ')
 
 global configTemplate
 configTemplate = os.environ['HOMUONTRIGGER_BASE'] + '/python/runConfig_template.py'
