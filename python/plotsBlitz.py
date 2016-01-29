@@ -23,6 +23,7 @@ parser.add_argument('--source','-s'
 args = parser.parse_args()
 
 from dataQuality.ControlPlots import ControlPlots
+from dataQuality.Energy	import Energy
 from dataQuality.EvsEtaPhi import EvsEtaPhi
 from phishift.DeltaPhi import DeltaPhi
 from efficiency.Counters import Counters
@@ -37,7 +38,7 @@ from ROOT import gROOT
 gROOT.ProcessLine(".L $HOMUONTRIGGER_BASE/python/loader.C+");
 
 if args.list:
-	scripts = ['controlPlots','eVsEtaPhi','timeWindow','ptResolution','qualityCodes','counters','thresholdScan','efficiency']
+	scripts = ['controlPlots','eVsEtaPhi','timeWindow','ptResolution','qualityCodes','counters','thresholdScan','efficiency','energy']
 	print "Available Scripts:"
 	for script in scripts:
 		print '\t',script
@@ -95,6 +96,8 @@ for script in args.scripts:
 	elif(script == 'ptResolution'):
 		lib = PtResolution(filename=args.source,data=args.data)
 		res1 = lib.plotPtResolutionHistograms()
+		res2 = lib.plotTightPtResolution()
+		res3 = lib.plotLoosePtResolution()
 		raw_input('-->')
 	elif(script == 'qualityCodes'):
 		lib = QualityCode(filename=args.source,data=args.data)
@@ -135,6 +138,11 @@ for script in args.scripts:
 			res3x3Together = lib.plot3x3GridTogether()
 			resN3x3 = lib.plotNtotalGridMatching3x3()
 			res5x5Together = lib.plot5x5GridTogether()
+		raw_input('-->')
+	elif (script == 'energy'):
+		lib = Energy(filename = args.source, data = args.data)
+		resEnergy = lib.plotEnergy()
+		resEnergyNorm = lib.plotEnergyNormalized()
 		raw_input('-->')
 	else:
 		print 'Unknown script requested: %s' % (script)
