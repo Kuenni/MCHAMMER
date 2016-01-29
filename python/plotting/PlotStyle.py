@@ -9,6 +9,9 @@ colorRwthDarkBlue 	= TColor.GetColor("#00549F")
 colorRwthTuerkis	= TColor.GetColor("#0098A1")
 colorRwthGruen		= TColor.GetColor("#57AB27")
 colorRwthRot		= TColor.GetColor("#CC071E")
+colorRwthOrange 	= TColor.GetColor("#F6A800")
+colorRwthViolett	= TColor.GetColor("#612158")
+colorRwthLila		= TColor.GetColor("#7A6FAC")
 
 def getLabelCmsPrivateSimulation( x1ndc = 0.6, y1ndc = 0.90, x2ndc = 0.9, y2ndc = 0.93):
 	labelCmsPrivateSimulation = TPaveText(x1ndc,y1ndc,x2ndc,y2ndc,"NDC")
