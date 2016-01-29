@@ -92,9 +92,9 @@ const HORecHit* HoMatcher::matchByEMaxDeltaR(double eta,double phi){
 }
 
 /**
- * Find the highest energy rec hit in a grid of given size
+ * Find the largest energy rec hit in a grid of given size
  */
-const HORecHit* HoMatcher::findEMaxHitInGrid(double eta, double phi, int gridSize){
+const HORecHit* HoMatcher::matchByEMaxInGrid(double eta, double phi, int gridSize){
 	HORecHitCollection::const_iterator hoRecHitIt = hoRecoHits->begin();
 		const HORecHit* matchedRecHit = 0;
 		//Loop over all rec hits

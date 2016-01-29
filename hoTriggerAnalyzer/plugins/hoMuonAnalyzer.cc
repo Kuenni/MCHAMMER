@@ -312,7 +312,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			if(bl1Muon->bx() == 0)
 				histogramBuilder.fillCountHistogram("L1MuoninGaBx0");
 		}
-		const HORecHit* matchedRecHit = hoMatcher->matchByEMaxDeltaR(l1Muon_eta,l1Muon_phi);
+		const HORecHit* matchedRecHit = hoMatcher->matchByEMaxInGrid(l1Muon_eta,l1Muon_phi,2);
 		if(matchedRecHit){
 			double hoEta,hoPhi;
 			hoEta = caloGeo->getPosition(matchedRecHit->detid()).eta();
@@ -574,7 +574,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 					double deltaPhi = FilterPlugin::wrapCheck(muMatchPhi, l1Part->phi());
 					histogramBuilder.fillGraph(deltaEta,deltaPhi,"deltaEtaDeltaPhiTdmiL1");
 				}
-				const HORecHit* matchedRecHit = hoMatcher->matchByEMaxDeltaR(genEta,genPhi);
+				const HORecHit* matchedRecHit = hoMatcher->matchByEMaxInGrid(genEta,genPhi,2);
 				if(matchedRecHit){
 					double hoEta = caloGeo->getPosition(matchedRecHit->id()).eta();
 					double hoPhi = caloGeo->getPosition(matchedRecHit->id()).phi();
@@ -650,7 +650,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 					histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"NoTrgTdmiInGA");
 					histogramBuilder.fillCountHistogram("NoTrgTdmiInGA");
 					histogramBuilder.fillEnergyVsPosition(muMatchEta,muMatchPhi,muMatch->hoCrossedEnergy(),"NoTrgTdmiXedE");
-					const HORecHit* matchedRecHit = hoMatcher->matchByEMaxDeltaR(muMatchEta,muMatchPhi);
+					const HORecHit* matchedRecHit = hoMatcher->matchByEMaxInGrid(muMatchEta,muMatchPhi,2);
 					//Where is the Rec hit in a delta R cone with the largest E?
 					//Did we find any?
 					if(matchedRecHit){
@@ -734,7 +734,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 						float l1Muon_eta = l1Ref->eta();
 						float l1Muon_phi = l1Ref->phi();
 						fillEfficiencyHistograms(l1Ref->pt(),genIt->pt(),"SMuTrgL1AndGenMatch");
-						const HORecHit* matchedRecHit = hoMatcher->matchByEMaxDeltaR(l1Muon_eta,l1Muon_phi);
+						const HORecHit* matchedRecHit = hoMatcher->matchByEMaxInGrid(l1Muon_eta,l1Muon_phi,2);
 						//Check whether an HO match could be found by the delta R method
 						if(matchedRecHit){
 							histogramBuilder.fillCountHistogram("SMuTrgL1AndFoundHoMatch");
@@ -746,7 +746,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 						}
 					}//<-- Found L1 ref
 					else{
-						const HORecHit* matchedRecHit = hoMatcher->matchByEMaxDeltaR(muMatchEta,muMatchPhi);
+						const HORecHit* matchedRecHit = hoMatcher->matchByEMaxInGrid(muMatchEta,muMatchPhi,2);
 						//Check whether an HO match could be found by the delta R method
 						if(matchedRecHit){
 							histogramBuilder.fillCountHistogram("SMuTrgAndFoundHoMatch");
@@ -1095,7 +1095,7 @@ void hoMuonAnalyzer::analyzeWithGenLoop(const edm::Event& iEvent,const edm::Even
 			 * This fixes double counting of ghost l1 muons
 			 */
 			const HORecHit* matchedRecHit = 0;
-			matchedRecHit = hoMatcher->matchByEMaxDeltaR(l1Part->eta(),l1Part->phi());
+			matchedRecHit = hoMatcher->matchByEMaxInGrid(l1Part->eta(),l1Part->phi(),2);
 			if(matchedRecHit){
 				if(matchedRecHit->energy() > threshold){
 					fillEfficiencyHistograms(l1Part->pt(),genIt->pt(),"GenAndL1MuonAndHoAboveThr");
@@ -1204,7 +1204,7 @@ void hoMuonAnalyzer::fillAverageEnergyAroundL1Direction(const l1extra::L1MuonPar
 
 	//Filling the average energy only for the highest energetic particle
 	const HORecHit* matchedRecHit = 0;
-	matchedRecHit = hoMatcher->findEMaxHitInGrid(l1Muon->eta(), l1Muon->phi(),5);
+	matchedRecHit = hoMatcher->matchByEMaxInGrid(l1Muon->eta(), l1Muon->phi(),5);
 	if(matchedRecHit){
 		histogramBuilder.fillDeltaEtaDeltaPhiHistogramsWithWeights(l1Muon->eta()
 				,float(hoMatcher->getRecHitEta(matchedRecHit))	,l1Muon->phi()
@@ -1404,7 +1404,7 @@ void hoMuonAnalyzer::analyzeL1Resolution(){
 			if(isTight){
 				histogramBuilder.fillL1ResolutionHistogram(l1Part->pt(), patMuonIt->pt(), "L1MuonTightTruth");
 				const HORecHit* matchedRecHit = 0;
-				matchedRecHit = hoMatcher->matchByEMaxDeltaR(l1Part->eta(),l1Part->phi());
+				matchedRecHit = hoMatcher->matchByEMaxInGrid(l1Part->eta(),l1Part->phi(),2);
 				if(matchedRecHit){
 					histogramBuilder.fillL1ResolutionHistogram(l1Part->pt(), patMuonIt->pt(), "L1MuonTightTruthHoMatch");
 				} else {
@@ -1412,7 +1412,7 @@ void hoMuonAnalyzer::analyzeL1Resolution(){
 				}
 			}
 			const HORecHit* matchedRecHit = 0;
-			matchedRecHit = hoMatcher->matchByEMaxDeltaR(l1Part->eta(),l1Part->phi());
+			matchedRecHit = hoMatcher->matchByEMaxInGrid(l1Part->eta(),l1Part->phi(),2);
 			if(matchedRecHit){
 				histogramBuilder.fillL1ResolutionHistogram(l1Part->pt(), patMuonIt->pt(), "L1MuonTruthHoMatch");
 				if(isTight){
@@ -1441,9 +1441,10 @@ void hoMuonAnalyzer::recoControlPlots(){
 			histogramBuilder.fillPtHistogram(patMuonIt->pt(),"patMuonsTight");
 			histogramBuilder.fillEtaPhiGraph(patMuonIt->eta(), patMuonIt->phi(),"patMuonsTight");
 			histogramBuilder.fillEtaPhiHistograms(patMuonIt->eta(),patMuonIt->phi(),"patMuonsTight");
-			const HORecHit* recHit = hoMatcher->matchByEMaxDeltaR(patMuonIt->eta(), patMuonIt->phi());
+			const HORecHit* recHit = hoMatcher->matchByEMaxInGrid(patMuonIt->eta(), patMuonIt->phi(),2);
 			if(recHit){
 				histogramBuilder.fillEtaPhiHistograms(hoMatcher->getRecHitEta(recHit),hoMatcher->getRecHitPhi(recHit),"patMuonsTight_HO");
+				histogramBuilder.fillEnergyVsIEta(recHit->energy(),recHit->id().ieta(),"patMuonsTight");
 			}
 		}
 	}
@@ -1553,7 +1554,7 @@ void hoMuonAnalyzer::processGenInformation(const edm::Event& iEvent,const edm::E
 				 * Did not yet help completely. The reason for the strange behaviour is probably the fact,
 				 * that there may be more than one l1 muons that can be matched to the Gen particle
 				 */
-				const HORecHit* matchedRecHit = hoMatcher->matchByEMaxDeltaR(bl1Muon->eta(),bl1Muon->phi());
+				const HORecHit* matchedRecHit = hoMatcher->matchByEMaxInGrid(bl1Muon->eta(),bl1Muon->phi(),2);
 				if(matchedRecHit){
 					if(matchedRecHit->energy() > threshold)
 						fillEfficiencyHistograms(bl1Muon->pt(),genMatch->pt(),"L1MuonAndHoAboveThr");
