@@ -181,7 +181,33 @@ void HistogramBuilder::fillEnergyHistograms(float energy, std::string key){
 				2100, -5.0, 100.0);
 	}
 	_h1Energy[key]->Fill(energy);
-}  
+}
+
+void HistogramBuilder::fillEnergyVsIEta(float energy, int iEta, std::string key){
+	TFileDirectory energyDir = _fileService->mkdir("energy");
+	TFileDirectory energySubDir = _fileService->mkdir("energy/perWheel");
+	TString localKey;
+	if(iEta >= -15 && iEta <= -11){
+		localKey = Form("%s_Energy_%s",key.c_str(),"M2");
+	} else if (iEta >= -10 && iEta <= -5){
+		localKey = Form("%s_Energy_%s",key.c_str(),"M1");
+	} else if(iEta >= -4 && iEta <= -1){
+		localKey = Form("%s_Energy_%s",key.c_str(),"M0");
+	} else if(iEta >= 1 && iEta <= 4){
+		localKey = Form("%s_Energy_%s",key.c_str(),"P0");
+	} else if(iEta >= 5 && iEta <= 10){
+		localKey = Form("%s_Energy_%s",key.c_str(),"P1");
+	} else if(iEta >= 11 && iEta <= 15){
+		localKey = Form("%s_Energy_%s",key.c_str(),"P2");
+	}
+	if(!_h1Energy.count(localKey.Data())){
+		_h1Energy[localKey.Data()] = energySubDir.make<TH1F>(localKey.Data(),
+				localKey.Data(),
+				2100, -5.0, 100.0);
+	}
+	_h1Energy[localKey.Data()]->Fill(energy);
+	fillEnergyHistograms(energy,key);
+}
 
 /*                                                                              
  *Eta Phi Histograms                                                            

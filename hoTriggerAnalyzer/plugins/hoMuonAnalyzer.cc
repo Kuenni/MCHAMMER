@@ -199,7 +199,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	if(isData){
 		auto recoMuon = recoMuons->begin();
 		for(; recoMuon!= recoMuons->end(); ++recoMuon){
-			if(fabs(recoMuon->eta()) <= 0.8){
+			if(fabs(recoMuon->eta()) <= 1.25){
 				hasMuonsInAcceptance = true;
 			}
 		}
@@ -251,7 +251,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			recHitAbThrCounter++;
 		}
 		histogramBuilder.fillCountHistogram(horeco_key);
-		histogramBuilder.fillEnergyHistograms(hoRecoIt->energy(),horeco_key);
+		histogramBuilder.fillEnergyVsIEta(hoRecoIt->energy(),hoRecoIt->id().ieta(),horeco_key);
 		histogramBuilder.fillEtaPhiHistograms(ho_eta, ho_phi, horeco_key);
 	}
 	histogramBuilder.fillMultiplicityHistogram(recHitAbThrCounter,horecoT_key);
@@ -321,7 +321,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 			histogramBuilder.fillTimeHistogram(matchedRecHit->time(),"L1MuonPresentHoMatch");
 			histogramBuilder.fillDeltaTimeHistogram(matchedRecHit->time(),bl1Muon->bx(),"L1MuonPresentHoMatch");
 			histogramBuilder.fillBxIdHistogram(bl1Muon->bx(),"L1MuonPresentHoMatch");
-			histogramBuilder.fillEnergyHistograms(matchedRecHit->energy(),l1MuonWithHoMatch_key);
+			histogramBuilder.fillEnergyVsIEta(matchedRecHit->energy(),matchedRecHit->id().ieta(),l1MuonWithHoMatch_key);
 			histogramBuilder.fillEtaPhiHistograms(hoEta, hoPhi,l1MuonWithHoMatch_key);
 			histogramBuilder.fillDeltaEtaDeltaPhiHistograms(l1Muon_eta,hoEta,l1Muon_phi, hoPhi,l1MuonWithHoMatch_key);
 			histogramBuilder.fillEnergyVsPosition(hoEta,hoPhi,matchedRecHit->energy(),l1MuonWithHoMatch_key);
@@ -378,7 +378,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				histogramBuilder.fillDeltaTimeHistogram(matchedRecHit->time(),bl1Muon->bx(),"L1MuonAboveThr");
 				histogramBuilder.fillTimeHistogram(matchedRecHit->time(),"L1MuonAboveThr");
 				histogramBuilder.fillBxIdVsPt(bl1Muon->bx(),bl1Muon->pt(),"L1MuonAboveThr");
-				histogramBuilder.fillEnergyHistograms(matchedRecHit->energy(),"L1MuonWithHoMatchAboveThr");
+				histogramBuilder.fillEnergyVsIEta(matchedRecHit->energy(),matchedRecHit->id().ieta(),"L1MuonWithHoMatchAboveThr");
 				histogramBuilder.fillEtaPhiHistograms(hoEta,hoPhi,"L1MuonWithHoMatchAboveThr_HO");
 				histogramBuilder.fillDeltaEtaDeltaPhiHistograms(l1Muon_eta,hoEta,l1Muon_phi, hoPhi,"L1MuonWithHoMatchAboveThr");
 				histogramBuilder.fillL1MuonPtHistograms(bl1Muon->pt(),"L1MuonWithHoMatchAboveThr");
@@ -1099,7 +1099,7 @@ void hoMuonAnalyzer::analyzeWithGenLoop(const edm::Event& iEvent,const edm::Even
 			if(matchedRecHit){
 				if(matchedRecHit->energy() > threshold){
 					fillEfficiencyHistograms(l1Part->pt(),genIt->pt(),"GenAndL1MuonAndHoAboveThr");
-					histogramBuilder.fillEnergyHistograms(matchedRecHit->energy(),"l1TruthAndHoMatch");
+					histogramBuilder.fillEnergyVsIEta(matchedRecHit->energy(),matchedRecHit->id().ieta(),"l1TruthAndHoMatch");
 					histogramBuilder.fillCountHistogram("GenAndL1MuonAndHoAboveThr");
 					double hoPhi = hoMatcher->getRecHitPhi(matchedRecHit);
 					double hoIPhi = matchedRecHit->id().iphi();
@@ -1388,6 +1388,9 @@ void hoMuonAnalyzer::fillGridMatchingHistograms(bool passed, int grid, double pt
 	}
 }
 
+/**
+ * Create plots for pt resolution with x axis pt info coming from pat muons
+ */
 void hoMuonAnalyzer::analyzeL1Resolution(){
 	for(auto patMuonIt = patMuons->begin(); patMuonIt != patMuons->end(); patMuonIt++){
 		const l1extra::L1MuonParticle* l1Part = 0;
@@ -1400,14 +1403,25 @@ void hoMuonAnalyzer::analyzeL1Resolution(){
 			histogramBuilder.fillL1ResolutionHistogram(l1Part->pt(), patMuonIt->pt(), "L1MuonTruth");
 			if(isTight){
 				histogramBuilder.fillL1ResolutionHistogram(l1Part->pt(), patMuonIt->pt(), "L1MuonTightTruth");
+				const HORecHit* matchedRecHit = 0;
+				matchedRecHit = hoMatcher->matchByEMaxDeltaR(l1Part->eta(),l1Part->phi());
+				if(matchedRecHit){
+					histogramBuilder.fillL1ResolutionHistogram(l1Part->pt(), patMuonIt->pt(), "L1MuonTightTruthHoMatch");
+				} else {
+					histogramBuilder.fillL1ResolutionHistogram(l1Part->pt(), patMuonIt->pt(), "L1MuonTightTruthNotHoMatch");
+				}
 			}
 			const HORecHit* matchedRecHit = 0;
 			matchedRecHit = hoMatcher->matchByEMaxDeltaR(l1Part->eta(),l1Part->phi());
 			if(matchedRecHit){
 				histogramBuilder.fillL1ResolutionHistogram(l1Part->pt(), patMuonIt->pt(), "L1MuonTruthHoMatch");
 				if(isTight){
-					histogramBuilder.fillL1ResolutionHistogram(l1Part->pt(), patMuonIt->pt(), "L1MuonTightTruthHoMatch");
+					histogramBuilder.fillL1ResolutionHistogram(l1Part->pt(), patMuonIt->pt(), "L1MuonTruthHoMatchTight");
+				} else {
+					histogramBuilder.fillL1ResolutionHistogram(l1Part->pt(), patMuonIt->pt(), "L1MuonTruthHoMatchNotTight");
 				}
+			} else {
+				histogramBuilder.fillL1ResolutionHistogram(l1Part->pt(), patMuonIt->pt(), "L1MuonTruthNotHoMatch");
 			}
 		}
 	}

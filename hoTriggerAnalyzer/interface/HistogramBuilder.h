@@ -49,6 +49,7 @@ class HistogramBuilder {
   void fillEnergyCorrelationHistogram(double,double,std::string);
   void fillEnergyHistograms(float energy, std::string key);                   
   void fillEnergyVsPosition(double eta,double phi,double energy,std::string);
+  void fillEnergyVsIEta(float energy, int iEta, std::string key);
   void fillEtaPhiGraph(double eta, double phi, std::string key);
   void fillEtaPhiHistograms(float eta, float phi, std::string key);
   void fillEtaPhiPtHistogram(double eta, double phi, double pt, std::string key);
