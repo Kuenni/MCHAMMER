@@ -143,6 +143,7 @@ for script in args.scripts:
 		lib = Energy(filename = args.source, data = args.data)
 		resEnergy = lib.plotEnergy()
 		resEnergyNorm = lib.plotEnergyNormalized()
+		resMipNorm = lib.plotEnergyNormalizedToMip()
 		raw_input('-->')
 	else:
 		print 'Unknown script requested: %s' % (script)
