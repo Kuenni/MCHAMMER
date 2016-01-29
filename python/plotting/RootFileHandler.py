@@ -64,6 +64,7 @@ class RootFileHandler:
 				histNew.Add(hist)
 			except ReferenceError:
 				commandLine.warning('Could not get histogram %s for every source file' % histoname)
+		histNew.SetLineWidth(3)
 		return histNew
 	
 	'''

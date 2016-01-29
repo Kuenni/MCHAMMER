@@ -3,7 +3,7 @@ from plotting.Plot import Plot
 from ROOT import TCanvas,TFile
 from plotting.Utils import getLegend
 from plotting.PlotStyle import colorRwthDarkBlue, colorRwthTuerkis, colorRwthRot,\
-	colorRwthGruen
+	colorRwthGruen, setupAxes, colorRwthLightBlue, colorRwthMagenta, colorRwthLila
 
 MIP_PEAK_POSITION = 1.1
 
@@ -12,7 +12,64 @@ class Energy(Plot):
 	def __init__(self,filename,data):
 		Plot.__init__(self,filename,data)
 		self.createPlotSubdir('energy')
-			
+	
+	def plotHoEnergyPerWheel(self):	
+		res = self.plotEnergyPerWheel('horeco')
+		res[-2].SetName('cEPerWheelHo')
+		res[0].SetTitle('Reconstructed Energy per Wheel')
+		return res
+	
+	def plotMatchedHoEnergyPerWheel(self):
+		res = self.plotEnergyPerWheel('L1MuonWithHoMatchAboveThr')
+		res[-2].SetName('cEPerWheelMatchedHo')
+		res[0].SetTitle('Reconstructed Energy per Wheel for matched HO')
+		return res
+	
+	def plotEnergyPerWheel(self,sourceName):	
+		hoM2 = self.fileHandler.getHistogram('hoMuonAnalyzer/energy/perWheel/' + sourceName + '_Energy_M2')
+		hoM1 = self.fileHandler.getHistogram('hoMuonAnalyzer/energy/perWheel/' + sourceName + '_Energy_M1')
+		hoM0 = self.fileHandler.getHistogram('hoMuonAnalyzer/energy/perWheel/' + sourceName + '_Energy_M0')
+		hoP0 = self.fileHandler.getHistogram('hoMuonAnalyzer/energy/perWheel/' + sourceName + '_Energy_P0')
+		hoP1 = self.fileHandler.getHistogram('hoMuonAnalyzer/energy/perWheel/' + sourceName + '_Energy_P1')
+		hoP2 = self.fileHandler.getHistogram('hoMuonAnalyzer/energy/perWheel/' + sourceName + '_Energy_P2')
+		
+		c = TCanvas('cEPerWheel','E Per Wheel')
+		c.SetLogy()
+		hoM2.SetLineColor(colorRwthDarkBlue)
+		hoM2.GetXaxis().SetRangeUser(-.8,6)
+		hoM2.SetStats(0)
+		hoM2.SetTitle('Reconstructed Energy per Wheel;E_{Rec} / GeV;# Entries')
+		
+		hoM1.SetLineColor(colorRwthLila)
+		hoM0.SetLineColor(colorRwthTuerkis)
+		hoP0.SetLineColor(colorRwthGruen)
+		hoP1.SetLineColor(colorRwthMagenta)
+		hoP2.SetLineColor(colorRwthLightBlue)
+		
+		setupAxes(hoM2)
+		
+		hoM2.Draw()
+		hoM1.Draw('same')
+		hoM0.Draw('same')
+		hoP0.Draw('same')
+		hoP1.Draw('same')
+		hoP2.Draw('same')
+		
+		legend = getLegend(x1=.7,y2=0.9,y1=.6)
+		legend.AddEntry(hoM2,'Wheel M2','l')
+		legend.AddEntry(hoM1,'Wheel M1','l')
+		legend.AddEntry(hoM0,'Wheel M0','l')
+		legend.AddEntry(hoP0,'Wheel P0','l')
+		legend.AddEntry(hoP1,'Wheel P1','l')
+		legend.AddEntry(hoP2,'Wheel P2','l')
+		legend.Draw()
+		
+		label = self.drawLabel()
+		
+		c.Update()
+		
+		return hoM2, hoM1, hoM0, hoP0, hoP1, hoP2, legend, c, label
+		
 	def plotEnergyNormalizedToMip(self):
 		ho = self.fileHandler.getHistogram("hoMuonAnalyzer/energy/horeco_Energy")
 		L1MuonAndHoMatch = self.fileHandler.getHistogram('hoMuonAnalyzer/energy/L1MuonWithHoMatch_Energy')
