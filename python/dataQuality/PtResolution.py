@@ -234,6 +234,8 @@ class PtResolution(Plot):
 		legend.Draw()
 		c.Update()
 		
+		c.SaveAs('plots/ptResolution/rmsVsPt_tight.gif')
+		
 		return c,graphL1TightHo,graphL1TightNotHo,legend,label
 	
 	def plotLoosePtResolution(self):
@@ -265,6 +267,8 @@ class PtResolution(Plot):
 		legend.AddEntry(graphL1TightNotHo,'L1 & !HO','ep')
 		legend.Draw()
 		c.Update()
-		
+
+		c.SaveAs('plots/ptResolution/rmsVsPt_loose.gif')
+
 		return c,graphL1TightHo,graphL1TightNotHo,legend,label
 		
