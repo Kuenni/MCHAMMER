@@ -407,7 +407,7 @@ class EvsEtaPhi(Plot):
 		
 		canvas.Update()
 		
-		canvas.SaveAs('plots/etaPhiForTightL1.pdf')
+		canvas.SaveAs('plots/etaPhiForTightL1.gif')
 		
 		return canvas,histAll,histWithHo,label1,label2
 	
