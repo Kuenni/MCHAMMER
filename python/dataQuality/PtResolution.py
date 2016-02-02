@@ -1,12 +1,11 @@
 import os
 
-from plotting.OutputModule import CommandLineHandler
-from plotting.RootFileHandler import RootFileHandler
 from plotting.PlotStyle import *
 from plotting.Utils import getTGraphErrors,getLegend
 
 from ROOT import TCanvas,TF1,TGraphErrors
 from plotting.Plot import Plot
+import math
 
 class PtResolution(Plot):
 	def __init__(self,filename,data = False):
@@ -25,6 +24,25 @@ class PtResolution(Plot):
 			if hist != None:
 				values.append(hist.GetRMS())
 				valuesErr.append(hist.GetRMSError())
+			else:
+				values.append(0)
+				valuesErr.append(0)
+		
+		return values,valuesErr
+	
+	###
+	#	Get the intrgrals of the source histograms
+	###
+	def getHistogramIntegralsAsList(self,sourceName):
+		values 		= []
+		valuesErr 	= []
+		
+		for i in range(0,121):
+			hist = self.fileHandler.getHistogram(sourceName + 'Bin%d' % i)
+			if hist != None:
+				integral = hist.Integral()
+				values.append(integral)
+				valuesErr.append(math.sqrt(integral))
 			else:
 				values.append(0)
 				valuesErr.append(0)
@@ -236,7 +254,39 @@ class PtResolution(Plot):
 		
 		c.SaveAs('plots/ptResolution/rmsVsPt_tight.gif')
 		
-		return c,graphL1TightHo,graphL1TightNotHo,legend,label
+		##
+		# Plot the integral for each histogram as a control plot
+		##
+		cControlPlot = TCanvas('cControlPlots','control plot integral')
+		dataMatch,errorMatch = self.getHistogramIntegralsAsList('hoMuonAnalyzer/l1PtResolution/L1MuonTightTruthHoMatch')
+		dataNoMatch,errorNoMatch = self.getHistogramIntegralsAsList('hoMuonAnalyzer/l1PtResolution/L1MuonTightTruthNotHoMatch')
+		graphIntegralsMatch = getTGraphErrors(xData[0], dataMatch, ex=xData[1], ey=errorMatch)
+		graphIntegralsNoMatch = getTGraphErrors(xData[0], dataNoMatch, ex=xData[1], ey=errorNoMatch)
+		
+		graphIntegralsMatch.SetMarkerStyle(20)
+		graphIntegralsMatch.SetTitle('Integrals of tight L1 Object histograms;p_{T} / GeV;# entries')
+		graphIntegralsMatch.SetMarkerColor(colorRwthDarkBlue)
+		graphIntegralsMatch.SetLineColor(colorRwthDarkBlue)
+		
+		graphIntegralsNoMatch.SetMarkerStyle(34)
+		graphIntegralsNoMatch.SetMarkerColor(colorRwthMagenta)
+		graphIntegralsNoMatch.SetLineColor(colorRwthMagenta)
+		
+		graphIntegralsMatch.Draw('ap')
+		graphIntegralsNoMatch.Draw('samep')
+		
+		label = self.drawLabel()
+		
+		setupAxes(graphIntegralsMatch)
+		legend2 = getLegend(y2 = .9)
+		legend2.AddEntry(graphIntegralsMatch,'L1 Tight & HO','ep')
+		legend2.AddEntry(graphIntegralsNoMatch,'L1 Tight & !HO','ep')
+		legend2.Draw()
+		cControlPlot.Update()
+		
+		cControlPlot.SaveAs('plots/ptResolution/rmsVsPt_tight_integrals.gif')
+		
+		return c,graphL1TightHo,graphL1TightNotHo,legend,label, legend2, graphIntegralsMatch, graphIntegralsNoMatch, cControlPlot
 	
 	def plotLoosePtResolution(self):
 		c = TCanvas('cLooseResolution','cLooseResolution')
@@ -270,5 +320,37 @@ class PtResolution(Plot):
 
 		c.SaveAs('plots/ptResolution/rmsVsPt_loose.gif')
 
-		return c,graphL1TightHo,graphL1TightNotHo,legend,label
+		##
+		# Plot the integral for each histogram as a control plot
+		##
+		cControlPlot = TCanvas('cControlPlotsLoose','control plot integral')
+		dataMatch,errorMatch = self.getHistogramIntegralsAsList('hoMuonAnalyzer/l1PtResolution/L1MuonTruthHoMatch')
+		dataNoMatch,errorNoMatch = self.getHistogramIntegralsAsList('hoMuonAnalyzer/l1PtResolution/L1MuonTruthNotHoMatch')
+		graphIntegralsMatch = getTGraphErrors(xData[0], dataMatch, ex=xData[1], ey=errorMatch)
+		graphIntegralsNoMatch = getTGraphErrors(xData[0], dataNoMatch, ex=xData[1], ey=errorNoMatch)
+		
+		graphIntegralsMatch.SetMarkerStyle(20)
+		graphIntegralsMatch.SetTitle('Integral of loose L1 Object histograms;p_{T} / GeV;# entries')
+		graphIntegralsMatch.SetMarkerColor(colorRwthDarkBlue)
+		graphIntegralsMatch.SetLineColor(colorRwthDarkBlue)
+		
+		graphIntegralsNoMatch.SetMarkerStyle(34)
+		graphIntegralsNoMatch.SetMarkerColor(colorRwthMagenta)
+		graphIntegralsNoMatch.SetLineColor(colorRwthMagenta)
+		
+		graphIntegralsMatch.Draw('ap')
+		graphIntegralsNoMatch.Draw('samep')
+		
+		label = self.drawLabel()
+		
+		setupAxes(graphIntegralsMatch)
+		legend2 = getLegend(y2 = .9)
+		legend2.AddEntry(graphIntegralsMatch,'L1 & HO','ep')
+		legend2.AddEntry(graphIntegralsNoMatch,'L1 & !HO','ep')
+		legend2.Draw()
+		cControlPlot.Update()
+		
+		cControlPlot.SaveAs('plots/ptResolution/rmsVsPt_loose_integrals.gif')
+
+		return c,graphL1TightHo,graphL1TightNotHo,legend,label,graphIntegralsMatch,graphIntegralsNoMatch,legend2,cControlPlot
 		
