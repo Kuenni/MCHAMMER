@@ -58,6 +58,8 @@ class Energy(Plot):
 			resHoMatched[i].Scale(1/resHoMatched[i].GetBinContent(maxBin))
 			resHoMatched[i].Draw('same')
 		cTogether.Update()
+		cTogether.SaveAs('plots/energyPerWheelTogether.root')
+
 		return cTogether,resHo, resHoMatched
 	
 	def plotEnergyPerWheel(self,sourceName):	
@@ -102,7 +104,7 @@ class Energy(Plot):
 		label = self.drawLabel()
 		
 		c.Update()
-		
+				
 		return hoM2, hoM1, hoM0, hoP0, hoP1, hoP2, legend, c, label
 		
 	def plotEnergyNormalizedToMip(self):
