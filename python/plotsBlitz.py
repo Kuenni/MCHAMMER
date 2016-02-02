@@ -146,6 +146,7 @@ for script in args.scripts:
 		resMipNorm = lib.plotEnergyNormalizedToMip()
 		resEPerWheelHo = lib.plotHoEnergyPerWheel()
 		resEPerWheelMatchedHo = lib.plotMatchedHoEnergyPerWheel()
+		resEPerWheelTogether = lib.plotMatchedAndNotMatchedPerWheel()
 		raw_input('-->')
 	else:
 		print 'Unknown script requested: %s' % (script)
