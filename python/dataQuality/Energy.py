@@ -17,13 +17,48 @@ class Energy(Plot):
 		res = self.plotEnergyPerWheel('horeco')
 		res[-2].SetName('cEPerWheelHo')
 		res[0].SetTitle('Reconstructed Energy per Wheel')
+		res[-2].Update()
+		res[-2].SaveAs("plots/energy/energyPerWheel.gif")
 		return res
 	
 	def plotMatchedHoEnergyPerWheel(self):
 		res = self.plotEnergyPerWheel('L1MuonWithHoMatchAboveThr')
 		res[-2].SetName('cEPerWheelMatchedHo')
 		res[0].SetTitle('Reconstructed Energy per Wheel for matched HO')
+		res[-2].Update()
+		res[-2].SaveAs("plots/energy/energyPerWheelMatched.gif")
 		return res
+	
+	def plotMatchedAndNotMatchedPerWheel(self):
+		resHo = self.plotEnergyPerWheel('horeco')
+		resHoMatched = self.plotEnergyPerWheel('L1MuonWithHoMatchAboveThr')
+		
+		cTogether = TCanvas('cTogether','Matched and not Matched',1800,500)
+		cTogether.Divide(6,1)
+		
+		plotTitles = [
+					'Wheel -2',
+					'Wheel -1',
+					'Wheel 0 (-)',
+					'Wheel 0 (+)',
+					'Wheel +1',
+					'Wheel +2'
+					]
+		
+		for i in range(0,6):
+			cTogether.cd(i+1).SetLogy()
+			resHo[i].SetTitle(plotTitles[i] + ';E_{Rec} / GeV;fraction of MIP peak')
+			resHo[i].GetXaxis().SetRangeUser(-1,6)
+			maxBin = resHoMatched[i].GetMaximumBin()#resHo[i].FindBin()
+			resHo[i].Scale(1/resHo[i].GetBinContent(maxBin))
+			resHo[i].SetStats(0)
+			resHo[i].Draw()
+			setupAxes(resHo[i])
+			resHo[i].GetYaxis().SetRangeUser(4e-3,2)
+			resHoMatched[i].Scale(1/resHoMatched[i].GetBinContent(maxBin))
+			resHoMatched[i].Draw('same')
+		cTogether.Update()
+		return cTogether,resHo, resHoMatched
 	
 	def plotEnergyPerWheel(self,sourceName):	
 		hoM2 = self.fileHandler.getHistogram('hoMuonAnalyzer/energy/perWheel/' + sourceName + '_Energy_M2')
