@@ -6,11 +6,12 @@ from plotting.RootFileHandler import RootFileHandler
 import os
 
 class Plot:
-	def __init__(self,filename = None,data = False):
+	def __init__(self,filename = None,data = False, debug = False):
 		setPlotStyle()
 		self.commandLine = CommandLineHandler('[' + self.__class__.__name__ + '] ')
 		self.key = 'L1MuonPresent' if data else 'L1MuonTruth'
 		self.data = data
+		self.debug = debug
 		if filename != None:
 			self.fileHandler = self.createFileHandler(filename)
 		pass

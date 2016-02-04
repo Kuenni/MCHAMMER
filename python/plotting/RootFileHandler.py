@@ -12,6 +12,8 @@ class RootFileHandler:
 		#cut away file extension
 		if self.filename.rfind('.root') != -1:
 			self.filename = self.filename[:-5]
+		commandLine.debug(self.filepath)
+		commandLine.debug(self.filename)
 		for f in os.listdir(self.filepath):
 			if f.find(self.filename) != -1:
 				fileCounter += 1
@@ -20,7 +22,8 @@ class RootFileHandler:
 		pass
 	
 	#Initialize object
-	def __init__(self,filename):
+	def __init__(self,filename,debug = False):
+		self.debug = debug
 		if filename[0] == '/':
 			self.filepath = ''
 		else:
