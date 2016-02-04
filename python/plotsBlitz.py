@@ -22,6 +22,7 @@ parser.add_argument('--source','-s'
 
 args = parser.parse_args()
 
+from comparison.EnergyComparison import EnergyComparison
 from dataQuality.ControlPlots import ControlPlots
 from dataQuality.Energy	import Energy
 from dataQuality.EvsEtaPhi import EvsEtaPhi
@@ -38,7 +39,7 @@ from ROOT import gROOT
 gROOT.ProcessLine(".L $HOMUONTRIGGER_BASE/python/loader.C+");
 
 if args.list:
-	scripts = ['controlPlots','eVsEtaPhi','timeWindow','ptResolution','qualityCodes','counters','thresholdScan','efficiency','energy']
+	scripts = ['controlPlots','eVsEtaPhi','timeWindow','ptResolution','qualityCodes','counters','thresholdScan','efficiency','energy','compareEnergy']
 	print "Available Scripts:"
 	for script in scripts:
 		print '\t',script
@@ -147,6 +148,12 @@ for script in args.scripts:
 		resEPerWheelHo = lib.plotHoEnergyPerWheel()
 		resEPerWheelMatchedHo = lib.plotMatchedHoEnergyPerWheel()
 		resEPerWheelTogether = lib.plotMatchedAndNotMatchedPerWheel()
+		raw_input('-->')
+	elif (script == 'compareEnergy'):
+		libEnergyComparison = EnergyComparison(data = args.data)
+		resEPerWheel = libEnergyComparison.compareEnergyPerWheel()
+		resEAbsolute = libEnergyComparison.compareEnergyAbsolute()
+		resEIntegralNorm = libEnergyComparison.compareEnergyNormalizedToIntegral()
 		raw_input('-->')
 	else:
 		print 'Unknown script requested: %s' % (script)
