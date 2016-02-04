@@ -9,8 +9,8 @@ MIP_PEAK_POSITION = 1.1
 
 class Energy(Plot):
 	#Initialize
-	def __init__(self,filename,data):
-		Plot.__init__(self,filename,data)
+	def __init__(self,filename,data,debug):
+		Plot.__init__(self,filename,data,debug)
 		self.createPlotSubdir('energy')
 	
 	def plotHoEnergyPerWheel(self):	
@@ -18,7 +18,7 @@ class Energy(Plot):
 		res[-2].SetName('cEPerWheelHo')
 		res[0].SetTitle('Reconstructed Energy per Wheel')
 		res[-2].Update()
-		res[-2].SaveAs("plots/energy/energyPerWheel.gif")
+		self.storeCanvas(res[-2],'energyPerWheel')
 		return res
 	
 	def plotMatchedHoEnergyPerWheel(self):
@@ -26,7 +26,7 @@ class Energy(Plot):
 		res[-2].SetName('cEPerWheelMatchedHo')
 		res[0].SetTitle('Reconstructed Energy per Wheel for matched HO')
 		res[-2].Update()
-		res[-2].SaveAs("plots/energy/energyPerWheelMatched.gif")
+		self.storeCanvas(res[-2],'energyPerWheelMatched')
 		return res
 	
 	def plotMatchedAndNotMatchedPerWheel(self):
@@ -157,7 +157,7 @@ class Energy(Plot):
 	
 		
 	
-		canv.SaveAs("plots/energy/energyNormToMip.gif")
+		self.storeCanvas(canv,'energyNormToMip')
 		canv.SaveAs("plots/energy/energyNormToMip.pdf")
 	
 		return canv,ho,L1MuonAndHoMatch, L1MuonAndHoMatchAboveThr,L1MuonAndHoMatchAboveThrFilt,label, legend
@@ -212,8 +212,7 @@ class Energy(Plot):
 			legend.AddEntry(L1MuonAndHoMatchAboveThrFilt,'L1Muon + HO match > 0.2 GeV (In Ho Geom.)','l')
 	
 		
-	
-		canv.SaveAs("plots/energy/energyNorm.gif")
+		self.storeCanvas(canv,'energyNorm')
 		canv.SaveAs("plots/energy/energyNorm.pdf")
 	
 		f = TFile.Open("plots/energy/energyNorm.root","RECREATE")
@@ -267,8 +266,7 @@ class Energy(Plot):
 			legend.AddEntry(L1MuonAndHoMatchAboveThrFilt,'L1Muon + HO match > 0.2 GeV (In Ho Geom.)','l')
 	
 		
-	
-		canv.SaveAs("plots/energy/energy.gif")
+		self.storeCanvas(canv,'energy')
 		canv.SaveAs("plots/energy/energy.pdf")
 	
 		f = TFile.Open("plots/energy/energy.root","RECREATE")
@@ -294,7 +292,7 @@ class Energy(Plot):
 		pal = energyVsEta.GetListOfFunctions().FindObject("palette")
 		pal.SetX2NDC(0.92)
 		
-		canv.SaveAs("plots/energy/energyVsEta.gif")
+		self.storeCanvas(canv,'energyVsEta')
 		canv.SaveAs("plots/energy/energyVsEta.pdf")
 	
 		f = TFile.Open("plots/energy/energyVsEta.root","RECREATE")
