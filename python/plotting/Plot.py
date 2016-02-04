@@ -6,16 +6,20 @@ from plotting.RootFileHandler import RootFileHandler
 import os
 
 class Plot:
-	def __init__(self,filename,data = False):
+	def __init__(self,filename = None,data = False):
 		setPlotStyle()
 		self.commandLine = CommandLineHandler('[' + self.__class__.__name__ + '] ')
-		self.fileHandler = RootFileHandler(filename)
-		self.fileHandler.printStatus()
 		self.key = 'L1MuonPresent' if data else 'L1MuonTruth'
 		self.data = data
+		if filename != None:
+			self.fileHandler = self.createFileHandler(filename)
 		pass
 	
-		
+	def createFileHandler(self,filename):
+		fh = RootFileHandler(filename)
+		fh.printStatus()
+		return fh
+	
 	def createPlotSubdir(self,subdirname):
 		if( not os.path.exists('plots')):
 			os.mkdir('plots')
