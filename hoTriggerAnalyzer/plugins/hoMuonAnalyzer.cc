@@ -1341,7 +1341,7 @@ void hoMuonAnalyzer::fillTriggerRatesForQualityCodes(){
 	//	Second best		xxx110
 	//	third best		xxx101
 	// ...
-	#define HO_time_good 11xxxb
+#define HO_time_good 11xxxb
 #define HO_time_lo	01xxx
 #define HO_time_hi	10xxx
 #define L1BXID0		0001000xxxx....
@@ -1351,6 +1351,16 @@ void hoMuonAnalyzer::fillTriggerRatesForQualityCodes(){
 #define L1BXID_M_1		0000100xxxx....
 #define L1BXID_M_2		0000010xxxx....
 #define L1BXID_M_3		0000001xxxx....
+
+	/**
+	 * Start development by running over all L1 Objects.
+	 * Also cases for no HO match can be depicted by having all 0 for the Ho time part.
+	 * In future versions, more studies can be performed, using only the tight L1 information,
+	 * or having the L1 algorithm result evaluated
+	 */
+	for(auto l1MuonIt = l1Muons->begin(); l1MuonIt != l1Muons->end(); l1MuonIt++){
+
+	}
 }
 
 /**
@@ -1550,8 +1560,8 @@ void hoMuonAnalyzer::processGenInformation(const edm::Event& iEvent,const edm::E
 					histogramBuilder.fillEtaPhiPtHistogram(genMatch->eta(), genMatch->phi(),genMatch->pt(),"BxRightGen");
 					histogramBuilder.fillMultiplicityHistogram(bl1Muon->gmtMuonCand().detector(),"detectorIndexBxRight");
 				}
-				/* Built this to fix the strange behaviour of the efficiency plots.
-				 * Did not yet help completely. The reason for the strange behaviour is probably the fact,
+				/* Built this to fix the strange behavior of the efficiency plots.
+				 * Did not yet help completely. The reason for the strange behavior is probably the fact,
 				 * that there may be more than one l1 muons that can be matched to the Gen particle
 				 */
 				const HORecHit* matchedRecHit = hoMatcher->matchByEMaxInGrid(bl1Muon->eta(),bl1Muon->phi(),2);
