@@ -9,6 +9,9 @@ class RootFileHandler:
 	def getNumberOfFiles(self):
 		fileCounter = 0
 		self.fileNameList = []
+		#cut away file extension
+		if self.filename.rfind('.root') != -1:
+			self.filename = self.filename[:-5]
 		for f in os.listdir(self.filepath):
 			if f.find(self.filename) != -1:
 				fileCounter += 1
