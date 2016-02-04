@@ -26,7 +26,13 @@ class Plot:
 			os.mkdir('plots')
 		if( not os.path.exists('plots/' + subdirname)):
 			os.mkdir('plots/' + subdirname)
-		pass
+		self.plotSubdir = 'plots/' + subdirname
+		return
+	
+	#Save a canvas as gif file with the source data file name attached
+	def storeCanvas(self,canvas,plotname):
+		canvas.SaveAs('%s/%s_%s.gif'%(self.plotSubdir,plotname,self.fileHandler.filename))
+		return
 	
 	def drawLabel(self):
 		label = None
