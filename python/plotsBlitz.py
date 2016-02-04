@@ -20,6 +20,10 @@ parser.add_argument('--source','-s'
 					,dest='source'
 					,help='File name scheme for the source of events')
 
+parser.add_argument('--debug'
+					,dest='debug',action="store_true",default=False
+					,help='Enable more verbose output in modules.')
+
 args = parser.parse_args()
 
 from comparison.EnergyComparison import EnergyComparison
@@ -141,7 +145,7 @@ for script in args.scripts:
 			res5x5Together = lib.plot5x5GridTogether()
 		raw_input('-->')
 	elif (script == 'energy'):
-		lib = Energy(filename = args.source, data = args.data)
+		lib = Energy(filename = args.source, data = args.data,debug = args.debug)
 		resEnergy = lib.plotEnergy()
 		resEnergyNorm = lib.plotEnergyNormalized()
 		resMipNorm = lib.plotEnergyNormalizedToMip()
