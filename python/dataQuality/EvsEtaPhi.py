@@ -16,7 +16,7 @@ class EvsEtaPhi(Plot):
 	def __init__(self,filename,data = False):
 		Plot.__init__(self,filename,data)
 		self.createPlotSubdir('averageEnergy')
-
+		self.fileHandler.printNEvents()
 	'''
 	Plots the average energy seen in in the tiles around the direction
 	of the L1 muons
@@ -56,7 +56,7 @@ class EvsEtaPhi(Plot):
 	
 		canvas.Update()
 		canvas.SaveAs('plots/averageEnergy/averageEnergy.pdf')
-	
+		self.storeCanvas(canvas,'averageEnergy')
 		return canvas,hSum,label,hCounter
 	
 	
@@ -82,7 +82,7 @@ class EvsEtaPhi(Plot):
 		
 		canvas.Update()
 		canvas.SaveAs('plots/averageEnergy/averageEmax.pdf')
-
+		self.storeCanvas(canvas, 'averageEmax')
 		hCounter.SaveAs('histogramEMaxCounter.root')
 		
 		return canvas,hSum,label,hCounter
@@ -251,7 +251,7 @@ class EvsEtaPhi(Plot):
 		canvas.Update()		
 		setupPalette(hSum)
 		canvas.Update()
-		canvas.SaveAs('plots/averageEnergy/eAverageTightMuons.gif')
+		self.storeCanvas(canvas,'eAverageTightMuons')
 		return canvas,hSum,label
 	
 	def plotEavPerWheelForTightMuons(self):
@@ -302,7 +302,7 @@ class EvsEtaPhi(Plot):
 	
 		canvas.Update()
 		
-		canvas.SaveAs('plots/averageEnergy/eAveragePerWheelTightMuons.gif')
+		self.storeCanvas(canvas,'eAveragePerWheelTightMuons')
 		
 		return hM1Energy,canvas,h0Energy,hP1Energy,h0Counter,label1,label2,label3
 
@@ -354,7 +354,7 @@ class EvsEtaPhi(Plot):
 		label3 = self.drawLabel()
 	
 		canvas.Update()
-		
+		self.storeCanvas(canvas,'eAveragePerWheel')
 		canvas.SaveAs('plots/averageEnergy/eAveragePerWheel.pdf')
 		
 		return hM1Energy,canvas,h0Energy,hP1Energy,h0Counter,label1,label2,label3
