@@ -1,10 +1,11 @@
 from ROOT import TFile,TCanvas
 from plotting.PlotStyle import colorRwthDarkBlue, colorRwthMagenta,\
-	drawLabelCmsPrivateData, setPlotStyle, setupAxes
+	drawLabelCmsPrivateData, setPlotStyle, setupAxes, colorRwthTuerkis
 from plotting.Utils import getLegend
 from plotting.Plot import Plot
 
 SIMULATION_FILE_SCHEME = '/user/kuensken/CMSSW/CMSSW_7_2_2_patch2/src/HoMuonTrigger/PostLS1/SingleMuonGunPooja/NoPUAnalyzed'
+SIMULATION_PU_FILE_SCHEME = '/user/kuensken/CMSSW/CMSSW_7_2_2_patch2/src/HoMuonTrigger/PostLS1/SingleMuonGunWithPU/PU52Analyzed'
 DATA_FILE_SCHEME = '/user/kuensken/CMSSW/CMSSW_7_4_15/src/HoMuonTrigger/PostLS1/collisionData2015/SingleMuon2015D'
 
 class EnergyComparison(Plot):
@@ -14,6 +15,7 @@ class EnergyComparison(Plot):
 		self.createPlotSubdir('energyComparison')
 		self.fileHandlerSimulation = self.createFileHandler(SIMULATION_FILE_SCHEME)
 		self.fileHandlerData = self.createFileHandler(DATA_FILE_SCHEME)
+		self.fileHandlerSimulationPu = self.createFileHandler(SIMULATION_PU_FILE_SCHEME)
 	
 	def compareEnergyPerWheel(self):	
 
@@ -53,24 +55,35 @@ class EnergyComparison(Plot):
 			hDataMatch.SetLineColor(colorRwthMagenta)
 			hDataMatch.SetLineStyle(7)
 			
+			hSimPuHo = self.fileHandlerSimulationPu.getHistogram(namesHo[i])
+			hSimPuHo.SetLineColor(colorRwthTuerkis)
+			
+			hSimPuMatch = self.fileHandlerSimulationPu.getHistogram(namesMatched[i])
+			hSimPuMatch.SetLineColor(colorRwthTuerkis)
+			hSimPuMatch.SetLineStyle(7)
+			
 			hSimHo.Draw()
 			hSimMatch.Draw('same')
 			hDataHo.Draw('same')
 			hDataMatch.Draw('same')
+			hSimPuHo.Draw('same')
+			hSimPuMatch.Draw('same')
 			
 			legend = getLegend(y1 =.6,y2=.9)
 			legend.AddEntry(hSimHo,'Sim, HO Only','l').SetTextFont(62)
 			legend.AddEntry(hSimMatch,'Sim, HO matched','l').SetTextFont(62)
 			legend.AddEntry(hDataHo,'Data, HO Only','l').SetTextFont(62)
 			legend.AddEntry(hDataMatch,'Data HO Matched','l').SetTextFont(62)
+			legend.AddEntry(hSimPuHo,'Sim PU52, HO Only','l').SetTextFont(62)
+			legend.AddEntry(hSimPuMatch,'Sim PU52 HO Matched','l').SetTextFont(62)
 			legend.Draw()
 			
 			label = drawLabelCmsPrivateData()
 			
-			objectStorage.append([hSimHo,hSimMatch,hDataHo,hDataMatch,legend,label])
+			objectStorage.append([hSimHo,hSimMatch,hDataHo,hDataMatch,hSimPuHo,hSimPuMatch,legend,label])
 		
 		canvas.Update()
-		canvas.SaveAs('energyPerWheelDataAndSimNormed.gif')
+		canvas.SaveAs('plots/energyComparison/energyPerWheelDataAndSimNormed.gif')
 	
 		return canvas,objectStorage
 	
@@ -83,6 +96,8 @@ class EnergyComparison(Plot):
 		hSimMatched = self.fileHandlerSimulation.getHistogram('hoMuonAnalyzer/energy/L1MuonWithHoMatchAboveThr_Energy')
 		hDataHo = self.fileHandlerData.getHistogram('hoMuonAnalyzer/energy/horeco_Energy')
 		hDataMatched = self.fileHandlerData.getHistogram('hoMuonAnalyzer/energy/L1MuonWithHoMatchAboveThr_Energy')
+		hSimPuHo = self.fileHandlerSimulationPu.getHistogram('hoMuonAnalyzer/energy/horeco_Energy')
+		hSimPuMatched = self.fileHandlerSimulationPu.getHistogram('hoMuonAnalyzer/energy/L1MuonWithHoMatchAboveThr_Energy')
 		
 		hSimHo.SetLineColor(colorRwthDarkBlue)
 		hSimHo.SetStats(0)
@@ -94,10 +109,16 @@ class EnergyComparison(Plot):
 		hDataMatched.SetLineColor(colorRwthMagenta)
 		hDataMatched.SetLineStyle(7)
 		
+		hSimPuHo.SetLineColor(colorRwthTuerkis)
+		hSimPuMatched.SetLineColor(colorRwthTuerkis)
+		hSimPuMatched.SetLineStyle(7)
+		
 		hSimHo.Draw()
 		hSimMatched.Draw('same')
 		hDataHo.Draw('same')
 		hDataMatched.Draw('same')
+		hSimPuHo.Draw('same')
+		hSimPuMatched.Draw('same')
 		
 		label = drawLabelCmsPrivateData()
 
@@ -106,14 +127,16 @@ class EnergyComparison(Plot):
 		legend.AddEntry(hSimMatched,'Sim No PU, L1 + HO','l')
 		legend.AddEntry(hDataHo,'Data, HO only','l')
 		legend.AddEntry(hDataMatched,'Data, L1 + HO','l')
+		legend.AddEntry(hSimPuHo,'Sim PU52, HO Only','l').SetTextFont(62)
+		legend.AddEntry(hSimPuMatched,'Sim PU52, L1 + HO','l').SetTextFont(62)
 		legend.Draw()
 		
 		setupAxes(hSimHo)
 		canvas.Update()
 		
-		canvas.SaveAs('energyComparison/energyAbsolute.gif')
+		canvas.SaveAs('plots/energyComparison/energyAbsolute.gif')
 		
-		return canvas, hSimHo,hSimMatched,hDataHo,hDataMatched, legend, label
+		return canvas, hSimHo,hSimMatched,hDataHo,hDataMatched,hSimPuHo,hSimPuMatched, legend, label
 
 	def compareEnergyNormalizedToIntegral(self):
 		objectList = self.compareEnergyAbsolute()
@@ -121,6 +144,8 @@ class EnergyComparison(Plot):
 		objectList[2].Scale(1/objectList[2].Integral())
 		objectList[3].Scale(1/objectList[3].Integral())
 		objectList[4].Scale(1/objectList[4].Integral())
+		objectList[5].Scale(1/objectList[5].Integral())
+		objectList[6].Scale(1/objectList[6].Integral())
 		
 		objectList[1].SetTitle('Distribution of HO Energy, normalized')
 		objectList[1].GetYaxis().SetTitle('rel. fraction')
@@ -128,12 +153,14 @@ class EnergyComparison(Plot):
 		objectList[2].Draw('same')
 		objectList[3].Draw('same')
 		objectList[4].Draw('same')
+		objectList[5].Draw('same')
+		objectList[6].Draw('same')
 		
 		objectList[-2].Draw()
 		objectList[-1].Draw()
 		
 		objectList[0].Update()
-		
+		objectList[0].SaveAs('plots/energyComparison/energyNormalizedToIntegral.gif')	
 		
 		return objectList
 		
