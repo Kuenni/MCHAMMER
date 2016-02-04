@@ -117,7 +117,7 @@ class Energy(Plot):
 		canv.SetLogy()
 	
 		ho.SetStats(0)
-		ho.SetTitle('Normalized energy distribution of HO hits')
+		ho.SetTitle('Normalized energy distribution of HO hits (to MIP Maximum)')
 		ho.GetXaxis().SetTitle('Reconstructed HO energy / GeV')
 		ho.GetYaxis().SetTitle('rel. fraction')
 		ho.GetXaxis().SetRangeUser(-2,6)
@@ -160,7 +160,7 @@ class Energy(Plot):
 		canv.SaveAs("plots/energy/energyNormToMip.gif")
 		canv.SaveAs("plots/energy/energyNormToMip.pdf")
 	
-		return canv,ho,L1MuonAndHoMatch, L1MuonAndHoMatchAboveThr,L1MuonAndHoMatchAboveThrFilt,label
+		return canv,ho,L1MuonAndHoMatch, L1MuonAndHoMatchAboveThr,L1MuonAndHoMatchAboveThrFilt,label, legend
 			
 	def plotEnergyNormalized(self):
 
@@ -173,7 +173,7 @@ class Energy(Plot):
 		canv.SetLogy()
 	
 		ho.SetStats(0)
-		ho.SetTitle('Normalized energy distribution of HO hits')
+		ho.SetTitle('Normalized energy distribution of HO hits (Integral)')
 		ho.GetXaxis().SetTitle('Reconstructed HO energy / GeV')
 		ho.GetYaxis().SetTitle('rel. fraction')
 		ho.GetXaxis().SetRangeUser(-2,6)
@@ -219,7 +219,7 @@ class Energy(Plot):
 		f = TFile.Open("plots/energy/energyNorm.root","RECREATE")
 		canv.Write()
 		f.Close()
-		return [canv,ho,L1MuonAndHoMatch, L1MuonAndHoMatchAboveThr,L1MuonAndHoMatchAboveThrFilt,label]
+		return [canv,ho,L1MuonAndHoMatch, L1MuonAndHoMatchAboveThr,L1MuonAndHoMatchAboveThrFilt,label,legend]
 	
 	def plotEnergy(self):
 
@@ -274,7 +274,7 @@ class Energy(Plot):
 		f = TFile.Open("plots/energy/energy.root","RECREATE")
 		canv.Write()
 		f.Close()
-		return [canv,ho,L1MuonAndHoMatch, L1MuonAndHoMatchAboveThr,L1MuonAndHoMatchAboveThrFilt,label]
+		return [canv,ho,L1MuonAndHoMatch, L1MuonAndHoMatchAboveThr,L1MuonAndHoMatchAboveThrFilt,label,legend]
 	
 	def plotEnergyVsEta(self,sourceHistogram = 'L1MuonWithHoMatch_EnergyVsEta'):
 	
