@@ -111,3 +111,7 @@ class RootFileHandler:
 		commandLine.printProgress(counter,nTotal)
 		print
 		return graph
+
+	def printNEvents(self):
+		hEvents = self.getHistogram('hoMuonAnalyzer/count/Events_Count')
+		commandLine.warning('Sample contained %d events' % hEvents.GetBinContent(2))
