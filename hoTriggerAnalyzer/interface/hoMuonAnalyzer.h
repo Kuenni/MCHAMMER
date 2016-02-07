@@ -101,8 +101,9 @@ private:
 
 	void recoControlPlots();
 
-	const reco::GenParticle* getBestGenMatch(float,float);
 	const l1extra::L1MuonParticle* getMatchedL1Object(trigger::TriggerObject,edm::Handle<l1extra::L1MuonParticleCollection>);
+	const reco::GenParticle* getBestGenMatch(float eta,float phi);
+	const reco::Muon* getBestRecoMatch(float eta, float phi);
 	const reco::Vertex getPrimaryVertex();
 
 	bool processTriggerDecision(string algorithmName,const edm::Event& );
@@ -120,15 +121,15 @@ private:
 	edm::InputTag _l1MuonGenMatchInput;
 	edm::InputTag _hltSumAODInput;
 
+	edm::Handle<edm::View<l1extra::L1MuonParticle> > l1MuonView;
+	edm::Handle<HORecHitCollection> hoRecoHits;
+	edm::Handle<l1extra::L1MuonParticleCollection> l1Muons;
 	edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
 	edm::Handle<reco::GenParticleCollection> truthParticles;
-	edm::Handle<l1extra::L1MuonParticleCollection> l1Muons;
-	edm::Handle<HORecHitCollection> hoRecoHits;
 	edm::Handle<reco::GenParticleMatch> l1MuonGenMatches;
-	edm::Handle<edm::View<l1extra::L1MuonParticle> > l1MuonView;
 	edm::Handle<reco::MuonCollection> recoMuons;
-	edm::Handle<std::vector<pat::Muon>> patMuons;
 	edm::Handle<reco::VertexCollection> vertexColl;
+	edm::Handle<std::vector<pat::Muon>> patMuons;
 
 	edm::ESHandle<CaloGeometry> caloGeo;
 	edm::ESHandle<MagneticField> theMagField;
