@@ -78,10 +78,12 @@ for script in args.scripts:
 		raw_input('-->')
 	elif(script == 'phiShift'):
 		lib = DeltaPhi(filename = args.source,data=args.data)
-		resAllEtaPhi = lib.plotEtaPhiForAllL1()
-		resEtaPhiMap = lib.plotEtaPhiForDeltaPhiOne()
 		resDeltaPhi = lib.plotDeltaPhiHistogram()
 		resEta = lib.plotDeltaPhiVsL1Eta()
+		resdPhiVsPtL1 = lib.plotDeltaPhiVsL1Pt()
+		resdPhiVsPtL1Tight = lib.plotDeltaPhiVsL1TightPt()
+		resAllEtaPhi = lib.plotEtaPhiForAllL1()
+		resEtaPhiMap = lib.plotEtaPhiForDeltaPhiOne()
 		if not args.data:
 			#res3 = lib.plotDeltaPhiVsGenPt()
 			res4 = lib.plotL1PhiVsHoPhi()
