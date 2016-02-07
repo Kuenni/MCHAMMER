@@ -171,6 +171,11 @@ private:
 
 
 	/**
+	 * Maximum Eta value that is allowed for muons
+	 */
+	static const float MAX_ETA;
+
+	/**
 	 * Energy threshold for HO rec hits
 	 */
 	float threshold;

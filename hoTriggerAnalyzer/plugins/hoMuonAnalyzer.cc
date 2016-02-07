@@ -88,6 +88,8 @@
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 using namespace::std;
 
+const float hoMuonAnalyzer::MAX_ETA = 0.8;
+
 hoMuonAnalyzer::hoMuonAnalyzer(const edm::ParameterSet& iConfig){
 	coutPrefix = "[hoMuonAnalyzer] ";
 	//now do what ever initialization is needed
@@ -199,7 +201,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	if(isData){
 		auto recoMuon = recoMuons->begin();
 		for(; recoMuon!= recoMuons->end(); ++recoMuon){
-			if(fabs(recoMuon->eta()) <= 1.25){
+			if(fabs(recoMuon->eta()) <= MAX_ETA){
 				hasMuonsInAcceptance = true;
 			}
 		}
@@ -1293,7 +1295,7 @@ void hoMuonAnalyzer::calculateGridMatchingEfficiency(const l1extra::L1MuonPartic
 	 *
 	 */
 	//Restrict L1 information to be within HO
-	if(fabs(l1muon->eta()) > 1.25){
+	if(fabs(l1muon->eta()) > MAX_ETA){
 		return;
 	}
 
@@ -1406,7 +1408,7 @@ void hoMuonAnalyzer::analyzeL1Resolution(){
 		const l1extra::L1MuonParticle* l1Part = 0;
 		l1Part = functionsHandler->getBestL1MuonMatch(patMuonIt->eta(),patMuonIt->phi());
 		if(l1Part){
-			if(fabs(l1Part->eta()) > 1.25){
+			if(fabs(l1Part->eta()) > MAX_ETA){
 				continue;
 			}
 			bool isTight = patMuonIt->isTightMuon(getPrimaryVertex());
@@ -1468,7 +1470,7 @@ void hoMuonAnalyzer::gridMatchingWithTightMuons(){
 			//Look only at tight muons, that were "seeded" by L1
 			if(l1Part){
 				//Restrict the L1 information to Ho range
-				if(fabs(l1Part->eta()) > 1.25){
+				if(fabs(l1Part->eta()) > MAX_ETA){
 					continue;
 				}
 				histogramBuilder.fillEtaPhiGraph(l1Part->eta(),l1Part->phi(),"L1TightMuons");
