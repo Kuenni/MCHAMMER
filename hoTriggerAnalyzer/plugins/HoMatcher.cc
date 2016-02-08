@@ -94,13 +94,13 @@ const HORecHit* HoMatcher::matchByEMaxDeltaR(double eta,double phi){
 /**
  * Find the largest energy rec hit in a grid of given size
  */
-const HORecHit* HoMatcher::matchByEMaxInGrid(double eta, double phi, int gridSize){
+const HORecHit* HoMatcher::matchByEMaxInGrid(double eta, double phi, int gridSize, bool ignoreThreshold){
 	HORecHitCollection::const_iterator hoRecHitIt = hoRecoHits->begin();
 		const HORecHit* matchedRecHit = 0;
 		//Loop over all rec hits
 		for( ; hoRecHitIt!=hoRecoHits->end(); hoRecHitIt++ ){
-			//Only look for potential hits
-			if(hoRecHitIt->energy() < threshold){
+			//Only look for potential hits, except for explicit requests
+			if(!(hoRecHitIt->energy() >= threshold || ignoreThreshold)){
 				continue;
 			}
 			double deltaIEta = getDeltaIeta(eta,&*hoRecHitIt);

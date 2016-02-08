@@ -39,7 +39,7 @@ public:
 	 * of the rec hits
 	 */
 	const HORecHit* matchByEMaxDeltaR(double eta,double phi);
-	const HORecHit* matchByEMaxInGrid(double eta,double phi, int gridSize);
+	const HORecHit* matchByEMaxInGrid(double eta,double phi, int gridSize, bool ignoreThreshold = false);
 	const HORecHit* getClosestRecHitInGrid(double eta,double phi, int gridSize);
 	const HODataFrame* getBestHoDataFrameMatch(double eta, double phi);
 
