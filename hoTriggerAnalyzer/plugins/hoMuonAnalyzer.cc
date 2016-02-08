@@ -928,6 +928,32 @@ const reco::GenParticle* hoMuonAnalyzer::getBestGenMatch(float eta, float phi){
 	return bestGen;
 }
 
+/**
+ * Returns a pointer to the closest gen particle of all particles that are closer
+ * than delta R < delta R max
+ * TODO: Could do this and the gen function with a template
+ *
+ */
+const reco::Muon* hoMuonAnalyzer::getBestRecoMatch(float eta, float phi) {
+	const reco::Muon* bestReco = 0;
+	float bestDR = 999.;
+	reco::MuonCollection::const_iterator recoIt = recoMuons->begin();
+	reco::MuonCollection::const_iterator recoEnd = recoMuons->end();
+	for (; recoIt != recoEnd; ++recoIt) {
+		if (abs(recoIt->pdgId()) == 13) {
+			float genPhi = recoIt->phi();
+			float genEta = recoIt->eta();
+			float dR = deltaR(eta, phi, genEta, genPhi);
+			if (dR < deltaR_L1MuonMatching && dR < bestDR) { // CB get it from CFG
+				bestDR = dR;
+				bestReco = &(*recoIt);
+			}
+		}
+	}
+	return bestReco;
+}
+
+
 void hoMuonAnalyzer::defineTriggersOfInterest(){
 
 	/*

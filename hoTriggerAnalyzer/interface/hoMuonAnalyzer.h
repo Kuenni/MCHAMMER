@@ -102,6 +102,7 @@ private:
 	void recoControlPlots();
 
 	const reco::GenParticle* getBestGenMatch(float,float);
+	const reco::Muon* getBestRecoMatch(float eta, float phi);
 	const l1extra::L1MuonParticle* getMatchedL1Object(trigger::TriggerObject,edm::Handle<l1extra::L1MuonParticleCollection>);
 	const reco::Vertex getPrimaryVertex();
 
