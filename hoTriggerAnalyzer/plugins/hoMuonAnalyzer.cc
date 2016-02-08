@@ -1126,7 +1126,8 @@ const reco::Muon* hoMuonAnalyzer::getBestRecoMatch(float eta, float phi) {
 	return bestReco;
 }
 
-void hoMuonAnalyzer::defineTriggersOfInterest() {
+
+void hoMuonAnalyzer::defineTriggersOfInterest(){
 
 	/*
 	 * HLT Triggers
