@@ -78,6 +78,7 @@ private:
 
 	void defineTriggersOfInterest();
 	void printChannelQualities(const edm::EventSetup & iEvent);
+	void analyzeEnergyDeposit(const edm::Event& iEvent,const edm::EventSetup& iSetup);
 	void analyzeNoSingleMuEventsL1Loop(const edm::Event& iEvent,const edm::EventSetup& iSetup);
 	void analyzeNoSingleMuEventsGenLoop(const edm::Event& iEvent,const edm::EventSetup& iSetup);
 	void analyzeWithGenLoop(const edm::Event& iEvent,const edm::EventSetup& iSetup);
@@ -102,7 +103,7 @@ private:
 	void recoControlPlots();
 
 	const reco::GenParticle* getBestGenMatch(float,float);
-	const reco::Muon* getBestRecoMatch(float eta, float phi);
+	const pat::Muon* getBestPatMatch(float eta, float phi);
 	const l1extra::L1MuonParticle* getMatchedL1Object(trigger::TriggerObject,edm::Handle<l1extra::L1MuonParticleCollection>);
 	const reco::Vertex getPrimaryVertex();
 

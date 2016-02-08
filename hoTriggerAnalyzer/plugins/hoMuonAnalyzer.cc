@@ -225,6 +225,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	if(!isData)
 		processGenInformation(iEvent,iSetup);
 	processRecoInformation(iEvent,iSetup);
+	analyzeEnergyDeposit(iEvent,iSetup);
 	//###############################
 	// Loop over L1MuonObjects DONE
 	//###############################
@@ -934,11 +935,11 @@ const reco::GenParticle* hoMuonAnalyzer::getBestGenMatch(float eta, float phi){
  * TODO: Could do this and the gen function with a template
  *
  */
-const reco::Muon* hoMuonAnalyzer::getBestRecoMatch(float eta, float phi) {
-	const reco::Muon* bestReco = 0;
+const pat::Muon* hoMuonAnalyzer::getBestPatMatch(float eta, float phi) {
+	const pat::Muon* bestReco = 0;
 	float bestDR = 999.;
-	reco::MuonCollection::const_iterator recoIt = recoMuons->begin();
-	reco::MuonCollection::const_iterator recoEnd = recoMuons->end();
+	pat::MuonCollection::const_iterator recoIt = patMuons->begin();
+	pat::MuonCollection::const_iterator recoEnd = patMuons->end();
 	for (; recoIt != recoEnd; ++recoIt) {
 		if (abs(recoIt->pdgId()) == 13) {
 			float genPhi = recoIt->phi();
@@ -1668,6 +1669,58 @@ void hoMuonAnalyzer::makeHoRecHitThresholdScan(){
 		}
 		histogramBuilder.fillMultiplicityHistogram(thrCounter,Form("recHitThrScan%d",iterationCounter));
 		iterationCounter++;
+	}
+}
+
+/**
+ * Do the filling of the Energy histograms and at the same time analyze the efficiencies for matching L1 to reco,
+ * to HO, and so on...
+ */
+void hoMuonAnalyzer::analyzeEnergyDeposit(const edm::Event& iEvent,const edm::EventSetup& iSetup){
+	for (auto l1It = l1Muons->begin(); l1It != l1Muons->end();l1It++){
+		float l1Eta = l1It->eta();
+		float l1Phi = l1It->phi();
+		histogramBuilder.fillCountHistogram("energyDeposit_L1Muon");
+		const pat::Muon* patMuon = getBestPatMatch(l1Eta,l1Phi);
+		if(patMuon){
+			histogramBuilder.fillCountHistogram("energyDeposit_L1Reco");
+			const HORecHit* hoRecHit = hoMatcher->matchByEMaxInGrid(l1Eta,l1Phi,1);
+			if(hoRecHit){
+				histogramBuilder.fillCountHistogram("energyDeposit_L1RecoHo");
+				histogramBuilder.fillEnergyHistograms(hoRecHit->energy(),"L1RecoHo");
+				if(patMuon->isTightMuon(getPrimaryVertex())){
+					histogramBuilder.fillCountHistogram("energyDeposit_L1RecoHoTight");
+					histogramBuilder.fillEnergyHistograms(hoRecHit->energy(),"L1RecoHoTight");
+				}
+			}
+			/**
+			 * Do inverted cut order as well
+			 */
+			if(patMuon->isTightMuon(getPrimaryVertex())){
+				histogramBuilder.fillCountHistogram("energyDeposit_L1RecoTight");
+				const HORecHit* hoRecHit = hoMatcher->matchByEMaxInGrid(l1Eta,l1Phi,1);
+				if(hoRecHit){
+					histogramBuilder.fillCountHistogram("energyDeposit_L1RecoTightHo");
+					histogramBuilder.fillEnergyHistograms(hoRecHit->energy(),"L1RecoTightHo");
+				}
+			}
+			/**
+			 * Do the GA acceptance test with reco information and no threshold
+			 */
+			const HORecHit* hoRecHitNoThr = hoMatcher->matchByEMaxInGrid(l1Eta,l1Phi,1,true);
+			if(hoRecHitNoThr){
+				histogramBuilder.fillCountHistogram("energyDeposit_L1RecoHoNoThr");
+				histogramBuilder.fillEnergyHistograms(hoRecHitNoThr->energy(),"energyDeposit_L1RecoHoNoThr");
+			}
+			if(MuonHOAcceptance::inGeomAccept(patMuon->eta(),patMuon->phi())){
+				histogramBuilder.fillCountHistogram("energyDeposit_L1RecoGa");
+				const HORecHit* hoRecHitNoThr = hoMatcher->matchByEMaxInGrid(l1Eta,l1Phi,1,true);
+				if(hoRecHitNoThr){
+					histogramBuilder.fillCountHistogram("energyDeposit_L1RecoGaHoNoThr");
+					histogramBuilder.fillEnergyHistograms(hoRecHitNoThr->energy(),"energyDeposit_L1RecoGaHoNoThr");
+				}
+			}
+		}
 	}
 }
 
