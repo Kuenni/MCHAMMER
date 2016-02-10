@@ -154,6 +154,13 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		firstRun = false;
 	}
 
+	   edm::Handle<HOTrigPrimDigiCollection> hoTPDigis;
+	     iEvent.getByLabel("hcalDigis", hoTPDigis);
+	     if(!hoTPDigis.isValid())
+	    	 std::cout<<"No HO TriggerPrimitive Digis collection found" << std::endl;
+	     else
+	    	 std::cout << "HO TP size: " << hoTPDigis->size() << std::endl;
+
 	if(!isData){
 		iEvent.getByLabel(_genInput,truthParticles);
 		iEvent.getByLabel(_l1MuonGenMatchInput,l1MuonGenMatches);
