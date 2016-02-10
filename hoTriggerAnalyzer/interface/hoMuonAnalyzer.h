@@ -82,7 +82,6 @@ private:
 	void analyzeNoSingleMuEventsL1Loop(const edm::Event& iEvent,const edm::EventSetup& iSetup);
 	void analyzeNoSingleMuEventsGenLoop(const edm::Event& iEvent,const edm::EventSetup& iSetup);
 	void analyzeWithGenLoop(const edm::Event& iEvent,const edm::EventSetup& iSetup);
-	void analyzeL1MuonsForGhosts(const edm::Event& iEvent,const edm::EventSetup& iSetup);
 	void analyzeL1Resolution();
 	void fillEfficiencyHistograms(double ptMeasured,double ptReal,std::string key);
 	void fillHoGeomAcceptanceGraph(reco::GenParticle genParticle);
@@ -93,7 +92,7 @@ private:
 	void calculateGridMatchingEfficiency(double eta, double phi, float pt, std::string key);
 	void makeHoRecHitThresholdScan();
 
-	void gridMatchingWithTightMuons();
+	void analyzeGridMatching();
 
 	void processGenInformation(const edm::Event& iEvent,const edm::EventSetup& iSetup);
 	void processRecoInformation(const edm::Event& iEvent,const edm::EventSetup& iSetup);
