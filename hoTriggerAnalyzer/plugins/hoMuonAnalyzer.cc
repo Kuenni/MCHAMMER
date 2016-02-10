@@ -32,7 +32,6 @@
 #include <DataFormats/GeometryVector/interface/PV3DBase.h>
 #include <DataFormats/HcalDetId/interface/HcalDetId.h>
 #include <DataFormats/HcalDetId/interface/HcalSubdetector.h>
-#include <DataFormats/HcalRecHit/interface/HcalRecHitCollections.h>
 #include <DataFormats/HcalRecHit/interface/HORecHit.h>
 #include <DataFormats/HepMCCandidate/interface/GenParticle.h>
 #include <DataFormats/L1Trigger/interface/L1MuonParticle.h>
@@ -154,13 +153,6 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		firstRun = false;
 	}
 
-	   edm::Handle<HOTrigPrimDigiCollection> hoTPDigis;
-	     iEvent.getByLabel("hcalDigis", hoTPDigis);
-	     if(!hoTPDigis.isValid())
-	    	 std::cout<<"No HO TriggerPrimitive Digis collection found" << std::endl;
-	     else
-	    	 std::cout << "HO TP size: " << hoTPDigis->size() << std::endl;
-
 	if(!isData){
 		iEvent.getByLabel(_genInput,truthParticles);
 		iEvent.getByLabel(_l1MuonGenMatchInput,l1MuonGenMatches);
@@ -212,9 +204,6 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				hasMuonsInAcceptance = true;
 			}
 		}
-		if(debug && !hasMuonsInAcceptance){
-//			std::cout << coutPrefix << "Found no muon in acceptance in this Event." << std::endl;
-		}
 	}
 	//Assume, that we simulated muons only in our preferred acceptance
 	else{
@@ -224,6 +213,11 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	if(!hasMuonsInAcceptance){
 		return;
 	}
+
+    iEvent.getByLabel("hcalDigis", hoTPDigis);
+    if(hoTPDigis.isValid()){
+    	analyzeHoTriggerPrimitives();
+    }
 
 	iEvent.getByLabel(edm::InputTag("offlinePrimaryVertices"), vertexColl);
 	iEvent.getByLabel(edm::InputTag("offlineBeamSpot"),recoBeamSpotHandle);
@@ -1491,6 +1485,13 @@ void hoMuonAnalyzer::recoControlPlots(){
 				histogramBuilder.fillEnergyVsIEta(recHit->energy(),recHit->id().ieta(),"patMuonsTight");
 			}
 		}
+	}
+}
+
+void hoMuonAnalyzer::analyzeHoTriggerPrimitives(){
+	histogramBuilder.fillMultiplicityHistogram(hoTPDigis->size(),"hoTpSize");
+	for( auto tpIt = hoTPDigis->begin(); tpIt != hoTPDigis->end(); tpIt++){
+		histogramBuilder.fillIEtaIPhiHistogram(tpIt->ieta(),tpIt->iphi(),"hoTpCollection");
 	}
 }
 
