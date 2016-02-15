@@ -218,6 +218,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
     if(hoTPDigis.isValid()){
     	analyzeHoTriggerPrimitives();
     }
+    analyzeTimingSupport();
 
 	iEvent.getByLabel(edm::InputTag("offlinePrimaryVertices"), vertexColl);
 	iEvent.getByLabel(edm::InputTag("offlineBeamSpot"),recoBeamSpotHandle);
@@ -528,7 +529,6 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				 * #############################################
 				 */
 				TrackDetMatchInfo * muMatch = getTrackDetMatchInfo(*genIt,iEvent,iSetup);
-
 				double muMatchPhi = muMatch->trkGlobPosAtHO.phi();
 				double muMatchEta = muMatch->trkGlobPosAtHO.eta();
 				delete muMatch;
@@ -1488,6 +1488,52 @@ void hoMuonAnalyzer::recoControlPlots(){
 	}
 }
 
+/**
+ * Study the timing information when RPC info is not available
+ */
+void hoMuonAnalyzer::analyzeTimingSupport(){
+	for(auto l1Muon = l1Muons->begin(); l1Muon != l1Muons->end(); l1Muon++){
+		float l1Eta = l1Muon->eta();
+		float l1Phi = l1Muon->phi();
+		if(l1Eta > MAX_ETA){
+			continue;
+		}
+		const HORecHit* hoRecHit = hoMatcher->matchByEMaxInGrid(l1Eta,l1Phi,1);
+		switch(l1Muon->gmtMuonCand().quality()){
+		case 7:
+			//Matched DT-RPC
+			histogramBuilder.fillCountHistogram("timingSupport_MatchedDtRpc");
+			if(hoRecHit){
+				histogramBuilder.fillCountHistogram("timingSupport_MatchedDtRpcHo");
+				histogramBuilder.fillDeltaTimeHistogram(hoRecHit->time(),l1Muon->bx(),"timingSupport_MatchedDtRpcHo");
+				histogramBuilder.fillTimeHistogram(hoRecHit->time(),"timingSupport_MatchedDtRpcHo");
+				histogramBuilder.fillBxIdHistogram(l1Muon->bx(),"timingSupport_MatchedDtRpcHo");
+			}
+			break;
+		case 6:
+			histogramBuilder.fillCountHistogram("timingSupport_UnmatchedDt");
+			if(hoRecHit){
+				histogramBuilder.fillCountHistogram("timingSupport_UnmatchedDtHo");
+				histogramBuilder.fillDeltaTimeHistogram(hoRecHit->time(),l1Muon->bx(),"timingSupport_UnmatchedDtHo");
+				histogramBuilder.fillTimeHistogram(hoRecHit->time(),"timingSupport_UnmatchedDtHo");
+				histogramBuilder.fillBxIdHistogram(l1Muon->bx(),"timingSupport_UnmatchedDtHo");
+			}
+			//Unmatched DT
+			break;
+		default:
+			histogramBuilder.fillCountHistogram("timingSupport_OtherCodes");
+			if(hoRecHit){
+				histogramBuilder.fillCountHistogram("timingSupport_OtherCodesHo");
+				histogramBuilder.fillDeltaTimeHistogram(hoRecHit->time(),l1Muon->bx(),"timingSupport_OtherCodesHo");
+				histogramBuilder.fillTimeHistogram(hoRecHit->time(),"timingSupport_OtherCodesHo");
+				histogramBuilder.fillBxIdHistogram(l1Muon->bx(),"timingSupport_OtherCodesHo");
+			}
+			//Other codes
+			break;
+		}
+	}
+}
+
 void hoMuonAnalyzer::analyzeHoTriggerPrimitives(){
 	histogramBuilder.fillMultiplicityHistogram(hoTPDigis->size(),"hoTpSize");
 	for( auto tpIt = hoTPDigis->begin(); tpIt != hoTPDigis->end(); tpIt++){
@@ -1496,8 +1542,6 @@ void hoMuonAnalyzer::analyzeHoTriggerPrimitives(){
 }
 
 void hoMuonAnalyzer::analyzeGridMatching(){
-	//FIXME: Seems to be the wrong order!
-	//Take L1 and find Pat muon. Not the other way round!
 	for(auto l1Muon = l1Muons->begin(); l1Muon != l1Muons->end(); l1Muon++){
 		float l1Eta = l1Muon->eta();
 		float l1Phi = l1Muon->phi();

@@ -85,6 +85,7 @@ private:
 	void analyzeWithGenLoop(const edm::Event& iEvent,const edm::EventSetup& iSetup);
 	void analyzeL1Resolution();
 	void analyzeHoTriggerPrimitives();
+	void analyzeTimingSupport();
 	void fillEfficiencyHistograms(double ptMeasured,double ptReal,std::string key);
 	void fillHoGeomAcceptanceGraph(reco::GenParticle genParticle);
 	void fillAverageEnergyAroundL1Direction(const l1extra::L1MuonParticle*,std::string);
