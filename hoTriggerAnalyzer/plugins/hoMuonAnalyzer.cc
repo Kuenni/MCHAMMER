@@ -1551,8 +1551,10 @@ void hoMuonAnalyzer::analyzeGridMatching(){
 		const pat::Muon* patMuon = getBestPatMatch(l1Eta,l1Phi);
 		if(patMuon){
 			calculateGridMatchingEfficiency(&*l1Muon,patMuon->pt(),"gridMatching_loose");
+			calculateGridMatchingEfficiency(&*l1Muon,l1Muon->pt(),"gridMatching_L1pT_loose");
 			if(patMuon->isTightMuon(getPrimaryVertex())){
 				calculateGridMatchingEfficiency(&*l1Muon,patMuon->pt(),"gridMatching_tight");
+				calculateGridMatchingEfficiency(&*l1Muon,l1Muon->pt(),"gridMatching_L1pT_tight");
 			}
 		}
 	}
