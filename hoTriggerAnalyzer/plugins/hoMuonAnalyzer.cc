@@ -1495,7 +1495,7 @@ void hoMuonAnalyzer::analyzeTimingSupport(){
 	for(auto l1Muon = l1Muons->begin(); l1Muon != l1Muons->end(); l1Muon++){
 		float l1Eta = l1Muon->eta();
 		float l1Phi = l1Muon->phi();
-		if(l1Eta > MAX_ETA){
+		if( fabs(l1Eta) > MAX_ETA){
 			continue;
 		}
 		const HORecHit* hoRecHit = hoMatcher->matchByEMaxInGrid(l1Eta,l1Phi,1);
@@ -1545,7 +1545,7 @@ void hoMuonAnalyzer::analyzeGridMatching(){
 	for(auto l1Muon = l1Muons->begin(); l1Muon != l1Muons->end(); l1Muon++){
 		float l1Eta = l1Muon->eta();
 		float l1Phi = l1Muon->phi();
-		if(l1Eta > MAX_ETA){
+		if(fabs(l1Eta) > MAX_ETA){
 			continue;
 		}
 		const pat::Muon* patMuon = getBestPatMatch(l1Eta,l1Phi);
@@ -1750,7 +1750,7 @@ void hoMuonAnalyzer::analyzeEnergyDeposit(const edm::Event& iEvent,const edm::Ev
 	for (auto l1It = l1Muons->begin(); l1It != l1Muons->end();l1It++){
 		float l1Eta = l1It->eta();
 		float l1Phi = l1It->phi();
-		if( l1Eta > MAX_ETA ){
+		if( fabs(l1Eta) > MAX_ETA ){
 			continue;
 		}
 		histogramBuilder.fillCountHistogram("energyDeposit_L1");
