@@ -12,12 +12,37 @@ class DeltaPhi(Plot):
 	
 	def plotDeltaPhiVsL1Pt(self):
 		canvas = TCanvas('cDeltaPhiVsL1Pt','DeltaPhiVsL1Pt',1200,1200)
-		hist = self.fileHandler.getHistogram('hoMuonAnalyzer/correlation/shiftCheckDeltaPhiVsL1Pt')
+		canvas.cd().SetLogz()
+		hist = self.fileHandler.getHistogram('hoMuonAnalyzer/correlation/shiftCheckDeltaPhiVsL1PtL1MuonPresent')
 		hist.Scale(1,'width')
+		hist.SetStats(0)
+		hist.GetYaxis().SetRangeUser(-0.6,.6)
+		hist.GetZaxis().SetTitle('# entries')
 		hist.Draw('colz')
 		label = self.drawLabel()
+		setupAxes(hist)
 		canvas.Update()
-		
+		setupPalette(hist)
+		canvas.Update()
+		self.storeCanvas(canvas,'deltaPhiVsPt')
+		return canvas,hist,label
+	
+	def plotDeltaPhiVsL1TightPt(self):
+		canvas = TCanvas('cDeltaPhiVsL1TightPt','DeltaPhiVsL1TightPt',1200,1200)
+		canvas.cd().SetLogz()
+		hist = self.fileHandler.getHistogram('hoMuonAnalyzer/correlation/shiftCheckDeltaPhiVsL1PtL1TightMuons')
+		hist.Scale(1,'width')
+		hist.SetTitle('#Delta#phi shift check, tight muons')
+		hist.SetStats(0)
+		hist.GetYaxis().SetRangeUser(-0.6,.6)
+		hist.GetZaxis().SetTitle('# entries')
+		hist.Draw('colz')
+		label = self.drawLabel()
+		setupAxes(hist)
+		canvas.Update()
+		setupPalette(hist)
+		canvas.Update()
+		self.storeCanvas(canvas,'deltaPhiVsPtL1Tight')
 		return canvas,hist,label
 	
 	def plotDeltaPhiVsGenPt(self):
@@ -184,11 +209,14 @@ class DeltaPhi(Plot):
 		
 		setupPalette(hist)
 		
+		label = self.drawLabel()
+		
 		canvas.Update()
 		
+		self.storeCanvas(canvas, 'etaPhiForDeltaPhiOne')
 		canvas.SaveAs('plots/etaPhiForDeltaPhiOne.pdf')
 		
-		return canvas,hist
+		return canvas,hist,label
 	
 	def plotEtaPhiForAllL1(self):
 		canvas = TCanvas("cEtaPhi","Eta Phi",1200,1200)

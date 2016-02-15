@@ -17,6 +17,7 @@
 // system include files
 #include <CommonTools/UtilAlgos/interface/TFileService.h>
 #include <DataFormats/Common/interface/Handle.h>
+#include <DataFormats/HcalRecHit/interface/HcalRecHitCollections.h>
 #include <DataFormats/HepMCCandidate/interface/GenParticleFwd.h>
 #include <DataFormats/HLTReco/interface/TriggerObject.h>
 #include <DataFormats/L1Trigger/interface/L1MuonParticleFwd.h>
@@ -78,11 +79,13 @@ private:
 
 	void defineTriggersOfInterest();
 	void printChannelQualities(const edm::EventSetup & iEvent);
+	void analyzeEnergyDeposit(const edm::Event& iEvent,const edm::EventSetup& iSetup);
 	void analyzeNoSingleMuEventsL1Loop(const edm::Event& iEvent,const edm::EventSetup& iSetup);
 	void analyzeNoSingleMuEventsGenLoop(const edm::Event& iEvent,const edm::EventSetup& iSetup);
 	void analyzeWithGenLoop(const edm::Event& iEvent,const edm::EventSetup& iSetup);
-	void analyzeL1MuonsForGhosts(const edm::Event& iEvent,const edm::EventSetup& iSetup);
 	void analyzeL1Resolution();
+	void analyzeHoTriggerPrimitives();
+	void analyzeTimingSupport();
 	void fillEfficiencyHistograms(double ptMeasured,double ptReal,std::string key);
 	void fillHoGeomAcceptanceGraph(reco::GenParticle genParticle);
 	void fillAverageEnergyAroundL1Direction(const l1extra::L1MuonParticle*,std::string);
@@ -102,6 +105,7 @@ private:
 	void recoControlPlots();
 
 	const reco::GenParticle* getBestGenMatch(float,float);
+	const pat::Muon* getBestPatMatch(float eta, float phi);
 	const l1extra::L1MuonParticle* getMatchedL1Object(trigger::TriggerObject,edm::Handle<l1extra::L1MuonParticleCollection>);
 	const reco::Vertex getPrimaryVertex();
 
@@ -124,6 +128,7 @@ private:
 	edm::Handle<reco::GenParticleCollection> truthParticles;
 	edm::Handle<l1extra::L1MuonParticleCollection> l1Muons;
 	edm::Handle<HORecHitCollection> hoRecoHits;
+	edm::Handle<HOTrigPrimDigiCollection> hoTPDigis;
 	edm::Handle<reco::GenParticleMatch> l1MuonGenMatches;
 	edm::Handle<edm::View<l1extra::L1MuonParticle> > l1MuonView;
 	edm::Handle<reco::MuonCollection> recoMuons;
@@ -169,6 +174,11 @@ private:
 	bool firstRun;
 	bool isData;
 
+
+	/**
+	 * Maximum Eta value that is allowed for muons
+	 */
+	static const float MAX_ETA;
 
 	/**
 	 * Energy threshold for HO rec hits

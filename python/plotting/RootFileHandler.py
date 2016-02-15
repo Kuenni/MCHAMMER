@@ -45,7 +45,10 @@ class RootFileHandler:
 	#Print status information
 	def printStatus(self):
 		print '[RootFileHandler] Looking for files with naming scheme \'%s\'' % (self.filename)
-		print '[RootFileHandler] Found %d matching files:' % (self.numberOfFiles)
+		if(self.numberOfFiles == 0):
+			commandLine.error('Found no matching files!')
+		else:
+			commandLine.output('Found %d matching files:' % (self.numberOfFiles))
 		for filename in self.fileNameList:
 			print '[RootFileHandler]\t' + filename
 		print
