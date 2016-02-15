@@ -15,8 +15,8 @@ class GridMatching(Plot):
 		self.createPlotSubdir('efficiency')
 		
 	def plotL13x3AndL1Tight3x3(self):
-		effL1Muon3x3 = self.fileHandler.getHistogram('hoMuonAnalyzer/efficiency/L1Muon3x3_Efficiency')
-		effL1TightMuon3x3 = self.fileHandler.getHistogram('hoMuonAnalyzer/efficiency/L1TightMuons3x3_Efficiency')
+		effL1Muon3x3 = self.fileHandler.getHistogram('hoMuonAnalyzer/efficiency/gridMatching_loose3x3_Efficiency')
+		effL1TightMuon3x3 = self.fileHandler.getHistogram('hoMuonAnalyzer/efficiency/gridMatching_tight3x3_Efficiency')
 		c = TCanvas("tight and normal 3x3","3x3 All and Tight",1200,1200)
 			
 		effL1Muon3x3.SetMarkerColor(colorRwthDarkBlue)
