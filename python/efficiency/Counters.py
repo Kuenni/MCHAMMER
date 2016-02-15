@@ -24,7 +24,7 @@ class Counters(Plot):
 		hTightL1 = self.fileHandler.getHistogram('hoMuonAnalyzer/count/L1TightMuons_Count')
 		hTightL13x3 = self.fileHandler.getHistogram('hoMuonAnalyzer/count/L1TightMuons3x3_Count')
 		
-		hL1 = self.fileHandler.getHistogram('hoMuonAnalyzer/count/energyDeposit_L1Muon_Count')
+		hL1 = self.fileHandler.getHistogram('hoMuonAnalyzer/count/energyDeposit_L1_Count')
 		hL1Reco = self.fileHandler.getHistogram('hoMuonAnalyzer/count/energyDeposit_L1Reco_Count')
 		hL1RecoHo = self.fileHandler.getHistogram('hoMuonAnalyzer/count/energyDeposit_L1RecoHo_Count')
 		hL1RecoHoTight = self.fileHandler.getHistogram('hoMuonAnalyzer/count/energyDeposit_L1RecoHoTight_Count')
