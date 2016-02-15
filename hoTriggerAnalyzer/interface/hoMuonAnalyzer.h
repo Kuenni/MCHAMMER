@@ -92,7 +92,7 @@ private:
 	void calculateGridMatchingEfficiency(double eta, double phi, float pt, std::string key);
 	void makeHoRecHitThresholdScan();
 
-	void gridMatchingWithTightMuons();
+	void analyzeGridMatching();
 
 	void processGenInformation(const edm::Event& iEvent,const edm::EventSetup& iSetup);
 	void processRecoInformation(const edm::Event& iEvent,const edm::EventSetup& iSetup);

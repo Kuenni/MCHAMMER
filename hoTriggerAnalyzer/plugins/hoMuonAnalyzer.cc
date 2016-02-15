@@ -1460,7 +1460,7 @@ void hoMuonAnalyzer::recoControlPlots(){
 	}
 }
 
-void hoMuonAnalyzer::gridMatchingWithTightMuons(){
+void hoMuonAnalyzer::analyzeGridMatching(){
 	for(auto patMuonIt = patMuons->begin(); patMuonIt != patMuons->end(); ++patMuonIt){
 		if(patMuonIt->isTightMuon(getPrimaryVertex())){
 			const l1extra::L1MuonParticle* l1Part = 0;
@@ -1486,7 +1486,7 @@ void hoMuonAnalyzer::gridMatchingWithTightMuons(){
 void hoMuonAnalyzer::processRecoInformation(const edm::Event& iEvent, const edm::EventSetup& iSetup){
 	analyzeL1Resolution();
 	recoControlPlots();
-	gridMatchingWithTightMuons();
+	analyzeGridMatching();
 }
 
 void hoMuonAnalyzer::processGenInformation(const edm::Event& iEvent,const edm::EventSetup& iSetup){
