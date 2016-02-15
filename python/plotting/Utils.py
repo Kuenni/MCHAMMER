@@ -8,6 +8,7 @@ from array import array
 import math
 
 import math
+from numpy import nan
 
 commandLine = OutputModule.CommandLineHandler('[Utils.py] ')
 
@@ -114,4 +115,12 @@ def getTGraphErrors(x,y,ex = None,ey = None):
 	return TGraphErrors(len(x),array('f',x),array('f',y),array('f',ex),array('f',ey))
 	
 def getLegend(x1=.6,y1=.8,x2=.9,y2=.85):
-	return TLegend(x1,y1,x2,y2)
+	l =  TLegend(x1,y1,x2,y2)
+#	l.SetTextFont(62)
+	return l
+
+def calcPercent(numerator, denominator):
+	if(denominator == 0):
+		commandLine.error('Tried to divide by 0')
+		return nan
+	return numerator/float(denominator)*100
