@@ -1751,7 +1751,7 @@ void hoMuonAnalyzer::analyzeEnergyDeposit(const edm::Event& iEvent,const edm::Ev
 		if( l1Eta > MAX_ETA ){
 			continue;
 		}
-		histogramBuilder.fillCountHistogram("energyDeposit_L1Muon");
+		histogramBuilder.fillCountHistogram("energyDeposit_L1");
 		const pat::Muon* patMuon = getBestPatMatch(l1Eta,l1Phi);
 		if(patMuon){
 			histogramBuilder.fillCountHistogram("energyDeposit_L1Reco");
