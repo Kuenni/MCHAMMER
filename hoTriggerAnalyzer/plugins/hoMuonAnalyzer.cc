@@ -288,6 +288,11 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	for( unsigned int i = 0 ; i < l1Muons->size(); i++ ){
 		const l1extra::L1MuonParticle* bl1Muon = &(l1Muons->at(i));
 		float l1Muon_eta = bl1Muon->eta();
+
+		if(fabs(l1Muon_eta) > MAX_ETA){
+			continue;
+		}
+
 		float l1Muon_phi = bl1Muon->phi();
 		histogramBuilder.fillCountHistogram("L1Muon");
 		histogramBuilder.fillBxIdHistogram(bl1Muon->bx(),"L1MuonPresent");
@@ -1559,7 +1564,10 @@ void hoMuonAnalyzer::analyzeGridMatching(){
 		}
 	}
 
-
+	/**
+	 * Is probably not the correct order of matching. Should start from L1
+	 * Can be removed
+	 */
 	for(auto patMuonIt = patMuons->begin(); patMuonIt != patMuons->end(); ++patMuonIt){
 		if(patMuonIt->isTightMuon(getPrimaryVertex())){
 			const l1extra::L1MuonParticle* l1Part = 0;
