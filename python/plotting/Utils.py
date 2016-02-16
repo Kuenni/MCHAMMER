@@ -1,14 +1,15 @@
 from plotting import OutputModule
 from plotting.PlotStyle import setupAxes
 
-from ROOT import Double,TGraphErrors,TLegend
+from ROOT import Double,TGraphErrors,TLegend,vector,TMath,gPad
 from plotting.RootFileHandler import commandLine
 from array import array
 
 import math
 
 import math
-from numpy import nan
+from numpy import nan, dtype
+import numpy as np
 
 commandLine = OutputModule.CommandLineHandler('[Utils.py] ')
 
@@ -124,3 +125,27 @@ def calcPercent(numerator, denominator):
 		commandLine.error('Tried to divide by 0')
 		return nan
 	return numerator/float(denominator)*100
+
+def getXinNDC(x):
+	gPad.Update()
+	return (x - gPad.GetX1())/(gPad.GetX2()-gPad.GetX1())
+
+def getMedian(th1d):
+	n = th1d.GetXaxis().GetNbins()
+	xVect = vector('double')(n)
+	print xVect
+	xVect = np.array(xVect)
+	print xVect
+ 	th1d.GetXaxis().GetCenter( xVect )
+ 	print xVect
+ 	yVect = th1d.GetArray()
+ 	print yVect
+ 	yVect.SetSize(n)
+ 	print yVect
+ 	yVect = np.array(yVect)
+ 	print yVect
+ 	print np.median([xVect,yVect])
+ 	print TMath.Median(n,xVect,yVect)
+ #  const double * y = h1->GetArray();
+ #  // exclude underflow/overflows from bin content array y
+ #  return TMath::Median(n, &x[0], &y[1]);
