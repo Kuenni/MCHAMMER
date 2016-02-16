@@ -22,7 +22,44 @@ class GridMatching(Plot):
 		effL1Muon3x3.SetMarkerColor(colorRwthDarkBlue)
 		effL1Muon3x3.SetLineColor(colorRwthDarkBlue)
 		effL1Muon3x3.SetMarkerStyle(20)
-		effL1Muon3x3.SetTitle('Efficiency for Matching HO to L1 and L1 Tight;p_{T} / GeV;Efficiency')
+		effL1Muon3x3.SetTitle('Efficiency for Matching HO to L1 and L1 Tight;p_{T,RECO} / GeV;Efficiency')
+
+		effL1TightMuon3x3.SetMarkerColor(colorRwthMagenta)
+		effL1TightMuon3x3.SetLineColor(colorRwthMagenta)
+		effL1TightMuon3x3.SetMarkerStyle(21)
+
+		effL1Muon3x3.Draw('')
+		effL1TightMuon3x3.Draw('same')
+
+		c.Update()
+		
+		effL1Muon3x3.GetPaintedGraph().GetXaxis().SetRangeUser(0,20)
+		effL1Muon3x3.GetPaintedGraph().GetYaxis().SetRangeUser(0,1)
+		
+		setupAxes(effL1Muon3x3)
+		setupAxes(effL1TightMuon3x3)
+		
+		legend = TLegend(0.55,0.1,0.9,0.3)
+		legend.AddEntry(effL1Muon3x3,'Matches in 3x3 grid','ep')
+		legend.AddEntry(effL1TightMuon3x3,'Matches from tight in 3x3 grid','ep')
+		legend.Draw()
+
+		label = self.drawLabel()
+
+		c.Update()
+		c.SaveAs('plots/efficiency/efficiencyNormalAndTightVsPt.gif')
+
+		return c, legend, effL1Muon3x3, effL1TightMuon3x3,label
+	
+	def plotL13x3AndL1Tight3x3L1Coordinates(self):
+		effL1Muon3x3 = self.fileHandler.getHistogram('hoMuonAnalyzer/efficiency/gridMatching_L1pT_loose3x3_Efficiency')
+		effL1TightMuon3x3 = self.fileHandler.getHistogram('hoMuonAnalyzer/efficiency/gridMatching_L1pT_tight3x3_Efficiency')
+		c = TCanvas("tight and normal 3x3 L1 pT","3x3 All and Tight",1200,1200)
+			
+		effL1Muon3x3.SetMarkerColor(colorRwthDarkBlue)
+		effL1Muon3x3.SetLineColor(colorRwthDarkBlue)
+		effL1Muon3x3.SetMarkerStyle(20)
+		effL1Muon3x3.SetTitle('Efficiency for Matching HO to L1 and L1 Tight;p_{T,L1} / GeV;Efficiency')
 
 		effL1TightMuon3x3.SetMarkerColor(colorRwthMagenta)
 		effL1TightMuon3x3.SetLineColor(colorRwthMagenta)
@@ -33,18 +70,21 @@ class GridMatching(Plot):
 
 		c.Update()
 		
+		effL1Muon3x3.GetPaintedGraph().GetXaxis().SetRangeUser(0,20)
+		effL1Muon3x3.GetPaintedGraph().GetYaxis().SetRangeUser(0,1)
+		
 		setupAxes(effL1Muon3x3)
 		setupAxes(effL1TightMuon3x3)
 		
 		legend = TLegend(0.55,0.1,0.9,0.3)
 		legend.AddEntry(effL1Muon3x3,'Matches in 3x3 grid','ep')
-		legend.AddEntry(effL1TightMuon3x3,'Matches to tight in 3x3 grid','ep')
+		legend.AddEntry(effL1TightMuon3x3,'Matches from tight in 3x3 grid','ep')
 		legend.Draw()
 
 		label = self.drawLabel()
 
 		c.Update()
-		c.SaveAs('plots/efficiency/efficiencyNormalAndTightVsPt.gif')
+		c.SaveAs('plots/efficiency/efficiencyNormalAndTightVsPtL1.gif')
 
 		return c, legend, effL1Muon3x3, effL1TightMuon3x3,label
 	
