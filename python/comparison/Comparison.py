@@ -1,18 +1,21 @@
-from ROOT import TFile,TCanvas
+from ROOT import TFile,TCanvas,TH1F
 from plotting.PlotStyle import colorRwthDarkBlue, colorRwthMagenta,\
 	drawLabelCmsPrivateData, setPlotStyle, setupAxes, colorRwthTuerkis
 from plotting.Utils import getLegend
 from plotting.Plot import Plot
 
+import numpy
+
 SIMULATION_FILE_SCHEME = '/user/kuensken/CMSSW/CMSSW_7_2_2_patch2/src/HoMuonTrigger/PostLS1/SingleMuonGunPooja/NoPUAnalyzed'
 SIMULATION_PU_FILE_SCHEME = '/user/kuensken/CMSSW/CMSSW_7_2_2_patch2/src/HoMuonTrigger/PostLS1/SingleMuonGunWithPU/PU52Analyzed'
 DATA_FILE_SCHEME = '/user/kuensken/CMSSW/CMSSW_7_4_15/src/HoMuonTrigger/PostLS1/collisionData2015/SingleMuon2015D'
 
-class EnergyComparison(Plot):
+class Comparison(Plot):
 	#Initialize
 	def __init__(self,data):
 		Plot.__init__(self,data = data)
 		self.createPlotSubdir('energyComparison')
+		self.createPlotSubdir('l1CountComparison')
 		self.fileHandlerSimulation = self.createFileHandler(SIMULATION_FILE_SCHEME)
 		self.fileHandlerData = self.createFileHandler(DATA_FILE_SCHEME)
 		self.fileHandlerSimulationPu = self.createFileHandler(SIMULATION_PU_FILE_SCHEME)
@@ -163,4 +166,52 @@ class EnergyComparison(Plot):
 		objectList[0].SaveAs('plots/energyComparison/energyNormalizedToIntegral.gif')	
 		
 		return objectList
+	
+	def compareL1Count(self):
+		hSim = self.fileHandlerSimulation.getHistogram('hoMuonAnalyzer/L1MuonPresent_Pt')
+		hSimPu = self.fileHandlerSimulationPu.getHistogram('hoMuonAnalyzer/L1MuonPresent_Pt')
+		hData = self.fileHandlerData.getHistogram('hoMuonAnalyzer/L1MuonPresent_Pt')
 		
+	#	hSimPu.Sumw2()
+	#	hSim.Sumw2()
+
+		hSim.Scale(1/hSim.Integral(),'width')
+		hSimPu.Scale(1/hSimPu.Integral(),'width')
+		hData.Scale(1/hData.Integral(),'width')
+		
+		c = TCanvas('cNvsPt','Nvs pt')
+		
+		hSim.SetMarkerStyle(20)
+		hSim.SetMarkerColor(colorRwthDarkBlue)
+		hSim.SetLineColor(colorRwthDarkBlue)
+		hSim.GetYaxis().SetRangeUser(0,0.03)
+		
+		
+		hSimPu.SetMarkerStyle(21)
+		hSimPu.SetMarkerColor(colorRwthMagenta)
+		hSimPu.SetLineColor(colorRwthMagenta)
+		hSimPu.SetTitle('Normalized distribution of p_{T};p_{T,L1};normalized fraction / binwidth')
+		hSimPu.SetStats(0)
+		hSimPu.GetXaxis().SetRangeUser(0,20)
+		hSimPu.Draw('lp')
+		hSim.Draw('same,lp')		
+		setupAxes(hSimPu)
+
+		hSimPu.GetYaxis().SetTitleOffset(1.35)
+
+		hData.SetMarkerStyle(22)
+		hData.SetMarkerColor(colorRwthTuerkis)
+#		hData.Draw('same,p')
+		
+		legend = getLegend(y1 = 0.65,y2=.9)
+		legend.AddEntry(hSim,'Sim','lp')
+		legend.AddEntry(hSimPu,'Sim, PU52','lp')
+#		legend.AddEntry(hData,'Data','ep')
+		legend.Draw()
+		
+		label = self.drawLabel()
+		
+		c.Update()
+		c.SaveAs('plots/l1CountComparison/l1CountNormalized.gif')
+		
+		return hSim,c,hSimPu,hData,legend,label
