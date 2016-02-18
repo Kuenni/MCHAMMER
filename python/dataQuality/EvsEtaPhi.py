@@ -251,9 +251,9 @@ class EvsEtaPhi(Plot):
 		canvas.Update()		
 		setupPalette(hSum)
 		canvas.Update()
-		boxes = drawHoBoxes(canvas)
+		#boxes = drawHoBoxes(canvas)
 		self.storeCanvas(canvas,'eAverageTightMuons')
-		return canvas,hSum,label,boxes
+		return canvas,hSum,label#,boxes
 	
 	def plotEavPerWheelForTightMuons(self):
 		canvas = TCanvas('canvasEavPerWheelTightMuons','EAv Per Wheel Tight muons',1800,800)
