@@ -36,6 +36,9 @@ class GridMatching(Plot):
 		effL1Muon3x3.GetPaintedGraph().GetXaxis().SetRangeUser(0,20)
 		effL1Muon3x3.GetPaintedGraph().GetYaxis().SetRangeUser(0,1)
 		
+		print effL1Muon3x3.GetPassedHistogram().Integral()
+		print effL1TightMuon3x3.GetPassedHistogram().Integral()
+		
 		setupAxes(effL1Muon3x3)
 		setupAxes(effL1TightMuon3x3)
 		
