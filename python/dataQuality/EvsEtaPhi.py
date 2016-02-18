@@ -1,7 +1,7 @@
 #!/usr/bin/python
 from ROOT import TCanvas,ROOT,TFile,TF1,TLine,gROOT,TPaveText,TH1D,Double,TH2D,THStack,gStyle
 from plotting.PlotStyle import getLabelCmsPrivateSimulation,setupPalette
-from plotting.PlotStyle import setupAxes
+from plotting.PlotStyle import setupAxes,drawHoBoxes
 from plotting.PlotStyle import setStatBoxOptions,setStatBoxPosition,pyplotCmsPrivateLabel
 from plotting.Utils import setupEAvplot, L1_PHI_BIN, L1_ETA_BIN
 
@@ -241,7 +241,7 @@ class EvsEtaPhi(Plot):
 			
 		hSum = self.fileHandler.getHistogram('hoMuonAnalyzer/averageEnergy/averageEnergyAroundPointL1TightMuons_SummedEnergy')
 		hCounter = self.fileHandler.getHistogram('hoMuonAnalyzer/averageEnergy/averageEnergyAroundPointL1TightMuons_Counter')
-		
+	
 		hSum = setupEAvplot(hSum, hCounter,same=True,borderAll=0.3)
 		hSum.SetTitle('Average E_{Rec} in HO tiles around tight L1 direction')
 		hSum.SetMaximum(1.2)
@@ -251,8 +251,9 @@ class EvsEtaPhi(Plot):
 		canvas.Update()		
 		setupPalette(hSum)
 		canvas.Update()
+		boxes = drawHoBoxes(canvas)
 		self.storeCanvas(canvas,'eAverageTightMuons')
-		return canvas,hSum,label
+		return canvas,hSum,label,boxes
 	
 	def plotEavPerWheelForTightMuons(self):
 		canvas = TCanvas('canvasEavPerWheelTightMuons','EAv Per Wheel Tight muons',1800,800)

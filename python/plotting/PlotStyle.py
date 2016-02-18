@@ -87,6 +87,19 @@ def drawHcalBoxesHcalCoords(canvas):
 			boxes.append(box)
 	return boxes
 
+def drawHoBoxes(canvas):
+	canvas.cd()
+	boxes = []
+	for i in range(-1,2):
+		for j in range(-1,2):
+			box = TBox(i*0.087 - 0.0435,j*0.087 - 0.0435,(i*0.087+0.0435),(j*0.087+0.0435))
+			box.SetFillStyle(0)
+			box.SetLineColor(colorRwthMagenta)
+			box.SetLineWidth(3)
+			box.Draw()
+			boxes.append(box)
+	return boxes
+
 def setPlotStyle():
 	gStyle.SetPadGridX(1)
 	gStyle.SetPadGridY(1)
