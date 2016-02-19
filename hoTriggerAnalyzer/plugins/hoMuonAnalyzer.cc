@@ -1769,15 +1769,17 @@ void hoMuonAnalyzer::analyzeEnergyDeposit(const edm::Event& iEvent,const edm::Ev
 			if(hoRecHit){
 				histogramBuilder.fillCountHistogram("energyDeposit_L1RecoHo");
 				histogramBuilder.fillEnergyVsIEta(hoRecHit->energy(),hoRecHit->id().ieta(),"L1RecoHo");
+				const reco::Vertex primVertex = getPrimaryVertex();
 				std::cout << "DEBUG #############################################################" << std::endl;
 				std::cout << "GlobalMuon: " << (patMuon->isGlobalMuon() ? "OK" : "\033[91mFAIL\033[0m") << std::endl;
 				std::cout << "PFMuon: " << (patMuon->isPFMuon() ? "OK" : "\033[91mFAIL\033[0m") << std::endl;
 				std::cout << "Normalized Chi^2/ndof: " << (patMuon->globalTrack()->normalizedChi2() < 10? "OK" : "\033[91mFAIL\033[0m") << std::endl;
 				std::cout << "n muon hits: " << (patMuon->globalTrack()->hitPattern().numberOfValidMuonHits() > 0 ? "OK" : "\033[91mFAIL\033[0m") << std::endl;
 				std::cout << "Matched Stations: " << (patMuon->numberOfMatchedStations() > 1 ? "OK" : "\033[91mFAIL\033[0m") << std::endl;
+				std::cout << "dxy : " << ( fabs(patMuon->muonBestTrack()->dxy(primVertex.position())) < 0.2  ? "OK" : "\033[91mFAIL\033[0m") << std::endl;
+				std::cout << "dz : " << ( fabs(patMuon->muonBestTrack()->dz(primVertex.position())) < 0.5 ? "OK" : "\033[91mFAIL\033[0m") << std::endl;
 				std::cout << "pixel hits: " << (patMuon->innerTrack()->hitPattern().numberOfValidPixelHits() > 0 ? "OK" : "\033[91mFAIL\033[0m") << std::endl;
-
-
+				std::cout << "tracker layers : " << ( patMuon->innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 ? "OK" : "\033[91mFAIL\033[0m") << std::endl;
 				std::cout << "DEBUG #############################################################" << std::endl;
 				if(patMuon->isTightMuon(getPrimaryVertex())){
 					histogramBuilder.fillCountHistogram("energyDeposit_L1RecoHoTight");
