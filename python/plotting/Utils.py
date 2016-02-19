@@ -25,16 +25,16 @@ def average2DHistogramBinwise(histWeights,histCounter):
 	return histWeights
 
 #Set axis range and labels for the 2D histograms showing E Average around L1 direction
-def setupEAvplot(histE,histC = None,xmin = -0.4, xmax = 0.4, ymin = -0.4, ymax = 0.4,same = False, borderAll = None):
+def setupEAvplot(histE,histC = None,xmin = -0.4, xmax = 0.4, ymin = -0.4, ymax = 0.4,same = False, limitForAll = None):
 	if histC != None:
 		histE = average2DHistogramBinwise(histE,histC)
 	if same:
-		if borderAll == None:
+		if limitForAll == None:
 			commandLine.output('WARNING: Requested same histogram borders for all ranges but '
-							'did not give borderAll parameter. Using default values instead!')
+							'did not give limitForAll parameter. Using default values instead!')
 		else:
-			xmin = ymin = -borderAll
-			xmax = ymax = borderAll
+			xmin = ymin = -limitForAll
+			xmax = ymax = limitForAll
 	histE.GetXaxis().SetRangeUser(xmin,xmax)
 	histE.GetYaxis().SetRangeUser(ymin,ymax)
 	histE.SetStats(0)
