@@ -1770,12 +1770,12 @@ void hoMuonAnalyzer::analyzeEnergyDeposit(const edm::Event& iEvent,const edm::Ev
 				histogramBuilder.fillCountHistogram("energyDeposit_L1RecoHo");
 				histogramBuilder.fillEnergyVsIEta(hoRecHit->energy(),hoRecHit->id().ieta(),"L1RecoHo");
 				std::cout << "DEBUG #############################################################" << std::endl;
-				std::cout << "GlobalMuon: " << patMuon->isGlobalMuon() << std::endl;
-				std::cout << "PFMuon: " << patMuon->isPFMuon() << std::endl;
-				std::cout << "Normalized Chi^2/ndof: " << patMuon->globalTrack()->normalizedChi2() << std::endl;
-				std::cout << "n muon hits: " << patMuon->globalTrack()->hitPattern().numberOfValidMuonHits() << std::endl;
-				std::cout << "Matched Stations: " << patMuon->numberOfMatchedStations()<< std::endl;
-				std::cout << "pixel hits: " << patMuon->innerTrack()->hitPattern().numberOfValidPixelHits() << std::endl;
+				std::cout << "GlobalMuon: " << (patMuon->isGlobalMuon() ? "OK" : "\033[91mFAIL\033[0m") << std::endl;
+				std::cout << "PFMuon: " << (patMuon->isPFMuon() ? "OK" : "\033[91mFAIL\033[0m") << std::endl;
+				std::cout << "Normalized Chi^2/ndof: " << (patMuon->globalTrack()->normalizedChi2() < 10? "OK" : "\033[91mFAIL\033[0m") << std::endl;
+				std::cout << "n muon hits: " << (patMuon->globalTrack()->hitPattern().numberOfValidMuonHits() > 0 ? "OK" : "\033[91mFAIL\033[0m") << std::endl;
+				std::cout << "Matched Stations: " << (patMuon->numberOfMatchedStations() > 1 ? "OK" : "\033[91mFAIL\033[0m") << std::endl;
+				std::cout << "pixel hits: " << (patMuon->innerTrack()->hitPattern().numberOfValidPixelHits() > 0 ? "OK" : "\033[91mFAIL\033[0m") << std::endl;
 
 
 				std::cout << "DEBUG #############################################################" << std::endl;
