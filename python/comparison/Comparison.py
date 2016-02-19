@@ -1,6 +1,7 @@
 from ROOT import TFile,TCanvas,TH1F
 from plotting.PlotStyle import colorRwthDarkBlue, colorRwthMagenta,\
-	drawLabelCmsPrivateData, setPlotStyle, setupAxes, colorRwthTuerkis
+	drawLabelCmsPrivateData, setPlotStyle, setupAxes, colorRwthTuerkis,\
+	colorRwthLila, colorRwthOrange
 from plotting.Utils import getLegend
 from plotting.Plot import Plot
 
@@ -104,7 +105,7 @@ class Comparison(Plot):
 		
 		hSimHo.SetLineColor(colorRwthDarkBlue)
 		hSimHo.SetStats(0)
-		hSimHo.GetXaxis().SetRangeUser(-1,6)
+		#hSimHo.GetXaxis().SetRangeUser(-1,6)
 		hSimHo.SetTitle('Distribution of HO Energy;E_{HO} / a.u.;# entries')
 		hSimMatched.SetLineColor(colorRwthDarkBlue)
 		hSimMatched.SetLineStyle(7)
@@ -182,14 +183,14 @@ class Comparison(Plot):
 		c = TCanvas('cNvsPt','Nvs pt')
 		
 		hSim.SetMarkerStyle(20)
-		hSim.SetMarkerColor(colorRwthDarkBlue)
-		hSim.SetLineColor(colorRwthDarkBlue)
+		hSim.SetMarkerColor(colorRwthLila)
+		hSim.SetLineColor(colorRwthLila)
 		hSim.GetYaxis().SetRangeUser(0,0.03)
 		
 		
 		hSimPu.SetMarkerStyle(21)
-		hSimPu.SetMarkerColor(colorRwthMagenta)
-		hSimPu.SetLineColor(colorRwthMagenta)
+		hSimPu.SetMarkerColor(colorRwthOrange)
+		hSimPu.SetLineColor(colorRwthOrange)
 		hSimPu.SetTitle('Normalized distribution of p_{T};p_{T,L1};normalized fraction / binwidth')
 		hSimPu.SetStats(0)
 		hSimPu.GetXaxis().SetRangeUser(0,20)
