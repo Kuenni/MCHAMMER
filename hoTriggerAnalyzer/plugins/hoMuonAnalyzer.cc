@@ -1780,6 +1780,7 @@ void hoMuonAnalyzer::analyzeEnergyDeposit(const edm::Event& iEvent,const edm::Ev
 				std::cout << "dz : " << ( fabs(patMuon->muonBestTrack()->dz(primVertex.position())) < 0.5 ? "OK" : "\033[91mFAIL\033[0m") << std::endl;
 				std::cout << "pixel hits: " << (patMuon->innerTrack()->hitPattern().numberOfValidPixelHits() > 0 ? "OK" : "\033[91mFAIL\033[0m") << std::endl;
 				std::cout << "tracker layers : " << ( patMuon->innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 ? "OK" : "\033[91mFAIL\033[0m") << std::endl;
+				std::cout << "dz value: " << patMuon->muonBestTrack()->dz(primVertex.position()) << std::endl;
 				std::cout << "DEBUG #############################################################" << std::endl;
 				if(patMuon->isTightMuon(getPrimaryVertex())){
 					histogramBuilder.fillCountHistogram("energyDeposit_L1RecoHoTight");
