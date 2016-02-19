@@ -26,7 +26,7 @@ parser.add_argument('--debug'
 
 args = parser.parse_args()
 
-from comparison.EnergyComparison import EnergyComparison
+from comparison.Comparison import Comparison
 from dataQuality.ControlPlots import ControlPlots
 from dataQuality.Energy	import Energy
 from dataQuality.EvsEtaPhi import EvsEtaPhi
@@ -43,7 +43,8 @@ from ROOT import gROOT
 gROOT.ProcessLine(".L $HOMUONTRIGGER_BASE/python/loader.C+");
 
 if args.list:
-	scripts = ['controlPlots','eVsEtaPhi','timeWindow','ptResolution','qualityCodes','counters','thresholdScan','efficiency','energy','compareEnergy']
+	scripts = ['controlPlots','eVsEtaPhi','timeWindow','ptResolution','qualityCodes',
+			'counters','thresholdScan','efficiency','energy','compareEnergy']
 	print "Available Scripts:"
 	for script in scripts:
 		print '\t',script
@@ -66,6 +67,7 @@ for script in args.scripts:
 		raw_input('-->')
 	elif(script == 'eVsEtaPhi'):
 		lib = EvsEtaPhi(filename = args.source, data=args.data)
+		lib.calculateCentralFractionInTight()
 		res = lib.plotAverageEnergyAroundL1()
 		res2 = lib.plotAverageEMaxAroundL1()
 		res3 = lib.plot1DEnergyAroundL1()
@@ -140,6 +142,7 @@ for script in args.scripts:
 		lib = GridMatching(filename=args.source, data=args.data)
 		res = lib.plotL1GridMatchingEfficiency()
 		res2 = lib.plotL13x3AndL1Tight3x3()
+		res3 = lib.plotL13x3AndL1Tight3x3L1Coordinates()
 		if not args.data:
 			resL1Truth = lib.plotL1TruthGridMatchingPlot()
 			res3x3Together = lib.plot3x3GridTogether()
@@ -155,11 +158,12 @@ for script in args.scripts:
 		resEPerWheelMatchedHo = lib.plotMatchedHoEnergyPerWheel()
 		resEPerWheelTogether = lib.plotMatchedAndNotMatchedPerWheel()
 		raw_input('-->')
-	elif (script == 'compareEnergy'):
-		libEnergyComparison = EnergyComparison(data = args.data)
-		resEPerWheel = libEnergyComparison.compareEnergyPerWheel()
-		resEAbsolute = libEnergyComparison.compareEnergyAbsolute()
-		resEIntegralNorm = libEnergyComparison.compareEnergyNormalizedToIntegral()
+	elif (script == 'comparison'):
+		libComparison = Comparison(data = args.data)
+		resL1Count = libComparison.compareL1Count()
+		resEPerWheel = libComparison.compareEnergyPerWheel()
+		resEAbsolute = libComparison.compareEnergyAbsolute()
+		resEIntegralNorm = libComparison.compareEnergyNormalizedToIntegral()
 		raw_input('-->')
 	else:
 		print 'Unknown script requested: %s' % (script)

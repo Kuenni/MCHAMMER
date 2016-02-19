@@ -1,5 +1,5 @@
 #!/usr/bin/python
-from ROOT import TCanvas,ROOT,TFile,TF1,TLine,gROOT,TPaveText,TH1D,Double,TH2D,THStack,gStyle
+from ROOT import TCanvas,ROOT,TFile,TF1,TLine,gROOT,TPaveText,TH1D,Double,TH2D,THStack,gStyle,TMarker
 from plotting.PlotStyle import getLabelCmsPrivateSimulation,setupPalette
 from plotting.PlotStyle import setupAxes,drawHoBoxes
 from plotting.PlotStyle import setStatBoxOptions,setStatBoxPosition,pyplotCmsPrivateLabel
@@ -59,6 +59,23 @@ class EvsEtaPhi(Plot):
 		self.storeCanvas(canvas,'averageEnergy')
 		return canvas,hSum,label,hCounter
 	
+	
+	def calculateCentralFractionInTight(self):
+		hSum = self.fileHandler.getHistogram('hoMuonAnalyzer/deltaEtaDeltaPhiEnergy/averageEMaxAroundPointL1TightMuons_2dSummedWeights')
+		hCounter = self.fileHandler.getHistogram('hoMuonAnalyzer/deltaEtaDeltaPhiEnergy/averageEMaxAroundPointL1TightMuons_2dCounter')
+
+		points = []
+		sum = 0
+		for x in range(0,5):
+			for y in range(0,5):
+				sum += hCounter.GetBinContent(hSum.FindBin(x*0.0435 - 0.087,y*0.0435 - 0.087))
+				p = TMarker(x*0.0435 - 0.087,y*0.0435 - 0.087,20)
+		#		p.Draw('same')
+				points.append(p)
+		print sum
+		print hCounter.Integral()
+		print '-----'
+		print sum/hCounter.Integral()
 	
 	def plotAverageEMaxAroundL1(self):
 		canvas = TCanvas('canvasAverageEMax','Average EMax',1200,1200)
