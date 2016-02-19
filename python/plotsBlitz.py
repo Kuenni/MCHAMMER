@@ -68,6 +68,7 @@ for script in args.scripts:
 	elif(script == 'eVsEtaPhi'):
 		lib = EvsEtaPhi(filename = args.source, data=args.data)
 		lib.calculateCentralFractionInTight()
+		reseMaxCounts = lib.plotEMaxCountsForTightMuons()
 		res = lib.plotAverageEnergyAroundL1()
 		res2 = lib.plotAverageEMaxAroundL1()
 		res3 = lib.plot1DEnergyAroundL1()
