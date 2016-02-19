@@ -157,12 +157,12 @@ class Counters(Plot):
 		c2.Divide(2,1)
 		c2.cd(1)
 		hEta = hRatio.ProjectionX()
-		hEta.Scale(1/float(72))#72 phi bins
+		hEta.Scale(1/float(144))#72 phi bins
 		hEta.Draw()
 		
 		c2.cd(2)
 		hPhi = hRatio.ProjectionY()
-		hPhi.Scale(1/float(30))#16 eta bins, cutoff due to |eta| < 0.8
+		hPhi.Scale(1/float(16))#16 eta bins, cutoff due to |eta| < 0.8
 		hPhi.Draw()
 		
 		return c,hRatio,label,c2,hEta,hPhi
