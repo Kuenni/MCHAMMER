@@ -1,23 +1,14 @@
-#!/usr/bin/python
-import os,sys
 from math import sqrt
 from ROOT import TCanvas,ROOT,TFile,TLegend,TF1,TLine,gROOT,TPaveText,TH1D,Double,TH2D,THStack,gStyle
+from plotting.Plot import Plot
+
 from plotting.PlotStyle import setPlotStyle,calcSigma,getLabelCmsPrivateSimulation,\
 	colorRwthRot,colorRwthDarkBlue,colorRwthMagenta,setupAxes,convertToHcalCoords,chimney1,chimney2,colorRwthRot
-from plotting.RootFileHandler import RootFileHandler
-from plotting.OutputModule import CommandLineHandler
 
-class Timing:
-	def __init__(self,filename,data =False):
-		self.commandLine = CommandLineHandler('[Timing] ')
-		self.fileHandler = RootFileHandler(filename)
-		self.fileHandler.printStatus()
-		self.data = data
-		if( not os.path.exists('plots')):
-			os.mkdir('plots')
-		if( not os.path.exists('plots/timing')):
-			os.mkdir('plots/timing')
-		setPlotStyle()
+class Timing(Plot):
+	def __init__(self,filename,data,debug):
+		Plot.__init__(self,filename,data,debug)
+		self.createPlotSubdir('timing')
 	
 	def plotDeltaTime(self):
 		hDeltaTAllHo = self.fileHandler.getHistogram('hoMuonAnalyzer/L1MuonPresentHoMatch_DeltaTime')
@@ -108,52 +99,102 @@ class Timing:
 		c.SaveAs("plots/timing/deltaTime.pdf")
 	
 	def plotL1BxId(self):
-		c2 = TCanvas("c2","BX ID",1200,1200)
-		c2.SetLogy()
+		c2 = TCanvas("cBxId","BX ID",1200,1200)
+		c2.Divide(3,1)
 		
-		hBxId = self.fileHandler.getHistogram('hoMuonAnalyzer/L1MuonPresent_BxId')
-		hBxIdAboveThr = self.fileHandler.getHistogram('hoMuonAnalyzer/L1MuonAboveThr_BxId')
-		hBxId.SetLineColor(colorRwthDarkBlue)
-		hBxId.SetLineWidth(3)
-		hBxId.SetStats(0)
-		hBxId.SetTitle("BX ID distribution")
-		hBxId.GetXaxis().SetRangeUser(-2,5)
-		#hBxId.SetFillColor(colorRwthDarkBlue)
-		#hBxId.SetFillStyle(3017)
-		hBxIdAboveThr.SetFillStyle(3002)
-		hBxIdAboveThr.SetFillColor(colorRwthMagenta)
-		hBxIdAboveThr.SetLineColor(colorRwthMagenta)
-		hBxIdAboveThr.SetLineWidth(2)
+		### Plot matched DT/RPC
+		c2.cd(1).SetLogy()
+		hBxIdBest = self.fileHandler.getHistogram('hoMuonAnalyzer/timingSupport_MatchedDtRpcHo_BxId')
+		hBxIdDtOnly = self.fileHandler.getHistogram('hoMuonAnalyzer/timingSupport_UnmatchedDtHo_BxId')
+		hBxIdOther = self.fileHandler.getHistogram('hoMuonAnalyzer/timingSupport_OtherCodesHo_BxId')
+		hBxIdBest.SetLineColor(colorRwthDarkBlue)
+		hBxIdBest.SetLineWidth(3)
+		hBxIdBest.SetStats(0)
+		hBxIdBest.SetTitle("BX ID distribution Matched DT/RPC + HO")
+		hBxIdBest.GetXaxis().SetRangeUser(-5,5)
+		hBxIdBest.GetYaxis().SetRangeUser(2e-4,1)
+		hBxIdBest.Scale(1/hBxIdBest.Integral())
+		hBxIdBest.GetYaxis().SetTitle("rel. fraction")
+		hBxIdBest.Draw()
+		label = self.drawLabel()
 		
-		hBxId.Scale(1/hBxId.Integral())
-		hBxIdAboveThr.Scale(1/hBxIdAboveThr.Integral())
+		### Plot unmatched DT
+		c2.cd(2).SetLogy()
+		hBxIdDtOnly.SetLineColor(colorRwthDarkBlue)
+		hBxIdDtOnly.SetLineWidth(3)
+		hBxIdDtOnly.SetStats(0)
+		hBxIdDtOnly.SetTitle("BX ID distribution Unmatched DT + HO")
+		hBxIdDtOnly.GetXaxis().SetRangeUser(-5,5)
+		hBxIdDtOnly.GetYaxis().SetRangeUser(2e-4,1)
+		hBxIdDtOnly.Scale(1/hBxIdDtOnly.Integral())
+		hBxIdDtOnly.GetYaxis().SetTitle("rel. fraction")
+		hBxIdDtOnly.Draw()
 		
-		hBxId.GetYaxis().SetTitle("rel. fraction")
-		
-		hBxId.Draw()
-		#hBxIdAboveThr.Draw("same")
-		
-		legend2 = TLegend(0.45,0.8,0.9,0.9)
-		legend2.AddEntry(hBxId,"L1Muon","f")
-		#legend2.AddEntry(hBxIdAboveThr,"L1Muon matched to HO > 0.2 GeV","f")
-		legend2.Draw()
-		
-		label = getLabelCmsPrivateSimulation()
-		label.Draw()
+		### Plot other codes
+		c2.cd(3).SetLogy()
+		hBxIdOther.SetLineColor(colorRwthDarkBlue)
+		hBxIdOther.SetLineWidth(3)
+		hBxIdOther.SetStats(0)
+		hBxIdOther.SetTitle("BX ID distribution lower quality muon + HO")
+		hBxIdOther.GetXaxis().SetRangeUser(-5,5)
+		hBxIdOther.GetYaxis().SetRangeUser(2e-4,1)
+		hBxIdOther.Scale(1/hBxIdOther.Integral())
+		hBxIdOther.GetYaxis().SetTitle("rel. fraction")
+		hBxIdOther.Draw()
 		
 		c2.SaveAs("plots/timing/bxId.gif")
 		c2.SaveAs("plots/timing/bxId.pdf")
 		
-		c4 = TCanvas("c4","BX L1Muon in ns",1200,1200)
-		c4.SetLogy()
-		hL1InNs = TH1D("hL1InNs","L1 Muon time in ns;time / ns;#",201,-100.5,100.5)
-		for i in range(0,hBxId.GetNbinsX()):
-			x = hBxId.GetBinCenter(i)*25
-			y = hBxId.GetBinContent(i)
-			hL1InNs.SetBinContent(hL1InNs.FindBin(x),y)
-		hL1InNs.SetStats(0)
-		hL1InNs.Draw()
-		c4.SaveAs("plots/timing/timeL1Only.pdf")
+		return label,c2,hBxIdBest,hBxIdDtOnly,hBxIdOther
+
+
+	def plotMatchedHoTime(self):
+		c2 = TCanvas("cTimeforMatchedHoHits","Matched Ho time",1200,1200)
+		c2.Divide(3,1)
+		
+		### Plot matched DT/RPC
+		c2.cd(1).SetLogy()
+		hBxIdBest = self.fileHandler.getHistogram('hoMuonAnalyzer/timingSupport_MatchedDtRpcHo_Time')
+		hBxIdDtOnly = self.fileHandler.getHistogram('hoMuonAnalyzer/timingSupport_UnmatchedDtHo_Time')
+		hBxIdOther = self.fileHandler.getHistogram('hoMuonAnalyzer/timingSupport_OtherCodesHo_Time')
+		hBxIdBest.SetLineColor(colorRwthDarkBlue)
+		hBxIdBest.SetLineWidth(3)
+		hBxIdBest.SetStats(0)
+		hBxIdBest.SetTitle("Time distribution Matched DT/RPC + HO")
+		hBxIdBest.GetXaxis().SetRangeUser(-5,5)
+		hBxIdBest.GetYaxis().SetRangeUser(2e-4,1)
+		hBxIdBest.Scale(1/hBxIdBest.Integral())
+		hBxIdBest.GetYaxis().SetTitle("rel. fraction")
+		hBxIdBest.Draw()
+		label = self.drawLabel()
+		
+		### Plot unmatched DT
+		c2.cd(2).SetLogy()
+		hBxIdDtOnly.SetLineColor(colorRwthDarkBlue)
+		hBxIdDtOnly.SetLineWidth(3)
+		hBxIdDtOnly.SetStats(0)
+		hBxIdDtOnly.SetTitle("Time distribution Unmatched DT + HO")
+		hBxIdDtOnly.GetXaxis().SetRangeUser(-5,5)
+		hBxIdDtOnly.GetYaxis().SetRangeUser(2e-4,1)
+		hBxIdDtOnly.Scale(1/hBxIdDtOnly.Integral())
+		hBxIdDtOnly.GetYaxis().SetTitle("rel. fraction")
+		hBxIdDtOnly.Draw()
+		
+		### Plot other codes
+		c2.cd(3).SetLogy()
+		hBxIdOther.SetLineColor(colorRwthDarkBlue)
+		hBxIdOther.SetLineWidth(3)
+		hBxIdOther.SetStats(0)
+		hBxIdOther.SetTitle("Time distribution lower quality muon + HO")
+		hBxIdOther.GetXaxis().SetRangeUser(-5,5)
+		hBxIdOther.GetYaxis().SetRangeUser(2e-4,1)
+		hBxIdOther.Scale(1/hBxIdOther.Integral())
+		hBxIdOther.GetYaxis().SetTitle("rel. fraction")
+		hBxIdOther.Draw()
+		
+		self.storeCanvas(c2,"matchedHoTime")
+		
+		return label,c2,hBxIdBest,hBxIdDtOnly,hBxIdOther
 	
 	def plotHoTimeLog(self):
 		c3 = TCanvas("c3Log","HO Time Log",1200,1200)
@@ -205,7 +246,7 @@ class Timing:
 	
 	def plotHoTime(self):
 		c3 = TCanvas("c3","HO Time",1200,1200)
-		skipNoisePlot = True
+		skipNoisePlot = False
 		if not skipNoisePlot:
 			c3.Divide(1,2)
 			c3.cd(1).SetLogy()

@@ -115,10 +115,11 @@ for script in args.scripts:
 		res2 = lib.plot3x3FailQualityCodes()
 		raw_input('-->')
 	elif (script=='timing'):
-		lib = Timing(filename=args.source,data=args.data)
+		lib = Timing(filename=args.source,data=args.data,debug = args.debug)
 		resEvsTime = lib.plotHoEnergyVsTime()
 		lib.plotDeltaTime()
-		lib.plotL1BxId()
+		resBxId = lib.plotL1BxId()
+		resTimeHo = lib.plotMatchedHoTime()
 		res = lib.plotHoTime()
 		res6 = lib.plotHoTimeLog()
 		if not args.data:
