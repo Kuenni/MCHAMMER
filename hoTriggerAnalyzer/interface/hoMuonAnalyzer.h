@@ -84,6 +84,7 @@ private:
 	void analyzeNoSingleMuEventsGenLoop(const edm::Event& iEvent,const edm::EventSetup& iSetup);
 	void analyzeWithGenLoop(const edm::Event& iEvent,const edm::EventSetup& iSetup);
 	void analyzeL1Resolution();
+	void analyzeL1Sources();
 	void analyzeHoTriggerPrimitives();
 	void analyzeTimingSupport();
 	void fillEfficiencyHistograms(double ptMeasured,double ptReal,std::string key);

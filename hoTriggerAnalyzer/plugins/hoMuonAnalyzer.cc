@@ -214,6 +214,9 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		return;
 	}
 
+
+	analyzeL1Sources();
+
     iEvent.getByLabel("hcalDigis", hoTPDigis);
     if(hoTPDigis.isValid()){
     	analyzeHoTriggerPrimitives();
@@ -1503,6 +1506,9 @@ void hoMuonAnalyzer::analyzeTimingSupport(){
 		if( fabs(l1Eta) > MAX_ETA){
 			continue;
 		}
+		/**
+		 * TODO: Do this also for tight muons
+		 */
 		const HORecHit* hoRecHit = hoMatcher->matchByEMaxInGrid(l1Eta,l1Phi,1);
 		switch(l1Muon->gmtMuonCand().quality()){
 		case 7:
@@ -1747,6 +1753,18 @@ void hoMuonAnalyzer::makeHoRecHitThresholdScan(){
 		}
 		histogramBuilder.fillMultiplicityHistogram(thrCounter,Form("recHitThrScan%d",iterationCounter));
 		iterationCounter++;
+	}
+}
+
+/**
+ * Try to determine the origin of the additional L1 Objects in the PU sample
+ */
+void hoMuonAnalyzer::analyzeL1Sources(){
+	for(auto patIt = patMuons->begin(); patIt != patMuons->end(); patIt++){
+		const reco::Candidate* mother = patIt->mother(0);
+		if(mother){
+			std::cout << "Mother Id: " << mother->pdgId() << std::endl;
+		}
 	}
 }
 
