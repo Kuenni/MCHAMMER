@@ -1496,6 +1496,40 @@ void hoMuonAnalyzer::recoControlPlots(){
 	}
 }
 
+void hoMuonAnalyzer::fillTimingHistograms(const l1extra::L1MuonParticle* l1Muon, double hoTime, bool isTight){
+	std::string nameTrunk = "timingSupport_";
+	if(isTight){
+		nameTrunk += "tight_";
+	}
+	switch(l1Muon->gmtMuonCand().quality()){
+	case 7:
+		//Matched DT-RPC
+		histogramBuilder.fillCountHistogram(nameTrunk + "MatchedDtRpc");
+		histogramBuilder.fillCountHistogram(nameTrunk + "MatchedDtRpcHo");
+		histogramBuilder.fillDeltaTimeHistogram(hoTime,l1Muon->bx(),nameTrunk + "MatchedDtRpcHo");
+		histogramBuilder.fillTimeHistogram(hoTime,nameTrunk + "MatchedDtRpcHo");
+		histogramBuilder.fillBxIdHistogram(l1Muon->bx(),nameTrunk + "MatchedDtRpcHo");
+		break;
+	case 6:
+		histogramBuilder.fillCountHistogram(nameTrunk + "UnmatchedDt");
+		histogramBuilder.fillCountHistogram(nameTrunk + "UnmatchedDtHo");
+		histogramBuilder.fillDeltaTimeHistogram(hoTime,l1Muon->bx(),nameTrunk + "UnmatchedDtHo");
+		histogramBuilder.fillTimeHistogram(hoTime,nameTrunk + "UnmatchedDtHo");
+		histogramBuilder.fillBxIdHistogram(l1Muon->bx(),nameTrunk + "UnmatchedDtHo");
+		//Unmatched DT
+		break;
+	default:
+		histogramBuilder.fillCountHistogram(nameTrunk + "OtherCodes");
+		histogramBuilder.fillCountHistogram(nameTrunk + "OtherCodesHo");
+		histogramBuilder.fillDeltaTimeHistogram(hoTime,l1Muon->bx(),nameTrunk + "OtherCodesHo");
+		histogramBuilder.fillTimeHistogram(hoTime,nameTrunk + "OtherCodesHo");
+		histogramBuilder.fillBxIdHistogram(l1Muon->bx(),nameTrunk + "OtherCodesHo");
+		//Other codes
+		break;
+	}
+}
+
+
 /**
  * Study the timing information when RPC info is not available
  */
@@ -1506,41 +1540,16 @@ void hoMuonAnalyzer::analyzeTimingSupport(){
 		if( fabs(l1Eta) > MAX_ETA){
 			continue;
 		}
-		/**
-		 * TODO: Do this also for tight muons
-		 */
-		const HORecHit* hoRecHit = hoMatcher->matchByEMaxInGrid(l1Eta,l1Phi,1);
-		switch(l1Muon->gmtMuonCand().quality()){
-		case 7:
-			//Matched DT-RPC
-			histogramBuilder.fillCountHistogram("timingSupport_MatchedDtRpc");
+		const pat::Muon* patMuon = getBestPatMatch(l1Eta,l1Phi);
+		if(patMuon){
+			bool isTight = patMuon->isTightMuon(getPrimaryVertex());
+			const HORecHit* hoRecHit = hoMatcher->matchByEMaxInGrid(l1Eta,l1Phi,1);
 			if(hoRecHit){
-				histogramBuilder.fillCountHistogram("timingSupport_MatchedDtRpcHo");
-				histogramBuilder.fillDeltaTimeHistogram(hoRecHit->time(),l1Muon->bx(),"timingSupport_MatchedDtRpcHo");
-				histogramBuilder.fillTimeHistogram(hoRecHit->time(),"timingSupport_MatchedDtRpcHo");
-				histogramBuilder.fillBxIdHistogram(l1Muon->bx(),"timingSupport_MatchedDtRpcHo");
+				fillTimingHistograms(&*l1Muon,hoRecHit->time(),false);
+				if(isTight){
+					fillTimingHistograms(&*l1Muon,hoRecHit->time(),true);
+				}
 			}
-			break;
-		case 6:
-			histogramBuilder.fillCountHistogram("timingSupport_UnmatchedDt");
-			if(hoRecHit){
-				histogramBuilder.fillCountHistogram("timingSupport_UnmatchedDtHo");
-				histogramBuilder.fillDeltaTimeHistogram(hoRecHit->time(),l1Muon->bx(),"timingSupport_UnmatchedDtHo");
-				histogramBuilder.fillTimeHistogram(hoRecHit->time(),"timingSupport_UnmatchedDtHo");
-				histogramBuilder.fillBxIdHistogram(l1Muon->bx(),"timingSupport_UnmatchedDtHo");
-			}
-			//Unmatched DT
-			break;
-		default:
-			histogramBuilder.fillCountHistogram("timingSupport_OtherCodes");
-			if(hoRecHit){
-				histogramBuilder.fillCountHistogram("timingSupport_OtherCodesHo");
-				histogramBuilder.fillDeltaTimeHistogram(hoRecHit->time(),l1Muon->bx(),"timingSupport_OtherCodesHo");
-				histogramBuilder.fillTimeHistogram(hoRecHit->time(),"timingSupport_OtherCodesHo");
-				histogramBuilder.fillBxIdHistogram(l1Muon->bx(),"timingSupport_OtherCodesHo");
-			}
-			//Other codes
-			break;
 		}
 	}
 }
