@@ -13,7 +13,7 @@ import argparse
 class Submitter:
 	
 	def __init__(self,nJobs):
-		self.taskName = "muonAnalyzerTask"
+		self.taskName = os.path.abspath(os.path.curdir).split('/')[-1]
 		self.cmsswVersion = 'CMSSW_7_2_2_patch2'
 		self.scramArch='slc6_amd64_gcc481'
 		self.gridPackName = 'modulegridpack.tar.gz'
@@ -28,7 +28,7 @@ class Submitter:
 		
 	def submit(self):
 		print "Preparing task", self.taskName
-		task=cesubmit.Task(self.taskName,cmsswVersion=self.cmsswVersion, scramArch=self.scramArch)
+		task=cesubmit.Task(self.taskName,directory = '/user/kuensken/tapasTasks/' + self.taskName,cmsswVersion=self.cmsswVersion, scramArch=self.scramArch)
 	  	tempExe = '''
 	cmsRun $1
 	RET=$?

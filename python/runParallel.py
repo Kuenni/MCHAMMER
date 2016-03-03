@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#! /usr/bin/env python2
 
 import os,sys,math
 from subprocess import call
@@ -128,15 +128,14 @@ def hasJobFailed(resultsPath):
 def collectOutput():
 	fileBatches = []
 	filesToProcess = []
-	if not args.dir:
-		cli.error('You have to provide the task directory')
-		sys.exit(1)
-	for sourceFile in os.listdir(args.dir):
+	resultsDir = '/user/kuensken/tapasTasks/' + os.path.abspath(os.path.curdir).split('/')[-1]
+	cli.output('Searching for results in: ' + resultsDir)
+	for sourceFile in os.listdir(resultsDir):
 		if len(filesToProcess) == args.split:
 			fileBatches.append(filesToProcess)
 			filesToProcess = []
 		if sourceFile.startswith('grid'):
-			sourceFile = os.path.abspath(args.dir + '/' + sourceFile)
+			sourceFile = os.path.abspath(resultsDir + '/' + sourceFile)
 			if not hasJobFailed(sourceFile):
 				for result in os.listdir(sourceFile):
 					if result.endswith('.root'):
