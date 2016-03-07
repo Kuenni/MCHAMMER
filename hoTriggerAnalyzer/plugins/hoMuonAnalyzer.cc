@@ -221,8 +221,6 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
     if(hoTPDigis.isValid()){
     	analyzeHoTriggerPrimitives();
     }
-    analyzeTimingSupport();
-
 	iEvent.getByLabel(edm::InputTag("offlinePrimaryVertices"), vertexColl);
 	iEvent.getByLabel(edm::InputTag("offlineBeamSpot"),recoBeamSpotHandle);
 
@@ -231,6 +229,8 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		processGenInformation(iEvent,iSetup);
 	processRecoInformation(iEvent,iSetup);
 	analyzeEnergyDeposit(iEvent,iSetup);
+    analyzeTimingSupport();
+
 	//###############################
 	// Loop over L1MuonObjects DONE
 	//###############################
@@ -1725,6 +1725,7 @@ const reco::Vertex hoMuonAnalyzer::getPrimaryVertex(){
 
 	if (vertexColl.isValid()){
 		for (unsigned int ind=0; ind<vertexColl->size(); ++ind) {
+			std::cout << "Is vertex fake? " << ((*vertexColl)[ind].isFake() ? "\033[91mYES\033[0m" : "NO") << std::endl;
 			if ( (*vertexColl)[ind].isValid() && !((*vertexColl)[ind].isFake()) ) {
 				theIndexOfThePrimaryVertex = ind;
 				break;
@@ -1732,12 +1733,14 @@ const reco::Vertex hoMuonAnalyzer::getPrimaryVertex(){
 		}
 	}
 
+	reco::BeamSpot bs = *recoBeamSpotHandle;
+
 	if (theIndexOfThePrimaryVertex<100) {
 		posVtx = ((*vertexColl)[theIndexOfThePrimaryVertex]).position();
 		errVtx = ((*vertexColl)[theIndexOfThePrimaryVertex]).error();
 	}
 	else {
-		reco::BeamSpot bs = *recoBeamSpotHandle;
+
 		posVtx = bs.position();
 		errVtx(0,0) = bs.BeamWidthX();
 		errVtx(1,1) = bs.BeamWidthY();
@@ -1745,6 +1748,9 @@ const reco::Vertex hoMuonAnalyzer::getPrimaryVertex(){
 	}
 
 	const reco::Vertex vtx(posVtx,errVtx);
+	std::cout << "Ind > 100? " << ((theIndexOfThePrimaryVertex < 100) ? "\033[91mYES\033[0m" : "NO") << std::endl;
+	std::cout << "Vertex dz " << vtx.z() << std::endl;
+	std::cout << "BS dz " << bs.position().z() << std::endl;
 	return vtx;
 }
 
