@@ -635,7 +635,6 @@ class Timing(Plot):
 	
 	def plotImprovementInDt(self):
 		#Prepare canvas
-		setPlotStyle()
 		canvas = TCanvas("canvasDtImprovement","DT improvement",1200,1200)
 		canvas.SetLogy()
 		histDt = self.fileHandler.getHistogram("hoMuonAnalyzer/BxDtOnly_BxId")
