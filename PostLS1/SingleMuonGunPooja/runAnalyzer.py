@@ -29,8 +29,6 @@ process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('Configuration.Geometry.GeometrySimDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
-process.load('Configuration.StandardSequences.Generator_cff')
-process.load('IOMC.EventVertexGenerators.VtxSmearedNominalCollision2015_cfi')
 process.load('GeneratorInterface.Core.genFilterSummary_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.L1Reco_cff')
@@ -224,12 +222,18 @@ process.demo_step = cms.Path(process.hoMuonAnalyzer)
 process.L1Reco_step = cms.Path(process.L1Reco)
 process.muonL1Match_step = cms.Path(process.muonL1Match)
 
+process.load('PhysicsTools/PatAlgos/producersLayer1/muonProducer_cfi')
+process.load('PhysicsTools/PatAlgos/selectionLayer1/muonSelector_cfi')
+process.patMuons.addGenMatch = cms.bool(False)
+
 process.p = cms.Path(process.genfilter*
 					#*process.L1Reco*
 					process.l1MuonGenMatch*
 					process.horeco*
 					process.myCaloTowerMaker*
 					process.muonL1Match*
+					process.patMuons*
+					process.selectedPatMuons*	
 					process.hoMuonAnalyzer*
 					process.hoDigiAnalyzer)
 
