@@ -1,7 +1,7 @@
 from plotting.Plot import Plot
 
 from ROOT import TCanvas
-from plotting.Utils import getTGraphErrors, getLegend
+from plotting.Utils import getTGraphErrors, getLegend,getMedian
 import math
 from plotting.PlotStyle import colorRwthDarkBlue, setupAxes, colorRwthMagenta
 
@@ -31,6 +31,7 @@ class HoThresholdScan(Plot):
 			xVals.append((i+1)*0.025)
 			meanValues.append(hist.GetMean())
 			rmsValues.append(hist.GetRMS())
+			#getMedian(hist)
 		graph = getTGraphErrors(xVals, yVals, ey=yErr)
 		graph.SetMarkerStyle(20)
 		graph.SetMarkerColor(colorRwthDarkBlue)
