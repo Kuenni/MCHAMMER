@@ -195,11 +195,17 @@ process.horeco_step = cms.Path(process.horeco)
 process.demo_step = cms.Path(process.hoMuonAnalyzer)
 process.L1Reco_step = cms.Path(process.L1Reco)
 
+process.load('PhysicsTools/PatAlgos/producersLayer1/muonProducer_cfi')
+process.load('PhysicsTools/PatAlgos/selectionLayer1/muonSelector_cfi')
+process.patMuons.addGenMatch = cms.bool(False)
+
 process.p = cms.Path(process.genfilter*
 					#*process.L1Reco*
 					process.horeco*
 					process.myCaloTowerMaker*
 					process.muonL1Match*
+					process.patMuons*
+					process.selectedPatMuons*					
 					process.hoMuonAnalyzer*
 					process.hoDigiAnalyzer)
 
