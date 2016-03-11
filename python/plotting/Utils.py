@@ -1,7 +1,7 @@
 from plotting import OutputModule
 from plotting.PlotStyle import setupAxes
 
-from ROOT import Double,TGraphErrors,TLegend,vector,TMath,gPad
+from ROOT import Double,TGraphErrors,TLegend,vector,TMath,gPad,TPad
 from plotting.RootFileHandler import commandLine
 from array import array
 
@@ -120,6 +120,16 @@ def getLegend(x1=.6,y1=.8,x2=.9,y2=.85):
 #	l.SetTextFont(62)
 	return l
 
+def makeResidualsPad(pad):
+	pad.Divide(1,2)
+	pad.cd(1).SetBottomMargin(0)
+	pad.cd(1).SetPad(0,0.3,1,1)
+	pad.cd(2).SetTopMargin(0)
+	pad.cd(2).SetBottomMargin(0.15)
+	pad.cd(2).SetPad(0,0,1,0.3)
+	pad.cd(1)
+	return pad
+	
 def calcPercent(numerator, denominator):
 	if(denominator == 0):
 		commandLine.error('Tried to divide by 0')
