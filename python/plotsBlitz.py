@@ -20,8 +20,8 @@ parser.add_argument('--source','-s'
 					,dest='source'
 					,help='File name scheme for the source of events')
 
-parser.add_argument('--debug'
-					,dest='debug',action="store_true",default=False
+parser.add_argument('--DEBUG'
+					,dest='DEBUG',action="store_true",default=False
 					,help='Enable more verbose output in modules.')
 
 args = parser.parse_args()
@@ -115,7 +115,7 @@ for script in args.scripts:
 		res2 = lib.plot3x3FailQualityCodes()
 		raw_input('-->')
 	elif (script=='timing'):
-		lib = Timing(filename=args.source,data=args.data,debug = args.debug)
+		lib = Timing(filename=args.source,data=args.data,debug = args.DEBUG)
 		resEvsTime = lib.plotHoEnergyVsTime()
 		lib.plotDeltaTime()
 		resBxId = lib.plotL1BxId()
@@ -152,7 +152,7 @@ for script in args.scripts:
 			res5x5Together = lib.plot5x5GridTogether()
 		raw_input('-->')
 	elif (script == 'energy'):
-		lib = Energy(filename = args.source, data = args.data,debug = args.debug)
+		lib = Energy(filename = args.source, data = args.data,debug = args.DEBUG)
 		resEnergy = lib.plotEnergy()
 		resEnergyNorm = lib.plotEnergyNormalized()
 		resMipNorm = lib.plotEnergyNormalizedToMip()
@@ -165,7 +165,9 @@ for script in args.scripts:
 		resL1Count = libComparison.compareL1Count()
 		resEPerWheel = libComparison.compareEnergyPerWheel()
 		resEAbsolute = libComparison.compareEnergyAbsolute()
+		resEAbsoluteMatched = libComparison.compareEnergyAbsoluteHoMatched()
 		resEIntegralNorm = libComparison.compareEnergyNormalizedToIntegral()
+		resEIntegralNormTight = libComparison.compareEnergyTightNormalizedToIntegral()
 		raw_input('-->')
 	else:
 		print 'Unknown script requested: %s' % (script)
