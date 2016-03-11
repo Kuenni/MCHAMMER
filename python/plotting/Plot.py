@@ -11,7 +11,7 @@ class Plot:
 		self.commandLine = CommandLineHandler('[' + self.__class__.__name__ + '] ')
 		self.key = 'L1MuonPresent' if data else 'L1MuonTruth'
 		self.data = data
-		self.debug = debug
+		self.DEBUG = debug
 		if filename != None:
 			self.fileHandler = self.createFileHandler(filename)
 		pass
@@ -41,3 +41,15 @@ class Plot:
 		else:
 			label = drawLabelCmsPrivateSimulation()
 		return label
+	
+	def debug(self,string):
+		self.commandLine.debug(string)
+	
+	def warning(self,string):
+		self.commandLine.warning(string)
+		
+	def error(self,string):
+		self.commandLine.error(string)
+		
+	def output(self,string):
+		self.commandLine.output(string)

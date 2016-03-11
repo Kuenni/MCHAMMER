@@ -23,7 +23,7 @@ class RootFileHandler:
 	
 	#Initialize object
 	def __init__(self,filename,debug = False):
-		self.debug = debug
+		self.DEBUG = debug
 		if filename[0] == '/':
 			self.filepath = ''
 		else:
