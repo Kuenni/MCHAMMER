@@ -1447,8 +1447,18 @@ void hoMuonAnalyzer::analyzeL1Resolution(){
 			}
 			bool isTight = patMuonIt->isTightMuon(getPrimaryVertex());
 			histogramBuilder.fillL1ResolutionHistogram(l1Part->pt(), patMuonIt->pt(), "L1MuonTruth");
+			if(l1Part->isIsolated()){
+				histogramBuilder.fillL1MuonPtHistograms(l1Part->pt(),"L1MuonTruth_Isolated");
+			} else {
+				histogramBuilder.fillL1MuonPtHistograms(l1Part->pt(),"L1MuonTruth_Nonisolated");
+			}
 			if(isTight){
 				histogramBuilder.fillL1ResolutionHistogram(l1Part->pt(), patMuonIt->pt(), "L1MuonTightTruth");
+				if(l1Part->isIsolated()){
+					histogramBuilder.fillL1MuonPtHistograms(l1Part->pt(),"L1MuonTightTruth_Isolated");
+				} else {
+					histogramBuilder.fillL1MuonPtHistograms(l1Part->pt(),"L1MuonTightTruth_Nonisolated");
+				}
 				const HORecHit* matchedRecHit = 0;
 				matchedRecHit = hoMatcher->matchByEMaxInGrid(l1Part->eta(),l1Part->phi(),2);
 				if(matchedRecHit){
