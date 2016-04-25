@@ -12,7 +12,7 @@ class Timing(Plot):
 	
 	def plotDeltaTime(self):
 		hDeltaTAllHo = self.fileHandler.getHistogram('hoMuonAnalyzer/L1MuonPresentHoMatch_DeltaTime')
-		hDeltaTCleanHo = self.fileHandler.getHistogram('hoMuonAnalyzer/L1MuonAboveThr_DeltaTime')
+		hDeltaTCleanHo = self.fileHandler.getHistogram('hoMuonAnalyzer/timingSupport_UnmatchedDtHo_DeltaTime')
 		
 		c = TCanvas("c","Delta Time",1200,1200)
 		c.SetLogy()
@@ -97,6 +97,8 @@ class Timing(Plot):
 		
 		c.SaveAs("plots/timing/deltaTime.gif")
 		c.SaveAs("plots/timing/deltaTime.pdf")
+
+		return c, hDeltaTCleanHo
 	
 	def plotL1BxId(self):
 		c2 = TCanvas("cBxId","BX ID",1200,1200)
@@ -637,10 +639,12 @@ class Timing(Plot):
 		#Prepare canvas
 		canvas = TCanvas("canvasDtImprovement","DT improvement",1200,1200)
 		canvas.SetLogy()
-		histDt = self.fileHandler.getHistogram("hoMuonAnalyzer/BxDtOnly_BxId")
+		histDt = self.fileHandler.getHistogram("hoMuonAnalyzer/timingSupport_UnmatchedDtHo_BxId")
+		histDtNoHo = self.fileHandler.getHistogram("hoMuonAnalyzer/timingSupport_UnmatchedDt_BxId")
+		print 'DtBxNoHo Integral: ', histDtNoHo.Integral()
 		
 		#Define variables for integrals
-		histHoTime = self.fileHandler.getHistogram('hoMuonAnalyzer/hoRecHitsAboveThr_Time')
+		histHoTime = self.fileHandler.getHistogram('hoMuonAnalyzer/timingSupport_UnmatchedDtHo_Time')
 		integralHoCorrect = histHoTime.Integral(histHoTime.FindBin(-12.5),histHoTime.FindBin(12.5))
 		integralHoTotal = histHoTime.Integral()
 		integralHoOutside = integralHoTotal - integralHoCorrect
@@ -705,11 +709,13 @@ class Timing(Plot):
 		histDt.Scale(1/histDt.Integral())
 		histDt.SetLineColor(colorRwthDarkBlue)
 		
-		
 		histNew.Draw()
 		histDt.Draw('same')
 		histNew.Draw('same')
-		
+				
+		histDtNoHo.Scale(1/histDtNoHo.Integral())
+		histDtNoHo.SetLineWidth(3)
+		histDtNoHo.Draw('same')
 	
 		#Add label
 		label = getLabelCmsPrivateSimulation()
@@ -745,10 +751,8 @@ class Timing(Plot):
 		print 80*'#'
 		
 		canvas.Update()
-		canvas.SaveAs('plots/timing/correctedDt.pdf')
-		canvas.SaveAs('plots/timing/correctedDt.gif')
-		canvas.SaveAs('plots/timing/correctedDt.root')
-		return canvas, histDt,histNew,label,legend,pText2,pText
+		self.storeCanvas(canvas, 'correctedDt')
+		return canvas, histDt,histNew,label,legend,pText2,pText,histDtNoHo
 		
 	def plotHoEnergyVsTime(self):
 		hist = self.fileHandler.getHistogram('hoMuonAnalyzer/correlation/hoEnergyVsTime')
