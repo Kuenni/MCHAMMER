@@ -155,6 +155,7 @@ HoDigiAnalyzer::analyze(const edm::Event& iEvent,
 	iSetup.get<CaloGeometryRecord>().get(caloGeo);
 	iEvent.getByLabel( hoDigiInput, hoDigis);
 	iEvent.getByLabel( genInput,genParticles);
+	iEvent.getByLabel(edm::InputTag("horeco"),hoRecHits);
 
 	//Do this at the beginning to get the correct collections for the event
 	functionsHandler->getEvent(iEvent);
@@ -163,6 +164,30 @@ HoDigiAnalyzer::analyze(const edm::Event& iEvent,
 	//Call the analyzer functions
 	analyzeHoDigiTiming(iEvent);
 	analyzeTruthDigiTiming(iEvent);
+	analyzeERecToAdcMapping(iEvent);
+}
+
+/**
+ * Create some 2D histograms that show the correlation of ADC and ERec for different
+ * selected tiles
+ */
+void HoDigiAnalyzer::analyzeERecToAdcMapping(const edm::Event& iEvent){
+	auto dataFrame = hoDigis->begin();
+	for(; dataFrame != hoDigis->end() ; ++dataFrame){
+		const HORecHit* recHit = getRecoMatch(&*dataFrame);
+		if(!recHit){
+			return;
+		}
+		if(dataFrame->id().ieta() == 1 && dataFrame->id().iphi() == 1){
+			histogramBuilder.fillCorrelationGraph(recHit->energy(),get4TsAdcSum(&*dataFrame,findMaximumTimeSlice(&*dataFrame)),"AdcVsERec_iEta1");
+		} else if(dataFrame->id().ieta() == 5 && dataFrame->id().iphi() == 1){
+			histogramBuilder.fillCorrelationGraph(recHit->energy(),get4TsAdcSum(&*dataFrame,findMaximumTimeSlice(&*dataFrame)),"AdcVsERec_iEta5");
+		} else if(dataFrame->id().ieta() == 10 && dataFrame->id().iphi() == 1){
+			histogramBuilder.fillCorrelationGraph(recHit->energy(),get4TsAdcSum(&*dataFrame,findMaximumTimeSlice(&*dataFrame)),"AdcVsERec_iEta10");
+		} else if(dataFrame->id().ieta() == 11 && dataFrame->id().iphi() == 1){
+			histogramBuilder.fillCorrelationGraph(recHit->energy(),get4TsAdcSum(&*dataFrame,findMaximumTimeSlice(&*dataFrame)),"AdcVsERec_iEta11");
+		}
+	}
 }
 
 /**
@@ -326,6 +351,16 @@ double HoDigiAnalyzer::calculateHitTimeFromDigi(const HODataFrame* dataFrame){
 	} else {
 		return -9999;
 	}
+}
+
+const HORecHit* HoDigiAnalyzer::getRecoMatch(const HODataFrame* dataFrame){
+	const HORecHit* recHit = 0;
+	for(auto recHitIt = hoRecHits->begin(); recHitIt != hoRecHits->end(); recHitIt++){
+		if(recHitIt->id().ieta() == dataFrame->id().ieta() && recHitIt->id().iphi() == dataFrame->id().iphi()){
+			recHit = &*recHitIt;
+		}
+	}
+	return recHit;
 }
 
 // Copied from HcalSimpleRecAlgo
