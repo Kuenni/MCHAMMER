@@ -26,6 +26,7 @@
 #include <TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h>
 #include <TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h>
 #include <TrackingTools/TrackAssociator/plugins/HODetIdAssociator.h>
+#include <DataFormats/HcalRecHit/interface/HORecHit.h>
 
 
 #include <list>
@@ -46,7 +47,6 @@
 #include "DataFormats/HcalDigi/interface/HODataFrame.h"
 
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
-
 #include "../interface/CommonFunctionsHandler.h"
 //
 // class declaration
@@ -67,12 +67,14 @@ private:
 
 	void analyzeHoDigiTiming(const edm::Event& iEvent);
 	void analyzeTruthDigiTiming(const edm::Event& iEvent);
+	void analyzeERecToAdcMapping(const edm::Event& iEvent);
 
 	bool isFrameAboveThr(const HODataFrame* dataFrame);
 	double calculateHitTimeFromDigi(const HODataFrame* dataFrame);
 	float timeshift_ns_hbheho(float wpksamp);
 	int findMaximumTimeSlice(const HODataFrame* dataFrame);
 	int get4TsAdcSum(const HODataFrame* dataFrame, int sliceMax);
+	const HORecHit* getRecoMatch(const HODataFrame* dataFrame);
 
 	edm::Service<TFileService> _fileService;
 
@@ -87,6 +89,8 @@ private:
 
 	edm::Handle<HODigiCollection> hoDigis;
 	edm::Handle<reco::GenParticleCollection> genParticles;
+	edm::Handle<HORecHitCollection> hoRecHits;
+
 	/**
 	 * ADC Threshold for 4 TS HO Digi
 	 */
