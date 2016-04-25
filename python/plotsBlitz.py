@@ -117,7 +117,7 @@ for script in args.scripts:
 	elif (script=='timing'):
 		lib = Timing(filename=args.source,data=args.data,debug = args.DEBUG)
 		resEvsTime = lib.plotHoEnergyVsTime()
-		lib.plotDeltaTime()
+		resDeltaTime = lib.plotDeltaTime()
 		resBxId = lib.plotL1BxId()
 		resTimeHo = lib.plotMatchedHoTime()
 		res = lib.plotHoTime()
