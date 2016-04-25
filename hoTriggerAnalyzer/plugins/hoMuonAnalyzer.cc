@@ -1514,26 +1514,41 @@ void hoMuonAnalyzer::fillTimingHistograms(const l1extra::L1MuonParticle* l1Muon,
 	switch(l1Muon->gmtMuonCand().quality()){
 	case 7:
 		//Matched DT-RPC
-		histogramBuilder.fillCountHistogram(nameTrunk + "MatchedDtRpc");
-		histogramBuilder.fillCountHistogram(nameTrunk + "MatchedDtRpcHo");
+		if(hoTime == -1){
+			histogramBuilder.fillCountHistogram(nameTrunk + "MatchedDtRpc");
+			histogramBuilder.fillBxIdHistogram(l1Muon->bx(),nameTrunk + "MatchedDtRpc");
+		}
+		else{
+			histogramBuilder.fillCountHistogram(nameTrunk + "MatchedDtRpcHo");
+			histogramBuilder.fillBxIdHistogram(l1Muon->bx(),nameTrunk + "MatchedDtRpcHo");
+		}
 		histogramBuilder.fillDeltaTimeHistogram(hoTime,l1Muon->bx(),nameTrunk + "MatchedDtRpcHo");
 		histogramBuilder.fillTimeHistogram(hoTime,nameTrunk + "MatchedDtRpcHo");
-		histogramBuilder.fillBxIdHistogram(l1Muon->bx(),nameTrunk + "MatchedDtRpcHo");
 		break;
 	case 6:
-		histogramBuilder.fillCountHistogram(nameTrunk + "UnmatchedDt");
-		histogramBuilder.fillCountHistogram(nameTrunk + "UnmatchedDtHo");
+		if(hoTime == -1){
+			histogramBuilder.fillCountHistogram(nameTrunk + "UnmatchedDt");
+			histogramBuilder.fillBxIdHistogram(l1Muon->bx(),nameTrunk + "UnmatchedDt");
+		}
+		else{
+			histogramBuilder.fillCountHistogram(nameTrunk + "UnmatchedDtHo");
+			histogramBuilder.fillBxIdHistogram(l1Muon->bx(),nameTrunk + "UnmatchedDtHo");
+		}
 		histogramBuilder.fillDeltaTimeHistogram(hoTime,l1Muon->bx(),nameTrunk + "UnmatchedDtHo");
 		histogramBuilder.fillTimeHistogram(hoTime,nameTrunk + "UnmatchedDtHo");
-		histogramBuilder.fillBxIdHistogram(l1Muon->bx(),nameTrunk + "UnmatchedDtHo");
 		//Unmatched DT
 		break;
 	default:
-		histogramBuilder.fillCountHistogram(nameTrunk + "OtherCodes");
-		histogramBuilder.fillCountHistogram(nameTrunk + "OtherCodesHo");
+		if(hoTime == -1){
+			histogramBuilder.fillCountHistogram(nameTrunk + "OtherCodes");
+			histogramBuilder.fillBxIdHistogram(l1Muon->bx(),nameTrunk + "OtherCodes");
+		}
+		else{
+			histogramBuilder.fillCountHistogram(nameTrunk + "OtherCodesHo");
+			histogramBuilder.fillBxIdHistogram(l1Muon->bx(),nameTrunk + "OtherCodesHo");
+		}
 		histogramBuilder.fillDeltaTimeHistogram(hoTime,l1Muon->bx(),nameTrunk + "OtherCodesHo");
 		histogramBuilder.fillTimeHistogram(hoTime,nameTrunk + "OtherCodesHo");
-		histogramBuilder.fillBxIdHistogram(l1Muon->bx(),nameTrunk + "OtherCodesHo");
 		//Other codes
 		break;
 	}
@@ -1558,6 +1573,11 @@ void hoMuonAnalyzer::analyzeTimingSupport(){
 				fillTimingHistograms(&*l1Muon,hoRecHit->time(),false);
 				if(isTight){
 					fillTimingHistograms(&*l1Muon,hoRecHit->time(),true);
+				}
+			} else {
+				fillTimingHistograms(&*l1Muon,-1,false);
+				if(isTight){
+					fillTimingHistograms(&*l1Muon,-1,true);
 				}
 			}
 		}
