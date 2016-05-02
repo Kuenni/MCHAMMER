@@ -26,7 +26,7 @@ outputFileTrunk = 'sourceList'
 
 globalTags = {
 			'noPu':'autoCond[\'run2_mc\']',
-			'pu':'\'PHYS14_25_V1::All\'',
+			'pu':'autoCond[\'run2_mc\']',
 			'design':'autoCond[\'run2_design\']',
 			'data':'autoCond[\'run2_data\']'
 			}
