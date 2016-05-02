@@ -244,7 +244,7 @@ def sendJobs():
 		submitter.setGridPackName(args.gridpackname)
 	if args.lumiFile:
 		submitter.addGridPackContent(args.lumiFile)
-	if args.conditions == 'data' or args.conditions == 'noPu':
+	if args.conditions == 'data' or args.conditions == 'noPu' or args.conditions == 'pu':
 		submitter.cmsswVersion = 'CMSSW_7_4_15'
 		submitter.scramArch = 'slc6_amd64_gcc491'
 	submitter.submit()
