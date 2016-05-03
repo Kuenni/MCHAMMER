@@ -31,7 +31,12 @@ class Plot:
 	
 	#Save a canvas as gif file with the source data file name attached
 	def storeCanvas(self,canvas,plotname):
+		if(plotname.find('/') != -1):
+			if( not os.path.exists(self.plotSubdir + '/' + plotname[0:plotname.rfind('/')])):
+				os.makedirs(self.plotSubdir + '/' + plotname[0:plotname.rfind('/')])
+				
 		canvas.SaveAs('%s/%s_%s.gif'%(self.plotSubdir,plotname,self.fileHandler.filename))
+		canvas.SaveAs('%s/%s_%s.png'%(self.plotSubdir,plotname,self.fileHandler.filename))
 		return
 	
 	def drawLabel(self):
