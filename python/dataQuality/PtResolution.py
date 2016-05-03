@@ -159,7 +159,7 @@ class PtResolution(Plot):
 			else:
 				rmsL1TightNotHo.append(0)
 				rmsL1TightNotHoErr.append(0)
-			c.SaveAs('plots/ptResolution/L1Muon%d.gif' % i)
+			self.storeCanvas(c, 'hists/L1Muon%d' % i)
 		
 		c = TCanvas()
 		graphL1 = getTGraphErrors(ptVals,rmsL1,ey = rmsL1Err,ex=ptErr)
@@ -215,9 +215,7 @@ class PtResolution(Plot):
 		
 		c.Update()
 		
-		c.SaveAs('plots/ptResolution/rmsVsPt.gif')
-		c.SaveAs('plots/ptResolution/rmsVsPt.pdf')
-		
+		self.storeCanvas(c, 'rmsVsPt')
 		c2 = TCanvas('cfitResults','fitResults',800,0,800,600)
 		graphL1Fit.Draw('AP')
 		return c,graphL1,graphL1AndHo,legend,c2,graphL1Fit,label,graphL1TightAndHo,graphL1Tight, graphL1NotHo, graphL1TightNotHo
@@ -252,8 +250,7 @@ class PtResolution(Plot):
 		legend.Draw()
 		c.Update()
 		
-		c.SaveAs('plots/ptResolution/rmsVsPt_tight.gif')
-		
+		self.storeCanvas(c, 'rmsVsPt_tight')
 		##
 		# Plot the integral for each histogram as a control plot
 		##
@@ -284,8 +281,7 @@ class PtResolution(Plot):
 		legend2.Draw()
 		cControlPlot.Update()
 		
-		cControlPlot.SaveAs('plots/ptResolution/rmsVsPt_tight_integrals.gif')
-		
+		self.storeCanvas(cControlPlot, 'rmsVsPt_tight_integrals')
 		return c,graphL1TightHo,graphL1TightNotHo,legend,label, legend2, graphIntegralsMatch, graphIntegralsNoMatch, cControlPlot
 	
 	def plotLoosePtResolution(self):
@@ -318,8 +314,7 @@ class PtResolution(Plot):
 		legend.Draw()
 		c.Update()
 
-		c.SaveAs('plots/ptResolution/rmsVsPt_loose.gif')
-
+		self.storeCanvas(c, 'rmsVsPt_loose')
 		##
 		# Plot the integral for each histogram as a control plot
 		##
@@ -350,7 +345,6 @@ class PtResolution(Plot):
 		legend2.Draw()
 		cControlPlot.Update()
 		
-		cControlPlot.SaveAs('plots/ptResolution/rmsVsPt_loose_integrals.gif')
-
+		self.storeCanvas(cControlPlot, 'rmsVsPt_loose_integrals')
 		return c,graphL1TightHo,graphL1TightNotHo,legend,label,graphIntegralsMatch,graphIntegralsNoMatch,legend2,cControlPlot
 		
