@@ -3,7 +3,8 @@ from ROOT import TCanvas,ROOT,TFile,TLegend,TF1,TLine,gROOT,TPaveText,TH1D,Doubl
 from plotting.Plot import Plot
 
 from plotting.PlotStyle import setPlotStyle,calcSigma,getLabelCmsPrivateSimulation,\
-	colorRwthRot,colorRwthDarkBlue,colorRwthMagenta,setupAxes,convertToHcalCoords,chimney1,chimney2,colorRwthRot
+	colorRwthRot,colorRwthDarkBlue,colorRwthMagenta,setupAxes,convertToHcalCoords,chimney1,chimney2,colorRwthRot,\
+	setBigAxisTitles
 
 class Timing(Plot):
 	def __init__(self,filename,data,debug):
@@ -49,9 +50,7 @@ class Timing(Plot):
 		label.Draw()
 		c.Update()
 		
-		c.SaveAs("plots/timing/deltaTimeAllHo.gif")
-		c.SaveAs("plots/timing/deltaTimeAllHo.pdf")
-		
+		self.storeCanvas(c,"deltaTimeAllHo")
 		hDeltaTCleanHo.Draw('same')
 		
 		fitFirstMin.SetRange(-50,50)
@@ -94,29 +93,64 @@ class Timing(Plot):
 		label.Draw()
 		c.Update()
 		
-		
-		c.SaveAs("plots/timing/deltaTime.gif")
-		c.SaveAs("plots/timing/deltaTime.pdf")
-
+		self.storeCanvas(c,"deltaTime")
 		return c, hDeltaTCleanHo
 	
 	def plotL1BxId(self):
-		c2 = TCanvas("cBxId","BX ID",1200,1200)
+		c2 = TCanvas("cBxId","BX ID",1200,400)
 		c2.Divide(3,1)
-		
-		### Plot matched DT/RPC
-		c2.cd(1).SetLogy()
+
 		hBxIdBest = self.fileHandler.getHistogram('hoMuonAnalyzer/timingSupport_MatchedDtRpcHo_BxId')
 		hBxIdDtOnly = self.fileHandler.getHistogram('hoMuonAnalyzer/timingSupport_UnmatchedDtHo_BxId')
 		hBxIdOther = self.fileHandler.getHistogram('hoMuonAnalyzer/timingSupport_OtherCodesHo_BxId')
+
+
+		dtBx0BestCentral = hBxIdBest.GetBinContent(hBxIdBest.FindBin(0))
+		dtBx0BestIntegral = hBxIdBest.Integral()
+		dtBx0BestOther = dtBx0BestIntegral - dtBx0BestCentral
+		
+		dtBx0DtOnlyCentral = hBxIdDtOnly.GetBinContent(hBxIdDtOnly.FindBin(0))
+		dtBx0DtOnlyIntegral = hBxIdDtOnly.Integral()
+		dtBx0DtOnlyOther = dtBx0DtOnlyIntegral - dtBx0DtOnlyCentral
+		
+		dtBx0OtherCentral = hBxIdOther.GetBinContent(hBxIdOther.FindBin(0))
+		dtBx0OtherIntegral = hBxIdOther.Integral()
+		dtBx0OtherOther = dtBx0OtherIntegral - dtBx0OtherCentral
+		
+		self.output('#'*20)
+		self.output('DT/RPC')
+		self.output('-'*10)
+		self.output('Events in BXID 0: %d\t%6.3f%% +/- %6.3f%%' % (dtBx0BestCentral,dtBx0BestCentral/float(dtBx0BestIntegral)*100,calcSigma(dtBx0BestCentral, dtBx0BestIntegral)*100))
+		self.output('Events in other BXID: %d\t%6.3f%% +/- %6.3f%%' % (dtBx0BestOther,dtBx0BestOther/float(dtBx0BestIntegral)*100,calcSigma(dtBx0BestOther, dtBx0BestIntegral)*100))
+		self.output('Consistency check (Central + Other, Integral): %d, %d' % (dtBx0BestCentral + dtBx0BestOther,dtBx0BestIntegral))
+		self.output('')
+		self.output('DT')
+		self.output('-'*10)
+		self.output('Events in BXID 0: %d\t%6.3f%% +/- %6.3f%%' % (dtBx0DtOnlyCentral,dtBx0DtOnlyCentral/float(dtBx0DtOnlyIntegral)*100,calcSigma(dtBx0DtOnlyCentral, dtBx0DtOnlyIntegral)*100))
+		self.output('Events in other BXID: %d\t%6.3f%% +/- %6.3f%%' % (dtBx0DtOnlyOther,dtBx0DtOnlyOther/float(dtBx0DtOnlyIntegral)*100,calcSigma(dtBx0DtOnlyOther, dtBx0DtOnlyIntegral)*100))
+		self.output('Consistency check (Central + Other, Integral): %d, %d' % (dtBx0DtOnlyCentral + dtBx0DtOnlyOther,dtBx0DtOnlyIntegral))
+		self.output('')
+		self.output('Other')
+		self.output('-'*10)
+		self.output('Events in BXID 0: %d\t%6.3f%% +/- %6.3f%%' % (dtBx0OtherCentral,dtBx0OtherCentral/float(dtBx0OtherIntegral)*100,calcSigma(dtBx0OtherCentral, dtBx0OtherIntegral)*100))
+		self.output('Events in other BXID: %d\t%6.3f%% +/- %6.3f%%' % (dtBx0OtherOther,dtBx0OtherOther/float(dtBx0OtherIntegral)*100,calcSigma(dtBx0OtherOther, dtBx0OtherIntegral)*100))
+		self.output('Consistency check (Central + Other, Integral): %d, %d' % (dtBx0OtherCentral + dtBx0OtherOther,dtBx0OtherIntegral))
+		self.output('')
+		self.output('#'*20)
+
+		
+		### Plot matched DT/RPC
+		c2.cd(1).SetLogy()
 		hBxIdBest.SetLineColor(colorRwthDarkBlue)
 		hBxIdBest.SetLineWidth(3)
 		hBxIdBest.SetStats(0)
-		hBxIdBest.SetTitle("BX ID distribution Matched DT/RPC + HO")
+		hBxIdBest.SetTitle("Matched DT/RPC + HO")
 		hBxIdBest.GetXaxis().SetRangeUser(-5,5)
 		hBxIdBest.GetYaxis().SetRangeUser(2e-4,1)
 		hBxIdBest.Scale(1/hBxIdBest.Integral())
 		hBxIdBest.GetYaxis().SetTitle("rel. fraction")
+		setupAxes(hBxIdBest)
+		setBigAxisTitles(hBxIdBest)
 		hBxIdBest.Draw()
 		label = self.drawLabel()
 		
@@ -125,11 +159,13 @@ class Timing(Plot):
 		hBxIdDtOnly.SetLineColor(colorRwthDarkBlue)
 		hBxIdDtOnly.SetLineWidth(3)
 		hBxIdDtOnly.SetStats(0)
-		hBxIdDtOnly.SetTitle("BX ID distribution Unmatched DT + HO")
+		hBxIdDtOnly.SetTitle("Unmatched DT + HO")
 		hBxIdDtOnly.GetXaxis().SetRangeUser(-5,5)
 		hBxIdDtOnly.GetYaxis().SetRangeUser(2e-4,1)
 		hBxIdDtOnly.Scale(1/hBxIdDtOnly.Integral())
 		hBxIdDtOnly.GetYaxis().SetTitle("rel. fraction")
+		setupAxes(hBxIdDtOnly)
+		setBigAxisTitles(hBxIdDtOnly)
 		hBxIdDtOnly.Draw()
 		
 		### Plot other codes
@@ -137,21 +173,22 @@ class Timing(Plot):
 		hBxIdOther.SetLineColor(colorRwthDarkBlue)
 		hBxIdOther.SetLineWidth(3)
 		hBxIdOther.SetStats(0)
-		hBxIdOther.SetTitle("BX ID distribution lower quality muon + HO")
+		hBxIdOther.SetTitle("Lower quality muon + HO")
 		hBxIdOther.GetXaxis().SetRangeUser(-5,5)
 		hBxIdOther.GetYaxis().SetRangeUser(2e-4,1)
 		hBxIdOther.Scale(1/hBxIdOther.Integral())
 		hBxIdOther.GetYaxis().SetTitle("rel. fraction")
+		setupAxes(hBxIdOther)
+		setBigAxisTitles(hBxIdOther)
 		hBxIdOther.Draw()
 		
-		c2.SaveAs("plots/timing/bxId.gif")
-		c2.SaveAs("plots/timing/bxId.pdf")
-		
+		self.storeCanvas(c2,"bxId")
+
 		return label,c2,hBxIdBest,hBxIdDtOnly,hBxIdOther
 
 
 	def plotMatchedHoTime(self):
-		c2 = TCanvas("cTimeforMatchedHoHits","Matched Ho time",1200,1200)
+		c2 = TCanvas("cTimeforMatchedHoHits","Matched Ho time",1200,400)
 		c2.Divide(3,1)
 		
 		### Plot matched DT/RPC
@@ -162,11 +199,13 @@ class Timing(Plot):
 		hBxIdBest.SetLineColor(colorRwthDarkBlue)
 		hBxIdBest.SetLineWidth(3)
 		hBxIdBest.SetStats(0)
-		hBxIdBest.SetTitle("Time distribution Matched DT/RPC + HO")
+		hBxIdBest.SetTitle("Matched DT/RPC + HO")
 		hBxIdBest.GetXaxis().SetRangeUser(-50,50)
 		#hBxIdBest.GetYaxis().SetRangeUser(2e-4,1)
 		hBxIdBest.Scale(1/hBxIdBest.Integral())
 		hBxIdBest.GetYaxis().SetTitle("rel. fraction")
+		setupAxes(hBxIdBest)
+		setBigAxisTitles(hBxIdBest)
 		hBxIdBest.Draw()
 		label = self.drawLabel()
 		
@@ -175,11 +214,13 @@ class Timing(Plot):
 		hBxIdDtOnly.SetLineColor(colorRwthDarkBlue)
 		hBxIdDtOnly.SetLineWidth(3)
 		hBxIdDtOnly.SetStats(0)
-		hBxIdDtOnly.SetTitle("Time distribution Unmatched DT + HO")
+		hBxIdDtOnly.SetTitle("Unmatched DT + HO")
 		hBxIdDtOnly.GetXaxis().SetRangeUser(-50,50)
 		#hBxIdDtOnly.GetYaxis().SetRangeUser(2e-4,1)
 		hBxIdDtOnly.Scale(1/hBxIdDtOnly.Integral())
 		hBxIdDtOnly.GetYaxis().SetTitle("rel. fraction")
+		setupAxes(hBxIdDtOnly)
+		setBigAxisTitles(hBxIdDtOnly)
 		hBxIdDtOnly.Draw()
 		
 		### Plot other codes
@@ -187,11 +228,13 @@ class Timing(Plot):
 		hBxIdOther.SetLineColor(colorRwthDarkBlue)
 		hBxIdOther.SetLineWidth(3)
 		hBxIdOther.SetStats(0)
-		hBxIdOther.SetTitle("Time distribution lower quality muon + HO")
+		hBxIdOther.SetTitle("Lower quality muon + HO")
 		hBxIdOther.GetXaxis().SetRangeUser(-50,50)
 		#hBxIdOther.GetYaxis().SetRangeUser(2e-4,1)
 		hBxIdOther.Scale(1/hBxIdOther.Integral())
 		hBxIdOther.GetYaxis().SetTitle("rel. fraction")
+		setupAxes(hBxIdOther)
+		setBigAxisTitles(hBxIdOther)
 		hBxIdOther.Draw()
 		
 		self.storeCanvas(c2,"matchedHoTime")
@@ -241,8 +284,7 @@ class Timing(Plot):
 		pText.Draw()
 		
 		c3.Update()
-		c3.SaveAs("plots/timing/hoTimeLog.gif")
-		c3.SaveAs("plots/timing/hoTimeLog.pdf")
+		self.storeCanvas(c3,"hoTimeLog")
 		
 		return c3,pText,hHoTimeAboveThr
 	
@@ -300,8 +342,7 @@ class Timing(Plot):
 		pText.Draw()
 		
 		c3.Update()
-		c3.SaveAs("plots/timing/hoTime.gif")
-		c3.SaveAs("plots/timing/hoTime.pdf")
+		self.storeCanvas(c3,"hoTime")
 		
 		return c3,label,hHoTimeAboveThr,pText
 	
@@ -323,7 +364,7 @@ class Timing(Plot):
 		hBxRightPt.Draw()
 		label = getLabelCmsPrivateSimulation()
 		label.Draw()
-		canvasBxRightPt.SaveAs('plots/timing/bxRightPt.pdf')
+		self.storeCanvas(canvasBxRightPt,"bxRightPt")
 		
 		##BX wrong plotting pt
 		canvasBxWrongPt = TCanvas("cBxWrongPt","cBxWrongPt",1200,1200)
@@ -342,8 +383,8 @@ class Timing(Plot):
 		hBxWrongPt.DrawCopy()
 		label = getLabelCmsPrivateSimulation()
 		label.Draw()
-		canvasBxWrongPt.SaveAs('plots/timing/bxWrongPt.pdf')
-		
+		self.storeCanvas(canvasBxWrongPt,"bxWrongPt")
+
 		#Plot the histogram stack
 		canvasStack = TCanvas("cStacked","cStacked",1200,1200)
 		canvasStack.cd().SetLeftMargin(0.15)
@@ -389,8 +430,7 @@ class Timing(Plot):
 		label = getLabelCmsPrivateSimulation()
 		label.Draw()
 		canvasStack.Update()
-		canvasStack.SaveAs('plots/timing/bxStacked.pdf')
-		canvasStack.SaveAs('plots/timing/bxStacked.root')
+		self.storeCanvas(canvasStack,"bxStacked")
 	
 	#Plot eta and phi of wrong bx ids
 	def plotEtaPhiOfWrongBxId(self):
@@ -433,8 +473,7 @@ class Timing(Plot):
 		legend.Draw()
 		
 		canvasEtaPhiBxWrong.Update()
-		canvasEtaPhiBxWrong.SaveAs("plots/timing/bxWrongEtaPhi.pdf")
-		canvasEtaPhiBxWrong.SaveAs("plots/timing/bxWrongEtaPhi.gif")
+		self.storeCanvas(canvasEtaPhiBxWrong,"bxWrongEtaPhi")
 	
 	def plotEtaOfWrongBxId(self):
 		#Make eta histogram of the graph before
@@ -449,9 +488,7 @@ class Timing(Plot):
 			histEtaBxWrong.Fill(x)
 		histEtaBxWrong.Draw()
 		canvasEtaBxWrong.Update()
-		canvasEtaBxWrong.SaveAs("plots/timing/bxWrongEta.pdf")
-		canvasEtaBxWrong.SaveAs("plots/timing/bxWrongEta.gif")
-		
+		self.storeCanvas(canvasEtaBxWrong,"bxWrongEta")
 		#
 		# Create a binwise normalized histogram of eta
 		#
@@ -464,7 +501,7 @@ class Timing(Plot):
 			etaPhiTotalNC.GetPoint(i,x,y)
 			histEtaBxTotal.Fill(x)
 		histEtaBxTotal.Draw()
-		canvasEtaBxTotal.SaveAs("plots/timing/bxEtaTotal.gif")
+		self.storeCanvas(canvasEtaBxTotal,"bxEtaTotal")
 		
 		canvasEtaBxWrongNorm = TCanvas("canvasEtaBxWrongNorm","canvasEtaBxWrongNorm",1200,1200)
 		histEtaBxWrongNorm = TH1D("histEtaBxWrongNorm","Fraction of L1 with BX ID Wrong;#eta Gen;fraction / 0.08 #eta (%)",20,-0.8,0.8)
@@ -480,9 +517,8 @@ class Timing(Plot):
 			histEtaBxWrongNorm.SetBinError(i,error)
 		histEtaBxWrongNorm.Draw("ehist")
 		canvasEtaBxWrongNorm.Update()
-		canvasEtaBxWrongNorm.SaveAs("plots/timing/bxWrongEtaNorm.pdf")
-		canvasEtaBxWrongNorm.SaveAs("plots/timing/bxWrongEtaNorm.gif")
-	
+		self.storeCanvas(canvasEtaBxWrongNorm,"bxWrongEtaNorm")
+		
 	def plotDetectorContributionsToTiming(self):
 		#Prepare canvas
 		canvas = TCanvas("canvasDetectorContributions","detectorContributions",1200,600)
@@ -562,9 +598,7 @@ class Timing(Plot):
 		pText2.Draw()
 		
 		canvas.Update()
-		canvas.SaveAs('plots/timing/bxWrongDetectorContributions.pdf')
-		canvas.SaveAs('plots/timing/bxWrongDetectorContributions.gif')
-		
+		self.storeCanvas(canvas,"bxWrongDetectorContributions")
 		
 		
 		return canvas,hist,label,histGrey,pText,pText2,label2,hist2
@@ -597,8 +631,7 @@ class Timing(Plot):
 		label.Draw()
 		
 		canvas.Update()
-		canvas.SaveAs('plots/timing/bxWrongEtaPt.pdf')
-		canvas.SaveAs('plots/timing/bxWrongEtaPt.gif')
+		self.storeCanvas(canvas,"bxWrongEtaPt")
 		return canvas,hist,stack,histNew,label
 	
 	def plotPtAndPhiOfWrongBxId(self):
@@ -630,8 +663,7 @@ class Timing(Plot):
 		label.Draw()
 		
 		canvas.Update()
-		canvas.SaveAs('plots/timing/bxWrongPtPhi.pdf')
-		canvas.SaveAs('plots/timing/bxWrongPtPhi.gif')
+		self.storeCanvas(canvas,"bxWrongPtPhi")
 		return canvas,hist,stack,histNew,label
 	
 	
@@ -656,8 +688,8 @@ class Timing(Plot):
 		print 80*'#'
 		print heading
 		print len(heading)*'-'
-		print 'Timing correct:\t%d\t=>\t%5.2f%% +/- %5.2f%%'%(integralHoCorrect,hoFractionRight*100,100*calcSigma(integralHoCorrect, integralHoTotal))
-		print 'Timing outside:\t%d\t=>\t%5.2f%% +/- %f%%'%(integralHoOutside,hoFractionWrong*100,100*calcSigma(integralHoOutside, integralHoTotal))
+		print 'Timing correct:\t%d\t=>\t%6.3f%% +/- %6.3f%%'%(integralHoCorrect,hoFractionRight*100,calcSigma(integralHoCorrect, integralHoTotal)*100)
+		print 'Timing outside:\t%d\t=>\t%6.3f%% +/- %f%%'%(integralHoOutside,hoFractionWrong*100,calcSigma(integralHoOutside, integralHoTotal)*100)
 		print 'Timing total:%d'%(integralHoTotal)
 		print
 		
@@ -673,9 +705,9 @@ class Timing(Plot):
 		heading = 'Bin contents for DT timing:'
 		print heading
 		print len(heading)*'-'
-		print 'BX ID 0:\t%d\t=>\t%5.2f%% +/- %5.2f%%'%(dtBx0,dtBx0/float(dtBxTotal)*100,calcSigma(dtBx0, dtBxTotal))
-		print 'BX ID -1:\t%d\t=>\t%5.2f%% +/- %5.2f%%'%(dtBxM1,dtFractionWrongM1*100,calcSigma(dtBxM1, dtBxTotal))
-		print 'BX ID +1:\t%d\t=>\t%5.2f%% +/- %5.2f%%'%(dtBxP1,dtFractionWrongP1*100,calcSigma(dtBxP1, dtBxTotal))
+		print 'BX ID  0:\t%d\t=>\t%6.3f%% +/- %6.3f%%'%(dtBx0,dtBx0/float(dtBxTotal)*100,calcSigma(dtBx0, dtBxTotal)*100)
+		print 'BX ID -1:\t%d\t=>\t%6.3f%% +/- %6.3f%%'%(dtBxM1,dtFractionWrongM1*100,calcSigma(dtBxM1, dtBxTotal)*100)
+		print 'BX ID +1:\t%d\t=>\t%6.3f%% +/- %6.3f%%'%(dtBxP1,dtFractionWrongP1*100,calcSigma(dtBxP1, dtBxTotal)*100)
 		print 'BX ID total:\t%d' % (dtBxTotal)
 		print
 		
@@ -690,7 +722,7 @@ class Timing(Plot):
 		print heading
 		print len(heading)*'-'
 		print 'BX -1:\t',int(correctedBxIdM1)
-		print 'BX 0:\t',int(correctedBxId0)
+		print 'BX  0:\t',int(correctedBxId0)
 		print 'BX +1:\t',int(correctedBxIdP1)
 		print 
 		#Fill corrected histogram
@@ -730,8 +762,8 @@ class Timing(Plot):
 		
 		#Add text object
 		pText = TPaveText(0.52,0.8,0.9,0.9,'NDC')
-		pText.AddText('Fraction in BX ID 0: %6.3f%% #pm %6.3f%%' % (dtBx0/float(dtBxTotal)*100,calcSigma(dtBx0, dtBxTotal)))
-		pText.AddText('Fraction in BX ID 0 (HO corr.): %6.3f%% #pm %6.3f%%' % (correctedRightFraction*100,calcSigma(correctedBxId0, correctedTotal)))
+		pText.AddText('Fraction in BX ID 0: %6.3f%% #pm %6.3f%%' % (dtBx0/float(dtBxTotal)*100,calcSigma(dtBx0, dtBxTotal)*100))
+		pText.AddText('Fraction in BX ID 0 (HO corr.): %6.3f%% #pm %6.3f%%' % (correctedRightFraction*100,calcSigma(correctedBxId0, correctedTotal)*100))
 		pText.SetBorderSize(1)
 		pText.SetFillColor(0)
 		pText.Draw()
