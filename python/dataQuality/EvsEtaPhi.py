@@ -55,7 +55,6 @@ class EvsEtaPhi(Plot):
 		setupPalette(hSum)
 	
 		canvas.Update()
-		canvas.SaveAs('plots/averageEnergy/averageEnergy.pdf')
 		self.storeCanvas(canvas,'averageEnergy')
 		return canvas,hSum,label,hCounter
 	
@@ -98,7 +97,6 @@ class EvsEtaPhi(Plot):
 		setupPalette(hSum)
 		
 		canvas.Update()
-		canvas.SaveAs('plots/averageEnergy/averageEmax.pdf')
 		self.storeCanvas(canvas, 'averageEmax')
 		hCounter.SaveAs('histogramEMaxCounter.root')
 		
@@ -135,7 +133,7 @@ class EvsEtaPhi(Plot):
 			labelList.append(label)
 			fitList.append(fit)
 		canvas.Update()
-		canvas.SaveAs('plots/averageEnergy/1DPlots.pdf')
+		self.storeCanvas(canvas, '1DPlots')
 		return histList,canvas,fitList,labelList
 	
 	def plot1DEMaxAroundL1(self):	
@@ -169,7 +167,7 @@ class EvsEtaPhi(Plot):
 			labelList.append(label)
 			fitList.append(fit)
 		canvas.Update()
-		canvas.SaveAs('plots/averageEnergy/1DEMaxPlots.pdf')
+		self.storeCanvas(canvas, '1DEMaxPlots')
 		return histList,canvas,fitList,labelList
 	
 	def plotMPVs(self,fitList):
@@ -392,7 +390,6 @@ class EvsEtaPhi(Plot):
 	
 		canvas.Update()
 		self.storeCanvas(canvas,'eAveragePerWheel')
-		canvas.SaveAs('plots/averageEnergy/eAveragePerWheel.pdf')
 		
 		return hM1Energy,canvas,h0Energy,hP1Energy,h0Counter,label1,label2,label3
 	
@@ -444,7 +441,6 @@ class EvsEtaPhi(Plot):
 		
 		canvas.Update()
 		
-		canvas.SaveAs('plots/etaPhiForTightL1.gif')
-		
+		self.storeCanvas(canvas, 'etaPhiForTightL1')
 		return canvas,histAll,histWithHo,label1,label2
 	

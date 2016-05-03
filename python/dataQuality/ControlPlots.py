@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/bin/env python
 import os
 from plotting.Plot import Plot
 from ROOT import TCanvas,ROOT,TFile,TF1,TLine,gROOT,TPaveText,TH1D,Double,TH2D,THStack,gStyle
@@ -70,8 +70,7 @@ class ControlPlots(Plot):
 		setupPalette(res3)
 		label3 = self.drawLabel()
 		canvas.Update()
-		canvas.SaveAs('plots/controlPlots/hoIEtaIPhiSameScales.gif')
-		
+		self.storeCanvas(canvas,"hoIEtaIPhiSameScales")
 		return res1,res2,res3,canvas,label1,label2,label3
 		
 	'''
@@ -88,7 +87,7 @@ class ControlPlots(Plot):
 		setupPalette(hoEtaPhi)
 		label = self.drawLabel()
 		canvas.Update()
-		canvas.SaveAs('plots/controlPlots/HoEtaPhi.pdf')
+		self.storeCanvas(canvas,"hoEtaPhi")
 		return label,canvas,hoEtaPhi
 
 	
@@ -108,7 +107,7 @@ class ControlPlots(Plot):
 		setupPalette(hoEtaPhi)
 		label = self.drawLabel()
 		canvas.Update()
-		canvas.SaveAs('plots/controlPlots/L1MatchedToHoEtaPhi.pdf')
+		self.storeCanvas(canvas,"l1MatchedToHoEtaPhi")
 		return label,canvas,hoEtaPhi
 		
 	'''
@@ -127,7 +126,7 @@ class ControlPlots(Plot):
 		setupPalette(hoEtaPhi)
 		label = self.drawLabel()
 		canvas.Update()
-		canvas.SaveAs('plots/controlPlots/tightPatToHoEtaPhi.pdf')
+		self.storeCanvas(canvas,"tightPatToHoEtaPhi")
 		return label,canvas,hoEtaPhi
 		
 	'''
@@ -144,7 +143,7 @@ class ControlPlots(Plot):
 		setupPalette(hoEtaPhi)
 		label = self.drawLabel()
 		canvas.Update()
-		canvas.SaveAs('plots/controlPlots/tightL1MatchedToHoIEtaIPhi.pdf')
+		self.storeCanvas(canvas,"tightL1MatchedToHoIEtaIPhi")
 		return label,canvas,hoEtaPhi
 
 	'''
@@ -161,7 +160,7 @@ class ControlPlots(Plot):
 		setupPalette(hoEtaPhi)
 		label = self.drawLabel()
 		canvas.Update()
-		canvas.SaveAs('plots/controlPlots/l1MatchedToHoIEtaIPhi.pdf')
+		self.storeCanvas(canvas,"l1MatchedToHoIEtaIPhi")
 		return label,canvas,hoEtaPhi
 
 	'''
@@ -191,10 +190,7 @@ class ControlPlots(Plot):
 		stats.SetY2NDC(.9)
 		
 		canvas.Update()
-		
-		canvas.SaveAs('plots/controlPlots/digiMatchesPerDetId.pdf')
-		canvas.SaveAs('plots/controlPlots/digiMatchesPerDetId.png')
-		
+		self.storeCanvas(canvas,"digiMatchesPerDetId")
 		return canvas,digiMatches,label
 	
 	def plotL1PerPt(self):
@@ -289,7 +285,5 @@ class ControlPlots(Plot):
 		setStatBoxPosition(histPhi,y1=0.85)
 		
 		c.Update()
-		
-		c.SaveAs('plots/controlPlots/genEtaPhi.pdf')
-		
+		self.storeCanvas(c,"genEtaPhi")
 		return c,gen,histEta,histPhi,label1,label2
