@@ -129,7 +129,18 @@ def setupAxes(plot):
 	if hasattr(plot, 'GetZaxis'):
 		plot.GetZaxis().SetTitleFont(62)
 		plot.GetZaxis().SetLabelFont(62)
+	
+	plot.SetTitleFont(62)
+	plot.SetTitleSize(0.06)
 
+def setBigAxisTitles(plot):
+	if plot.__class__ == TEfficiency:
+		plot = plot.GetPaintedGraph()
+	plot.GetXaxis().SetTitleSize(0.06)
+	plot.GetXaxis().SetTitleOffset(0.7)
+	plot.GetYaxis().SetTitleSize(0.06)
+	plot.GetYaxis().SetTitleOffset(0.7)
+		
 #Set the stat box display Options
 def setStatBoxOptions(plot,option):
 	stats = plot.GetListOfFunctions().FindObject("stats")
