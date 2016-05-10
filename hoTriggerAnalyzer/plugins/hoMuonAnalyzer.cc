@@ -289,19 +289,17 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	for( unsigned int i = 0 ; i < l1Muons->size(); i++ ){
 		const l1extra::L1MuonParticle* bl1Muon = &(l1Muons->at(i));
 		float l1Muon_eta = bl1Muon->eta();
-
+		float l1Muon_phi = bl1Muon->phi() + L1PHI_OFFSET;
 		if(fabs(l1Muon_eta) > MAX_ETA){
 			continue;
 		}
-
-		float l1Muon_phi = bl1Muon->phi();
 		histogramBuilder.fillCountHistogram("L1Muon");
 		histogramBuilder.fillBxIdHistogram(bl1Muon->bx(),"L1MuonPresent");
 		histogramBuilder.fillBxIdVsPt(bl1Muon->bx(),bl1Muon->pt(),"L1MuonPresent");
 		histogramBuilder.fillL1MuonPtHistograms(bl1Muon->pt(),"L1MuonPresent");
 		histogramBuilder.fillPdgIdHistogram(bl1Muon->pdgId(),"L1MuonPresent");
 		histogramBuilder.fillVzHistogram(bl1Muon->vz(),"L1MuonPresent");
-		histogramBuilder.fillEtaPhiGraph(bl1Muon->eta(), bl1Muon->phi(), "L1MuonPresent");
+		histogramBuilder.fillEtaPhiGraph(l1Muon_eta, l1Muon_phi, "L1MuonPresent");
 		fillAverageEnergyAroundL1Direction(bl1Muon,"L1MuonPresent");
 		//For variable binning
 //		listL1MuonPt.push_back(bl1Muon->pt());
@@ -371,7 +369,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 					histogramBuilder.fillTrigRateHistograms(i,"L1MuonWithHoNoThr");
 			}
 			if(!isData){
-				const reco::GenParticle* bestGenMatch = getBestGenMatch(bl1Muon->eta(),bl1Muon->phi());
+				const reco::GenParticle* bestGenMatch = getBestGenMatch(l1Muon_eta,l1Muon_phi);
 				if(bestGenMatch){
 					countGenMatches++;
 					fillEfficiencyHistograms(bl1Muon->pt(),bestGenMatch->pt(),"L1MuonHoReco");
@@ -454,7 +452,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 								break;
 						}
 						if(!isData){
-							const reco::GenParticle* bestGenMatch = getBestGenMatch(bl1Muon->eta(),bl1Muon->phi());
+							const reco::GenParticle* bestGenMatch = getBestGenMatch(l1Muon_eta,l1Muon_phi);
 							if(bestGenMatch){
 								fillEfficiencyHistograms(bl1Muon->pt(),bestGenMatch->pt(),"L1MuonHoRecoAboveThrFilt");
 							}
@@ -468,10 +466,10 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 						histogramBuilder.fillTrigRateHistograms(i,l1MuonWithHoMatch_key);
 				}
 				histogramBuilder.fillL1MuonPtHistograms(bl1Muon->pt(), l1MuonWithHoMatch_key);
-				histogramBuilder.fillEtaPhiGraph(bl1Muon->eta(), bl1Muon->phi(), "L1MuonWithHoMatchAboveThr_L1Mu");
+				histogramBuilder.fillEtaPhiGraph(l1Muon_eta, l1Muon_phi, "L1MuonWithHoMatchAboveThr_L1Mu");
 
 				if(!isData){
-					const reco::GenParticle* bestGenMatch = getBestGenMatch(bl1Muon->eta(),bl1Muon->phi());
+					const reco::GenParticle* bestGenMatch = getBestGenMatch(l1Muon_eta,l1Muon_phi);
 					if(bestGenMatch){
 						fillEfficiencyHistograms(bl1Muon->pt(),bestGenMatch->pt(),"L1MuonHoRecoAboveThr");
 						histogramBuilder.fillBxIdVsPt(bl1Muon->bx(),bl1Muon->pt(),"L1MuonAboveThrGenMatch");
@@ -580,7 +578,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				const l1extra::L1MuonParticle* l1Part = functionsHandler->getBestL1MuonMatch(muMatchEta,muMatchPhi);
 				if(l1Part){
 					double deltaEta = muMatchEta - l1Part->eta();
-					double deltaPhi = FilterPlugin::wrapCheck(muMatchPhi, l1Part->phi());
+					double deltaPhi = FilterPlugin::wrapCheck(muMatchPhi, l1Part->phi() + L1PHI_OFFSET);
 					histogramBuilder.fillGraph(deltaEta,deltaPhi,"deltaEtaDeltaPhiTdmiL1");
 				}
 				const HORecHit* matchedRecHit = hoMatcher->matchByEMaxInGrid(genEta,genPhi,2);
@@ -740,7 +738,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 					if(l1Ref){
 						histogramBuilder.fillCountHistogram("SMuTrgFoundL1Match");
 						float l1Muon_eta = l1Ref->eta();
-						float l1Muon_phi = l1Ref->phi();
+						float l1Muon_phi = l1Ref->phi() + L1PHI_OFFSET;
 						fillEfficiencyHistograms(l1Ref->pt(),genIt->pt(),"SMuTrgL1AndGenMatch");
 						const HORecHit* matchedRecHit = hoMatcher->matchByEMaxInGrid(l1Muon_eta,l1Muon_phi,2);
 						//Check whether an HO match could be found by the delta R method
@@ -778,18 +776,13 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		for( unsigned int i = 0 ; i < l1Muons->size(); i++  ) {
 			const l1extra::L1MuonParticle* bl1Muon = &(l1Muons->at(i));
 			double l1Muon_eta = bl1Muon->eta();
-			double l1Muon_phi = bl1Muon->phi();
+			double l1Muon_phi = bl1Muon->phi() + L1PHI_OFFSET;
 			if(MuonHOAcceptance::inGeomAccept(l1Muon_eta,l1Muon_phi)&& !hoMatcher->isInChimney(l1Muon_eta,l1Muon_phi)){
 				histogramBuilder.fillCountHistogram("L1MuonSMuTrgInGA_L1Dir");
-				GlobalPoint l1Direction(
-						bl1Muon->p4().X(),
-						bl1Muon->p4().Y(),
-						bl1Muon->p4().Z()
-				);
-				if(hoMatcher->hasHoHitInGrid(l1Direction,0)){
+				if(hoMatcher->hasHoHitInGrid(l1Muon_eta,l1Muon_phi,0)){
 					histogramBuilder.fillCountHistogram("L1MuonSMuTrgCentral");
 				}
-				if(hoMatcher->hasHoHitInGrid(l1Direction,1)){
+				if(hoMatcher->hasHoHitInGrid(l1Muon_eta,l1Muon_phi,1)){
 					histogramBuilder.fillCountHistogram("L1MuonSMuTrg3x3");
 				}
 			}
@@ -904,7 +897,7 @@ const l1extra::L1MuonParticle* hoMuonAnalyzer::getMatchedL1Object(trigger::Trigg
 	for(unsigned int i = 0; i < l1muons->size(); i++){
 		const l1extra::L1MuonParticle* l1muon = &(l1muons->at(i));
 		l1Eta = l1muon->eta();
-		l1Phi = l1muon->phi();
+		l1Phi = l1muon->phi() + L1PHI_OFFSET;
 		if(FilterPlugin::isInsideDeltaR(hltEta,l1Eta,hltPhi,l1Phi,deltaR_Max))
 			return l1muon;
 	}
@@ -1070,7 +1063,7 @@ void hoMuonAnalyzer::analyzeNoSingleMuEventsL1Loop(const edm::Event& iEvent,cons
 
 		} else {
 			histogramBuilder.fillEfficiency(false,l1Muon->pt(),"L1GenRefNoSingleMu");
-			histogramBuilder.fillEtaPhiGraph(l1Muon->eta(),l1Muon->phi(),"L1GenRefNoSingleMuFail");
+			histogramBuilder.fillEtaPhiGraph(l1Muon->eta(),l1Muon->phi() + L1PHI_OFFSET,"L1GenRefNoSingleMuFail");
 		}
 	}
 }
@@ -1112,6 +1105,11 @@ void hoMuonAnalyzer::analyzeWithGenLoop(const edm::Event& iEvent,const edm::Even
 		l1Part = functionsHandler->getBestL1MuonMatch(genEta,genPhi);
 		histogramBuilder.fillCountHistogram("Gen");
 		if(l1Part){
+
+			double l1Eta, l1Phi;
+			l1Eta = l1Part->eta();
+			l1Phi = l1Part->phi() + L1PHI_OFFSET;
+
 			fillEfficiencyHistograms(l1Part->pt(),genIt->pt(),"GenAndL1Muon");
 			/**
 			 * Fill Correlation between gen pt and l1 pt.
@@ -1129,7 +1127,7 @@ void hoMuonAnalyzer::analyzeWithGenLoop(const edm::Event& iEvent,const edm::Even
 			 * This fixes double counting of ghost l1 muons
 			 */
 			const HORecHit* matchedRecHit = 0;
-			matchedRecHit = hoMatcher->matchByEMaxInGrid(l1Part->eta(),l1Part->phi(),2);
+			matchedRecHit = hoMatcher->matchByEMaxInGrid(l1Eta,l1Phi,2);
 			if(matchedRecHit){
 				if(matchedRecHit->energy() > threshold){
 					fillEfficiencyHistograms(l1Part->pt(),genIt->pt(),"GenAndL1MuonAndHoAboveThr");
@@ -1137,8 +1135,8 @@ void hoMuonAnalyzer::analyzeWithGenLoop(const edm::Event& iEvent,const edm::Even
 					histogramBuilder.fillCountHistogram("GenAndL1MuonAndHoAboveThr");
 					double hoPhi = hoMatcher->getRecHitPhi(matchedRecHit);
 					double hoIPhi = matchedRecHit->id().iphi();
-					histogramBuilder.fillCorrelationGraph(hoPhi,l1Part->phi(),"l1PhiVsHoPhi");
-					histogramBuilder.fillCorrelationGraph(hoIPhi,l1Part->phi(),"l1PhiVsHoIPhi");
+					histogramBuilder.fillCorrelationGraph(hoPhi,l1Phi,"l1PhiVsHoPhi");
+					histogramBuilder.fillCorrelationGraph(hoIPhi,l1Phi,"l1PhiVsHoIPhi");
 					histogramBuilder.fillCorrelationGraph(hoIPhi,hoPhi,"hoPhiVsHoIPhi");
 
 					TH2D* hist = new TH2D("hoTruthEnergyVsTime","HO Energy vs. Time;Time / ns;E_{Rec} / GeV",201,-100.5,100.5,2100, -5.0, 100.0);
@@ -1161,24 +1159,29 @@ void hoMuonAnalyzer::analyzeWithGenLoop(const edm::Event& iEvent,const edm::Even
  */
 void hoMuonAnalyzer::fillAverageEnergyAroundL1Direction(const l1extra::L1MuonParticle* l1Muon,std::string key){
 	int gridSize = 5;
+
+	double l1Eta, l1Phi;
+	l1Eta = l1Muon->eta();
+	l1Phi = l1Muon->phi() + L1PHI_OFFSET;
+
 	for(auto recHitIt = hoRecoHits->begin(); recHitIt != hoRecoHits->end(); recHitIt++){
-		if(hoMatcher->isRecHitInGrid(l1Muon->eta(), l1Muon->phi(),&*recHitIt,gridSize)){
+		if(hoMatcher->isRecHitInGrid(l1Eta, l1Phi,&*recHitIt,gridSize)){
 			double hoEta = hoMatcher->getRecHitEta(&*recHitIt);
 			double hoPhi = hoMatcher->getRecHitPhi(&*recHitIt);
 
-			histogramBuilder.fillAverageEnergyHistograms(l1Muon->eta(),hoEta, l1Muon->phi(),hoPhi,recHitIt->energy(),"averageEnergyAroundPoint" + key);
-			histogramBuilder.fillDeltaEtaDeltaPhiEnergyHistogram(l1Muon->eta() ,hoEta ,l1Muon->phi() ,hoPhi ,recHitIt->energy()
+			histogramBuilder.fillAverageEnergyHistograms(l1Eta,hoEta, l1Phi,hoPhi,recHitIt->energy(),"averageEnergyAroundPoint" + key);
+			histogramBuilder.fillDeltaEtaDeltaPhiEnergyHistogram(l1Eta ,hoEta ,l1Phi ,hoPhi ,recHitIt->energy()
 					,"averageEnergyAroundPoint" + key);//Use this function for the 1D distributions for each delta eta and delta phi
 
 			double deltaPhi;
-			deltaPhi = FilterPlugin::wrapCheck(l1Muon->phi(),hoMatcher->getRecHitPhi(&*recHitIt));
+			deltaPhi = FilterPlugin::wrapCheck(l1Phi,hoMatcher->getRecHitPhi(&*recHitIt));
 
 			/**
 			 * Dump delta phi and l1
 			 */
 			ofstream myfile;
 			myfile.open ("deltaPhiVsL1Phi.txt",std::ios::app);
-			myfile << l1Muon->phi() << '\t' << deltaPhi << std::endl;
+			myfile << l1Phi << '\t' << deltaPhi << std::endl;
 
 
 			TH1D* hist1D = new TH1D(("deltaPhi" + key).c_str(),"#Delta#phi;#Delta#phi;N Entries",81,-40*HoMatcher::HALF_HO_BIN/2. - HoMatcher::HALF_HO_BIN/4.
@@ -1188,7 +1191,7 @@ void hoMuonAnalyzer::fillAverageEnergyAroundL1Direction(const l1extra::L1MuonPar
 
 			TH1D* histL1Phi = new TH1D(("averageEnergyL1Phi" + key).c_str(),"L1 #phi;#phi;N Entries",145
 					,-36*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/2.,36 * HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/2.);
-			histogramBuilder.fillHistogram(l1Muon->phi(),"averageEnergyL1Phi" + key,histL1Phi);
+			histogramBuilder.fillHistogram(l1Phi,"averageEnergyL1Phi" + key,histL1Phi);
 			delete histL1Phi;
 
 			TH1D* histHoPhi = new TH1D(("averageEnergyHoPhi" + key).c_str(),"HO #phi;#phi;N Entries",145
@@ -1209,10 +1212,10 @@ void hoMuonAnalyzer::fillAverageEnergyAroundL1Direction(const l1extra::L1MuonPar
 			hist = new TH2D(("shiftCheckDeltaPhiVsPhi" + key).c_str(),"#Delta#phi shift check;#phi;#Delta#phi",
 					289,-36*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/4.,36*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/4.,
 					145,-36*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/2.,36*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/2.);
-			histogramBuilder.fillCorrelationHistogram(l1Muon->phi(),deltaPhi,"shiftCheckDeltaPhiVsPhi" + key,hist);
+			histogramBuilder.fillCorrelationHistogram(l1Phi,deltaPhi,"shiftCheckDeltaPhiVsPhi" + key,hist);
 			delete hist;
 
-			histogramBuilder.fillCorrelationGraph(l1Muon->phi(),deltaPhi,"shiftCheckDeltaPhiVsPhiGraph" + key);
+			histogramBuilder.fillCorrelationGraph(l1Phi,deltaPhi,"shiftCheckDeltaPhiVsPhiGraph" + key);
 //TODO: Find an implementation that works for both, data and mc
 //			const reco::GenParticle* gen = getBestGenMatch(l1Muon->eta(),l1Muon->phi());
 //			hist = new TH2D(("shiftCheckDeltaPhiVsGenPt" + key).c_str(),"#Delta#phi shift check;p_{T} / GeV;#Delta#phi",200,0,200,
@@ -1224,7 +1227,7 @@ void hoMuonAnalyzer::fillAverageEnergyAroundL1Direction(const l1extra::L1MuonPar
 			hist = new TH2D(("shiftCheckDeltaPhiVsL1Eta" + key).c_str(),"#Delta#phi shift check;#eta_{L1};#Delta#phi",
 					30,-15*0.1,15*0.1,//L1 has 0.1 bins in eta
 					73,-36*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN,36*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN);
-			histogramBuilder.fillCorrelationHistogram(l1Muon->eta(),deltaPhi,"shiftCheckDeltaPhiVsL1Eta" + key,hist);
+			histogramBuilder.fillCorrelationHistogram(l1Eta,deltaPhi,"shiftCheckDeltaPhiVsL1Eta" + key,hist);
 			delete hist;
 
 //			//Delta phi vs gen eta
@@ -1238,14 +1241,14 @@ void hoMuonAnalyzer::fillAverageEnergyAroundL1Direction(const l1extra::L1MuonPar
 
 	//Filling the average energy only for the highest energetic particle
 	const HORecHit* matchedRecHit = 0;
-	matchedRecHit = hoMatcher->matchByEMaxInGrid(l1Muon->eta(), l1Muon->phi(),5);
+	matchedRecHit = hoMatcher->matchByEMaxInGrid(l1Eta,l1Phi,5);
 	if(matchedRecHit){
-		histogramBuilder.fillDeltaEtaDeltaPhiHistogramsWithWeights(l1Muon->eta()
-				,float(hoMatcher->getRecHitEta(matchedRecHit))	,l1Muon->phi()
+		histogramBuilder.fillDeltaEtaDeltaPhiHistogramsWithWeights(l1Eta
+				,float(hoMatcher->getRecHitEta(matchedRecHit))	,l1Phi
 				,float(hoMatcher->getRecHitPhi(matchedRecHit))	,matchedRecHit->energy()
 				,("averageEMaxAroundPoint" + key).c_str());
-		histogramBuilder.fillDeltaEtaDeltaPhiEnergyHistogram(l1Muon->eta()
-				,float(hoMatcher->getRecHitEta(matchedRecHit))	,l1Muon->phi()
+		histogramBuilder.fillDeltaEtaDeltaPhiEnergyHistogram(l1Eta
+				,float(hoMatcher->getRecHitEta(matchedRecHit))	,l1Phi
 				,float(hoMatcher->getRecHitPhi(matchedRecHit))	,matchedRecHit->energy()
 				,("averageEMaxAroundPoint" + key).c_str());
 	}
@@ -1268,47 +1271,47 @@ void hoMuonAnalyzer::fillHoGeomAcceptanceGraph(reco::GenParticle genPart){
  * Overloaded function to make the use for l1 objects easier
  */
 void hoMuonAnalyzer::fillGridMatchingQualityCodes(const l1extra::L1MuonParticle* l1muon, float truePt, std::string key){
-	GlobalPoint direction(
-			l1muon->p4().X(),
-			l1muon->p4().Y(),
-			l1muon->p4().Z()
-	);
+
+	double l1Eta, l1Phi;
+	l1Eta = l1muon->eta();
+	l1Phi = l1muon->phi() + L1PHI_OFFSET;
+
 	//#####
 	// Central tile
 	//#####
 	double variableBinArray[] = {0,0.5,1,1.5,2,2.5,3,3.5,4,4.5,5,6,7,8,9,10,12,14,16,18,20,25,30,35,40,45,50,60,70,80,100,120,140,180};
 	int l1MuonQuality = l1muon->gmtMuonCand().quality();
 	histogramBuilder.fillMultiplicityHistogram(l1MuonQuality,key+"AllQualityCodes");
-	if(hoMatcher->hasHoHitInGrid(direction,0)){
+	if(hoMatcher->hasHoHitInGrid(l1Eta,l1Phi,0)){
 		histogramBuilder.fillMultiplicityHistogram(l1MuonQuality,key + "QualityCodesCentral" );
 		fillEfficiencyHistograms(l1muon->pt(),truePt,key + "GenPtCentral");
 	} else{
 		histogramBuilder.fillMultiplicityHistogram(l1MuonQuality,key + "QualityCodesCentralFail" );
-		TH2D* hist = new TH2D((key + "pTvsQCCentralFail").c_str(),"p_{T} vs. QC (Central);QC;p_{T} / Gev",7,1.5,8.5,33,variableBinArray);
+		TH2D* hist = new TH2D((key + "pTvsQCCentralFail").c_str(),"p_{T} vs. QC (Central);QC;p_{T} / GeV",7,1.5,8.5,33,variableBinArray);
 		histogramBuilder.fillCorrelationHistogram(l1MuonQuality,l1muon->pt(),key + "pTvsQCCentralFail",hist);
 		delete hist;
 	}
 	//#####
 	// 3 x 3
 	//#####
-	if(hoMatcher->hasHoHitInGrid(direction,1)){
+	if(hoMatcher->hasHoHitInGrid(l1Eta,l1Phi,1)){
 		histogramBuilder.fillMultiplicityHistogram(l1MuonQuality,key + "QualityCodes3x3");
 		fillEfficiencyHistograms(l1muon->pt(),truePt,key + "GenPt3x3");
 	} else {
 		histogramBuilder.fillMultiplicityHistogram(l1MuonQuality,key + "QualityCodes3x3Fail");
-		TH2D* hist = new TH2D((key + "pTvsQC3x3Fail").c_str(),"p_{T} vs. QC (3x3);QC;p_{T} / Gev",7,1.5,8.5,33,variableBinArray);
+		TH2D* hist = new TH2D((key + "pTvsQC3x3Fail").c_str(),"p_{T} vs. QC (3x3);QC;p_{T} / GeV",7,1.5,8.5,33,variableBinArray);
 		histogramBuilder.fillCorrelationHistogram(l1MuonQuality,l1muon->pt(),key + "pTvsQC3x3Fail",hist);
 		delete hist;
 	}
 	//#####
 	// 5 x 5
 	//#####
-	if(hoMatcher->hasHoHitInGrid(direction,2)){
+	if(hoMatcher->hasHoHitInGrid(l1Eta,l1Phi,2)){
 		histogramBuilder.fillMultiplicityHistogram(l1MuonQuality,key + "QualityCodes5x5");
 		fillEfficiencyHistograms(l1muon->pt(),truePt,key + "GenPt5x5");
 	} else {
 		histogramBuilder.fillMultiplicityHistogram(l1MuonQuality,key + "QualityCodes5x5Fail");
-		TH2D* hist = new TH2D((key + "pTvsQC5x5Fail").c_str(),"p_{T} vs. QC (5x5);QC;p_{T} / Gev",7,1.5,8.5,33,variableBinArray);
+		TH2D* hist = new TH2D((key + "pTvsQC5x5Fail").c_str(),"p_{T} vs. QC (5x5);QC;p_{T} / GeV",7,1.5,8.5,33,variableBinArray);
 		histogramBuilder.fillCorrelationHistogram(l1MuonQuality,l1muon->pt(),key + "pTvsQC5x5Fail",hist);
 		delete hist;
 	}
@@ -1323,17 +1326,22 @@ void hoMuonAnalyzer::calculateGridMatchingEfficiency(const l1extra::L1MuonPartic
 	/**
 	 * Implement a quality code for the 3x3 matching
 	 *
-	 * 10 * Bx ID + L1 QC + HO Wime window information
+	 * 10 * Bx ID + L1 QC + HO time window information
 	 *
 	 */
+
+	double l1Eta, l1Phi;
+	l1Eta = l1muon->eta();
+	l1Phi = l1muon->phi() + L1PHI_OFFSET;
+
 	//Restrict L1 information to be within HO
-	if(fabs(l1muon->eta()) > MAX_ETA){
+	if(fabs(l1Eta) > MAX_ETA){
 		return;
 	}
 
-	calculateGridMatchingEfficiency(l1muon->eta(), l1muon->phi(),pt, key);
+	calculateGridMatchingEfficiency(l1Eta, l1Phi,pt, key);
 	//Analyze the BX ID of L1 objects that do not have a match in the grid
-	const HORecHit* recHit = hoMatcher->getClosestRecHitInGrid(l1muon->eta(),l1muon->phi(),2);
+	const HORecHit* recHit = hoMatcher->getClosestRecHitInGrid(l1Eta,l1Phi,2);
 	for(int i = 0; i < 3 ; i++){
 		std::string gridString = CommonFunctionsHandler::getGridString(i);
 		if(!recHit){
@@ -1345,7 +1353,7 @@ void hoMuonAnalyzer::calculateGridMatchingEfficiency(const l1extra::L1MuonPartic
 			qualityCode += isInTimeWindow(recHit->time()) ? 0 : 100;
 			qualityCode *= (recHit->time() > 0 ? 1 : -1);
 
-			if(hoMatcher->isRecHitInGrid(l1muon->eta(),l1muon->phi(), recHit,i)){
+			if(hoMatcher->isRecHitInGrid(l1Eta,l1Phi, recHit,i)){
 				histogramBuilder.fillBxIdVsPt(l1muon->bx(),l1muon->pt(),key + gridString + "Match");
 				histogramBuilder.fillQualityCodeVsPt(qualityCode,l1muon->pt(),key + gridString + "Match");
 				int hoIEta = recHit->id().ieta();
@@ -1440,7 +1448,12 @@ void hoMuonAnalyzer::analyzeL1Resolution(){
 		const l1extra::L1MuonParticle* l1Part = 0;
 		l1Part = functionsHandler->getBestL1MuonMatch(patMuonIt->eta(),patMuonIt->phi());
 		if(l1Part){
-			if(fabs(l1Part->eta()) > MAX_ETA){
+
+			double l1Eta, l1Phi;
+			l1Eta = l1Part->eta();
+			l1Phi = l1Part->phi() + L1PHI_OFFSET;
+
+			if(fabs(l1Eta) > MAX_ETA){
 				continue;
 			}
 			bool isTight = patMuonIt->isTightMuon(getPrimaryVertex());
@@ -1458,7 +1471,7 @@ void hoMuonAnalyzer::analyzeL1Resolution(){
 					histogramBuilder.fillL1MuonPtHistograms(l1Part->pt(),"L1MuonTightTruth_Nonisolated");
 				}
 				const HORecHit* matchedRecHit = 0;
-				matchedRecHit = hoMatcher->matchByEMaxInGrid(l1Part->eta(),l1Part->phi(),2);
+				matchedRecHit = hoMatcher->matchByEMaxInGrid(l1Eta,l1Phi,2);
 				if(matchedRecHit){
 					histogramBuilder.fillL1ResolutionHistogram(l1Part->pt(), patMuonIt->pt(), "L1MuonTightTruthHoMatch");
 				} else {
@@ -1466,7 +1479,7 @@ void hoMuonAnalyzer::analyzeL1Resolution(){
 				}
 			}
 			const HORecHit* matchedRecHit = 0;
-			matchedRecHit = hoMatcher->matchByEMaxInGrid(l1Part->eta(),l1Part->phi(),2);
+			matchedRecHit = hoMatcher->matchByEMaxInGrid(l1Eta,l1Phi,2);
 			if(matchedRecHit){
 				histogramBuilder.fillL1ResolutionHistogram(l1Part->pt(), patMuonIt->pt(), "L1MuonTruthHoMatch");
 				if(isTight){
@@ -1559,7 +1572,7 @@ void hoMuonAnalyzer::fillTimingHistograms(const l1extra::L1MuonParticle* l1Muon,
 void hoMuonAnalyzer::analyzeTimingSupport(){
 	for(auto l1Muon = l1Muons->begin(); l1Muon != l1Muons->end(); l1Muon++){
 		float l1Eta = l1Muon->eta();
-		float l1Phi = l1Muon->phi();
+		float l1Phi = l1Muon->phi() + L1PHI_OFFSET;
 		if( fabs(l1Eta) > MAX_ETA){
 			continue;
 		}
@@ -1592,7 +1605,7 @@ void hoMuonAnalyzer::analyzeHoTriggerPrimitives(){
 void hoMuonAnalyzer::analyzeGridMatching(){
 	for(auto l1Muon = l1Muons->begin(); l1Muon != l1Muons->end(); l1Muon++){
 		float l1Eta = l1Muon->eta();
-		float l1Phi = l1Muon->phi();
+		float l1Phi = l1Muon->phi() + L1PHI_OFFSET;
 		if(fabs(l1Eta) > MAX_ETA){
 			continue;
 		}
@@ -1617,11 +1630,13 @@ void hoMuonAnalyzer::analyzeGridMatching(){
 			l1Part = functionsHandler->getBestL1MuonMatch(patMuonIt->eta(),patMuonIt->phi());
 			//Look only at tight muons, that were "seeded" by L1
 			if(l1Part){
+				float l1Eta = l1Part->eta();
+				float l1Phi = l1Part->phi() + L1PHI_OFFSET;
 				//Restrict the L1 information to Ho range
-				if(fabs(l1Part->eta()) > MAX_ETA){
+				if(fabs(l1Eta) > MAX_ETA){
 					continue;
 				}
-				histogramBuilder.fillEtaPhiGraph(l1Part->eta(),l1Part->phi(),"L1TightMuons");
+				histogramBuilder.fillEtaPhiGraph(l1Eta, l1Phi,"L1TightMuons");
 				histogramBuilder.fillCountHistogram("L1TightMuons");
 				calculateGridMatchingEfficiency(&*l1Part,l1Part->pt(),"L1TightMuons");
 				fillAverageEnergyAroundL1Direction(&*l1Part,"L1TightMuons");
@@ -1678,7 +1693,9 @@ void hoMuonAnalyzer::processGenInformation(const edm::Event& iEvent,const edm::E
 		l1extra::L1MuonParticleCollection::const_iterator el1Muon = l1Muons->end();
 		for( unsigned int i = 0 ; i < l1Muons->size(); i++  ) {
 			const l1extra::L1MuonParticle* bl1Muon = &(l1Muons->at(i));
-			const reco::GenParticle* genMatch = getBestGenMatch(bl1Muon->eta(),bl1Muon->phi());
+			float l1Eta = bl1Muon->eta();
+			float l1Phi = bl1Muon->phi() + L1PHI_OFFSET;
+			const reco::GenParticle* genMatch = getBestGenMatch(l1Eta, l1Phi);
 			if(genMatch){
 				successfulMatches++;
 				histogramBuilder.fillDeltaVzHistogam( (genMatch->vz() - bl1Muon->vz()) ,l1muon_key);
@@ -1714,7 +1731,7 @@ void hoMuonAnalyzer::processGenInformation(const edm::Event& iEvent,const edm::E
 				 * Did not yet help completely. The reason for the strange behavior is probably the fact,
 				 * that there may be more than one l1 muons that can be matched to the Gen particle
 				 */
-				const HORecHit* matchedRecHit = hoMatcher->matchByEMaxInGrid(bl1Muon->eta(),bl1Muon->phi(),2);
+				const HORecHit* matchedRecHit = hoMatcher->matchByEMaxInGrid(l1Eta, l1Phi,2);
 				if(matchedRecHit){
 					if(matchedRecHit->energy() > threshold)
 						fillEfficiencyHistograms(bl1Muon->pt(),genMatch->pt(),"L1MuonAndHoAboveThr");
@@ -1753,7 +1770,6 @@ const reco::Vertex hoMuonAnalyzer::getPrimaryVertex(){
 
 	if (vertexColl.isValid()){
 		for (unsigned int ind=0; ind<vertexColl->size(); ++ind) {
-//			std::cout << "Is vertex fake? " << ((*vertexColl)[ind].isFake() ? "\033[91mYES\033[0m" : "NO") << std::endl;
 			if ( (*vertexColl)[ind].isValid() && !((*vertexColl)[ind].isFake()) ) {
 				theIndexOfThePrimaryVertex = ind;
 				break;
@@ -1815,7 +1831,7 @@ void hoMuonAnalyzer::analyzeL1Sources(){
 void hoMuonAnalyzer::analyzeEnergyDeposit(const edm::Event& iEvent,const edm::EventSetup& iSetup){
 	for (auto l1It = l1Muons->begin(); l1It != l1Muons->end();l1It++){
 		float l1Eta = l1It->eta();
-		float l1Phi = l1It->phi();
+		float l1Phi = l1It->phi() + L1PHI_OFFSET;
 		if( fabs(l1Eta) > MAX_ETA ){
 			continue;
 		}
