@@ -69,6 +69,12 @@ public:
 	static void fillDescriptions(edm::ConfigurationDescriptions&
 			descriptions);
 
+	/**
+	 * Offset for the L1 Phi information
+	 * (Introduced as suggested by Luigi Guiducci)
+	 */
+	static const float L1PHI_OFFSET;
+
 private:
 
 	virtual void beginJob() override;
@@ -181,12 +187,6 @@ private:
 	 * Maximum Eta value that is allowed for muons
 	 */
 	static const float MAX_ETA;
-
-	/**
-	 * Offest for the L1 Phi information
-	 * (Introduced as suggested by Luigi Guiducci)
-	 */
-	static const float L1PHI_OFFSET;
 
 	/**
 	 * Energy threshold for HO rec hits
