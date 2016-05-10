@@ -139,7 +139,7 @@ def setBigAxisTitles(plot):
 	plot.GetXaxis().SetTitleSize(0.06)
 	plot.GetXaxis().SetTitleOffset(0.7)
 	plot.GetYaxis().SetTitleSize(0.06)
-	plot.GetYaxis().SetTitleOffset(0.7)
+	plot.GetYaxis().SetTitleOffset(0.8)
 		
 #Set the stat box display Options
 def setStatBoxOptions(plot,option):
