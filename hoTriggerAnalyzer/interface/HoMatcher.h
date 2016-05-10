@@ -62,6 +62,7 @@ public:
 
 	bool isRecHitInGrid(double eta, double phi, const HORecHit* recHit, int gridSize);
 	bool hasHoHitInGrid(GlobalPoint direction, int gridSize);
+	bool hasHoHitInGrid(double eta, double phi, int gridSize);
 
 	static const double HO_BIN;
 	static const double HALF_HO_BIN;
