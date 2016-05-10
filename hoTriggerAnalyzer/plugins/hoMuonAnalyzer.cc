@@ -77,9 +77,6 @@
 
 #include "../interface/FilterPlugin.h"
 
-#include "TMultiGraph.h"
-#include "TCanvas.h"
-
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
@@ -88,6 +85,7 @@
 using namespace::std;
 
 const float hoMuonAnalyzer::MAX_ETA = 0.8;
+const float hoMuonAnalyzer::L1PHI_OFFSET = 3.1415926535897931/144.;
 
 hoMuonAnalyzer::hoMuonAnalyzer(const edm::ParameterSet& iConfig){
 	coutPrefix = "[hoMuonAnalyzer] ";
