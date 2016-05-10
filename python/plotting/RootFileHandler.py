@@ -1,3 +1,4 @@
+#!/bin/env python
 import os
 from ROOT import TChain,TFile,SetOwnership,Double
 from plotting.OutputModule import CommandLineHandler
