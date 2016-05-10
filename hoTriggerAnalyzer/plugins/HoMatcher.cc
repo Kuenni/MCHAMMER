@@ -232,13 +232,6 @@ bool HoMatcher::hasHoHitInGrid(double eta, double phi, int gridSize){
 }
 
 /**
- * Overloaded method
- */
-bool HoMatcher::hasHoHitInGrid(GlobalPoint direction, int gridSize){
-	return hasHoHitInGrid(double(direction.eta()),double(direction.phi()),gridSize);
-}
-
-/**
  * Look for the closest HO Rec Hit (in terms of grid distance) in a given direction, that passes
  * the Energy threshold
  */
