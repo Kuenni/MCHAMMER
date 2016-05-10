@@ -1,7 +1,12 @@
 #include "../interface/CommonFunctionsHandler.h"
 
+#include <DataFormats/Candidate/interface/LeafCandidate.h>
 #include <DataFormats/Math/interface/deltaR.h>
-#include "math.h"
+#include <iterator>
+#include <string>
+#include <vector>
+
+#include "../interface/hoMuonAnalyzer.h"
 
 /**
  * Setup the parameters for getting the collections later on
@@ -29,7 +34,7 @@ const l1extra::L1MuonParticle* CommonFunctionsHandler::getBestL1MuonMatch(double
 	l1extra::L1MuonParticleCollection::const_iterator l1End = l1Muons->end();
 	for(; l1It!=l1End; ++l1It) {
 		float l1Phi = l1It->phi();
-		float l1Eta = l1It->eta();
+		float l1Eta = l1It->eta() + hoMuonAnalyzer::L1PHI_OFFSET;
 		float dR = deltaR(eta,phi,l1Eta,l1Phi);
 		if (dR < deltaR_Max && dR < bestDR) { // CB get it from CFG
 			bestDR = dR;
