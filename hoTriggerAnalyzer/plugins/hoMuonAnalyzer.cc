@@ -1755,7 +1755,7 @@ const reco::Vertex hoMuonAnalyzer::getPrimaryVertex(){
 
 	if (vertexColl.isValid()){
 		for (unsigned int ind=0; ind<vertexColl->size(); ++ind) {
-			std::cout << "Is vertex fake? " << ((*vertexColl)[ind].isFake() ? "\033[91mYES\033[0m" : "NO") << std::endl;
+//			std::cout << "Is vertex fake? " << ((*vertexColl)[ind].isFake() ? "\033[91mYES\033[0m" : "NO") << std::endl;
 			if ( (*vertexColl)[ind].isValid() && !((*vertexColl)[ind].isFake()) ) {
 				theIndexOfThePrimaryVertex = ind;
 				break;
