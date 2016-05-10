@@ -1,5 +1,4 @@
-#! /usr/bin/python
-
+#!/bin/env python
 import argparse
 
 parser = argparse.ArgumentParser()
@@ -40,6 +39,8 @@ from dataQuality.QualityCode import QualityCode
 from dataQuality.Timing import Timing
 
 from ROOT import gROOT
+import ROOT
+print ROOT.__file__
 gROOT.ProcessLine(".L $HOMUONTRIGGER_BASE/python/loader.C+");
 
 if args.list:
@@ -119,6 +120,7 @@ for script in args.scripts:
 		resEvsTime = lib.plotHoEnergyVsTime()
 		resDeltaTime = lib.plotDeltaTime()
 		resBxId = lib.plotL1BxId()
+		resTightBxId = lib.plotL1BxId(tight=True)
 		resTimeHo = lib.plotMatchedHoTime()
 		res = lib.plotHoTime()
 		res6 = lib.plotHoTimeLog()
