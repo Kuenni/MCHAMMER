@@ -119,7 +119,11 @@ else:
 	nJobs = args.nJobs
 
 def hasJobFailed(resultsPath):
-	errFile = open(os.path.abspath(resultsPath) + '/out.txt')
+	outTxtFilePath = os.path.abspath(resultsPath) + '/out.txt'
+	if not os.path.isfile(outTxtFilePath):
+		cli.warning('File does not exist: %s' % outTxtFilePath)
+		return True
+	errFile = open(outTxtFilePath)
 	for line in errFile.readlines():
 		if line.find('Finished execution') != -1:
 			return False
