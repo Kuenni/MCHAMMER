@@ -1623,6 +1623,7 @@ void hoMuonAnalyzer::analyzeGridMatching(){
 	/**
 	 * Is probably not the correct order of matching. Should start from L1
 	 * Can be removed
+	 * 12. 05. 2016: Keep this order for clean signal L1!
 	 */
 	for(auto patMuonIt = patMuons->begin(); patMuonIt != patMuons->end(); ++patMuonIt){
 		if(patMuonIt->isTightMuon(getPrimaryVertex())){
