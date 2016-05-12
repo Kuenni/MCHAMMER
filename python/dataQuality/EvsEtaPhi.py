@@ -400,11 +400,12 @@ class EvsEtaPhi(Plot):
 		graphWithHo = self.fileHandler.getGraph('hoMuonAnalyzer/graphs/L1TightMuons3x3')
 				
 		halfPhiBinwidth = L1_PHI_BIN/2.
+		l1BinOffset = L1_PHI_BIN*3/4.
 		
 		histAll = TH2D('hEtaPhiAll',"#eta#phi for tight L1",30,-15*L1_ETA_BIN	,15*L1_ETA_BIN,
-					289, -math.pi - halfPhiBinwidth,math.pi + halfPhiBinwidth)
+					145, -math.pi - l1BinOffset,math.pi + l1BinOffset)
 		histWithHo = TH2D('hEtaPhiWithHO',"#eta#phi tight L1 + HO (3x3)",30,-15*L1_ETA_BIN,15*L1_ETA_BIN,
-					289, -math.pi - halfPhiBinwidth,math.pi + halfPhiBinwidth)
+					145, -math.pi - l1BinOffset,math.pi + l1BinOffset)
 		
 		x = Double(0)
 		y = Double(0)

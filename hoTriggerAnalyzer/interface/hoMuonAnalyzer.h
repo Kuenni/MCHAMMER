@@ -69,6 +69,12 @@ public:
 	static void fillDescriptions(edm::ConfigurationDescriptions&
 			descriptions);
 
+	/**
+	 * Offset for the L1 Phi information
+	 * (Introduced as suggested by Luigi Guiducci)
+	 */
+	static const float L1PHI_OFFSET;
+
 private:
 
 	virtual void beginJob() override;
