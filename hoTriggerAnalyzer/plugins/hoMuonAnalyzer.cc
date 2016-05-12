@@ -1500,11 +1500,13 @@ void hoMuonAnalyzer::recoControlPlots(){
 		histogramBuilder.fillEtaPhiGraph(recoIt->eta(), recoIt->phi(),"recoMuons");
 		histogramBuilder.fillEtaPhiHistograms(recoIt->eta(),recoIt->phi(),"recoMuons");
 	}
+	int nTightMuons = 0;
 	for(auto patMuonIt = patMuons->begin(); patMuonIt != patMuons->end(); ++patMuonIt){
 		histogramBuilder.fillPtHistogram(patMuonIt->pt(),"patMuons");
 		histogramBuilder.fillEtaPhiGraph(patMuonIt->eta(), patMuonIt->phi(),"patMuons");
 		histogramBuilder.fillEtaPhiHistograms(patMuonIt->eta(),patMuonIt->phi(),"patMuons");
 		if(patMuonIt->isTightMuon(getPrimaryVertex())){
+			nTightMuons++;
 			histogramBuilder.fillPtHistogram(patMuonIt->pt(),"patMuonsTight");
 			histogramBuilder.fillEtaPhiGraph(patMuonIt->eta(), patMuonIt->phi(),"patMuonsTight");
 			histogramBuilder.fillEtaPhiHistograms(patMuonIt->eta(),patMuonIt->phi(),"patMuonsTight");
@@ -1515,6 +1517,9 @@ void hoMuonAnalyzer::recoControlPlots(){
 			}
 		}
 	}
+	//Count number of pat muons and tight pat muons in an event
+	histogramBuilder.fillMultiplicityHistogram(patMuons->size(),"patMuonsSize");
+	histogramBuilder.fillMultiplicityHistogram(nTightMuons,"tightPatMuonsSize");
 }
 
 void hoMuonAnalyzer::fillTimingHistograms(const l1extra::L1MuonParticle* l1Muon, double hoTime, bool isTight){
