@@ -39,7 +39,7 @@ process.VtxSmeared.SigmaZ = 0.00001
 
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000)
+    input = cms.untracked.int32(100)
 )
 
 # Input source
@@ -65,7 +65,7 @@ process.AODSIMoutput = cms.OutputModule("PoolOutputModule",
     splitLevel = cms.untracked.int32(0),
     eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
     outputCommands = process.FEVTDEBUGEventContent.outputCommands,
-    fileName = cms.untracked.string('file:FEVT_WorkingDetector01.root'),
+    fileName = cms.untracked.string('file:SingleMuWithPu52_%INSTANCE%.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
         dataTier = cms.untracked.string('')
