@@ -50,8 +50,7 @@ class GridMatching(Plot):
 		label = self.drawLabel()
 
 		c.Update()
-		c.SaveAs('plots/efficiency/efficiencyNormalAndTightVsPt.gif')
-
+		self.storeCanvas(c,'efficiencyNormalAndTightVsPt')
 		return c, legend, effL1Muon3x3, effL1TightMuon3x3,label
 	
 	def plotL13x3AndL1Tight3x3L1Coordinates(self):
@@ -87,8 +86,7 @@ class GridMatching(Plot):
 		label = self.drawLabel()
 
 		c.Update()
-		c.SaveAs('plots/efficiency/efficiencyNormalAndTightVsPtL1.gif')
-
+		self.storeCanvas(c,'efficiencyNormalAndTightVsPtL1')
 		return c, legend, effL1Muon3x3, effL1TightMuon3x3,label
 	
 	def plotL1GridMatchingEfficiency(self):

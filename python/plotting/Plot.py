@@ -11,7 +11,7 @@ class Plot:
 		self.commandLine = CommandLineHandler('[' + self.__class__.__name__ + '] ')
 		self.key = 'L1MuonPresent' if data else 'L1MuonTruth'
 		self.data = data
-		self.debug = debug
+		self.DEBUG = debug
 		if filename != None:
 			self.fileHandler = self.createFileHandler(filename)
 		pass
@@ -31,7 +31,12 @@ class Plot:
 	
 	#Save a canvas as gif file with the source data file name attached
 	def storeCanvas(self,canvas,plotname):
+		if(plotname.find('/') != -1):
+			if( not os.path.exists(self.plotSubdir + '/' + plotname[0:plotname.rfind('/')])):
+				os.makedirs(self.plotSubdir + '/' + plotname[0:plotname.rfind('/')])
+				
 		canvas.SaveAs('%s/%s_%s.gif'%(self.plotSubdir,plotname,self.fileHandler.filename))
+		canvas.SaveAs('%s/%s_%s.png'%(self.plotSubdir,plotname,self.fileHandler.filename))
 		return
 	
 	def drawLabel(self):
@@ -41,3 +46,15 @@ class Plot:
 		else:
 			label = drawLabelCmsPrivateSimulation()
 		return label
+	
+	def debug(self,string):
+		self.commandLine.debug(string)
+	
+	def warning(self,string):
+		self.commandLine.warning(string)
+		
+	def error(self,string):
+		self.commandLine.error(string)
+		
+	def output(self,string):
+		self.commandLine.output(string)

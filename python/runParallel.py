@@ -1,4 +1,4 @@
-#! /usr/bin/python
+#! /usr/bin/env python2
 
 import os,sys,math
 from subprocess import call
@@ -26,7 +26,7 @@ outputFileTrunk = 'sourceList'
 
 globalTags = {
 			'noPu':'autoCond[\'run2_mc\']',
-			'pu':'\'PHYS14_25_V1::All\'',
+			'pu':'autoCond[\'run2_mc\']',
 			'design':'autoCond[\'run2_design\']',
 			'data':'autoCond[\'run2_data\']'
 			}
@@ -119,7 +119,11 @@ else:
 	nJobs = args.nJobs
 
 def hasJobFailed(resultsPath):
-	errFile = open(os.path.abspath(resultsPath) + '/out.txt')
+	outTxtFilePath = os.path.abspath(resultsPath) + '/out.txt'
+	if not os.path.isfile(outTxtFilePath):
+		cli.warning('File does not exist: %s' % outTxtFilePath)
+		return True
+	errFile = open(outTxtFilePath)
 	for line in errFile.readlines():
 		if line.find('Finished execution') != -1:
 			return False
@@ -128,15 +132,14 @@ def hasJobFailed(resultsPath):
 def collectOutput():
 	fileBatches = []
 	filesToProcess = []
-	if not args.dir:
-		cli.error('You have to provide the task directory')
-		sys.exit(1)
-	for sourceFile in os.listdir(args.dir):
+	resultsDir = '/user/kuensken/tapasTasks/' + os.path.abspath(os.path.curdir).split('/')[-1]
+	cli.output('Searching for results in: ' + resultsDir)
+	for sourceFile in os.listdir(resultsDir):
 		if len(filesToProcess) == args.split:
 			fileBatches.append(filesToProcess)
 			filesToProcess = []
 		if sourceFile.startswith('grid'):
-			sourceFile = os.path.abspath(args.dir + '/' + sourceFile)
+			sourceFile = os.path.abspath(resultsDir + '/' + sourceFile)
 			if not hasJobFailed(sourceFile):
 				for result in os.listdir(sourceFile):
 					if result.endswith('.root'):
@@ -245,7 +248,7 @@ def sendJobs():
 		submitter.setGridPackName(args.gridpackname)
 	if args.lumiFile:
 		submitter.addGridPackContent(args.lumiFile)
-	if args.conditions == 'data':
+	if args.conditions == 'data' or args.conditions == 'noPu' or args.conditions == 'pu':
 		submitter.cmsswVersion = 'CMSSW_7_4_15'
 		submitter.scramArch = 'slc6_amd64_gcc491'
 	submitter.submit()

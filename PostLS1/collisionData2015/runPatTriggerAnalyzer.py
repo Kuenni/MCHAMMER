@@ -1,44 +1,31 @@
-## import skeleton process
-from PhysicsTools.PatAlgos.patTemplate_cfg import *
-## switch to uncheduled mode
-process.options.allowUnscheduled = cms.untracked.bool(True)
-#process.Tracer = cms.Service("Tracer")
+import FWCore.ParameterSet.Config as cms
 
-process.load( "PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff" )
-process.load( "PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff" )
-## make sure to keep the created objects
-process.out.outputCommands = ['keep *_selectedPat*_*_*']
-
+process = cms.Process('HoPatTriggerAnalyzer')
+## switch to uncheduled modeprocess.load('Configuration.StandardSequences.Services_cff')
+process.load('Configuration.StandardSequences.Services_cff')
+process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
+process.load('FWCore.MessageService.MessageLogger_cfi')
+process.load('Configuration.EventContent.EventContent_cff')
+process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
+process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
+process.load('Configuration.StandardSequences.RawToDigi_Data_cff')
+process.load('Configuration.StandardSequences.Reconstruction_Data_cff')
+process.load('Configuration.StandardSequences.EndOfProcess_cff')
+process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
+from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:run2_data')
-## Source
 
-import FWCore.Utilities.FileUtils as FileUtils
-mylist = FileUtils.loadListFromFile('files_SingleMuon_Run2015D-PromptReco-v4_RECO')
- 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring(*mylist)
+    fileNames = cms.untracked.vstring('file://./patTuple_onlyMuons.root')
 )
-process.maxEvents.input = 100
-
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(100)
+)
 process.TFileService = cms.Service("TFileService",
 	fileName=cms.string('patTriggerAnalyzerOutput.root'),
 	)
 
-## --
-## Switch on PAT trigger
-## --
-from PhysicsTools.PatAlgos.tools.trigTools import *
-from PhysicsTools.PatAlgos.triggerLayer1.triggerMatcherExamples_cfi import somePatMuonTriggerMatchTriggerMuon
-process.myMatcher = somePatMuonTriggerMatchTriggerMuon.clone()
-switchOnTrigger( process )
-switchOnTriggerMatching(process,['myMatcher'])
-switchOnTriggerMatchEmbedding( process, [ 'myMatcher' ])
-process.patTrigger.addL1Algos = cms.bool(True)
-process.patTrigger.saveL1Refs = cms.bool(True)
-process.patTrigger.l1ExtraMu = cms.InputTag('l1extraParticles','')
-switchOnTrigger(process)
-#switchOnTriggerMatching(process,['myMatcher'])
-switchOnTriggerMatchEmbedding( process, [ 'myMatcher' ])
+## Define the analyzer
 process.patTriggerAnalyzer = cms.EDAnalyzer('HoPatTriggerAnalyzer',
 	trigger      = cms.InputTag( "patTrigger" ),
     triggerEvent = cms.InputTag( "patTriggerEvent" ),
@@ -54,15 +41,6 @@ process.patTriggerAnalyzer = cms.EDAnalyzer('HoPatTriggerAnalyzer',
 	hoEnergyThreshold = cms.double(0.2),	#0.2 GeV
 	maxDeltaR = cms.double(0.3),
 	hoDigiSrc = cms.InputTag('simHcalDigis')
-    
     )
 
-process.patTriggerAnalyzerSequence = cms.Sequence(process.patTriggerAnalyzer)
 process.p = cms.Path(process.patTriggerAnalyzer)
-
-process.out.fileName = 'patTuple_onlyMuons.root'
-
-process.options.wantSummary = False   ##  (to suppress the long output at the end of the job)
-
-from PhysicsTools.PatAlgos.tools.coreTools import *
-runOnData(process)#,['Muons'])

@@ -55,7 +55,6 @@ class EvsEtaPhi(Plot):
 		setupPalette(hSum)
 	
 		canvas.Update()
-		canvas.SaveAs('plots/averageEnergy/averageEnergy.pdf')
 		self.storeCanvas(canvas,'averageEnergy')
 		return canvas,hSum,label,hCounter
 	
@@ -84,11 +83,11 @@ class EvsEtaPhi(Plot):
 		hSum = self.fileHandler.getHistogram('hoMuonAnalyzer/deltaEtaDeltaPhiEnergy/averageEMaxAroundPoint' + self.key + '_2dSummedWeights')
 		hCounter = self.fileHandler.getHistogram('hoMuonAnalyzer/deltaEtaDeltaPhiEnergy/averageEMaxAroundPoint' + self.key + '_2dCounter')
 		
-		hSum = setupEAvplot(hSum, hCounter,same=True,borderAll=0.3)
+		hSum = setupEAvplot(hSum, hCounter,same=True,limitForAll=0.3)
 		hSum.SetTitle('Mean E_{Max} in HO tiles around L1 direction')
 		hSum.SetMaximum(2)
 		hSum.Draw('colz')
-		setupEAvplot(hCounter,same=True,borderAll=0.3).Draw('same,text')
+		setupEAvplot(hCounter,same=True,limitForAll=0.3).Draw('same,text')
 	
 		label = getLabelCmsPrivateSimulation()
 		label.Draw()
@@ -98,7 +97,6 @@ class EvsEtaPhi(Plot):
 		setupPalette(hSum)
 		
 		canvas.Update()
-		canvas.SaveAs('plots/averageEnergy/averageEmax.pdf')
 		self.storeCanvas(canvas, 'averageEmax')
 		hCounter.SaveAs('histogramEMaxCounter.root')
 		
@@ -135,7 +133,7 @@ class EvsEtaPhi(Plot):
 			labelList.append(label)
 			fitList.append(fit)
 		canvas.Update()
-		canvas.SaveAs('plots/averageEnergy/1DPlots.pdf')
+		self.storeCanvas(canvas, '1DPlots')
 		return histList,canvas,fitList,labelList
 	
 	def plot1DEMaxAroundL1(self):	
@@ -169,7 +167,7 @@ class EvsEtaPhi(Plot):
 			labelList.append(label)
 			fitList.append(fit)
 		canvas.Update()
-		canvas.SaveAs('plots/averageEnergy/1DEMaxPlots.pdf')
+		self.storeCanvas(canvas, '1DEMaxPlots')
 		return histList,canvas,fitList,labelList
 	
 	def plotMPVs(self,fitList):
@@ -206,7 +204,7 @@ class EvsEtaPhi(Plot):
 		histNormal = self.fileHandler.getHistogram('hoMuonAnalyzer/averageEnergy/averageEnergyAroundPoint' + self.key + '_SummedEnergy')
 		histNormalCounter = self.fileHandler.getHistogram('hoMuonAnalyzer/averageEnergy/averageEnergyAroundPoint' + self.key + '_Counter')
 		
-		histNormal = setupEAvplot(histNormal, histNormalCounter,same=True,borderAll=0.6)
+		histNormal = setupEAvplot(histNormal, histNormalCounter,same=True,limitForAll=0.6)
 		
 	#	histNew = self.fileHandler.getHistogram('hoMuonAnalyzer/deltaEtaDeltaPhiEnergy/averageEnergyAroundPoint_2dSummedWeightsIEtaIPhi')
 	#	histNewCounter = self.fileHandler.getHistogram('hoMuonAnalyzer/deltaEtaDeltaPhiEnergy/averageEnergyAroundPoint_2dCounterIEtaIPhi')
@@ -259,7 +257,7 @@ class EvsEtaPhi(Plot):
 		hSum = self.fileHandler.getHistogram('hoMuonAnalyzer/averageEnergy/averageEnergyAroundPointL1TightMuons_SummedEnergy')
 		hCounter = self.fileHandler.getHistogram('hoMuonAnalyzer/averageEnergy/averageEnergyAroundPointL1TightMuons_Counter')
 	
-		hSum = setupEAvplot(hSum, hCounter,same=True,borderAll=0.3)
+		hSum = setupEAvplot(hSum, hCounter,same=True,limitForAll=0.3)
 		hSum.SetTitle('Average E_{Rec} in HO tiles around tight L1 direction')
 		hSum.SetMaximum(1.2)
 		hSum.SetMinimum(5e-3)
@@ -272,6 +270,25 @@ class EvsEtaPhi(Plot):
 		self.storeCanvas(canvas,'eAverageTightMuons')
 		return canvas,hSum,label#,boxes
 	
+	def plotEMaxCountsForTightMuons(self):
+		canvas = TCanvas('canvasEmaxcountsTightMuons','E max counts Tight muons',1200,1200)
+		canvas.cd().SetLogz()
+			
+		hCounter = self.fileHandler.getHistogram('hoMuonAnalyzer/deltaEtaDeltaPhiEnergy/averageEMaxAroundPointL1TightMuons_2dCounter')
+
+		#hSum = setupEAvplot(hSum, hCounter,same=True,limitForAll=0.3)
+		hCounter.SetTitle('Average E_{Rec} in HO tiles around tight L1 direction')
+		#hCounter.SetMaximum(1.2)
+		#hCounter.SetMinimum(5e-3)
+		hCounter.Draw('colz')
+		label = self.drawLabel()
+		canvas.Update()		
+		setupPalette(hCounter)
+		canvas.Update()
+		#boxes = drawHoBoxes(canvas)
+		self.storeCanvas(canvas,'eMaxCountsTightMuons')
+		return canvas,label,hCounter
+		
 	def plotEavPerWheelForTightMuons(self):
 		canvas = TCanvas('canvasEavPerWheelTightMuons','EAv Per Wheel Tight muons',1800,800)
 		canvas.Divide(3,1)
@@ -373,7 +390,6 @@ class EvsEtaPhi(Plot):
 	
 		canvas.Update()
 		self.storeCanvas(canvas,'eAveragePerWheel')
-		canvas.SaveAs('plots/averageEnergy/eAveragePerWheel.pdf')
 		
 		return hM1Energy,canvas,h0Energy,hP1Energy,h0Counter,label1,label2,label3
 	
@@ -384,11 +400,12 @@ class EvsEtaPhi(Plot):
 		graphWithHo = self.fileHandler.getGraph('hoMuonAnalyzer/graphs/L1TightMuons3x3')
 				
 		halfPhiBinwidth = L1_PHI_BIN/2.
+		l1BinOffset = L1_PHI_BIN*3/4.
 		
 		histAll = TH2D('hEtaPhiAll',"#eta#phi for tight L1",30,-15*L1_ETA_BIN	,15*L1_ETA_BIN,
-					289, -math.pi - halfPhiBinwidth,math.pi + halfPhiBinwidth)
+					145, -math.pi - l1BinOffset,math.pi + l1BinOffset)
 		histWithHo = TH2D('hEtaPhiWithHO',"#eta#phi tight L1 + HO (3x3)",30,-15*L1_ETA_BIN,15*L1_ETA_BIN,
-					289, -math.pi - halfPhiBinwidth,math.pi + halfPhiBinwidth)
+					145, -math.pi - l1BinOffset,math.pi + l1BinOffset)
 		
 		x = Double(0)
 		y = Double(0)
@@ -425,7 +442,6 @@ class EvsEtaPhi(Plot):
 		
 		canvas.Update()
 		
-		canvas.SaveAs('plots/etaPhiForTightL1.gif')
-		
+		self.storeCanvas(canvas, 'etaPhiForTightL1')
 		return canvas,histAll,histWithHo,label1,label2
 	

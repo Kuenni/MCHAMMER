@@ -69,6 +69,12 @@ public:
 	static void fillDescriptions(edm::ConfigurationDescriptions&
 			descriptions);
 
+	/**
+	 * Offset for the L1 Phi information
+	 * (Introduced as suggested by Luigi Guiducci)
+	 */
+	static const float L1PHI_OFFSET;
+
 private:
 
 	virtual void beginJob() override;
@@ -84,9 +90,11 @@ private:
 	void analyzeNoSingleMuEventsGenLoop(const edm::Event& iEvent,const edm::EventSetup& iSetup);
 	void analyzeWithGenLoop(const edm::Event& iEvent,const edm::EventSetup& iSetup);
 	void analyzeL1Resolution();
+	void analyzeL1Sources();
 	void analyzeHoTriggerPrimitives();
 	void analyzeTimingSupport();
 	void fillEfficiencyHistograms(double ptMeasured,double ptReal,std::string key);
+	void fillTimingHistograms(const l1extra::L1MuonParticle* l1Muon, double hoTime, bool isTight);
 	void fillHoGeomAcceptanceGraph(reco::GenParticle genParticle);
 	void fillAverageEnergyAroundL1Direction(const l1extra::L1MuonParticle*,std::string);
 	void fillGridMatchingHistograms(bool passed, int grid, double pt, double time, std::string key, double eta, double phi);

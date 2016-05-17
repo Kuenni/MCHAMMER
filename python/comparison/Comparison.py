@@ -1,10 +1,9 @@
-from ROOT import TFile,TCanvas,TH1F
+from ROOT import TFile,TCanvas,TH1F,TPad
 from plotting.PlotStyle import colorRwthDarkBlue, colorRwthMagenta,\
-	drawLabelCmsPrivateData, setPlotStyle, setupAxes, colorRwthTuerkis
-from plotting.Utils import getLegend
+	drawLabelCmsPrivateData, setupAxes, colorRwthTuerkis,\
+	colorRwthLila, colorRwthOrange
+from plotting.Utils import getLegend,makeResidualsPad
 from plotting.Plot import Plot
-
-import numpy
 
 SIMULATION_FILE_SCHEME = '/user/kuensken/CMSSW/CMSSW_7_2_2_patch2/src/HoMuonTrigger/PostLS1/SingleMuonGunPooja/NoPUAnalyzed'
 SIMULATION_PU_FILE_SCHEME = '/user/kuensken/CMSSW/CMSSW_7_2_2_patch2/src/HoMuonTrigger/PostLS1/SingleMuonGunWithPU/PU52Analyzed'
@@ -17,7 +16,7 @@ class Comparison(Plot):
 		self.createPlotSubdir('energyComparison')
 		self.createPlotSubdir('l1CountComparison')
 		self.fileHandlerSimulation = self.createFileHandler(SIMULATION_FILE_SCHEME)
-		self.fileHandlerData = self.createFileHandler(DATA_FILE_SCHEME)
+		self.fileHandler = self.createFileHandler(DATA_FILE_SCHEME)
 		self.fileHandlerSimulationPu = self.createFileHandler(SIMULATION_PU_FILE_SCHEME)
 	
 	def compareEnergyPerWheel(self):	
@@ -51,10 +50,10 @@ class Comparison(Plot):
 			hSimMatch.SetLineColor(colorRwthDarkBlue)
 			hSimMatch.SetLineStyle(7)
 		
-			hDataHo = self.fileHandlerData.getHistogram(namesHo[i])
+			hDataHo = self.fileHandler.getHistogram(namesHo[i])
 			hDataHo.SetLineColor(colorRwthMagenta)
 			
-			hDataMatch = self.fileHandlerData.getHistogram(namesMatched[i])
+			hDataMatch = self.fileHandler.getHistogram(namesMatched[i])
 			hDataMatch.SetLineColor(colorRwthMagenta)
 			hDataMatch.SetLineStyle(7)
 			
@@ -86,91 +85,280 @@ class Comparison(Plot):
 			objectStorage.append([hSimHo,hSimMatch,hDataHo,hDataMatch,hSimPuHo,hSimPuMatch,legend,label])
 		
 		canvas.Update()
-		canvas.SaveAs('plots/energyComparison/energyPerWheelDataAndSimNormed.gif')
-	
+		self.storeCanvas(canvas,'energyComparison/energyPerWheelDataAndSimNormed')
 		return canvas,objectStorage
 	
-	def compareEnergyAbsolute(self):
-		
-		canvas = TCanvas('cEnergyTogether')
-		canvas.cd().SetLogy()
-		
-		hSimHo = self.fileHandlerSimulation.getHistogram('hoMuonAnalyzer/energy/horeco_Energy')
-		hSimMatched = self.fileHandlerSimulation.getHistogram('hoMuonAnalyzer/energy/L1MuonWithHoMatchAboveThr_Energy')
-		hDataHo = self.fileHandlerData.getHistogram('hoMuonAnalyzer/energy/horeco_Energy')
-		hDataMatched = self.fileHandlerData.getHistogram('hoMuonAnalyzer/energy/L1MuonWithHoMatchAboveThr_Energy')
-		hSimPuHo = self.fileHandlerSimulationPu.getHistogram('hoMuonAnalyzer/energy/horeco_Energy')
-		hSimPuMatched = self.fileHandlerSimulationPu.getHistogram('hoMuonAnalyzer/energy/L1MuonWithHoMatchAboveThr_Energy')
-		
+	def buildTripleCanvasWithResiduals(self,hSimHo, hSimPuHo, hDataHo,canvasName = 'cTripleCanvas',legendPostix = 'HO Only',ylabel = '# entries'):
+		canvas = TCanvas(canvasName,canvasName,1800,1000)
+		canvas.Divide(3,1)
+		##
+		#	Sim No PU and Data
+		##
 		hSimHo.SetLineColor(colorRwthDarkBlue)
 		hSimHo.SetStats(0)
-		hSimHo.GetXaxis().SetRangeUser(-1,6)
-		hSimHo.SetTitle('Distribution of HO Energy;E_{HO} / a.u.;# entries')
-		hSimMatched.SetLineColor(colorRwthDarkBlue)
-		hSimMatched.SetLineStyle(7)
+		hSimHo.SetTitle('No PU and Data compared;E_{HO} / a.u.;' + ylabel)
+		
 		hDataHo.SetLineColor(colorRwthMagenta)
-		hDataMatched.SetLineColor(colorRwthMagenta)
-		hDataMatched.SetLineStyle(7)
-		
 		hSimPuHo.SetLineColor(colorRwthTuerkis)
-		hSimPuMatched.SetLineColor(colorRwthTuerkis)
-		hSimPuMatched.SetLineStyle(7)
 		
+		pad1 = makeResidualsPad(canvas.cd(1))
+		pad1.cd(1).SetLogy()
+		pad1.cd(2).SetLogy()
+		pad1.cd(1)
 		hSimHo.Draw()
-		hSimMatched.Draw('same')
-		hDataHo.Draw('same')
-		hDataMatched.Draw('same')
-		hSimPuHo.Draw('same')
-		hSimPuMatched.Draw('same')
+		hDataHo.DrawCopy('same')
 		
 		label = drawLabelCmsPrivateData()
 
-		legend = getLegend(y1 = 0.65,y2=.9)
-		legend.AddEntry(hSimHo,'Sim No PU, HO only','l')
-		legend.AddEntry(hSimMatched,'Sim No PU, L1 + HO','l')
-		legend.AddEntry(hDataHo,'Data, HO only','l')
-		legend.AddEntry(hDataMatched,'Data, L1 + HO','l')
-		legend.AddEntry(hSimPuHo,'Sim PU52, HO Only','l').SetTextFont(62)
-		legend.AddEntry(hSimPuMatched,'Sim PU52, L1 + HO','l').SetTextFont(62)
+		legend = getLegend(x1=.5,y1 = 0.75,y2=.9)
+		legend.AddEntry(hSimHo,'Sim No PU, ' + legendPostix,'l')
+		legend.AddEntry(hDataHo,'Data, ' + legendPostix,'l')
 		legend.Draw()
 		
 		setupAxes(hSimHo)
-		canvas.Update()
-		
-		canvas.SaveAs('plots/energyComparison/energyAbsolute.gif')
-		
-		return canvas, hSimHo,hSimMatched,hDataHo,hDataMatched,hSimPuHo,hSimPuMatched, legend, label
 
+		##
+		#	Sim PU52 and Data
+		##		
+		pad2 = makeResidualsPad(canvas.cd(2))
+		pad2.cd(1).SetLogy()
+		pad2.cd(2).SetLogy()
+		pad2.cd(1)
+		setupAxes(hSimPuHo)
+		hSimPuHo.SetStats(0)
+		hSimPuHo.SetTitle('PU52 and Data compared;E_{HO} / a.u.;' + ylabel)
+		hSimPuHo.DrawCopy('')
+		hDataHo.DrawCopy('same')
+		
+		label2 = drawLabelCmsPrivateData()
+
+		legend2 = getLegend(x1=.5,y1 = 0.75,y2=.9)
+		legend2.AddEntry(hSimPuHo,'Sim PU52, ' + legendPostix,'l')
+		legend2.AddEntry(hDataHo,'Data, ' + legendPostix,'l')
+		legend2.Draw()
+		
+		##
+		#	Sim No PU and Sim PU 52
+		##
+		pad3 = makeResidualsPad(canvas.cd(3))
+		pad3.cd(1).SetLogy()
+		pad3.cd(2).SetLogy()
+		pad3.cd(1)
+		hSimPuHo.SetStats(0)
+		setupAxes(hSimPuHo)
+		hSimPuHo.SetTitle('PU52 and No PU Simulation compared;E_{HO} / a.u.;' + ylabel)
+		hSimPuHo.Draw('')
+		hSimHo.DrawCopy('same')
+		
+		label3 = drawLabelCmsPrivateData()
+
+		legend3 = getLegend(x1=.5,y1 = 0.75,y2=.9)
+		legend3.AddEntry(hSimPuHo,'Sim PU52, ' + legendPostix,'l')
+		legend3.AddEntry(hSimHo,'Sim No PU, ' + legendPostix,'l')
+		legend3.Draw()
+				
+		#Do the ratio
+		pad1.cd(2)
+		cloneData = hSimHo.Clone('cloneData')
+		cloneData.SetTitle(';E_{HO} / a.u.;Sim/Data')
+		cloneData.Sumw2()
+		setupAxes(cloneData)
+		cloneData.GetYaxis().SetTitleSize(0.05)
+		cloneData.GetYaxis().SetLabelSize(0.05)
+		cloneData.GetXaxis().SetTitleSize(0.05)
+		cloneData.GetXaxis().SetLabelSize(0.05)
+		cloneData.GetYaxis().CenterTitle()
+		cloneData.Divide(hDataHo)
+		cloneData.SetLineWidth(1)
+		cloneData.SetMarkerStyle(6)
+		cloneData.SetMarkerColor(colorRwthMagenta)
+		cloneData.SetLineColor(colorRwthMagenta)
+		cloneData.Draw('ep')
+		
+		pad2.cd(2)
+		clonePuAndData = hSimPuHo.Clone('clonePuAndData')
+		setupAxes(clonePuAndData)
+		clonePuAndData.GetYaxis().SetTitleSize(0.05)
+		clonePuAndData.GetYaxis().SetLabelSize(0.05)
+		clonePuAndData.GetXaxis().SetTitleSize(0.05)
+		clonePuAndData.GetXaxis().SetLabelSize(0.05)
+		clonePuAndData.GetYaxis().CenterTitle()
+		clonePuAndData.SetTitle(';E_{HO} / a.u.;Sim/Data')
+		clonePuAndData.Sumw2()
+		clonePuAndData.Divide(hDataHo)
+		clonePuAndData.SetLineWidth(1)
+		clonePuAndData.SetMarkerStyle(6)
+		clonePuAndData.SetMarkerColor(colorRwthTuerkis)
+		clonePuAndData.SetLineColor(colorRwthTuerkis)
+		clonePuAndData.Draw('ep')
+		
+		pad3.cd(2)
+		clonePuAndNoPu = hSimHo.Clone('clonePuAndNoPu')
+		setupAxes(clonePuAndNoPu)
+		clonePuAndNoPu.GetYaxis().SetTitleSize(0.05)
+		clonePuAndNoPu.GetYaxis().SetLabelSize(0.05)
+		clonePuAndNoPu.GetXaxis().SetTitleSize(0.05)
+		clonePuAndNoPu.GetXaxis().SetLabelSize(0.05)
+		clonePuAndNoPu.GetYaxis().CenterTitle()
+		clonePuAndNoPu.SetTitle(';E_{HO} / a.u.;Sim No PU/Sim PU52')
+		clonePuAndNoPu.Sumw2()
+		clonePuAndNoPu.Divide(hSimPuHo)
+		clonePuAndNoPu.SetLineWidth(1)
+		clonePuAndNoPu.SetMarkerStyle(6)
+		clonePuAndNoPu.SetMarkerColor(colorRwthDarkBlue)
+		clonePuAndNoPu.SetLineColor(colorRwthDarkBlue)
+		clonePuAndNoPu.Draw('ep')
+		return canvas, hSimHo,hDataHo,hSimPuHo,cloneData,clonePuAndData,clonePuAndNoPu, legend,legend2,legend3, label2, label3 ,label
+		
+	def compareEnergyAbsolute(self):
+		
+		hSimHo = self.fileHandlerSimulation.getHistogram('hoMuonAnalyzer/energy/horeco_Energy')
+		hDataHo = self.fileHandler.getHistogram('hoMuonAnalyzer/energy/horeco_Energy')
+		hSimPuHo = self.fileHandlerSimulationPu.getHistogram('hoMuonAnalyzer/energy/horeco_Energy')
+		
+		res = self.buildTripleCanvasWithResiduals(hSimHo,hSimPuHo,hDataHo,'cHoOnlycompared')
+		
+		res[0].Update()
+		self.storeCanvas(res[0], 'energyComparison/energyAbsoluteHoOnly')
+		return res
+
+	def compareEnergyAbsoluteHoMatched(self):
+		hSimMatched = self.fileHandlerSimulation.getHistogram('hoMuonAnalyzer/energy/L1MuonWithHoMatchAboveThr_Energy')
+		hDataMatched = self.fileHandler.getHistogram('hoMuonAnalyzer/energy/L1MuonWithHoMatchAboveThr_Energy')
+		hSimPuHo = self.fileHandlerSimulationPu.getHistogram('hoMuonAnalyzer/energy/L1MuonWithHoMatchAboveThr_Energy')
+				
+		res = self.buildTripleCanvasWithResiduals(hSimMatched,hSimPuHo,hDataMatched,'cL1AndHoCompared',legendPostix='L1 + HO')
+		
+		res[0].Update()
+		self.storeCanvas(res[0],'energyComparison/energyAbsoluteL1AndHo')
+		return res
+	
 	def compareEnergyNormalizedToIntegral(self):
-		objectList = self.compareEnergyAbsolute()
-		objectList[1].Scale(1/objectList[1].Integral())
-		objectList[2].Scale(1/objectList[2].Integral())
-		objectList[3].Scale(1/objectList[3].Integral())
-		objectList[4].Scale(1/objectList[4].Integral())
-		objectList[5].Scale(1/objectList[5].Integral())
-		objectList[6].Scale(1/objectList[6].Integral())
+		hSimMatched = self.fileHandlerSimulation.getHistogram('hoMuonAnalyzer/energy/L1MuonWithHoMatchAboveThr_Energy')
+		hDataMatched = self.fileHandler.getHistogram('hoMuonAnalyzer/energy/L1MuonWithHoMatchAboveThr_Energy')
+		hSimPuHo = self.fileHandlerSimulationPu.getHistogram('hoMuonAnalyzer/energy/L1MuonWithHoMatchAboveThr_Energy')
 		
-		objectList[1].SetTitle('Distribution of HO Energy, normalized')
-		objectList[1].GetYaxis().SetTitle('rel. fraction')
-		objectList[1].Draw()
-		objectList[2].Draw('same')
-		objectList[3].Draw('same')
-		objectList[4].Draw('same')
-		objectList[5].Draw('same')
-		objectList[6].Draw('same')
+		hSimMatched.Sumw2()
+		hDataMatched.Sumw2()
+		hSimPuHo.Sumw2()
 		
-		objectList[-2].Draw()
-		objectList[-1].Draw()
+		hSimMatched.Scale(1/hSimMatched.Integral())
+		hDataMatched.Scale(1/hDataMatched.Integral())
+		hSimPuHo.Scale(1/hSimPuHo.Integral())
+				
+		res = self.buildTripleCanvasWithResiduals(hSimMatched,hSimPuHo,hDataMatched,'cL1AndHoComparedNorm',legendPostix='L1 + HO',ylabel = 'rel. fraction')
 		
-		objectList[0].Update()
-		objectList[0].SaveAs('plots/energyComparison/energyNormalizedToIntegral.gif')	
+		res[0].Update()
+		self.storeCanvas(res[0],'energyComparison/energyAbsoluteL1AndHoNorm')
+		return res
+	
+	def createResidualsPlot(self,canvas, h1, h2):
+		pad = makeResidualsPad(canvas.cd())
+		pad.cd(1).SetLogy()
+		pad.cd(2).SetLogy()
+		pad.cd(1)
+		setupAxes(h1)
+		h1.SetStats(0)
+		h1.DrawCopy()
+		h2.DrawCopy('same')
+		pad.cd(2)
+		hDataClone = h2.Clone()
+		setupAxes(hDataClone)
+		hDataClone.SetStats(0)
+		hDataClone.SetTitle(';E_{HO} / a.u.;Tight / Not Tight')
+		hDataClone.Divide(h1)
+		hDataClone.GetYaxis().SetTitleSize(0.07)
+		hDataClone.GetYaxis().SetLabelSize(0.07)
+		hDataClone.GetYaxis().SetTitleOffset(0.4)
+		hDataClone.GetXaxis().SetTitleSize(0.07)
+		hDataClone.GetXaxis().SetLabelSize(0.07)
+		hDataClone.GetYaxis().CenterTitle()
 		
-		return objectList
+		hDataClone.Draw('ep')
+		return hDataClone
+	
+	def compareEnergyTightNormalizedToIntegral(self):
+		hSimMatched = self.fileHandlerSimulation.getHistogram('hoMuonAnalyzer/energy/L1RecoHoTight_Energy')
+		hDataMatched = self.fileHandler.getHistogram('hoMuonAnalyzer/energy/L1RecoHoTight_Energy')
+		hSimPuMatched = self.fileHandlerSimulationPu.getHistogram('hoMuonAnalyzer/energy/L1RecoHoTight_Energy')
+		hDataMatchedNotTight = self.fileHandler.getHistogram('hoMuonAnalyzer/energy/L1MuonWithHoMatchAboveThr_Energy')
+		hSimNoPuMatchedNotTight = self.fileHandler.getHistogram('hoMuonAnalyzer/energy/L1MuonWithHoMatchAboveThr_Energy')
+		hSimPuMatchedNotTight = self.fileHandler.getHistogram('hoMuonAnalyzer/energy/L1MuonWithHoMatchAboveThr_Energy')
+		
+		hSimMatched.Sumw2()
+		hDataMatched.Sumw2()
+		hSimPuMatched.Sumw2()
+		hDataMatchedNotTight.Sumw2()
+		hSimNoPuMatchedNotTight.Sumw2()
+		hSimPuMatchedNotTight.Sumw2()
+		
+		hSimMatched.Scale(1/hSimMatched.Integral())
+		hDataMatched.Scale(1/hDataMatched.Integral())
+		hSimPuMatched.Scale(1/hSimPuMatched.Integral())
+		hDataMatchedNotTight.Scale(1/hDataMatchedNotTight.Integral())
+		hSimNoPuMatchedNotTight.Scale(1/hSimNoPuMatchedNotTight.Integral())
+		hSimPuMatchedNotTight.Scale(1/hSimPuMatchedNotTight.Integral())
+
+				
+		res = self.buildTripleCanvasWithResiduals(hSimMatched,hSimPuMatched,hDataMatched,'cL1TightAndHoComparedNorm',legendPostix='L1 + HO',ylabel = 'rel. fraction')
+		
+		res[0].Update()
+		self.storeCanvas(res[0], 'energyComparison/energyAbsoluteL1TightAndHoNorm')
+		##
+		# Data
+		##
+		c = TCanvas('cTightAndNotTight','Data tight and not tight',1800,1000)
+		hDataMatchedNotTight.SetTitle('L1 Tight and L1 compared;E_{HO} / a.u.;rel. fraction')
+		
+		hDataClone = self.createResidualsPlot(c, hDataMatchedNotTight, hDataMatched)
+		c.cd(1).cd(1)
+		label = self.drawLabel()
+		legend = getLegend(x1=0.7,y2=.9)
+		legend.AddEntry(hDataMatchedNotTight,'Data, L1 + HO','l')
+		legend.AddEntry(hDataMatched,'Data, L1 Tight + HO','l')
+		legend.Draw()
+		
+		c.Update()
+		self.storeCanvas(c, 'energyComparison/energyDataL1AndL1TightCompared')
+		##
+		# No PU
+		##
+		c2 = TCanvas('cTightAndNotTightNoPu','Sim No PU tight and not tight',1800,1000)
+		hSimNoPuMatchedNotTight.SetTitle('L1 Tight and L1 compared;E_{HO} / a.u.;rel. fraction')
+		
+		hSimNoPuClone = self.createResidualsPlot(c2, hSimNoPuMatchedNotTight, hSimMatched)
+		c2.cd(1).cd(1)
+		label2 = self.drawLabel()
+		legend2 = getLegend(x1=0.7,y2=.9)
+		legend2.AddEntry(hSimNoPuMatchedNotTight,'Sim No PU, L1 + HO','l')
+		legend2.AddEntry(hSimMatched,'Sim No PU, L1 Tight + HO','l')
+		legend2.Draw()
+		
+		c2.Update()
+		self.storeCanvas(c2, 'energyComparison/energySimNoPuL1AndL1TightCompared')
+		##
+		# PU 52
+		##
+		c3 = TCanvas('cTightAndNotTightPu','Sim PU tight and not tight',1800,1000)
+		hSimPuMatchedNotTight.SetTitle('L1 Tight and L1 compared;E_{HO} / a.u.;rel. fraction')
+		
+		hSimPuClone = self.createResidualsPlot(c3, hSimPuMatchedNotTight, hSimPuMatched)
+		c3.cd(1).cd(1)
+		label3 = self.drawLabel()
+		legend3 = getLegend(x1=0.7,y2=.9)
+		legend3.AddEntry(hSimPuMatchedNotTight,'Sim PU 52, L1 + HO','l')
+		legend3.AddEntry(hSimPuMatched,'Sim PU 52, L1 Tight + HO','l')
+		legend3.Draw()
+		
+		c3.Update()
+		self.storeCanvas(c3, 'energyComparison/energySimPu52L1AndL1TightCompared')
+		return res,c,c2,c3,hDataClone,hSimNoPuClone,hSimPuClone,legend,legend2,legend3,label,label2,label3
+		
 	
 	def compareL1Count(self):
 		hSim = self.fileHandlerSimulation.getHistogram('hoMuonAnalyzer/L1MuonPresent_Pt')
 		hSimPu = self.fileHandlerSimulationPu.getHistogram('hoMuonAnalyzer/L1MuonPresent_Pt')
-		hData = self.fileHandlerData.getHistogram('hoMuonAnalyzer/L1MuonPresent_Pt')
+		hData = self.fileHandler.getHistogram('hoMuonAnalyzer/L1MuonPresent_Pt')
 		
 	#	hSimPu.Sumw2()
 	#	hSim.Sumw2()
@@ -182,14 +370,14 @@ class Comparison(Plot):
 		c = TCanvas('cNvsPt','Nvs pt')
 		
 		hSim.SetMarkerStyle(20)
-		hSim.SetMarkerColor(colorRwthDarkBlue)
-		hSim.SetLineColor(colorRwthDarkBlue)
+		hSim.SetMarkerColor(colorRwthLila)
+		hSim.SetLineColor(colorRwthLila)
 		hSim.GetYaxis().SetRangeUser(0,0.03)
 		
 		
 		hSimPu.SetMarkerStyle(21)
-		hSimPu.SetMarkerColor(colorRwthMagenta)
-		hSimPu.SetLineColor(colorRwthMagenta)
+		hSimPu.SetMarkerColor(colorRwthOrange)
+		hSimPu.SetLineColor(colorRwthOrange)
 		hSimPu.SetTitle('Normalized distribution of p_{T};p_{T,L1};normalized fraction / binwidth')
 		hSimPu.SetStats(0)
 		hSimPu.GetXaxis().SetRangeUser(0,20)
@@ -212,6 +400,5 @@ class Comparison(Plot):
 		label = self.drawLabel()
 		
 		c.Update()
-		c.SaveAs('plots/l1CountComparison/l1CountNormalized.gif')
-		
+		self.storeCanvas(c, 'l1CountComparison/l1CountNormalized')
 		return hSim,c,hSimPu,hData,legend,label

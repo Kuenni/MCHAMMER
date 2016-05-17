@@ -15,7 +15,7 @@ colorRwthLila		= TColor.GetColor("#7A6FAC")
 
 def getLabelCmsPrivateSimulation( x1ndc = 0.6, y1ndc = 0.90, x2ndc = 0.9, y2ndc = 0.93):
 	labelCmsPrivateSimulation = TPaveText(x1ndc,y1ndc,x2ndc,y2ndc,"NDC")
-	labelCmsPrivateSimulation.AddText("#font[62]{CMS private}, #font[72]{simulation}")
+	labelCmsPrivateSimulation.AddText("#font[62]{CMS private work}, #font[72]{simulation}")
 	labelCmsPrivateSimulation.SetBorderSize(1)
 	labelCmsPrivateSimulation.SetFillColor(0) # 0 == White
 	return labelCmsPrivateSimulation
@@ -27,7 +27,7 @@ def drawLabelCmsPrivateSimulation( x1ndc = 0.6, y1ndc = 0.90, x2ndc = 0.9, y2ndc
 
 def getLabelCmsPrivateData( x1ndc = 0.6, y1ndc = 0.90, x2ndc = 0.9, y2ndc = 0.93):
 	labelCmsPrivateSimulation = TPaveText(x1ndc,y1ndc,x2ndc,y2ndc,"NDC")
-	labelCmsPrivateSimulation.AddText("#font[62]{CMS private}, #font[72]{2015 data}")
+	labelCmsPrivateSimulation.AddText("#font[62]{CMS private work}, #font[72]{2015 data}")
 	labelCmsPrivateSimulation.SetBorderSize(1)
 	labelCmsPrivateSimulation.SetFillColor(0) # 0 == White
 	return labelCmsPrivateSimulation
@@ -129,7 +129,18 @@ def setupAxes(plot):
 	if hasattr(plot, 'GetZaxis'):
 		plot.GetZaxis().SetTitleFont(62)
 		plot.GetZaxis().SetLabelFont(62)
+	
+	plot.SetTitleFont(62)
+	plot.SetTitleSize(0.06)
 
+def setBigAxisTitles(plot):
+	if plot.__class__ == TEfficiency:
+		plot = plot.GetPaintedGraph()
+	plot.GetXaxis().SetTitleSize(0.06)
+	plot.GetXaxis().SetTitleOffset(0.7)
+	plot.GetYaxis().SetTitleSize(0.06)
+	plot.GetYaxis().SetTitleOffset(0.8)
+		
 #Set the stat box display Options
 def setStatBoxOptions(plot,option):
 	stats = plot.GetListOfFunctions().FindObject("stats")

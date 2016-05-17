@@ -333,26 +333,35 @@ void HistogramBuilder::fillAverageEnergyHistograms(double eta1, double etaHo, do
 	double deltaEta, deltaPhi;
 	deltaEta = etaHo - eta1;
 	deltaPhi = FilterPlugin::wrapCheck(phi1, phiHo);
-	//Here I'am using the double resolution than what HO can do
 
+	/** Here I'am using the double resolution than what HO can do
+	 * => Corresponds to L1 Binning.
+	 * !! L1 is again shifted by half L1 bin width !!
+	 */
 	int nBinsPerHO = 4;
 	double hoShiftForZeroCentered = 1/double(nBinsPerHO*2);
 	int lateralSpreadForPlot = 10;
 	int nTotalBins = 2*nBinsPerHO*lateralSpreadForPlot + 1;
 
+	int nBinsPerHoPhi = 2;
+	double phiBinOffsetFactor = 1/4.;
+	int nTotalBinsPhi = 2*nBinsPerHoPhi*lateralSpreadForPlot + 1;
+
 	if(!_h2AverageEnergy.count(histNameEnergy)){
 		_h2AverageEnergy[histNameEnergy] = subdir.make<TH2D>(histNameEnergy.c_str(),histTitle.c_str(),
+				//eta binning
 				nTotalBins,-lateralSpreadForPlot*HoMatcher::HO_BIN - HoMatcher::HO_BIN/hoShiftForZeroCentered,
 				lateralSpreadForPlot*HoMatcher::HO_BIN + HoMatcher::HO_BIN/hoShiftForZeroCentered,
-				nTotalBins,-lateralSpreadForPlot*HoMatcher::HO_BIN - HoMatcher::HO_BIN/hoShiftForZeroCentered,
-				lateralSpreadForPlot*HoMatcher::HO_BIN + HoMatcher::HO_BIN/hoShiftForZeroCentered);
+				//phi binning
+				nTotalBinsPhi,-lateralSpreadForPlot*HoMatcher::HO_BIN - HoMatcher::HO_BIN*phiBinOffsetFactor,
+				lateralSpreadForPlot*HoMatcher::HO_BIN + HoMatcher::HO_BIN*phiBinOffsetFactor);
 	}
 	if(!_h2AverageEnergy.count(histNameCounter)){
 		_h2AverageEnergy[histNameCounter] = subdir.make<TH2D>(histNameCounter.c_str(),histTitle.c_str(),
 				nTotalBins,-lateralSpreadForPlot*HoMatcher::HO_BIN - HoMatcher::HO_BIN/hoShiftForZeroCentered,
 				lateralSpreadForPlot*HoMatcher::HO_BIN + HoMatcher::HO_BIN/hoShiftForZeroCentered,
-				nTotalBins,-lateralSpreadForPlot*HoMatcher::HO_BIN - HoMatcher::HO_BIN/hoShiftForZeroCentered,
-				lateralSpreadForPlot*HoMatcher::HO_BIN + HoMatcher::HO_BIN/hoShiftForZeroCentered);
+				nTotalBinsPhi,-lateralSpreadForPlot*HoMatcher::HO_BIN - HoMatcher::HO_BIN*phiBinOffsetFactor,
+				lateralSpreadForPlot*HoMatcher::HO_BIN + HoMatcher::HO_BIN*phiBinOffsetFactor);
 	}
 	_h2AverageEnergy[histNameEnergy]->Fill(deltaEta, deltaPhi, energy);
 	_h2AverageEnergy[histNameCounter]->Fill(deltaEta, deltaPhi);
@@ -362,18 +371,21 @@ void HistogramBuilder::fillAverageEnergyHistograms(double eta1, double etaHo, do
 		_h2AverageEnergy[histNameAllEnergies] = averageEnergyDir.make<TH2D>(histNameAllEnergies.c_str(),(histAllTitle + ";E_{Rec} / GeV").c_str(),
 				nTotalBins,-lateralSpreadForPlot*HoMatcher::HO_BIN - HoMatcher::HO_BIN/hoShiftForZeroCentered,
 				lateralSpreadForPlot*HoMatcher::HO_BIN + HoMatcher::HO_BIN/hoShiftForZeroCentered,
-				nTotalBins,-lateralSpreadForPlot*HoMatcher::HO_BIN - HoMatcher::HO_BIN/hoShiftForZeroCentered,
-				lateralSpreadForPlot*HoMatcher::HO_BIN + HoMatcher::HO_BIN/hoShiftForZeroCentered);
+				nTotalBinsPhi,-lateralSpreadForPlot*HoMatcher::HO_BIN - HoMatcher::HO_BIN*phiBinOffsetFactor,
+				lateralSpreadForPlot*HoMatcher::HO_BIN + HoMatcher::HO_BIN*phiBinOffsetFactor);
 	}
 	if(!_h2AverageEnergy.count(histNameAllCounter)){
 		_h2AverageEnergy[histNameAllCounter] = averageEnergyDir.make<TH2D>(histNameAllCounter.c_str(),(histAllTitle + ";# Entries").c_str(),
 				nTotalBins,-lateralSpreadForPlot*HoMatcher::HO_BIN - HoMatcher::HO_BIN/hoShiftForZeroCentered,
 				lateralSpreadForPlot*HoMatcher::HO_BIN + HoMatcher::HO_BIN/hoShiftForZeroCentered,
-				nTotalBins,-lateralSpreadForPlot*HoMatcher::HO_BIN - HoMatcher::HO_BIN/hoShiftForZeroCentered,
-				lateralSpreadForPlot*HoMatcher::HO_BIN + HoMatcher::HO_BIN/hoShiftForZeroCentered);
+				nTotalBinsPhi,-lateralSpreadForPlot*HoMatcher::HO_BIN - HoMatcher::HO_BIN*phiBinOffsetFactor,
+				lateralSpreadForPlot*HoMatcher::HO_BIN + HoMatcher::HO_BIN*phiBinOffsetFactor);
 	}
 	_h2AverageEnergy[histNameAllEnergies]->Fill(deltaEta, deltaPhi, energy);
 	_h2AverageEnergy[histNameAllCounter]->Fill(deltaEta, deltaPhi);
+
+	//Create a graph for the counts for testing purposes
+	fillGraph(deltaEta,deltaPhi,"deltaPhiTestGraph");
 
 	if(HoMatcher::getDeltaIphi(phi1,phiHo) == 1){
 		fillEtaPhiGraph(eta1,phi1,"averageEnergyDeltaPhi1");
@@ -666,10 +678,10 @@ void HistogramBuilder::fillDeltaTimeHistogram(double time, int bx, std::string k
 		_h2TimeCorrelation[key] = correlationDir.make<TH2D>(Form("%s_TimeCorrelation",key.c_str()),
 				Form("%s Time Correlation;HO time / ns;L1 Time / ns",key.c_str()),
 				201, -100.5,100.5,	//1ns bins
-				201, -100.5,100.5	//1ns bins
+				21, -10.5,10.5	//1 BX bins
 				);
 	}
-	_h2TimeCorrelation[key]->Fill(time,bx*25);
+	_h2TimeCorrelation[key]->Fill(time,bx);
 }
 
 /**

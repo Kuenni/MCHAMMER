@@ -32,10 +32,10 @@ class Counters(Plot):
 		hL1RecoHoNoThr = self.fileHandler.getHistogram('hoMuonAnalyzer/count/energyDeposit_L1RecoHoNoThr_Count')
 		hL1RecoGaHoNoThr = self.fileHandler.getHistogram('hoMuonAnalyzer/count/energyDeposit_L1RecoGaHoNoThr_Count')
 		
-		histogramList = [ hL1, hL1Reco, hL1RecoHo, hL1RecoHoTight,
+		histogramList = [hEvent, hL1, hL1Reco, hL1RecoHo, hL1RecoHoTight,
 						hL1RecoTight, hL1RecoTightHo, hL1RecoHoNoThr, hL1RecoGaHoNoThr ]
 		
-		names = ['hL1','hL1Reco','hL1RecoHo','hL1RecoHoTight','hL1RecoTight','hL1RecoTightHo','hL1RecoHoNoThr','hL1RecoGaHoNoThr']
+		names = ['hEvent','hL1','hL1Reco','hL1RecoHo','hL1RecoHoTight','hL1RecoTight','hL1RecoTightHo','hL1RecoHoNoThr','hL1RecoGaHoNoThr']
 		nL1 = hL1.GetBinContent(2)
 		
 		self.commandLine.output('###############################################')
@@ -120,7 +120,7 @@ class Counters(Plot):
 #			Double_t yt = - h->GetMaximum()/15.;
 			textObjects.append(t)
 		c.Update()
-		c.SaveAs('plots/efficiency/l1AndTightL1Counters.gif')
+		self.storeCanvas(c, 'l1AndTightL1Counters')
 		
 		return h,c,hL13x3Alone,hTightL13x3Alone,label,legend,hInverted,textObjects
 	
@@ -151,18 +151,18 @@ class Counters(Plot):
 		setupPalette(hRatio)
 		label = self.drawLabel()
 		c.Update()
-		c.SaveAs('plots/efficiency/localTightL1Efficiency.gif')
+		self.storeCanvas(c, 'localTightL1Efficiency')
 
 		c2 = TCanvas('projections')
 		c2.Divide(2,1)
 		c2.cd(1)
 		hEta = hRatio.ProjectionX()
-		hEta.Scale(1/float(72))#72 phi bins
+		hEta.Scale(1/float(144))#72 phi bins
 		hEta.Draw()
 		
 		c2.cd(2)
 		hPhi = hRatio.ProjectionY()
-		hPhi.Scale(1/float(30))#16 eta bins, cutoff due to |eta| < 0.8
+		hPhi.Scale(1/float(16))#16 eta bins, cutoff due to |eta| < 0.8
 		hPhi.Draw()
 		
 		return c,hRatio,label,c2,hEta,hPhi

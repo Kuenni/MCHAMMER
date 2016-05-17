@@ -1,7 +1,7 @@
 from plotting import OutputModule
 from plotting.PlotStyle import setupAxes
 
-from ROOT import Double,TGraphErrors,TLegend,vector,TMath,gPad
+from ROOT import Double,TGraphErrors,TLegend,vector,TMath,gPad,TPad
 from plotting.RootFileHandler import commandLine
 from array import array
 
@@ -25,16 +25,16 @@ def average2DHistogramBinwise(histWeights,histCounter):
 	return histWeights
 
 #Set axis range and labels for the 2D histograms showing E Average around L1 direction
-def setupEAvplot(histE,histC = None,xmin = -0.4, xmax = 0.4, ymin = -0.4, ymax = 0.4,same = False, borderAll = None):
+def setupEAvplot(histE,histC = None,xmin = -0.4, xmax = 0.4, ymin = -0.4, ymax = 0.4,same = False, limitForAll = None):
 	if histC != None:
 		histE = average2DHistogramBinwise(histE,histC)
 	if same:
-		if borderAll == None:
+		if limitForAll == None:
 			commandLine.output('WARNING: Requested same histogram borders for all ranges but '
-							'did not give borderAll parameter. Using default values instead!')
+							'did not give limitForAll parameter. Using default values instead!')
 		else:
-			xmin = ymin = -borderAll
-			xmax = ymax = borderAll
+			xmin = ymin = -limitForAll
+			xmax = ymax = limitForAll
 	histE.GetXaxis().SetRangeUser(xmin,xmax)
 	histE.GetYaxis().SetRangeUser(ymin,ymax)
 	histE.SetStats(0)
@@ -120,6 +120,16 @@ def getLegend(x1=.6,y1=.8,x2=.9,y2=.85):
 #	l.SetTextFont(62)
 	return l
 
+def makeResidualsPad(pad):
+	pad.Divide(1,2)
+	pad.cd(1).SetBottomMargin(0)
+	pad.cd(1).SetPad(0,0.3,1,1)
+	pad.cd(2).SetTopMargin(0)
+	pad.cd(2).SetBottomMargin(0.15)
+	pad.cd(2).SetPad(0,0,1,0.3)
+	pad.cd(1)
+	return pad
+	
 def calcPercent(numerator, denominator):
 	if(denominator == 0):
 		commandLine.error('Tried to divide by 0')

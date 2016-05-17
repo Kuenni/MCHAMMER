@@ -34,27 +34,25 @@ class Energy(Plot):
 		resHoMatched = self.plotEnergyPerWheel('L1MuonWithHoMatchAboveThr')
 		
 		cTogether = TCanvas('cTogether','Matched and not Matched',1800,500)
-		cTogether.Divide(6,1)
+		cTogether.Divide(4,1)
 		
 		plotTitles = [
-					'Wheel -2',
 					'Wheel -1',
 					'Wheel 0 (-)',
 					'Wheel 0 (+)',
 					'Wheel +1',
-					'Wheel +2'
 					]
 		
-		for i in range(0,6):
+		for i in range(0,4):
 			cTogether.cd(i+1).SetLogy()
 			resHo[i].SetTitle(plotTitles[i] + ';E_{Rec} / GeV;fraction of MIP peak')
-			resHo[i].GetXaxis().SetRangeUser(-1,6)
+			#resHo[i].GetXaxis().SetRangeUser(-1,6)
 			maxBin = resHoMatched[i].GetMaximumBin()#resHo[i].FindBin()
 			resHo[i].Scale(1/resHo[i].GetBinContent(maxBin))
 			resHo[i].SetStats(0)
 			resHo[i].Draw()
 			setupAxes(resHo[i])
-			resHo[i].GetYaxis().SetRangeUser(4e-3,2)
+			#resHo[i].GetYaxis().SetRangeUser(4e-3,2)
 			resHoMatched[i].Scale(1/resHoMatched[i].GetBinContent(maxBin))
 			resHoMatched[i].Draw('same')
 		cTogether.Update()
@@ -63,49 +61,41 @@ class Energy(Plot):
 		return cTogether,resHo, resHoMatched
 	
 	def plotEnergyPerWheel(self,sourceName):	
-		hoM2 = self.fileHandler.getHistogram('hoMuonAnalyzer/energy/perWheel/' + sourceName + '_Energy_M2')
 		hoM1 = self.fileHandler.getHistogram('hoMuonAnalyzer/energy/perWheel/' + sourceName + '_Energy_M1')
 		hoM0 = self.fileHandler.getHistogram('hoMuonAnalyzer/energy/perWheel/' + sourceName + '_Energy_M0')
 		hoP0 = self.fileHandler.getHistogram('hoMuonAnalyzer/energy/perWheel/' + sourceName + '_Energy_P0')
 		hoP1 = self.fileHandler.getHistogram('hoMuonAnalyzer/energy/perWheel/' + sourceName + '_Energy_P1')
-		hoP2 = self.fileHandler.getHistogram('hoMuonAnalyzer/energy/perWheel/' + sourceName + '_Energy_P2')
 		
 		c = TCanvas('cEPerWheel','E Per Wheel')
 		c.SetLogy()
-		hoM2.SetLineColor(colorRwthDarkBlue)
-		hoM2.GetXaxis().SetRangeUser(-.8,6)
-		hoM2.SetStats(0)
-		hoM2.SetTitle('Reconstructed Energy per Wheel;E_{Rec} / GeV;# Entries')
+		hoM1.SetLineColor(colorRwthDarkBlue)
+#		hoM1.GetXaxis().SetRangeUser(-.8,6)
+		hoM1.SetStats(0)
+		hoM1.SetTitle('Reconstructed Energy per Wheel;E_{Rec} / GeV;# Entries')
 		
-		hoM1.SetLineColor(colorRwthLila)
 		hoM0.SetLineColor(colorRwthTuerkis)
 		hoP0.SetLineColor(colorRwthGruen)
 		hoP1.SetLineColor(colorRwthMagenta)
-		hoP2.SetLineColor(colorRwthLightBlue)
 		
-		setupAxes(hoM2)
+		setupAxes(hoM1)
 		
-		hoM2.Draw()
-		hoM1.Draw('same')
+		hoM1.Draw('')
 		hoM0.Draw('same')
 		hoP0.Draw('same')
 		hoP1.Draw('same')
-		hoP2.Draw('same')
 		
 		legend = getLegend(x1=.7,y2=0.9,y1=.6)
-		legend.AddEntry(hoM2,'Wheel M2','l')
 		legend.AddEntry(hoM1,'Wheel M1','l')
 		legend.AddEntry(hoM0,'Wheel M0','l')
 		legend.AddEntry(hoP0,'Wheel P0','l')
 		legend.AddEntry(hoP1,'Wheel P1','l')
-		legend.AddEntry(hoP2,'Wheel P2','l')
 		legend.Draw()
 		
 		label = self.drawLabel()
 		
 		c.Update()
 				
-		return hoM2, hoM1, hoM0, hoP0, hoP1, hoP2, legend, c, label
+		return hoM1, hoM0, hoP0, hoP1, legend, c, label
 		
 	def plotEnergyNormalizedToMip(self):
 		ho = self.fileHandler.getHistogram("hoMuonAnalyzer/energy/horeco_Energy")
@@ -120,7 +110,7 @@ class Energy(Plot):
 		ho.SetTitle('Normalized energy distribution of HO hits (to MIP Maximum)')
 		ho.GetXaxis().SetTitle('Reconstructed HO energy / GeV')
 		ho.GetYaxis().SetTitle('rel. fraction')
-		ho.GetXaxis().SetRangeUser(-2,6)
+		#ho.GetXaxis().SetRangeUser(-2,6)
 	
 		ho.SetLineColor(colorRwthDarkBlue)
 		ho.SetLineWidth(3)
@@ -176,7 +166,7 @@ class Energy(Plot):
 		ho.SetTitle('Normalized energy distribution of HO hits (Integral)')
 		ho.GetXaxis().SetTitle('Reconstructed HO energy / GeV')
 		ho.GetYaxis().SetTitle('rel. fraction')
-		ho.GetXaxis().SetRangeUser(-2,6)
+		#ho.GetXaxis().SetRangeUser(-2,6)
 	
 		ho.SetLineColor(colorRwthDarkBlue)
 		ho.SetLineWidth(3)

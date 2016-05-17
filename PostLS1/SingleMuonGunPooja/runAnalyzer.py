@@ -26,11 +26,9 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtended2015Reco_cff')
-process.load('Configuration.Geometry.GeometryExtended2015_cff')
+process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
+process.load('Configuration.Geometry.GeometrySimDB_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
-process.load('Configuration.StandardSequences.Generator_cff')
-process.load('IOMC.EventVertexGenerators.VtxSmearedRealistic8TeVCollision_cfi')
 process.load('GeneratorInterface.Core.genFilterSummary_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.L1Reco_cff')
@@ -224,12 +222,18 @@ process.demo_step = cms.Path(process.hoMuonAnalyzer)
 process.L1Reco_step = cms.Path(process.L1Reco)
 process.muonL1Match_step = cms.Path(process.muonL1Match)
 
+process.load('PhysicsTools/PatAlgos/producersLayer1/muonProducer_cfi')
+process.load('PhysicsTools/PatAlgos/selectionLayer1/muonSelector_cfi')
+process.patMuons.addGenMatch = cms.bool(False)
+
 process.p = cms.Path(process.genfilter*
 					#*process.L1Reco*
 					process.l1MuonGenMatch*
 					process.horeco*
 					process.myCaloTowerMaker*
 					process.muonL1Match*
+					process.patMuons*
+					process.selectedPatMuons*	
 					process.hoMuonAnalyzer*
 					process.hoDigiAnalyzer)
 
