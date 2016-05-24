@@ -114,7 +114,7 @@ if not args.nJobs and not args.test and not args.collect:
 
 nJobs = 0
 if args.test:
-	nJobs = 1
+	nJobs = 10
 else:
 	nJobs = args.nJobs
 
@@ -205,7 +205,7 @@ def createSourceLists():
 				outFile = open('sources/' + outputFileTrunk + str(iterationCounter),'w')
 				iterationCounter += 1
 			outFile.write(line)
-			if args.test:
+			if args.test and (iterationCounter == args.nJobs):
 				break
 	outFile.close()
 
@@ -243,7 +243,7 @@ def createRunConfigs():
 #Eventually send the jobs
 def sendJobs():
 	from submit import Submitter
-	submitter = Submitter(nJobs)
+	submitter = Submitter('T2_DE_RWTH',nJobs)
 	if args.gridpackname != None:
 		submitter.setGridPackName(args.gridpackname)
 	if args.lumiFile:
