@@ -1,14 +1,16 @@
 from plotting.PlotStyle import setPlotStyle, drawLabelCmsPrivateData,\
 	drawLabelCmsPrivateSimulation
-from plotting.OutputModule import CommandLineHandler
+from plotting.OutputModule import CommandLineHandler, CliColors
 from plotting.RootFileHandler import RootFileHandler
 
 import os
+import sys
+import inspect
 
 class Plot:
 	def __init__(self,filename = None,data = False, debug = False):
 		setPlotStyle()
-		self.commandLine = CommandLineHandler('[' + self.__class__.__name__ + '] ')
+		self.commandLine = CommandLineHandler('[' + self.__class__.__name__ + ']')
 		self.key = 'L1MuonPresent' if data else 'L1MuonTruth'
 		self.data = data
 		self.DEBUG = debug
@@ -57,4 +59,4 @@ class Plot:
 		self.commandLine.error(string)
 		
 	def output(self,string):
-		self.commandLine.output(string)
+		self.commandLine.output(CliColors.BOLD + '<' + inspect.stack()[1][3] + '>  ' + CliColors.ENDC + str(string))
