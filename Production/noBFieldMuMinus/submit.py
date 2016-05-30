@@ -45,7 +45,7 @@ class Submitter(gridlib.ce.ProxyDelegator,gridlib.se.GridpackManager):
 	cmsRun $1
 	RET=$?
 	if [ $RET -eq 0 ]; then
-		uberftp grid-srm "cd /pnfs/physik.rwth-aachen.de/cms/store/user/akunsken/SingleMuMinusNoBField; put $2" 
+		uberftp grid-srm "cd /pnfs/physik.rwth-aachen.de/cms/store/user/akunsken/SingleMuMinusNoBFieldFixed; put $2" 
 		echo "Finished execution";
 	else
 		exit $RET;

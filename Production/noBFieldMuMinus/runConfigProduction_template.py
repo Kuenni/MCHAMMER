@@ -92,6 +92,8 @@ process.generator = cms.EDProducer("FlatRandomPtGunProducer",
     psethack = cms.string('single mu pt 100')
 )
 
+# Change seed for each job
+process.RandomNumberGeneratorService.generator.initialSeed = %INSTANCE%
 
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.pgen)
