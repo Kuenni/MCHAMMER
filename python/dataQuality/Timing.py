@@ -5,6 +5,7 @@ from plotting.Plot import Plot
 from plotting.PlotStyle import setPlotStyle,calcSigma,getLabelCmsPrivateSimulation,\
 	colorRwthRot,colorRwthDarkBlue,colorRwthMagenta,setupAxes,convertToHcalCoords,chimney1,chimney2,colorRwthRot,\
 	setBigAxisTitles
+from plotting.Utils import getLegend
 
 class Timing(Plot):
 	def __init__(self,filename,data,debug):
@@ -76,12 +77,14 @@ class Timing(Plot):
 		
 		integralCenter = hDeltaTCleanHo.Integral(hDeltaTCleanHo.FindBin(fitFirstMin.GetMinimumX(-20,-10)),hDeltaTCleanHo.FindBin(fitSecondMin.GetMinimumX(10,20)))
 		integralCenterAll = hDeltaTAllHo.Integral(hDeltaTAllHo.FindBin(fitFirstMin.GetMinimumX(-20,-10)),hDeltaTAllHo.FindBin(fitSecondMin.GetMinimumX(10,20)))
-		print 80*'#'
-		print 'Integral of center area in clean histogram :',integralCenter
-		print '==> %.2f%% +/- %.2f%%' % (integralCenter/hDeltaTCleanHo.Integral()*100,calcSigma(integralCenter, hDeltaTCleanHo.Integral())*100)
-		print 'Integral of center area in all matched HO events:',integralCenterAll
-		print '==> %.2f%% +/- %.2f%%' % (integralCenterAll/hDeltaTAllHo.Integral()*100,calcSigma(integralCenterAll, hDeltaTAllHo.Integral())*100)
-		print 80*'#'
+		self.output(80*'#')
+		self.output('Integral of center area in clean histogram :%d' % integralCenter)
+		self.output('==> %.2f%% +/- %.2f%%' % (integralCenter/hDeltaTCleanHo.Integral()*100
+											,calcSigma(integralCenter, hDeltaTCleanHo.Integral())*100))
+		self.output('Integral of center area in all matched HO events:%d' % integralCenterAll)
+		self.output('==> %.2f%% +/- %.2f%%' % (integralCenterAll/hDeltaTAllHo.Integral()*100
+											,calcSigma(integralCenterAll, hDeltaTAllHo.Integral())*100))
+		self.output(80*'#')
 		
 		paveText = TPaveText(0.6,0.7,0.9,0.75,'NDC')
 		paveText.AddText('%s' % ('Central peak contains (filtered hist.)'))
@@ -201,10 +204,11 @@ class Timing(Plot):
 		c2.cd(1).SetLogy()
 		hBxIdBest = self.fileHandler.getHistogram('hoMuonAnalyzer/timingSupport_MatchedDtRpcHo_Time')
 		hBxIdDtOnly = self.fileHandler.getHistogram('hoMuonAnalyzer/timingSupport_UnmatchedDtHo_Time')
+		hBxIdDtOnlyTight = self.fileHandler.getHistogram('hoMuonAnalyzer/timingSupport_tight_UnmatchedDtHo_Time')
 		hBxIdOther = self.fileHandler.getHistogram('hoMuonAnalyzer/timingSupport_OtherCodesHo_Time')
-		hBxIdBest.Sumw2()
-		hBxIdDtOnly.Sumw2()
-		hBxIdOther.Sumw2()
+#		hBxIdBest.Sumw2()
+#		hBxIdDtOnly.Sumw2()
+#		hBxIdOther.Sumw2()
 		hBxIdBest.SetLineColor(colorRwthDarkBlue)
 		hBxIdBest.SetLineWidth(3)
 		hBxIdBest.SetStats(0)
@@ -248,7 +252,21 @@ class Timing(Plot):
 		
 		self.storeCanvas(c2,"matchedHoTime")
 		
-		return label,c2,hBxIdBest,hBxIdDtOnly,hBxIdOther
+		c = TCanvas('cDtOnlyWithTight',"DT only with tight",600,600)
+		c.SetLogy()
+		hBxIdDtOnlyCopy = hBxIdDtOnly.DrawCopy()
+		hBxIdDtOnlyTight.Scale(1/hBxIdDtOnlyTight.Integral())
+		hBxIdDtOnlyTight.SetLineColor(colorRwthMagenta)
+		hBxIdDtOnlyTight.Draw('same')
+		
+		legend = getLegend(y1=0.75,y2=.9)
+		legend.AddEntry(hBxIdDtOnlyCopy,'DT only','l')
+		legend.AddEntry(hBxIdDtOnlyTight,'DT only, tight','l')
+		legend.Draw()
+		
+		self.storeCanvas(c, 'matchedHoDtOnlyWithTight')
+				
+		return label,c2,hBxIdBest,hBxIdDtOnly,hBxIdOther,hBxIdDtOnlyTight,hBxIdDtOnlyCopy,c,legend
 	
 	def plotHoTimeLog(self):
 		c3 = TCanvas("c3Log","HO Time Log",1200,1200)
@@ -332,18 +350,19 @@ class Timing(Plot):
 		label = getLabelCmsPrivateSimulation()
 		label.Draw()
 		
-		print 80*'#'
-		print 'Integral of HO > 0.2 GeV time histogram:'
-		print hHoTimeAboveThr.Integral()
-		print
+		self.output(80*'#')
+		self.output( 'Integral of HO > 0.2 GeV time histogram:')
+		self.output( hHoTimeAboveThr.Integral())
+		self.output('')
 		
 		xLow = -5
 		xHigh = 5
 		histogramBetween = hHoTimeAboveThr.Integral(hHoTimeAboveThr.FindBin(xLow),hHoTimeAboveThr.FindBin(xHigh))
 		histogramTotal = float(hHoTimeAboveThr.Integral())
-		print 'Histogram integral between %.f ns and %.f ns' % (xLow,xHigh)
-		print '%d/%d => %.2f +/- %f' % (histogramBetween,histogramTotal,histogramBetween/histogramTotal,calcSigma(histogramBetween, histogramTotal))  
-		print 80*'#'
+		self.output( 'Histogram integral between %.f ns and %.f ns' % (xLow,xHigh) )
+		self.output( '%d/%d => %.2f +/- %f' % (histogramBetween,histogramTotal
+											,histogramBetween/histogramTotal,calcSigma(histogramBetween, histogramTotal))) 
+		self.output( 80*'#')
 		
 		fit = TF1("fit","gaus",-10,10)
 		hHoTimeAboveThr.Fit(fit)
