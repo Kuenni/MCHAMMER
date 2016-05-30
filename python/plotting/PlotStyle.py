@@ -129,9 +129,9 @@ def setupAxes(plot):
 	if hasattr(plot, 'GetZaxis'):
 		plot.GetZaxis().SetTitleFont(62)
 		plot.GetZaxis().SetLabelFont(62)
-	
-	plot.SetTitleFont(62)
-	plot.SetTitleSize(0.06)
+	if not plot.__class__ == TGraph:
+		plot.SetTitleFont(62)
+		plot.SetTitleSize(0.06)
 
 def setBigAxisTitles(plot):
 	if plot.__class__ == TEfficiency:
