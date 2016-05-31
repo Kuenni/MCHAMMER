@@ -31,9 +31,9 @@ class Plot:
 		process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 		gitOutput,err = process.communicate()
 		gch = 'None'
-		for line in gitOutput.split('\n'):
-			if line.find('commit') != -1:
-				gch = line.split(' ')[-1]
+		firstLine = gitOutput.split('\n')[0]
+		if firstLine.find('commit') != -1:
+			gch = firstLine.split(' ')[-1]
 		return gch
 	
 	def createPlotSubdir(self,subdirname):
