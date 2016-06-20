@@ -14,33 +14,34 @@ class GridMatching(Plot):
 		Plot.__init__(self,filename,data)
 		self.createPlotSubdir('efficiency')
 		
-	def plotL13x3AndL1Tight3x3(self):
-		effL1Muon3x3 = self.fileHandler.getHistogram('hoMuonAnalyzer/efficiency/gridMatching_loose3x3_Efficiency')
-		effL1TightMuon3x3 = self.fileHandler.getHistogram('hoMuonAnalyzer/efficiency/gridMatching_tight3x3_Efficiency')
-		c = TCanvas("tight and normal 3x3","3x3 All and Tight",1200,1200)
-			
-		effL1Muon3x3.SetMarkerColor(colorRwthDarkBlue)
-		effL1Muon3x3.SetLineColor(colorRwthDarkBlue)
-		effL1Muon3x3.SetMarkerStyle(20)
-		effL1Muon3x3.SetTitle('Efficiency for Matching HO to L1 and L1 Tight;p_{T,RECO} / GeV;Efficiency')
+	def get3x3MatchingPlot(self,hist3x3,hist3x3Tight,histTitle):
+		eff3x3 = self.fileHandler.getHistogram(hist3x3)
+		eff3x3Tight = self.fileHandler.getHistogram(hist3x3Tight)
+		c = TCanvas(histTitle,histTitle,1200,1200)
 
-		effL1TightMuon3x3.SetMarkerColor(colorRwthMagenta)
-		effL1TightMuon3x3.SetLineColor(colorRwthMagenta)
-		effL1TightMuon3x3.SetMarkerStyle(21)
+		eff3x3.SetMarkerColor(colorRwthDarkBlue)
+		eff3x3.SetLineColor(colorRwthDarkBlue)
+		eff3x3.SetMarkerStyle(20)
+		eff3x3.SetTitle(histTitle)
 
-		effL1Muon3x3.Draw('')
-		effL1TightMuon3x3.Draw('same')
+		eff3x3Tight.SetMarkerColor(colorRwthMagenta)
+		eff3x3Tight.SetLineColor(colorRwthMagenta)
+		eff3x3Tight.SetMarkerStyle(21)
+
+		eff3x3.Draw('')
+		eff3x3Tight.Draw('same')
 
 		c.Update()
 		
-		effL1Muon3x3.GetPaintedGraph().GetXaxis().SetRangeUser(0,20)
-		effL1Muon3x3.GetPaintedGraph().GetYaxis().SetRangeUser(0,1)
+		setupAxes(eff3x3)
+		setupAxes(eff3x3Tight)
 		
-		print effL1Muon3x3.GetPassedHistogram().Integral()
-		print effL1TightMuon3x3.GetPassedHistogram().Integral()
+		return c,eff3x3,eff3x3Tight
 		
-		setupAxes(effL1Muon3x3)
-		setupAxes(effL1TightMuon3x3)
+	def plotL13x3AndL1Tight3x3(self):
+		c,effL1Muon3x3,effL1TightMuon3x3 = self.get3x3MatchingPlot('hoMuonAnalyzer/efficiency/gridMatching_loose3x3_Efficiency',
+			 'hoMuonAnalyzer/efficiency/gridMatching_tight3x3_Efficiency',
+			  'Efficiency for Matching L1 to HO;p_{T,RECO} / GeV;Efficiency')
 		
 		legend = TLegend(0.55,0.1,0.9,0.3)
 		legend.AddEntry(effL1Muon3x3,'Matches in 3x3 grid','ep')
@@ -50,33 +51,27 @@ class GridMatching(Plot):
 		label = self.drawLabel()
 
 		c.Update()
-		self.storeCanvas(c,'efficiencyNormalAndTightVsPt')
+		self.storeCanvas(c,'efficiencyNormalAndTightVsPt_fullRange')
+		
+		effL1Muon3x3.GetPaintedGraph().GetXaxis().SetRangeUser(0,20)
+		effL1Muon3x3.GetPaintedGraph().GetYaxis().SetRangeUser(0,1)
+		
+		c.Update()
+		self.storeCanvas(c,'efficiencyNormalAndTightVsPt_zoom')
+		
 		return c, legend, effL1Muon3x3, effL1TightMuon3x3,label
 	
 	def plotL13x3AndL1Tight3x3L1Coordinates(self):
-		effL1Muon3x3 = self.fileHandler.getHistogram('hoMuonAnalyzer/efficiency/gridMatching_L1pT_loose3x3_Efficiency')
-		effL1TightMuon3x3 = self.fileHandler.getHistogram('hoMuonAnalyzer/efficiency/gridMatching_L1pT_tight3x3_Efficiency')
-		c = TCanvas("tight and normal 3x3 L1 pT","3x3 All and Tight",1200,1200)
-			
-		effL1Muon3x3.SetMarkerColor(colorRwthDarkBlue)
-		effL1Muon3x3.SetLineColor(colorRwthDarkBlue)
-		effL1Muon3x3.SetMarkerStyle(20)
-		effL1Muon3x3.SetTitle('Efficiency for Matching HO to L1 and L1 Tight;p_{T,L1} / GeV;Efficiency')
-
-		effL1TightMuon3x3.SetMarkerColor(colorRwthMagenta)
-		effL1TightMuon3x3.SetLineColor(colorRwthMagenta)
-		effL1TightMuon3x3.SetMarkerStyle(21)
 		
-		effL1Muon3x3.Draw('')
-		effL1TightMuon3x3.Draw('same')
-
+		c,effL1Muon3x3,effL1TightMuon3x3 = self.get3x3MatchingPlot('hoMuonAnalyzer/efficiency/gridMatching_L1pT_loose3x3_Efficiency',
+			 'hoMuonAnalyzer/efficiency/gridMatching_L1pT_tight3x3_Efficiency',
+			 'Efficiency for Matching L1 to HO;p_{T,L1} / GeV;Efficiency')
+				
 		c.Update()
-		
+		self.storeCanvas(c,'efficiencyNormalAndTightVsPtL1_fullRange')	
+			
 		effL1Muon3x3.GetPaintedGraph().GetXaxis().SetRangeUser(0,20)
 		effL1Muon3x3.GetPaintedGraph().GetYaxis().SetRangeUser(0,1)
-		
-		setupAxes(effL1Muon3x3)
-		setupAxes(effL1TightMuon3x3)
 		
 		legend = TLegend(0.55,0.1,0.9,0.3)
 		legend.AddEntry(effL1Muon3x3,'Matches in 3x3 grid','ep')
@@ -86,7 +81,52 @@ class GridMatching(Plot):
 		label = self.drawLabel()
 
 		c.Update()
-		self.storeCanvas(c,'efficiencyNormalAndTightVsPtL1')
+		self.storeCanvas(c,'efficiencyNormalAndTightVsPtL1_zoom')
+		return c, legend, effL1Muon3x3, effL1TightMuon3x3,label
+
+	def plotL13x3AndL1Tight3x3FromPatL1Pt(self):
+		
+		c,effL1Muon3x3,effL1TightMuon3x3 = self.get3x3MatchingPlot('hoMuonAnalyzer/efficiency/patToL1Muons_L1pT3x3_Efficiency',
+			 'hoMuonAnalyzer/efficiency/patTightToL1Muons_L1pT3x3_Efficiency',
+			 'Efficiency (from #texttt{pat}) for Matching L1 to HO;p_{T,L1} / GeV;Efficiency')
+				
+		c.Update()
+		self.storeCanvas(c,'efficiencyFromPatNormalAndTightVsPtL1_fullRange')		
+		
+		effL1Muon3x3.GetPaintedGraph().GetXaxis().SetRangeUser(0,20)
+		effL1Muon3x3.GetPaintedGraph().GetYaxis().SetRangeUser(0,1)
+		
+		legend = TLegend(0.55,0.1,0.9,0.3)
+		legend.AddEntry(effL1Muon3x3,'Matches in 3x3 grid','ep')
+		legend.AddEntry(effL1TightMuon3x3,'Matches from tight in 3x3 grid','ep')
+		legend.Draw()
+
+		label = self.drawLabel()
+
+		c.Update()
+		self.storeCanvas(c,'efficiencyFromPatNormalAndTightVsPtL1_zoom')
+		return c, legend, effL1Muon3x3, effL1TightMuon3x3,label
+	
+	def plotL13x3AndL1Tight3x3FromPat(self):
+		c,effL1Muon3x3,effL1TightMuon3x3 = self.get3x3MatchingPlot('hoMuonAnalyzer/efficiency/patToL1Muons3x3_Efficiency',
+			 'hoMuonAnalyzer/efficiency/patTightToL1Muons3x3_Efficiency',
+			 'Efficiency (from #texttt{pat}) for Matching L1 to HO;p_{T,RECO} / GeV;Efficiency')
+				
+		c.Update()
+		self.storeCanvas(c,'efficiencyFromPatNormalAndTightVsPt_fullRange')		
+		
+		effL1Muon3x3.GetPaintedGraph().GetXaxis().SetRangeUser(0,20)
+		effL1Muon3x3.GetPaintedGraph().GetYaxis().SetRangeUser(0,1)
+		
+		legend = TLegend(0.55,0.1,0.9,0.3)
+		legend.AddEntry(effL1Muon3x3,'Matches in 3x3 grid','ep')
+		legend.AddEntry(effL1TightMuon3x3,'Matches from tight in 3x3 grid','ep')
+		legend.Draw()
+
+		label = self.drawLabel()
+
+		c.Update()
+		self.storeCanvas(c,'efficiencyFromPatNormalAndTightVsPt_zoom')
 		return c, legend, effL1Muon3x3, effL1TightMuon3x3,label
 	
 	def plotL1GridMatchingEfficiency(self):
@@ -180,7 +220,7 @@ class GridMatching(Plot):
 		plt.title(r'Efficiency $\epsilon$ of matching L1 to HO')
 		plt.legend(loc='lower right')
 		pyplotCmsPrivateLabel(ax)
-		plt.savefig('plots/efficiency/efficiency.png')
+		plt.savefig('plots/efficiency.png')
 	
 		plt.show()
 	
@@ -275,7 +315,7 @@ class GridMatching(Plot):
 		plt.title(r'Efficiency $\epsilon$ of matching "true" L1 to HO')
 		plt.legend(loc='lower right')
 		pyplotCmsPrivateLabel(ax)
-		plt.savefig('plots/efficiency/efficiencyTruth.png')
+		plt.savefig('plots/efficiencyTruth.png')
 		plt.show()
 	
 	
@@ -358,7 +398,7 @@ class GridMatching(Plot):
 		plt.setp(ax2.get_yticklabels()[-1],visible=False)
 	
 		fig.subplots_adjust(hspace=0)
-		plt.savefig('plots/efficiency/efficiency5x5.png')
+		plt.savefig('plots/efficiency5x5.png')
 		plt.show()
 	
 	def plotDeltaNL1ComparedGridMatching(self):
@@ -393,7 +433,7 @@ class GridMatching(Plot):
 		ax1.set_xlabel(r'p$_\mathrm{T}$ / GeV')
 		ax1.set_title(r'# L1 in direct comparison for Grid Matching (3x3)')
 		pyplotCmsPrivateLabel(ax1)
-		plt.savefig('plots/efficiency/nL13x3.png')
+		plt.savefig('plots/nL13x3.png')
 		plt.show()
 	
 	def plotDeltaNL1ComparedMatchingByEMax(self):
@@ -427,7 +467,7 @@ class GridMatching(Plot):
 		ax1.set_xlabel(r'p$_\mathrm{T}$ / GeV')
 		ax1.set_title(r'# L1 in direct comparison for $\Delta$R matching by E$_{Max}$')
 		pyplotCmsPrivateLabel(ax1)
-		plt.savefig('plots/efficiency/nL1ByEmax.png')
+		plt.savefig('plots/nL1ByEmax.png')
 		plt.show()
 		
 	def plotNtotalGridMatching3x3(self):
@@ -513,7 +553,7 @@ class GridMatching(Plot):
 		ax1.set_xlabel(r'p$_\mathrm{T}$ / GeV')
 		ax1.set_title('# L1')
 		pyplotCmsPrivateLabel(ax1)
-		plt.savefig('plots/efficiency/nL1ByEmax3x3Absolute.png')
+		plt.savefig('plots/nL1ByEmax3x3Absolute.png')
 		plt.show()
 		
 	def plot3x3GridTogether(self):
@@ -595,7 +635,7 @@ class GridMatching(Plot):
 		plt.setp(ax2.get_yticklabels()[-1],visible=False)
 	
 		fig.subplots_adjust(hspace=0)
-		plt.savefig('plots/efficiency/efficiency3x3.png')
+		plt.savefig('plots/efficiency3x3.png')
 		plt.show()
 	
 #r2 = plotQualityCodesStacked(0)
