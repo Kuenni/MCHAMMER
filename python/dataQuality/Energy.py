@@ -159,6 +159,10 @@ class Energy(Plot):
 		L1MuonAndHoMatchAboveThr = self.fileHandler.getHistogram('hoMuonAnalyzer/energy/L1MuonWithHoMatchAboveThr_Energy')
 		L1MuonAndHoMatchAboveThrFilt = self.fileHandler.getHistogram('hoMuonAnalyzer/energy/L1MuonWithHoMatchAboveThrFilt_Energy')
 	
+		L1MuonAndHoMatch = None
+		L1MuonAndHoMatchAboveThr = None
+		L1MuonAndHoMatchAboveThrFilt = None
+		
 		canv = TCanvas("energieNormCanvas",'Energy Norm canvas',1200,1200)
 		canv.SetLogy()
 	
@@ -166,11 +170,12 @@ class Energy(Plot):
 		ho.SetTitle('Normalized energy distribution of HO hits (Integral)')
 		ho.GetXaxis().SetTitle('Reconstructed HO energy / GeV')
 		ho.GetYaxis().SetTitle('rel. fraction')
-		#ho.GetXaxis().SetRangeUser(-2,6)
+		ho.GetXaxis().SetRangeUser(-0.2,6)
 	
 		ho.SetLineColor(colorRwthDarkBlue)
 		ho.SetLineWidth(3)
 		ho.Scale(1/ho.Integral())
+		setupAxes(ho)
 		ho.Draw()
 		
 		label = self.drawLabel()
@@ -203,11 +208,10 @@ class Energy(Plot):
 	
 		
 		self.storeCanvas(canv,'energyNorm')
-		canv.SaveAs("plots/energy/energyNorm.pdf")
 	
-		f = TFile.Open("plots/energy/energyNorm.root","RECREATE")
-		canv.Write()
-		f.Close()
+# 		f = TFile.Open("plots/energy/energyNorm.root","RECREATE")
+# 		canv.Write()
+# 		f.Close()
 		return [canv,ho,L1MuonAndHoMatch, L1MuonAndHoMatchAboveThr,L1MuonAndHoMatchAboveThrFilt,label,legend]
 	
 	def plotEnergy(self):
@@ -240,7 +244,7 @@ class Energy(Plot):
 			L1MuonAndHoMatch.SetLineColor(colorRwthTuerkis)
 			L1MuonAndHoMatch.SetLineWidth(3)
 			L1MuonAndHoMatch.Draw('same')
-			legend.AddEntry(L1MuonAndHoMatch,'L1Muon + HO match','l')
+	#		legend.AddEntry(L1MuonAndHoMatch,'L1Muon + HO match','l')
 			
 		if(L1MuonAndHoMatchAboveThr):
 			L1MuonAndHoMatchAboveThr.SetLineColor(colorRwthRot)
@@ -257,11 +261,10 @@ class Energy(Plot):
 	
 		
 		self.storeCanvas(canv,'energy')
-		canv.SaveAs("plots/energy/energy.pdf")
 	
-		f = TFile.Open("plots/energy/energy.root","RECREATE")
-		canv.Write()
-		f.Close()
+		#f = TFile.Open("plots/energy/energy.root","RECREATE")
+		#canv.Write()
+		#f.Close()
 		return [canv,ho,L1MuonAndHoMatch, L1MuonAndHoMatchAboveThr,L1MuonAndHoMatchAboveThrFilt,label,legend]
 	
 	def plotEnergyVsEta(self,sourceHistogram = 'L1MuonWithHoMatch_EnergyVsEta'):
@@ -283,11 +286,10 @@ class Energy(Plot):
 		pal.SetX2NDC(0.92)
 		
 		self.storeCanvas(canv,'energyVsEta')
-		canv.SaveAs("plots/energy/energyVsEta.pdf")
 	
-		f = TFile.Open("plots/energy/energyVsEta.root","RECREATE")
-		canv.Write()
-		f.Close()
+# 		f = TFile.Open("plots/energy/energyVsEta.root","RECREATE")
+# 		canv.Write()
+# 		f.Close()
 		return canv
 	
 	def plotEnergyVsPhi(self,sourceHistogram = 'L1MuonWithHoMatch_EnergyVsPhi'):
@@ -308,12 +310,12 @@ class Energy(Plot):
 		pal = energyVsEta.GetListOfFunctions().FindObject("palette")
 		pal.SetX2NDC(0.92)
 		
-		canv.SaveAs("plots/energy/energyVsPhi.gif")
-		canv.SaveAs("plots/energy/energyVsPhi.pdf")
+
+		self.storeCanvas(canv,'energyVsPhi')
 	
-		f = TFile.Open("plots/energy/energyVsPhi.root","RECREATE")
-		canv.Write()
-		f.Close()
+# 		f = TFile.Open("plots/energy/energyVsPhi.root","RECREATE")
+# 		canv.Write()
+# 		f.Close()
 		return canv
 	
 	# Generate the plot based on the energy vs eta and phin histogram
