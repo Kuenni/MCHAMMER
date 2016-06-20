@@ -40,7 +40,8 @@ class Counters(Plot):
 		
 		self.commandLine.output('###############################################')
 		for i,h in enumerate(histogramList):
-			self.commandLine.output('%-20s:%8d\t=> %5.2f' % (names[i],h.GetBinContent(2),calcPercent(h.GetBinContent(2),nL1)))
+			self.commandLine.output('%-20s:%8d\t=> %6.2f%% +/- %5.2f%%' % (names[i],h.GetBinContent(2)
+					,calcPercent(h.GetBinContent(2),nL1),calcSigma(h.GetBinContent(2),nL1)*100))
 		self.commandLine.output('###############################################')
 
 		
@@ -131,10 +132,10 @@ class Counters(Plot):
 		halfPhiBinwidth = L1_PHI_BIN/2.
 		
 		hL1Tight = TH2D('hL1Tight','L1Tight',30,-15*L1_ETA_BIN	,15*L1_ETA_BIN,
-					145, -math.pi - halfPhiBinwidth,math.pi + halfPhiBinwidth)
+					144, -math.pi,math.pi)
 	
 		hL1Tight3x3 = TH2D('hL1Tight3x3','L1Tight3x3',30,-15*L1_ETA_BIN	,15*L1_ETA_BIN,
-					145, -math.pi - halfPhiBinwidth,math.pi + halfPhiBinwidth)
+					144, -math.pi,math.pi)
 
 		hL1Tight = fillGraphIn2DHist(gL1Tight,hL1Tight)
 		hL1Tight3x3 = fillGraphIn2DHist(gL1Tight3x3,hL1Tight3x3)
@@ -144,6 +145,7 @@ class Counters(Plot):
 		
 		c = TCanvas('2dMap')
 		hRatio.SetTitle('Local Efficiency per tight L1 coordinate (3x3 Matching);#eta_{L1};#phi_{L1};#epsilon')
+		hRatio.GetXaxis().SetRangeUser(-0.8,.8)
 		hRatio.Draw('colz')
 		hRatio.SetStats(0)
 		c.Update()
