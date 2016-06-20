@@ -1341,7 +1341,7 @@ void hoMuonAnalyzer::calculateGridMatchingEfficiency(const l1extra::L1MuonPartic
 
 	calculateGridMatchingEfficiency(l1Eta, l1Phi,pt, key);
 	//Analyze the BX ID of L1 objects that do not have a match in the grid
-	const HORecHit* recHit = hoMatcher->getClosestRecHitInGrid(l1Eta,l1Phi,2);
+	const HORecHit* recHit = hoMatcher->matchByEMaxInGrid(l1Eta,l1Phi,2);//getClosestRecHitInGrid(l1Eta,l1Phi,2);
 	for(int i = 0; i < 3 ; i++){
 		std::string gridString = CommonFunctionsHandler::getGridString(i);
 		if(!recHit){
@@ -1410,7 +1410,7 @@ void hoMuonAnalyzer::fillTriggerRatesForQualityCodes(){
  * central, 3x3 and 5x5. Also store the position information
  */
 void hoMuonAnalyzer::calculateGridMatchingEfficiency(double eta, double phi, float pt, std::string key){
-	const HORecHit* recHit = hoMatcher->getClosestRecHitInGrid(eta,phi,2);
+	const HORecHit* recHit = hoMatcher->matchByEMaxInGrid(eta,phi,2);//getClosestRecHitInGrid(eta,phi,2);
 		for(int i = 0; i < 3 ; i++){
 			if(!recHit){
 				fillGridMatchingHistograms(false,i,pt,999,key,eta,phi);
@@ -1631,21 +1631,27 @@ void hoMuonAnalyzer::analyzeGridMatching(){
 	 * 12. 05. 2016: Keep this order for clean signal L1!
 	 */
 	for(auto patMuonIt = patMuons->begin(); patMuonIt != patMuons->end(); ++patMuonIt){
-		if(patMuonIt->isTightMuon(getPrimaryVertex())){
-			const l1extra::L1MuonParticle* l1Part = 0;
-			l1Part = functionsHandler->getBestL1MuonMatch(patMuonIt->eta(),patMuonIt->phi());
-			//Look only at tight muons, that were "seeded" by L1
-			if(l1Part){
-				float l1Eta = l1Part->eta();
-				float l1Phi = l1Part->phi() + L1PHI_OFFSET;
-				//Restrict the L1 information to Ho range
-				if(fabs(l1Eta) > MAX_ETA){
-					continue;
-				}
-				histogramBuilder.fillEtaPhiGraph(l1Eta, l1Phi,"L1TightMuons");
-				histogramBuilder.fillCountHistogram("L1TightMuons");
-				calculateGridMatchingEfficiency(&*l1Part,l1Part->pt(),"L1TightMuons");
-				fillAverageEnergyAroundL1Direction(&*l1Part,"L1TightMuons");
+		const l1extra::L1MuonParticle* l1Part = 0;
+		l1Part = functionsHandler->getBestL1MuonMatch(patMuonIt->eta(),patMuonIt->phi());
+		if(l1Part){
+			float l1Eta = l1Part->eta();
+			//FIXME: Need to perform a wrapcheck on statements like this one
+			float l1Phi = l1Part->phi() + L1PHI_OFFSET;
+			//Restrict the L1 information to Ho range
+			if(fabs(l1Eta) > MAX_ETA){
+				continue;
+			}
+			histogramBuilder.fillEtaPhiGraph(l1Eta, l1Phi,"patToL1Muons");
+			histogramBuilder.fillCountHistogram("patToL1Muons");
+			calculateGridMatchingEfficiency(&*l1Part,l1Part->pt(),"patToL1Muons_L1pT");
+			calculateGridMatchingEfficiency(&*l1Part,patMuonIt->pt(),"patToL1Muons");
+			fillAverageEnergyAroundL1Direction(&*l1Part,"patToL1Muons");
+			if(patMuonIt->isTightMuon(getPrimaryVertex())){
+				histogramBuilder.fillEtaPhiGraph(l1Eta, l1Phi,"patTightToL1Muons");
+				histogramBuilder.fillCountHistogram("patTightToL1Muons");
+				calculateGridMatchingEfficiency(&*l1Part,l1Part->pt(),"patTightToL1Muons_L1pT");
+				calculateGridMatchingEfficiency(&*l1Part,patMuonIt->pt(),"patTightToL1Muons");
+				fillAverageEnergyAroundL1Direction(&*l1Part,"patTightToL1Muons");
 			}
 		}
 	}
