@@ -156,7 +156,7 @@ def createFileList():
     if(useNetScratch):
         PREFIX = ''
     if useRwth:
-        PREFIX = 'dcap://grid-dcap.physik.rwth-aachen.de/pnfs/physik.rwth-aachen.de'
+        PREFIX = 'dcap://grid-dcap.physik.rwth-aachen.de/pnfs/physik.rwth-aachen.de/cms'
     for line in lsResults:
         lineStr = str(line)
         if lineStr.count('.root'):
