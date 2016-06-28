@@ -1,7 +1,9 @@
 from submit import Submitter
 import os,sys,math
 
-submitter = Submitter(1)
+batchNumber = int(raw_input("Wich batchnumber to submit?"))
+
+submitter = Submitter('T2_DE_RWTH',1,batchNumber)
 submitter.submit()
 print submitter.getStatus()
 sys.exit(0)
