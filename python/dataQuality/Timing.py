@@ -5,6 +5,7 @@ from plotting.Plot import Plot
 from plotting.PlotStyle import setPlotStyle,calcSigma,getLabelCmsPrivateSimulation,\
 	colorRwthRot,colorRwthDarkBlue,colorRwthMagenta,setupAxes,convertToHcalCoords,chimney1,chimney2,colorRwthRot,\
 	setBigAxisTitles
+from plotting.Utils import getLegend
 
 class Timing(Plot):
 	def __init__(self,filename,data,debug):
@@ -76,12 +77,14 @@ class Timing(Plot):
 		
 		integralCenter = hDeltaTCleanHo.Integral(hDeltaTCleanHo.FindBin(fitFirstMin.GetMinimumX(-20,-10)),hDeltaTCleanHo.FindBin(fitSecondMin.GetMinimumX(10,20)))
 		integralCenterAll = hDeltaTAllHo.Integral(hDeltaTAllHo.FindBin(fitFirstMin.GetMinimumX(-20,-10)),hDeltaTAllHo.FindBin(fitSecondMin.GetMinimumX(10,20)))
-		print 80*'#'
-		print 'Integral of center area in clean histogram :',integralCenter
-		print '==> %.2f%% +/- %.2f%%' % (integralCenter/hDeltaTCleanHo.Integral()*100,calcSigma(integralCenter, hDeltaTCleanHo.Integral())*100)
-		print 'Integral of center area in all matched HO events:',integralCenterAll
-		print '==> %.2f%% +/- %.2f%%' % (integralCenterAll/hDeltaTAllHo.Integral()*100,calcSigma(integralCenterAll, hDeltaTAllHo.Integral())*100)
-		print 80*'#'
+		self.output(80*'#')
+		self.output('Integral of center area in clean histogram :%d' % integralCenter)
+		self.output('==> %.2f%% +/- %.2f%%' % (integralCenter/hDeltaTCleanHo.Integral()*100
+											,calcSigma(integralCenter, hDeltaTCleanHo.Integral())*100))
+		self.output('Integral of center area in all matched HO events:%d' % integralCenterAll)
+		self.output('==> %.2f%% +/- %.2f%%' % (integralCenterAll/hDeltaTAllHo.Integral()*100
+											,calcSigma(integralCenterAll, hDeltaTAllHo.Integral())*100))
+		self.output(80*'#')
 		
 		paveText = TPaveText(0.6,0.7,0.9,0.75,'NDC')
 		paveText.AddText('%s' % ('Central peak contains (filtered hist.)'))
@@ -201,10 +204,21 @@ class Timing(Plot):
 		c2.cd(1).SetLogy()
 		hBxIdBest = self.fileHandler.getHistogram('hoMuonAnalyzer/timingSupport_MatchedDtRpcHo_Time')
 		hBxIdDtOnly = self.fileHandler.getHistogram('hoMuonAnalyzer/timingSupport_UnmatchedDtHo_Time')
+		hBxIdDtOnlyTight = self.fileHandler.getHistogram('hoMuonAnalyzer/timingSupport_tight_UnmatchedDtHo_Time')
 		hBxIdOther = self.fileHandler.getHistogram('hoMuonAnalyzer/timingSupport_OtherCodesHo_Time')
-		hBxIdBest.Sumw2()
-		hBxIdDtOnly.Sumw2()
-		hBxIdOther.Sumw2()
+		
+		hIntegral = hBxIdDtOnly.Integral()
+		hIntegralCentral = hBxIdDtOnly.Integral(
+			hBxIdDtOnly.FindBin(-12.5),
+			hBxIdDtOnly.FindBin(12.5))
+		hIntegralTight = hBxIdDtOnlyTight.Integral()
+		hIntegralTighCentral = hBxIdDtOnlyTight.Integral(
+			hBxIdDtOnlyTight.FindBin(-12.5),
+			hBxIdDtOnlyTight.FindBin(12.5))
+		
+#		hBxIdBest.Sumw2()
+#		hBxIdDtOnly.Sumw2()
+#		hBxIdOther.Sumw2()
 		hBxIdBest.SetLineColor(colorRwthDarkBlue)
 		hBxIdBest.SetLineWidth(3)
 		hBxIdBest.SetStats(0)
@@ -248,7 +262,28 @@ class Timing(Plot):
 		
 		self.storeCanvas(c2,"matchedHoTime")
 		
-		return label,c2,hBxIdBest,hBxIdDtOnly,hBxIdOther
+		c = TCanvas('cDtOnlyWithTight',"DT only with tight",600,600)
+		c.SetLogy()
+		hBxIdDtOnlyCopy = hBxIdDtOnly.DrawCopy()
+		hBxIdDtOnlyTight.Scale(1/hBxIdDtOnlyTight.Integral())
+		hBxIdDtOnlyTight.SetLineColor(colorRwthMagenta)
+		hBxIdDtOnlyTight.Draw('same')
+		
+		legend = getLegend(y1=0.75,y2=.9)
+		legend.AddEntry(hBxIdDtOnlyCopy,'DT only','l')
+		legend.AddEntry(hBxIdDtOnlyTight,'DT only, tight','l')
+		legend.Draw()
+		
+		self.output(80*'#')
+		self.output('Not tight: Integral in [-12.5,12.5]:\t %8d => %5.2f%% +/- %5.2f%%' % (hIntegral,
+				hIntegralCentral/float(hIntegral)*100,calcSigma(hIntegralCentral, hIntegral)*100))
+		self.output('Tight: Integral in [-12.5,12.5]:\t\t %8d => %5.2f%% +/- %5.2f%%' % (hIntegralTight,
+				hIntegralTighCentral/float(hIntegralTight)*100,calcSigma(hIntegralTighCentral, hIntegralTight)*100))
+		self.output(80*'#')
+		
+		self.storeCanvas(c, 'matchedHoDtOnlyWithTight')
+				
+		return label,c2,hBxIdBest,hBxIdDtOnly,hBxIdOther,hBxIdDtOnlyTight,hBxIdDtOnlyCopy,c,legend
 	
 	def plotHoTimeLog(self):
 		c3 = TCanvas("c3Log","HO Time Log",1200,1200)
@@ -332,18 +367,19 @@ class Timing(Plot):
 		label = getLabelCmsPrivateSimulation()
 		label.Draw()
 		
-		print 80*'#'
-		print 'Integral of HO > 0.2 GeV time histogram:'
-		print hHoTimeAboveThr.Integral()
-		print
+		self.output(80*'#')
+		self.output( 'Integral of HO > 0.2 GeV time histogram:')
+		self.output( hHoTimeAboveThr.Integral())
+		self.output('')
 		
 		xLow = -5
 		xHigh = 5
 		histogramBetween = hHoTimeAboveThr.Integral(hHoTimeAboveThr.FindBin(xLow),hHoTimeAboveThr.FindBin(xHigh))
 		histogramTotal = float(hHoTimeAboveThr.Integral())
-		print 'Histogram integral between %.f ns and %.f ns' % (xLow,xHigh)
-		print '%d/%d => %.2f +/- %f' % (histogramBetween,histogramTotal,histogramBetween/histogramTotal,calcSigma(histogramBetween, histogramTotal))  
-		print 80*'#'
+		self.output( 'Histogram integral between %.f ns and %.f ns' % (xLow,xHigh) )
+		self.output( '%d/%d => %.2f +/- %f' % (histogramBetween,histogramTotal
+											,histogramBetween/histogramTotal,calcSigma(histogramBetween, histogramTotal))) 
+		self.output( 80*'#')
 		
 		fit = TF1("fit","gaus",-10,10)
 		hHoTimeAboveThr.Fit(fit)
@@ -421,7 +457,6 @@ class Timing(Plot):
 		stack = THStack("hstack","Fractions of events for BX ID correct and wrong")
 		nRight = hRight.Integral()
 		nWrong = hWrong.Integral()
-		nTotal = nRight + nWrong
 		hRightFraction.SetLineColor(colorRwthDarkBlue)
 		hRightFraction.SetFillColor(colorRwthDarkBlue)
 		hRightFraction.SetFillStyle(3002)
@@ -449,11 +484,6 @@ class Timing(Plot):
 	#Plot eta and phi of wrong bx ids
 	def plotEtaPhiOfWrongBxId(self):
 		canvasEtaPhiBxWrong = TCanvas("canvasEtaPhiBxWrong","canvasEtaPhiBxWrong",1200,1200)
-		
-		hWrong = self.fileHandler.getHistogram('hoMuonAnalyzer/BxWrongGen_Pt')
-		hRight = self.fileHandler.getHistogram('hoMuonAnalyzer/BxRightGen_Pt')
-		nRight = hRight.Integral()
-		nWrong = hWrong.Integral()
 		
 		nEventsWithL1 = self.fileHandler.getHistogram('hoMuonAnalyzer/count/L1MuonPresent_Count').GetBinContent(2)
 		
@@ -687,7 +717,6 @@ class Timing(Plot):
 		canvas.SetLogy()
 		histDt = self.fileHandler.getHistogram("hoMuonAnalyzer/timingSupport_UnmatchedDtHo_BxId")
 		histDtNoHo = self.fileHandler.getHistogram("hoMuonAnalyzer/timingSupport_UnmatchedDt_BxId")
-		#print 'DtBxNoHo Integral: ', histDtNoHo.Integral()
 		
 		#Define variables for integrals
 		histHoTime = self.fileHandler.getHistogram('hoMuonAnalyzer/timingSupport_UnmatchedDtHo_Time')
@@ -709,12 +738,20 @@ class Timing(Plot):
 		
 		#Define Variables for bx id counts
 		dtBx0 = histDt.GetBinContent(6)
-		dtBxM1 = histDt.GetBinContent(5)
-		dtBxP1 = histDt.GetBinContent(7)
+		dtBxM1 = histDt.Integral(histDt.FindBin(-10),histDt.FindBin(-1))#histDt.GetBinContent(5)
+		dtBxP1 = histDt.Integral(histDt.FindBin(1),histDt.FindBin(10))#histDt.GetBinContent(7)
 		dtBxTotal = dtBx0 + dtBxM1 + dtBxP1
 		dtFractionWrongM1 = dtBxM1/float(dtBxTotal)
 		dtFractionWrongP1 = dtBxP1/float(dtBxTotal)
 	
+		noHodtBx0 = histDtNoHo.GetBinContent(6)
+		noHodtBxM1 = histDtNoHo.Integral(histDtNoHo.FindBin(-10),histDtNoHo.FindBin(-1))
+		noHodtBxP1 = histDtNoHo.Integral(histDtNoHo.FindBin(1),histDtNoHo.FindBin(10))
+		noHodtBxTotal = noHodtBx0 + noHodtBxM1 + noHodtBxP1
+		noHodtFractionWrongM1 = noHodtBxM1/float(noHodtBxTotal)
+		noHodtFractionWrongP1 = noHodtBxP1/float(noHodtBxTotal)
+		
+		
 		#Print some information
 		heading = 'Bin contents for DT timing:'
 		print heading
@@ -722,7 +759,15 @@ class Timing(Plot):
 		print 'BX ID  0:\t%d\t=>\t%6.3f%% +/- %6.3f%%'%(dtBx0,dtBx0/float(dtBxTotal)*100,calcSigma(dtBx0, dtBxTotal)*100)
 		print 'BX ID -1:\t%d\t=>\t%6.3f%% +/- %6.3f%%'%(dtBxM1,dtFractionWrongM1*100,calcSigma(dtBxM1, dtBxTotal)*100)
 		print 'BX ID +1:\t%d\t=>\t%6.3f%% +/- %6.3f%%'%(dtBxP1,dtFractionWrongP1*100,calcSigma(dtBxP1, dtBxTotal)*100)
-		print 'BX ID total:\t%d' % (dtBxTotal)
+		print 'BX ID total:\t%d\t(hist integral: %d)' % (dtBxTotal,histDt.Integral())
+		print
+		
+		print 'NO HO'
+		print 'BX ID  0:\t%d\t=>\t%6.3f%% +/- %6.3f%%'%(noHodtBx0,noHodtBx0/float(noHodtBxTotal)*100,calcSigma(noHodtBx0, noHodtBxTotal)*100)
+		print 'BX ID -1:\t%d\t=>\t%6.3f%% +/- %6.3f%%'%(noHodtBxM1,noHodtFractionWrongM1*100,calcSigma(noHodtBxM1, noHodtBxTotal)*100)
+		print 'BX ID +1:\t%d\t=>\t%6.3f%% +/- %6.3f%%'%(noHodtBxP1,noHodtFractionWrongP1*100,calcSigma(noHodtBxP1, noHodtBxTotal)*100)
+		print 'BX ID total:\t%d\t(hist integral: %d)' % (noHodtBxTotal,histDtNoHo.Integral())
+		
 		print
 		
 		#Calculate corrected numbers
@@ -764,8 +809,7 @@ class Timing(Plot):
 		#histDtNoHo.Draw('same')
 	
 		#Add label
-		label = getLabelCmsPrivateSimulation()
-		label.Draw()
+		label = self.drawLabel()
 		
 		#Add legend
 		legend = TLegend(0.7,0.65,0.9,0.8)

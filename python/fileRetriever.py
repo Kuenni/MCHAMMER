@@ -152,17 +152,19 @@ def createFileList():
 
     cmsswRunSources = open('cmsswSourceFiles','w+')
 
-    XROOTPREFIX = 'root://xrootd.unl.edu/'
+    PREFIX = 'root://xrootd.unl.edu/'
     if(useNetScratch):
-		XROOTPREFIX = ''
+        PREFIX = ''
+    if useRwth:
+        PREFIX = 'dcap://grid-dcap.physik.rwth-aachen.de/pnfs/physik.rwth-aachen.de/cms'
     for line in lsResults:
         lineStr = str(line)
         if lineStr.count('.root'):
             fileName = lineStr.split(' ')[-1].rstrip('\n')
             fileName = 'file://' + fileName
             if useDesy or useRwth:
-            	fileName = fileName[fileName.index('/store'):]
-            cmsswRunSources.write(XROOTPREFIX + fileName + '\n')
+                fileName = fileName[fileName.index('/store'):]
+            cmsswRunSources.write(PREFIX + fileName + '\n')
     return
 
 def copyDoNotUseDesy():

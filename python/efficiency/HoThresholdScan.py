@@ -25,7 +25,7 @@ class HoThresholdScan(Plot):
 			hist = self.fileHandler.getHistogram('hoMuonAnalyzer/multiplicity/recHitThrScan%d_Multiplicity' % i)
 			hist.GetXaxis().SetRangeUser(0,50)
 			hist.Draw()
-			canvas.SaveAs('plots/hoThresholdScan/hist%fGeV.gif' % ((i+1)*0.025))
+			self.storeCanvas(canvas,'plots/hoThresholdScan/hist%fGeV.gif' % ((i+1)*0.025))
 			yVals.append(hist.GetBinCenter(hist.GetMaximumBin()))
 			yErr.append(math.sqrt(yVals[-1]))
 			xVals.append((i+1)*0.025)
@@ -55,6 +55,5 @@ class HoThresholdScan(Plot):
 		label = self.drawLabel()
 		
 		canvas.Update()
-		canvas.SaveAs('plots/hoThresholdScan/hoThresholdScan.gif')
-		canvas.SaveAs('plots/hoThresholdScan/hoThresholdScan.pdf')
+		self.storeCanvas(canvas,'hoThresholdScan')
 		return canvas, graph,legend,graphMean,label

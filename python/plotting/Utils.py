@@ -140,22 +140,30 @@ def getXinNDC(x):
 	gPad.Update()
 	return (x - gPad.GetX1())/(gPad.GetX2()-gPad.GetX1())
 
+def phiWrapCheck(phi2,phi1):
+	delta_phi = phi2 - phi1;
+	if(delta_phi < -math.pi):
+		return (2*math.pi + delta_phi)
+	if(delta_phi > math.pi):
+		return (delta_phi - 2*math.pi)
+	return delta_phi
+
 def getMedian(th1d):
 	n = th1d.GetXaxis().GetNbins()
 	xVect = vector('double')(n)
 	print xVect
 	xVect = np.array(xVect)
 	print xVect
- 	th1d.GetXaxis().GetCenter( xVect )
- 	print xVect
- 	yVect = th1d.GetArray()
- 	print yVect
- 	yVect.SetSize(n)
- 	print yVect
- 	yVect = np.array(yVect)
- 	print yVect
- 	print np.median([xVect,yVect])
- 	print TMath.Median(n,xVect,yVect)
- #  const double * y = h1->GetArray();
- #  // exclude underflow/overflows from bin content array y
- #  return TMath::Median(n, &x[0], &y[1]);
+	th1d.GetXaxis().GetCenter( xVect )
+	print xVect
+	yVect = th1d.GetArray()
+	print yVect
+	yVect.SetSize(n)
+	print yVect
+	yVect = np.array(yVect)
+	print yVect
+	print np.median([xVect,yVect])
+	print TMath.Median(n,xVect,yVect)
+#  const double * y = h1->GetArray();
+#  // exclude underflow/overflows from bin content array y
+#  return TMath::Median(n, &x[0], &y[1]);

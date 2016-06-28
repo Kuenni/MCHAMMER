@@ -12,11 +12,12 @@ process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
-process.load('Configuration.StandardSequences.MagneticField_0T_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 process.load('Configuration.Geometry.GeometrySimDB_cff')
+process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load('Configuration.StandardSequences.Generator_cff')
+process.load('IOMC.EventVertexGenerators.VtxSmearedNominalCollision2015_cfi')
 process.load('GeneratorInterface.Core.genFilterSummary_cff')
 process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load('Configuration.StandardSequences.Digi_cff')
@@ -28,19 +29,17 @@ process.load('Configuration.StandardSequences.Reconstruction_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 
-## Set Vertex to 0,0,0
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
 process.VtxSmeared.SigmaX = 0.00001
 process.VtxSmeared.SigmaY = 0.00001
 process.VtxSmeared.SigmaZ = 0.00001
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(1)
 )
 
 # Input source
 process.source = cms.Source("EmptySource")
-process.source.firstLuminosityBlock = cms.untracked.uint32(%INSTANCE%)
 
 process.options = cms.untracked.PSet(
 
@@ -64,7 +63,7 @@ process.FEVTDEBUGoutput = cms.OutputModule("PoolOutputModule",
         filterName = cms.untracked.string('')
     ),
     eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
-    fileName = cms.untracked.string('SingleMuPt1to200_noBField_%INSTANCE%.root'),
+    fileName = cms.untracked.string('SingleMuPt100_cfi_GEN_SIM_DIGI_L1_DIGI2RAW_RAW2DIGI_L1Reco_RECO.root'),
     outputCommands = process.FEVTDEBUGEventContent.outputCommands,
     splitLevel = cms.untracked.int32(0)
 )
@@ -84,7 +83,7 @@ process.generator = cms.EDProducer("FlatRandomPtGunProducer",
         MaxPt = cms.double(200.01),
         MinEta = cms.double(-0.8),
         MinPhi = cms.double(-3.14159265359),
-        MinPt = cms.double(0.99),
+        MinPt = cms.double(1.0),
         PartID = cms.vint32(-13)
     ),
     Verbosity = cms.untracked.int32(0),
@@ -92,8 +91,6 @@ process.generator = cms.EDProducer("FlatRandomPtGunProducer",
     psethack = cms.string('single mu pt 100')
 )
 
-# Change seed for each job
-process.RandomNumberGeneratorService.generator.initialSeed = %INSTANCE%
 
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.pgen)

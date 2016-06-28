@@ -1,11 +1,10 @@
-import os
-
-from plotting.PlotStyle import *
 from plotting.Utils import getTGraphErrors,getLegend
 
 from ROOT import TCanvas,TF1,TGraphErrors
 from plotting.Plot import Plot
 import math
+from plotting.PlotStyle import setupAxes, colorRwthDarkBlue, colorRwthMagenta,\
+	colorRwthGruen, colorRwthTuerkis, colorRwthRot, colorRwthOrange, colorRwthLila
 
 class PtResolution(Plot):
 	def __init__(self,filename,data = False):
@@ -92,8 +91,8 @@ class PtResolution(Plot):
 			histPtTightMatch = self.fileHandler.getHistogram('hoMuonAnalyzer/l1PtResolution/L1MuonTightTruthHoMatchBin%d' % i)
 			histNoMatch = self.fileHandler.getHistogram('hoMuonAnalyzer/l1PtResolution/L1MuonTruthNotHoMatchBin%d' % i)
 			histTightNoMatch = self.fileHandler.getHistogram('hoMuonAnalyzer/l1PtResolution/L1MuonTightTruthNotHoMatchBin%d' % i)
-			c = TCanvas()
-			c.SetLogy()
+#			c = TCanvas()
+#			c.SetLogy()
 			if i < 40:
 				ptVals.append(i + 0.5)
 				ptErr.append(0.5)
@@ -109,19 +108,20 @@ class PtResolution(Plot):
 			setupAxes(histPt)
 			histPt.SetLineWidth(3)
 			histPt.SetLineColor(colorRwthDarkBlue)
-			histPt.Draw()
+			#histPt.Draw()
 			if(i < 20):
-				f1 = TF1("f1", "gaus", histPt.GetBinCenter(histPt.GetMaximumBin()) - 5, 2*i + 5);
-				histPt.Fit(f1,"R")
-				graphL1Fit.SetPoint(graphL1Fit.GetN(),i*2,f1.GetParameter(2))#,0,f1.GetParameter(3))
+				#f1 = TF1("f1", "gaus", histPt.GetBinCenter(histPt.GetMaximumBin()) - 5, 2*i + 5);
+				#histPt.Fit(f1,"R")
+				#graphL1Fit.SetPoint(graphL1Fit.GetN(),i*2,f1.GetParameter(2))#,0,f1.GetParameter(3))
 				#raw_input('-')
-				
+				pass
+			
 			if histPtMatch != None:
 				rmsL1AndHo.append(histPtMatch.GetRMS())
 				rmsL1AndHoErr.append(histPtMatch.GetRMSError())
 				histPtMatch.SetLineWidth(3)
 				histPtMatch.SetLineColor(colorRwthMagenta)
-				histPtMatch.Draw('same')
+				#histPtMatch.Draw('same')
 			else:
 				rmsL1AndHo.append(0)
 				rmsL1AndHoErr.append(0)
@@ -133,7 +133,7 @@ class PtResolution(Plot):
 				histPtTight.SetLineColor(colorRwthGruen)
 				histPtTight.SetFillStyle(3002)
 				histPtTight.SetFillColor(colorRwthGruen)
-				histPtTight.Draw('same')
+				#histPtTight.Draw('same')
 			else:
 				rmsL1Tight.append(0)
 				rmsL1TightErr.append(0)
@@ -143,7 +143,7 @@ class PtResolution(Plot):
 				rmsL1TightAndHoErr.append(histPtTightMatch.GetRMSError())
 				histPtTightMatch.SetLineWidth(3)
 				histPtTightMatch.SetLineColor(colorRwthTuerkis)
-				histPtTightMatch.Draw('same')
+				#histPtTightMatch.Draw('same')
 			else:
 				rmsL1TightAndHo.append(0)
 				rmsL1TightAndHoErr.append(0)
@@ -159,7 +159,7 @@ class PtResolution(Plot):
 			else:
 				rmsL1TightNotHo.append(0)
 				rmsL1TightNotHoErr.append(0)
-			self.storeCanvas(c, 'hists/L1Muon%d' % i)
+			#self.storeCanvas(c, 'hists/L1Muon%d' % i)
 		
 		c = TCanvas()
 		graphL1 = getTGraphErrors(ptVals,rmsL1,ey = rmsL1Err,ex=ptErr)
@@ -216,18 +216,25 @@ class PtResolution(Plot):
 		c.Update()
 		
 		self.storeCanvas(c, 'rmsVsPt')
-		c2 = TCanvas('cfitResults','fitResults',800,0,800,600)
-		graphL1Fit.Draw('AP')
-		return c,graphL1,graphL1AndHo,legend,c2,graphL1Fit,label,graphL1TightAndHo,graphL1Tight, graphL1NotHo, graphL1TightNotHo
+		#c2 = TCanvas('cfitResults','fitResults',800,0,800,600)
+		#graphL1Fit.Draw('AP')
+				
+		return graphL1,graphL1AndHo,legend,graphL1Fit,label,graphL1TightAndHo,graphL1Tight, graphL1NotHo, graphL1TightNotHo#,c2,c
 
 	def plotTightPtResolution(self):
 		c = TCanvas('cTightResolution','cTightResolution')
 		xData = self.getXaxisData()
+		tight = self.getHistoDataAsList('hoMuonAnalyzer/l1PtResolution/L1MuonTightTruth')
 		tightAndHo = self.getHistoDataAsList('hoMuonAnalyzer/l1PtResolution/L1MuonTightTruthHoMatch')
 		tightAndNotHo = self.getHistoDataAsList('hoMuonAnalyzer/l1PtResolution/L1MuonTightTruthNotHoMatch')
 		
+		graphL1Tight = getTGraphErrors(xData[0], tight[0], ex=xData[1], ey=tight[1])
 		graphL1TightHo = getTGraphErrors(xData[0], tightAndHo[0], ex=xData[1], ey=tightAndHo[1])
 		graphL1TightNotHo = getTGraphErrors(xData[0], tightAndNotHo[0], ex=xData[1], ey=tightAndNotHo[1])
+		
+		graphL1Tight.SetMarkerStyle(25)
+		graphL1Tight.SetMarkerColor(colorRwthGruen)
+		graphL1Tight.SetLineColor(colorRwthGruen)
 		
 		graphL1TightHo.SetMarkerStyle(20)
 		graphL1TightHo.SetTitle('RMS of tight L1 Objects;p_{T} / GeV;RMS / GeV')
@@ -240,11 +247,13 @@ class PtResolution(Plot):
 		
 		graphL1TightHo.Draw('ap')
 		graphL1TightNotHo.Draw('samep')
+		graphL1Tight.Draw('samep')
 		
 		label = self.drawLabel()
 		
 		setupAxes(graphL1TightHo)
 		legend = getLegend(y2 = .9)
+		legend.AddEntry(graphL1Tight,'L1 Tight','ep')
 		legend.AddEntry(graphL1TightHo,'L1 Tight & HO','ep')
 		legend.AddEntry(graphL1TightNotHo,'L1 Tight & !HO','ep')
 		legend.Draw()
@@ -282,14 +291,17 @@ class PtResolution(Plot):
 		cControlPlot.Update()
 		
 		self.storeCanvas(cControlPlot, 'rmsVsPt_tight_integrals')
-		return c,graphL1TightHo,graphL1TightNotHo,legend,label, legend2, graphIntegralsMatch, graphIntegralsNoMatch, cControlPlot
+		return c,graphL1TightHo,graphL1TightNotHo,legend,label, legend2, graphIntegralsMatch, graphIntegralsNoMatch, cControlPlot,graphL1Tight
 	
 	def plotLoosePtResolution(self):
 		c = TCanvas('cLooseResolution','cLooseResolution')
 		xData = self.getXaxisData()
+		
+		tight = self.getHistoDataAsList('hoMuonAnalyzer/l1PtResolution/L1MuonTruth')
 		tightAndHo = self.getHistoDataAsList('hoMuonAnalyzer/l1PtResolution/L1MuonTruthHoMatch')
 		tightAndNotHo = self.getHistoDataAsList('hoMuonAnalyzer/l1PtResolution/L1MuonTruthNotHoMatch')
 		
+		graphL1Tight = getTGraphErrors(xData[0], tight[0], ex=xData[1], ey=tight[1])
 		graphL1TightHo = getTGraphErrors(xData[0], tightAndHo[0], ex=xData[1], ey=tightAndHo[1])
 		graphL1TightNotHo = getTGraphErrors(xData[0], tightAndNotHo[0], ex=xData[1], ey=tightAndNotHo[1])
 		
@@ -302,13 +314,19 @@ class PtResolution(Plot):
 		graphL1TightNotHo.SetMarkerColor(colorRwthMagenta)
 		graphL1TightNotHo.SetLineColor(colorRwthMagenta)
 		
+		graphL1Tight.SetMarkerStyle(25)
+		graphL1Tight.SetMarkerColor(colorRwthGruen)
+		graphL1Tight.SetLineColor(colorRwthGruen)
+		
 		graphL1TightHo.Draw('ap')
 		graphL1TightNotHo.Draw('samep')
+		graphL1Tight.Draw('samep')
 		
 		label = self.drawLabel()
 		
 		setupAxes(graphL1TightHo)
 		legend = getLegend(y2 = .9)
+		legend.AddEntry(graphL1Tight,'L1','ep')
 		legend.AddEntry(graphL1TightHo,'L1 & HO','ep')
 		legend.AddEntry(graphL1TightNotHo,'L1 & !HO','ep')
 		legend.Draw()
@@ -346,5 +364,5 @@ class PtResolution(Plot):
 		cControlPlot.Update()
 		
 		self.storeCanvas(cControlPlot, 'rmsVsPt_loose_integrals')
-		return c,graphL1TightHo,graphL1TightNotHo,legend,label,graphIntegralsMatch,graphIntegralsNoMatch,legend2,cControlPlot
+		return c,graphL1TightHo,graphL1TightNotHo,legend,label,graphIntegralsMatch,graphIntegralsNoMatch,legend2,cControlPlot,graphL1Tight
 		

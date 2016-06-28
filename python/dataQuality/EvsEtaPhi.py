@@ -1,9 +1,10 @@
 #!/usr/bin/python
 from ROOT import TCanvas,ROOT,TFile,TF1,TLine,gROOT,TPaveText,TH1D,Double,TH2D,THStack,gStyle,TMarker
-from plotting.PlotStyle import getLabelCmsPrivateSimulation,setupPalette
+from plotting.PlotStyle import getLabelCmsPrivateSimulation,setupPalette,\
+	calcSigma
 from plotting.PlotStyle import setupAxes,drawHoBoxes
 from plotting.PlotStyle import setStatBoxOptions,setStatBoxPosition,pyplotCmsPrivateLabel
-from plotting.Utils import setupEAvplot, L1_PHI_BIN, L1_ETA_BIN
+from plotting.Utils import setupEAvplot, L1_PHI_BIN, L1_ETA_BIN, calcPercent
 
 from plotting.Plot import Plot
 
@@ -39,7 +40,7 @@ class EvsEtaPhi(Plot):
 		hSum.GetXaxis().SetTitle('#Delta#eta')
 		hSum.GetYaxis().SetTitle('#Delta#phi')
 		hSum.GetZaxis().SetTitle('Reconstructed Energy / GeV')
-		hSum.SetTitle('Mean Energy in HO tiles around L1 direction')
+		hSum.SetTitle('Average Energy in HO tiles around L1 direction')
 		hSum.Draw('colz')
 	#	hCounter.Draw('same,text')
 		
@@ -211,7 +212,7 @@ class EvsEtaPhi(Plot):
 		
 		canvas.cd(1).SetLogz()
 		
-		histNormal.SetTitle('Mean Energy in HO tiles around L1 direction, i#eta by binning')
+		histNormal.SetTitle('Average Energy in HO tiles around L1 direction, i#eta by binning')
 		histNormal.SetStats(1)
 		histNormal.Draw('colz')
 		
@@ -276,10 +277,10 @@ class EvsEtaPhi(Plot):
 			
 		hCounter = self.fileHandler.getHistogram('hoMuonAnalyzer/deltaEtaDeltaPhiEnergy/averageEMaxAroundPointL1TightMuons_2dCounter')
 
-		#hSum = setupEAvplot(hSum, hCounter,same=True,limitForAll=0.3)
-		hCounter.SetTitle('Average E_{Rec} in HO tiles around tight L1 direction')
-		#hCounter.SetMaximum(1.2)
-		#hCounter.SetMinimum(5e-3)
+		hCounter.SetTitle('# of E_{Max} in HO tiles around tight L1 direction;#Delta#eta;#Delta#phi;# Entries')
+		hCounter.SetStats(0)
+		hCounter.GetXaxis().SetRangeUser(-.5,.5)
+		hCounter.GetYaxis().SetRangeUser(-.5,.5)
 		hCounter.Draw('colz')
 		label = self.drawLabel()
 		canvas.Update()		
@@ -287,6 +288,57 @@ class EvsEtaPhi(Plot):
 		canvas.Update()
 		#boxes = drawHoBoxes(canvas)
 		self.storeCanvas(canvas,'eMaxCountsTightMuons')
+		
+		#Calculate fraction in 3x3 grid
+		integralCentral = hCounter.Integral(hCounter.GetXaxis().FindBin(-.0435),hCounter.GetXaxis().FindBin(.0435),
+									hCounter.GetYaxis().FindBin(-.0435),hCounter.GetYaxis().FindBin(.0435))
+		integral3x3 = hCounter.Integral(hCounter.GetXaxis().FindBin(-.1305),hCounter.GetXaxis().FindBin(.1305),
+									hCounter.GetYaxis().FindBin(-.1305),hCounter.GetYaxis().FindBin(.1305))
+		integralTotal = hCounter.Integral()
+		
+		self.output(80*'#')
+		self.output('Emax fraction for Tight')
+		self.output('%20s:%5.2f%% +/- %5.2f%%' % ('Central Fraction',calcPercent(integralCentral,integralTotal),
+												calcSigma(integralCentral,integralTotal)*100))
+		self.output('%20s:%5.2f%% +/- %5.2f%%' % ('3x3 Fraction',calcPercent(integral3x3,integralTotal),
+												calcSigma(integral3x3,integralTotal)*100))
+		
+		self.output(80*'#')
+		
+		return canvas,label,hCounter
+	
+	def plotEMaxCounts(self):
+		canvas = TCanvas('canvasEmaxcounts','E max counts',1200,1200)
+		canvas.cd().SetLogz()
+			
+		hCounter = self.fileHandler.getHistogram('hoMuonAnalyzer/deltaEtaDeltaPhiEnergy/averageEMaxAroundPointL1MuonPresent_2dCounter')
+		#hSum = setupEAvplot(hSum, hCounter,same=True,limitForAll=0.3)
+		hCounter.SetTitle('# of E_{Max} in HO tiles around L1 direction;#Delta#eta;#Delta#phi;# Entries')
+		hCounter.SetStats(0)
+		hCounter.GetXaxis().SetRangeUser(-.5,.5)
+		hCounter.GetYaxis().SetRangeUser(-.5,.5)
+		hCounter.Draw('colz')
+		label = self.drawLabel()
+		canvas.Update()		
+		setupPalette(hCounter)
+		canvas.Update()
+		#boxes = drawHoBoxes(canvas)
+		self.storeCanvas(canvas,'eMaxCounts')
+		
+		#Calculate fraction in 3x3 grid
+		integralCentral = hCounter.Integral(hCounter.GetXaxis().FindBin(-.0435),hCounter.GetXaxis().FindBin(.0435),
+									hCounter.GetYaxis().FindBin(-.0435),hCounter.GetYaxis().FindBin(.0435))
+		integral3x3 = hCounter.Integral(hCounter.GetXaxis().FindBin(-.1305),hCounter.GetXaxis().FindBin(.1305),
+									hCounter.GetYaxis().FindBin(-.1305),hCounter.GetYaxis().FindBin(.1305))
+		integralTotal = hCounter.Integral()
+		
+		self.output(80*'#')
+		self.output('%20s:%5.2f%% +/- %5.2f%%' % ('Central Fraction',calcPercent(integralCentral,integralTotal),
+												calcSigma(integralCentral,integralTotal)*100))
+		self.output('%20s:%5.2f%% +/- %5.2f%%' % ('3x3 Fraction',calcPercent(integral3x3,integralTotal),
+												calcSigma(integral3x3,integralTotal)*100))
+		
+		self.output(80*'#')
 		return canvas,label,hCounter
 		
 	def plotEavPerWheelForTightMuons(self):
@@ -400,11 +452,12 @@ class EvsEtaPhi(Plot):
 		graphWithHo = self.fileHandler.getGraph('hoMuonAnalyzer/graphs/L1TightMuons3x3')
 				
 		halfPhiBinwidth = L1_PHI_BIN/2.
+		l1BinOffset = L1_PHI_BIN*3/4.
 		
 		histAll = TH2D('hEtaPhiAll',"#eta#phi for tight L1",30,-15*L1_ETA_BIN	,15*L1_ETA_BIN,
-					289, -math.pi - halfPhiBinwidth,math.pi + halfPhiBinwidth)
+					144, -math.pi,math.pi)
 		histWithHo = TH2D('hEtaPhiWithHO',"#eta#phi tight L1 + HO (3x3)",30,-15*L1_ETA_BIN,15*L1_ETA_BIN,
-					289, -math.pi - halfPhiBinwidth,math.pi + halfPhiBinwidth)
+					144, -math.pi,math.pi)
 		
 		x = Double(0)
 		y = Double(0)

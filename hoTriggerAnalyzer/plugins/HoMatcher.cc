@@ -216,14 +216,14 @@ bool HoMatcher::isInChimney(double eta, double phi){
  * 					# # #		# # # # #
  * 								# # # # #
  */
-bool HoMatcher::hasHoHitInGrid(GlobalPoint direction, int gridSize){
+bool HoMatcher::hasHoHitInGrid(double eta, double phi, int gridSize){
 	if(gridSize < 0){
 		return false;
 	}
 
 	//Find the corresponding DetId in the rec hits
 	for(auto itRecHits = hoRecoHits->begin(); itRecHits != hoRecoHits->end(); itRecHits++){
-		if(isRecHitInGrid(double(direction.eta()),double(direction.phi()),&*itRecHits,gridSize)){
+		if(isRecHitInGrid(eta,phi,&*itRecHits,gridSize)){
 			if(itRecHits->energy() > threshold)
 				return true;
 		}
