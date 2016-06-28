@@ -1440,6 +1440,29 @@ void hoMuonAnalyzer::fillGridMatchingHistograms(bool passed, int grid, double pt
 	}
 }
 
+
+void hoMuonAnalyzer::fillL1ResolutionPlots(const l1extra::L1MuonParticle* l1Part, const pat::Muon* patMuon,std::string label){
+	float l1Eta = l1Part->eta();
+	float l1Phi = l1Part->phi() + L1PHI_OFFSET;
+	bool isTight = patMuon->isTightMuon(getPrimaryVertex());
+	const HORecHit* matchedRecHit = 0;
+	matchedRecHit = hoMatcher->matchByEMaxInGrid(l1Eta,l1Phi,2);
+	histogramBuilder.fillL1ResolutionHistogram(l1Part->pt(), patMuon->pt(),label);
+	if (matchedRecHit) {
+		histogramBuilder.fillL1ResolutionHistogram(l1Part->pt(),patMuon->pt(),label +  "HoMatch");
+	} else {
+		histogramBuilder.fillL1ResolutionHistogram(l1Part->pt(),patMuon->pt(),label +  "NotHoMatch");
+	}
+	if(isTight){
+		histogramBuilder.fillL1ResolutionHistogram(l1Part->pt(), patMuon->pt(), label + "Tight");
+		if(matchedRecHit){
+			histogramBuilder.fillL1ResolutionHistogram(l1Part->pt(), patMuon->pt(),label +  "TightHoMatch");
+		} else {
+			histogramBuilder.fillL1ResolutionHistogram(l1Part->pt(), patMuon->pt(),label +  "TightNotHoMatch");
+		}
+	}
+}
+
 /**
  * Create plots for pt resolution with x axis pt info coming from pat muons
  */
@@ -1448,48 +1471,57 @@ void hoMuonAnalyzer::analyzeL1Resolution(){
 		const l1extra::L1MuonParticle* l1Part = 0;
 		l1Part = functionsHandler->getBestL1MuonMatch(patMuonIt->eta(),patMuonIt->phi());
 		if(l1Part){
-
-			double l1Eta, l1Phi;
-			l1Eta = l1Part->eta();
-			l1Phi = l1Part->phi() + L1PHI_OFFSET;
-
-			if(fabs(l1Eta) > MAX_ETA){
+			if(fabs(l1Part->eta()) > MAX_ETA){
 				continue;
 			}
-			bool isTight = patMuonIt->isTightMuon(getPrimaryVertex());
-			histogramBuilder.fillL1ResolutionHistogram(l1Part->pt(), patMuonIt->pt(), "L1MuonTruth");
-			if(l1Part->isIsolated()){
-				histogramBuilder.fillL1MuonPtHistograms(l1Part->pt(),"L1MuonTruth_Isolated");
-			} else {
-				histogramBuilder.fillL1MuonPtHistograms(l1Part->pt(),"L1MuonTruth_Nonisolated");
-			}
-			if(isTight){
-				histogramBuilder.fillL1ResolutionHistogram(l1Part->pt(), patMuonIt->pt(), "L1MuonTightTruth");
-				if(l1Part->isIsolated()){
-					histogramBuilder.fillL1MuonPtHistograms(l1Part->pt(),"L1MuonTightTruth_Isolated");
-				} else {
-					histogramBuilder.fillL1MuonPtHistograms(l1Part->pt(),"L1MuonTightTruth_Nonisolated");
-				}
-				const HORecHit* matchedRecHit = 0;
-				matchedRecHit = hoMatcher->matchByEMaxInGrid(l1Eta,l1Phi,2);
-				if(matchedRecHit){
-					histogramBuilder.fillL1ResolutionHistogram(l1Part->pt(), patMuonIt->pt(), "L1MuonTightTruthHoMatch");
-				} else {
-					histogramBuilder.fillL1ResolutionHistogram(l1Part->pt(), patMuonIt->pt(), "L1MuonTightTruthNotHoMatch");
-				}
-			}
-			const HORecHit* matchedRecHit = 0;
-			matchedRecHit = hoMatcher->matchByEMaxInGrid(l1Eta,l1Phi,2);
-			if(matchedRecHit){
-				histogramBuilder.fillL1ResolutionHistogram(l1Part->pt(), patMuonIt->pt(), "L1MuonTruthHoMatch");
-				if(isTight){
-					histogramBuilder.fillL1ResolutionHistogram(l1Part->pt(), patMuonIt->pt(), "L1MuonTruthHoMatchTight");
-				} else {
-					histogramBuilder.fillL1ResolutionHistogram(l1Part->pt(), patMuonIt->pt(), "L1MuonTruthHoMatchNotTight");
-				}
-			} else {
-				histogramBuilder.fillL1ResolutionHistogram(l1Part->pt(), patMuonIt->pt(), "L1MuonTruthNotHoMatch");
-			}
+			fillL1ResolutionPlots(l1Part,&*patMuonIt,"patToL1Muon");
+
+//			bool isTight = patMuonIt->isTightMuon(getPrimaryVertex());
+//			histogramBuilder.fillL1ResolutionHistogram(l1Part->pt(), patMuonIt->pt(), "L1MuonTruth");
+//			if(l1Part->isIsolated()){
+//				histogramBuilder.fillL1MuonPtHistograms(l1Part->pt(),"L1MuonTruth_Isolated");
+//			} else {
+//				histogramBuilder.fillL1MuonPtHistograms(l1Part->pt(),"L1MuonTruth_Nonisolated");
+//			}
+//			if(isTight){
+//				histogramBuilder.fillL1ResolutionHistogram(l1Part->pt(), patMuonIt->pt(), "L1MuonTightTruth");
+//				if(l1Part->isIsolated()){
+//					histogramBuilder.fillL1MuonPtHistograms(l1Part->pt(),"L1MuonTightTruth_Isolated");
+//				} else {
+//					histogramBuilder.fillL1MuonPtHistograms(l1Part->pt(),"L1MuonTightTruth_Nonisolated");
+//				}
+//				const HORecHit* matchedRecHit = 0;
+//				matchedRecHit = hoMatcher->matchByEMaxInGrid(l1Eta,l1Phi,2);
+//				if(matchedRecHit){
+//					histogramBuilder.fillL1ResolutionHistogram(l1Part->pt(), patMuonIt->pt(), "L1MuonTightTruthHoMatch");
+//				} else {
+//					histogramBuilder.fillL1ResolutionHistogram(l1Part->pt(), patMuonIt->pt(), "L1MuonTightTruthNotHoMatch");
+//				}
+//			}
+//			const HORecHit* matchedRecHit = 0;
+//			matchedRecHit = hoMatcher->matchByEMaxInGrid(l1Eta,l1Phi,2);
+//			if(matchedRecHit){
+//				histogramBuilder.fillL1ResolutionHistogram(l1Part->pt(), patMuonIt->pt(), "L1MuonTruthHoMatch");
+//				if(isTight){
+//					histogramBuilder.fillL1ResolutionHistogram(l1Part->pt(), patMuonIt->pt(), "L1MuonTruthHoMatchTight");
+//				} else {
+//					histogramBuilder.fillL1ResolutionHistogram(l1Part->pt(), patMuonIt->pt(), "L1MuonTruthHoMatchNotTight");
+//				}
+//			} else {
+//				histogramBuilder.fillL1ResolutionHistogram(l1Part->pt(), patMuonIt->pt(), "L1MuonTruthNotHoMatch");
+//			}
+		}
+	}// End loop over pat
+
+	for (auto l1Muon = l1Muons->begin(); l1Muon != l1Muons->end(); l1Muon++) {
+		float l1Eta = l1Muon->eta();
+		float l1Phi = l1Muon->phi() + L1PHI_OFFSET;
+		if (fabs(l1Eta) > MAX_ETA) {
+			continue;
+		}
+		const pat::Muon* patMuon = getBestPatMatch(l1Eta, l1Phi);
+		if (patMuon) {
+			fillL1ResolutionPlots(&*l1Muon,patMuon,"L1Muon");
 		}
 	}
 }
@@ -1545,12 +1577,14 @@ void hoMuonAnalyzer::fillTimingHistograms(const l1extra::L1MuonParticle* l1Muon,
 		if(hoTime == -999){
 			histogramBuilder.fillCountHistogram(nameTrunk + "UnmatchedDt");
 			histogramBuilder.fillBxIdHistogram(l1Muon->bx(),nameTrunk + "UnmatchedDt");
+			histogramBuilder.fillEtaPhiGraph(l1Muon->eta(), l1Muon->phi() + L1PHI_OFFSET,nameTrunk + "UnmatchedDt");
 		}
 		else{
 			histogramBuilder.fillCountHistogram(nameTrunk + "UnmatchedDtHo");
 			histogramBuilder.fillBxIdHistogram(l1Muon->bx(),nameTrunk + "UnmatchedDtHo");
 			histogramBuilder.fillDeltaTimeHistogram(hoTime,l1Muon->bx(),nameTrunk + "UnmatchedDtHo");
 			histogramBuilder.fillTimeHistogram(hoTime,nameTrunk + "UnmatchedDtHo");
+			histogramBuilder.fillEtaPhiGraph(l1Muon->eta(), l1Muon->phi() + L1PHI_OFFSET,nameTrunk + "UnmatchedDtHo");
 		}
 		//Unmatched DT
 		break;
