@@ -38,14 +38,15 @@ class Plot:
 	
 	def createPlotSubdir(self,subdirname):
 		if( not os.path.exists('plots')):
-			self.debug('Creating dir plots')
+			if self.DEBUG:
+				self.debug('Creating dir plots')
 			os.mkdir('plots')
 		gitCommitHash = self.getGitCommitHash()
 		if( not os.path.exists('plots/' + gitCommitHash)):
-			self.debug('Creating dir plots/' + gitCommitHash)
+			if self.DEBUG: self.debug('Creating dir plots/' + gitCommitHash)
 			os.mkdir('plots/' + gitCommitHash)
 		if( not os.path.exists('plots/' + gitCommitHash + '/' + subdirname)):
-			self.debug('Creating dir plots/' + gitCommitHash + '/' + subdirname)
+			if self.DEBUG: self.debug('Creating dir plots/' + gitCommitHash + '/' + subdirname)
 			os.mkdir('plots/' + gitCommitHash + '/' + subdirname)
 		self.plotSubdir = 'plots/' + gitCommitHash + '/' + subdirname
 		return
@@ -60,12 +61,12 @@ class Plot:
 		canvas.SaveAs('%s/%s_%s.png'%(self.plotSubdir,plotname,self.fileHandler.filename))
 		return
 	
-	def drawLabel(self):
+	def drawLabel(self,x1ndc = 0.6, y1ndc = 0.90, x2ndc = 0.9, y2ndc = 0.93):
 		label = None
 		if self.data:
-			label = drawLabelCmsPrivateData()
+			label = drawLabelCmsPrivateData(x1ndc,y1ndc,x2ndc,y2ndc)
 		else:
-			label = drawLabelCmsPrivateSimulation()
+			label = drawLabelCmsPrivateSimulation(x1ndc,y1ndc,x2ndc,y2ndc)
 		return label
 	
 	def debug(self,string):

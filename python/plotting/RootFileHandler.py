@@ -64,7 +64,7 @@ class RootFileHandler:
 		try:
 			histNew = rootfile.Get(histoname).Clone()
 		except ReferenceError:
-			commandLine.warning('Could not get histogram %s' % histoname)
+			if self.DEBUG: commandLine.warning('Could not get histogram %s' % histoname)
 			return None
 		histNew.SetDirectory(0)
 		for i in range(1,len(self.fileNameList)):
@@ -73,7 +73,7 @@ class RootFileHandler:
 				hist = rootfile.Get(histoname).Clone()
 				histNew.Add(hist)
 			except ReferenceError:
-				commandLine.warning('Could not get histogram %s for every source file' % histoname)
+				if self.DEBUG: commandLine.warning('Could not get histogram %s for every source file' % histoname)
 		histNew.SetLineWidth(3)
 		return histNew
 	
