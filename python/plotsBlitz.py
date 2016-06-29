@@ -43,12 +43,8 @@ import ROOT
 print ROOT.__file__
 gROOT.ProcessLine(".L $HOMUONTRIGGER_BASE/python/loader.C+");
 
-if args.list:
-	scripts = ['controlPlots','eVsEtaPhi','timeWindow','ptResolution','qualityCodes',
+scripts = ['controlPlots','eVsEtaPhi','timeWindow','ptResolution','qualityCodes',
 			'counters','thresholdScan','efficiency','energy','compareEnergy']
-	print "Available Scripts:"
-	for script in scripts:
-		print '\t',script
 
 for script in args.scripts:
 	if(script == 'controlPlots'):
@@ -69,7 +65,8 @@ for script in args.scripts:
 	elif(script == 'eVsEtaPhi'):
 		lib = EvsEtaPhi(filename = args.source, data=args.data)
 		lib.calculateCentralFractionInTight()
-		reseMaxCounts = lib.plotEMaxCountsForTightMuons()
+		reseMaxCountsTight = lib.plotEMaxCountsForTightMuons()
+		reseMaxCounts = lib.plotEMaxCounts()
 		res = lib.plotAverageEnergyAroundL1()
 		res2 = lib.plotAverageEMaxAroundL1()
 		res3 = lib.plot1DEnergyAroundL1()
@@ -106,14 +103,22 @@ for script in args.scripts:
 		raw_input('-->')
 	elif(script == 'ptResolution'):
 		lib = PtResolution(filename=args.source,data=args.data)
+		res4 = lib.plotL1()
+		res5 = lib.plotL1Tight()
+		res6 = lib.plotL1AndHo()
+		res7 = lib.plotL1TightAndHo()
+		res8 = lib.plotL1NotHo()
+		res9 = lib.plotL1TightNotHo()
 		res1 = lib.plotPtResolutionHistograms()
 		res2 = lib.plotTightPtResolution()
 		res3 = lib.plotLoosePtResolution()
 		raw_input('-->')
 	elif(script == 'qualityCodes'):
 		lib = QualityCode(filename=args.source,data=args.data)
-		res1 = lib.plot3x3MatchQualityCodes()
-		res2 = lib.plot3x3FailQualityCodes()
+		res1 = lib.plot3x3MatchQualityCodesVsPt()
+		res2 = lib.plot3x3FailQualityCodesVsPt()
+		res3 = lib.plotQualityCodesStacked(1)
+		res4 = lib.plotAllQualitiyCodes()
 		raw_input('-->')
 	elif (script=='timing'):
 		lib = Timing(filename=args.source,data=args.data,debug = args.DEBUG)
@@ -124,6 +129,7 @@ for script in args.scripts:
 		resTimeHo = lib.plotMatchedHoTime()
 		res = lib.plotHoTime()
 		res6 = lib.plotHoTimeLog()
+		res4 = lib.plotImprovementInDt()
 		if not args.data:
 			lib.plotEtaOfWrongBxId()
 			lib.plotEtaPhiOfWrongBxId()
@@ -144,9 +150,17 @@ for script in args.scripts:
 		raw_input('-->')
 	elif (script == 'efficiency'):
 		lib = GridMatching(filename=args.source, data=args.data)
-		res = lib.plotL1GridMatchingEfficiency()
+		#res = lib.plotL1GridMatchingEfficiency()
 		res2 = lib.plotL13x3AndL1Tight3x3()
 		res3 = lib.plotL13x3AndL1Tight3x3L1Coordinates()
+		res4 = lib.plotL13x3AndL1Tight3x3FromPatL1Pt()
+		res5 = lib.plotL13x3AndL1Tight3x3FromPat()
+		c = ROOT.TCanvas('123','asdf')
+		c.cd()
+		res2[3].SetMarkerStyle(23)
+		temp = res3[3].Draw()
+		temp2 = res4[3].Draw('same')
+		c.Update()
 		if not args.data:
 			resL1Truth = lib.plotL1TruthGridMatchingPlot()
 			res3x3Together = lib.plot3x3GridTogether()
@@ -173,3 +187,6 @@ for script in args.scripts:
 		raw_input('-->')
 	else:
 		print 'Unknown script requested: %s' % (script)
+		print "Available Scripts:"
+		for script in scripts:
+			print '\t',script
