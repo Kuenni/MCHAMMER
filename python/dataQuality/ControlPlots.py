@@ -14,8 +14,8 @@ from plotting.Utils import fillGraphIn2DHist
 
 class ControlPlots(Plot):
 	
-	def __init__(self,filename,data = False):
-		Plot.__init__(self,filename,data)
+	def __init__(self,filename,data = False,debug=False):
+		Plot.__init__(self,filename,data,debug = debug)
 		gROOT.ProcessLine(".L $HOMUONTRIGGER_BASE/python/loader.C+");
 		self.createPlotSubdir('controlPlots')
 

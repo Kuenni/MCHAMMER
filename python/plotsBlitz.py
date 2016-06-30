@@ -48,7 +48,7 @@ scripts = ['controlPlots','eVsEtaPhi','timeWindow','ptResolution','qualityCodes'
 
 for script in args.scripts:
 	if(script == 'controlPlots'):
-		plots = ControlPlots(filename=args.source,data=args.data)
+		plots = ControlPlots(filename=args.source,data=args.data,debug = args.DEBUG)
 		res1 = plots.plotL1PerPt()
 		res2 = plots.plotHoIEtaIPhi()
 		res3 = plots.plotHoEtaPhiMatchedToL1()
@@ -63,7 +63,7 @@ for script in args.scripts:
 			res5 = plots.plotGenEtaPhi()
 		raw_input('-->')
 	elif(script == 'eVsEtaPhi'):
-		lib = EvsEtaPhi(filename = args.source, data=args.data)
+		lib = EvsEtaPhi(filename = args.source, data=args.data,debug = args.DEBUG)
 		lib.calculateCentralFractionInTight()
 		reseMaxCountsTight = lib.plotEMaxCountsForTightMuons()
 		reseMaxCounts = lib.plotEMaxCounts()
@@ -78,7 +78,7 @@ for script in args.scripts:
 		resEtaPhiTight = lib.plotEtaPhiForTightL1()
 		raw_input('-->')
 	elif(script == 'phiShift'):
-		lib = DeltaPhi(filename = args.source,data=args.data)
+		lib = DeltaPhi(filename = args.source,data=args.data,debug = args.DEBUG)
 		resDeltaPhi = lib.plotDeltaPhiHistogram()
 		resEta = lib.plotDeltaPhiVsL1Eta()
 		resdPhiVsPtL1 = lib.plotDeltaPhiVsL1Pt()
@@ -93,7 +93,7 @@ for script in args.scripts:
 			#res2 = lib.plotDeltaPhiVsL1Pt()
 		raw_input('-->')
 	elif(script == 'timeWindow'):
-		lib = TimeWindow(filename=args.source,data=args.data)
+		lib = TimeWindow(filename=args.source,data=args.data,debug = args.DEBUG)
 		resAllL1 = lib.plotAllL1Together()
 		resBxidFail = lib.plotBxidVsPtFails()
 		resBxidSucc = lib.plotBxidVsPtMatch()
@@ -102,7 +102,18 @@ for script in args.scripts:
 			resTruthL1 = lib.plotTruthL1Together()
 		raw_input('-->')
 	elif(script == 'ptResolution'):
-		lib = PtResolution(filename=args.source,data=args.data)
+# 		libTruth = PtResolution(filename=args.source,truth=True,data=args.data,debug = args.DEBUG)
+# 		resTruth4 = libTruth.plotL1()
+# 		resTruth5 = libTruth.plotL1Tight()
+# 		resTruth6 = libTruth.plotL1AndHo()
+# 		resTruth7 = libTruth.plotL1TightAndHo()
+# 		resTruth8 = libTruth.plotL1NotHo()
+# 		resTruth9 = libTruth.plotL1TightNotHo()
+# 		resTruth1 = libTruth.plotPtResolutionHistograms()
+# 		resTruth2 = libTruth.plotTightPtResolution()
+# 		resTruth3 = libTruth.plotLoosePtResolution()
+#		raw_input('Hit return to continue')
+		lib = PtResolution(filename=args.source,truth=False,data=args.data,debug = args.DEBUG)
 		res4 = lib.plotL1()
 		res5 = lib.plotL1Tight()
 		res6 = lib.plotL1AndHo()
@@ -114,7 +125,7 @@ for script in args.scripts:
 		res3 = lib.plotLoosePtResolution()
 		raw_input('-->')
 	elif(script == 'qualityCodes'):
-		lib = QualityCode(filename=args.source,data=args.data)
+		lib = QualityCode(filename=args.source,data=args.data,debug = args.DEBUG)
 		res1 = lib.plot3x3MatchQualityCodesVsPt()
 		res2 = lib.plot3x3FailQualityCodesVsPt()
 		res3 = lib.plotQualityCodesStacked(1)
@@ -122,6 +133,7 @@ for script in args.scripts:
 		raw_input('-->')
 	elif (script=='timing'):
 		lib = Timing(filename=args.source,data=args.data,debug = args.DEBUG)
+		resDtCoordsWrong = lib.plotDtBxWrongCoordinates()
 		resEvsTime = lib.plotHoEnergyVsTime()
 		resDeltaTime = lib.plotDeltaTime()
 		resBxId = lib.plotL1BxId()
@@ -140,16 +152,16 @@ for script in args.scripts:
 			res3 = lib.plotPtAndEtaOfWrongBxId()
 		raw_input('-->')
 	elif (script == 'counters'):
-		lib = Counters(filename=args.source,data=args.data)
+		lib = Counters(filename=args.source,data=args.data,debug = args.DEBUG)
 		res = lib.plotL1AndTightL1Counters()
 		res2 = lib.plotTightL1EtaPhiRatio()
 		raw_input('-->')
 	elif (script == 'thresholdScan'):
-		lib = HoThresholdScan(filename=args.source,data=args.data)
+		lib = HoThresholdScan(filename=args.source,data=args.data,debug = args.DEBUG)
 		res = lib.plotHoThresholdScan()
 		raw_input('-->')
 	elif (script == 'efficiency'):
-		lib = GridMatching(filename=args.source, data=args.data)
+		lib = GridMatching(filename=args.source, data=args.data,debug = args.DEBUG)
 		#res = lib.plotL1GridMatchingEfficiency()
 		res2 = lib.plotL13x3AndL1Tight3x3()
 		res3 = lib.plotL13x3AndL1Tight3x3L1Coordinates()
@@ -177,7 +189,7 @@ for script in args.scripts:
 		resEPerWheelTogether = lib.plotMatchedAndNotMatchedPerWheel()
 		raw_input('-->')
 	elif (script == 'comparison'):
-		libComparison = Comparison(data = args.data)
+		libComparison = Comparison(data = args.data,debug = args.DEBUG)
 		resL1Count = libComparison.compareL1Count()
 		resEPerWheel = libComparison.compareEnergyPerWheel()
 		resEAbsolute = libComparison.compareEnergyAbsolute()

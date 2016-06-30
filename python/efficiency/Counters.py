@@ -10,8 +10,8 @@ import math
 class Counters(Plot):
 
 	#Initialize
-	def __init__(self,filename,data):
-		Plot.__init__(self,filename,data)
+	def __init__(self,filename,data,debug):
+		Plot.__init__(self,filename,data,debug=debug)
 		self.createPlotSubdir('efficiency')
 		self.fileHandler.printNEvents()
 		
