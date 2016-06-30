@@ -1,25 +1,32 @@
 import os
+from plotting.Plot import Plot
+from plotting.OutputModule import CliColors
+from plotting.PlotStyle import setupPalette, colorRwthDarkBlue, colorRwthMagenta,\
+	setupAxes
+from ROOT import TCanvas,TBox,THStack,TLegend
 
-from plotting.OutputModule import CommandLineHandler
-from plotting.RootFileHandler import RootFileHandler
-from plotting.PlotStyle import setPlotStyle, setupPalette,\
-	drawLabelCmsPrivateData, drawLabelCmsPrivateSimulation
+class QualityCode(Plot):
+	def __init__(self,filename,data=False, debug = False):
+		Plot.__init__(self,filename,data,debug)
+		self.createPlotSubdir('qualityCodes')
 
-from ROOT import TCanvas,TBox
+		self.qualityCodeDict = {
+				1:'Halo Muon',
+				2:'Very low qual. Type 1',
+				3:'Very low qual. Type 2',
+				4:'Very low qual. Type 3',
+				5:'unmatched RPC',
+				6:'unmatched DT or CSC',
+				7:'matched DT-RPC or CSC-RPC'
+				}
 
-class QualityCode:
-	def __init__(self,filename,data =False):
-		self.commandLine = CommandLineHandler('[QualityCode] ')
-		self.fileHandler = RootFileHandler(filename)
-		self.fileHandler.printStatus()
-		if( not os.path.exists('plots')):
-			os.mkdir('plots')
-		if( not os.path.exists('plots/qualityCode')):
-			os.mkdir('plots/qualityCode')
-		setPlotStyle()
-		self.data = data
+		self.gridSizeDict = {
+			0:'Central',
+			1:'3x3',
+			2:'5x5'}
+
 		
-	def plot3x3MatchQualityCodes(self):
+	def plot3x3MatchQualityCodesVsPt(self):
 		c = TCanvas('cMatchQC3x3','Match QC 3x3',0,0,900,700)
 		c.SetLogz()
 		hist = self.fileHandler.getHistogram('hoMuonAnalyzer/qualityCode/L1Muon3x3Match_QcVsPt')
@@ -30,12 +37,7 @@ class QualityCode:
 		setupPalette(hist)
 		c.Update()
 				
-		label = None
-		if self.data:
-			label = drawLabelCmsPrivateData()
-		else:
-			label = drawLabelCmsPrivateSimulation()
-		
+		label = self.drawLabel()
 		c.Update()
 		
 		box = TBox(0,6.5,180,7.5)
@@ -47,7 +49,7 @@ class QualityCode:
 		
 		return hist,c,label,box
 	
-	def plot3x3FailQualityCodes(self):
+	def plot3x3FailQualityCodesVsPt(self):
 		c = TCanvas('cFailQC3x3','Fail QC 3x3',910,0,900,700)
 		c.SetLogz()
 		hist = self.fileHandler.getHistogram('hoMuonAnalyzer/qualityCode/L1Muon3x3Fail_QcVsPt')
@@ -58,13 +60,107 @@ class QualityCode:
 		setupPalette(hist)
 		c.Update()
 
-		label = None
-		if self.data:
-			label = drawLabelCmsPrivateData()
-		else:
-			label = drawLabelCmsPrivateSimulation()		
-
+		label = self.drawLabel()
 		c.Update()
 
 		return hist,c,label
 		
+	def plotQualityCodesStacked(self,gridSize):
+		gridString = self.gridSizeDict.get(gridSize)
+		c = TCanvas('cQualityCodes' + gridString + 'Stacked','Stacked QC ' + gridString,600,0,800,600)
+		c.cd().SetBottomMargin(0.15)
+		c.cd().SetRightMargin(0.20)
+		qualityCodes = self.fileHandler.getHistogram('hoMuonAnalyzer/multiplicity/L1MuonQualityCodes' + gridString + '_Multiplicity')
+		qualityCodesFail = self.fileHandler.getHistogram('hoMuonAnalyzer/multiplicity/L1MuonQualityCodes' + gridString + 'Fail_Multiplicity')
+		
+		countQualityCodes = self.fileHandler.getHistogram('hoMuonAnalyzer/multiplicity/L1MuonAllQualityCodes_Multiplicity')
+		
+		self.commandLine.output('Sanity check for quality code counts')
+		for i in range(1,8):
+			nTotalHistogram = countQualityCodes.GetBinContent(countQualityCodes.FindBin(i))
+			nFail = qualityCodesFail.GetBinContent(qualityCodesFail.FindBin(i))
+			nPass = qualityCodes.GetBinContent(qualityCodes.FindBin(i))
+			nSummed = nFail + nPass
+			print
+			self.commandLine.output('NTotal: %d\t\tNSummed: %d' % (nTotalHistogram,nSummed))
+			self.commandLine.output('Sanity check: %s'% (CliColors.OKBLUE + 'OK' + CliColors.ENDC if nTotalHistogram == nSummed else CliColors.FAIL + 'FAIL' + CliColors.ENDC) )
+			print
+			if nTotalHistogram:
+				qualityCodes.SetBinContent(qualityCodes.FindBin(i),nPass/float(nTotalHistogram))
+				qualityCodesFail.SetBinContent(qualityCodesFail.FindBin(i),nFail/float(nTotalHistogram))
+		
+		stack = THStack("hstack","Quality Codes in matching to HO (" + gridString + ");;rel. fraction")
+		
+		
+		qualityCodes.SetLineColor(colorRwthDarkBlue)
+		qualityCodes.SetFillColor(colorRwthDarkBlue)
+		qualityCodes.SetFillStyle(3002)
+	
+		qualityCodesFail.SetFillColor(colorRwthMagenta)
+		qualityCodesFail.SetLineColor(colorRwthMagenta)
+		qualityCodesFail.SetFillStyle(3002)
+	
+		stack.Add(qualityCodes)
+		stack.Add(qualityCodesFail)
+		
+		stack.Draw()
+		stack.GetXaxis().SetRangeUser(0,8)
+
+			#Label the bins with the meaning of the quality code
+		for i in range(1,8):
+			stack.GetXaxis().SetBinLabel(stack.GetXaxis().FindBin(i),self.qualityCodeDict.get(i))
+			
+		legend = TLegend(0.82,0.75,0.99,0.9)
+		legend.AddEntry(qualityCodes,"Passed","f")
+		legend.AddEntry(qualityCodesFail,"Failed","f")
+		legend.Draw()
+		
+		label = self.drawLabel(x1ndc=0.5,y1ndc=0.9,x2ndc=0.8,y2ndc=0.93)
+		
+		setupAxes(stack)
+		stack.SetMinimum(0.75)
+
+		c.Update()
+		
+		self.storeCanvas(c, 'qualityCodesStacked' + gridString)
+		
+		return stack,c,qualityCodes,qualityCodesFail,legend,label
+	
+	def plotAllQualitiyCodes(self):	
+		canvas = TCanvas('allQCCodes',"All QC")
+		canvas.SetLogy()
+		canvas.cd().SetBottomMargin(0.15)
+	
+		histAllCodes = self.fileHandler.getHistogram('hoMuonAnalyzer/multiplicity/L1MuonAllQualityCodes_Multiplicity')
+		histAllCodesTruth = self.fileHandler.getHistogram('hoMuonAnalyzer/multiplicity/L1MuonTruthAllQualityCodes_Multiplicity')
+	
+		setupAxes(histAllCodes)
+	
+		histAllCodes.SetLineWidth(3)
+		histAllCodesTruth.SetLineWidth(3)
+		histAllCodes.SetLineColor(colorRwthDarkBlue)
+		histAllCodes.Scale(1/histAllCodes.Integral())
+		histAllCodes.GetXaxis().SetRangeUser(0,8)	
+		histAllCodes.SetStats(0)
+		histAllCodes.SetTitle('L1 muon quality codes;;rel. fraction')
+		#Label the bins with the meaning of the quality code
+		for i in range(1,8):
+			histAllCodes.GetXaxis().SetBinLabel(histAllCodes.GetXaxis().FindBin(i),self.qualityCodeDict.get(i))
+		
+		histAllCodes.Draw()
+		
+		histAllCodesTruth.Scale(1/histAllCodesTruth.Integral())
+		histAllCodesTruth.SetLineColor(colorRwthMagenta)
+		histAllCodesTruth.Draw('Same')
+		
+		label = self.drawLabel()
+		
+		legend = TLegend(0.1,0.75,0.3,0.9)
+		legend.AddEntry(histAllCodes,"All L1","l")
+		legend.AddEntry(histAllCodesTruth,"L1 Truth","l")
+		legend.Draw()
+		
+		canvas.Update()
+		self.storeCanvas(canvas,'allQualityCodes')
+				
+		return canvas,legend, label, histAllCodes,histAllCodesTruth
