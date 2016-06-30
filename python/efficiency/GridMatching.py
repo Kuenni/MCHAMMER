@@ -88,7 +88,7 @@ class GridMatching(Plot):
 		
 		c,effL1Muon3x3,effL1TightMuon3x3 = self.get3x3MatchingPlot('hoMuonAnalyzer/efficiency/patToL1Muons_L1pT3x3_Efficiency',
 			 'hoMuonAnalyzer/efficiency/patTightToL1Muons_L1pT3x3_Efficiency',
-			 'Efficiency (from #texttt{pat}) for Matching L1 to HO;p_{T,L1} / GeV;Efficiency')
+			 'Efficiency (from #font[102]{pat}) for Matching L1 to HO;p_{T,L1} / GeV;Efficiency')
 				
 		c.Update()
 		self.storeCanvas(c,'efficiencyFromPatNormalAndTightVsPtL1_fullRange')		
@@ -110,7 +110,7 @@ class GridMatching(Plot):
 	def plotL13x3AndL1Tight3x3FromPat(self):
 		c,effL1Muon3x3,effL1TightMuon3x3 = self.get3x3MatchingPlot('hoMuonAnalyzer/efficiency/patToL1Muons3x3_Efficiency',
 			 'hoMuonAnalyzer/efficiency/patTightToL1Muons3x3_Efficiency',
-			 'Efficiency (from #texttt{pat}) for Matching L1 to HO;p_{T,RECO} / GeV;Efficiency')
+			 'Efficiency (from #font[102]{pat}) for Matching L1 to HO;p_{T,RECO} / GeV;Efficiency')
 				
 		c.Update()
 		self.storeCanvas(c,'efficiencyFromPatNormalAndTightVsPt_fullRange')		
