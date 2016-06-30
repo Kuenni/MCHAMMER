@@ -66,11 +66,12 @@ class PtResolution(Plot):
 			'q50':[]},
 		}
 	
-	def __init__(self,filename,data = False):
-		Plot.__init__(self,filename,data)
+	def __init__(self,filename,truth,data = False,debug=False):
+		Plot.__init__(self,filename,data=data,debug=debug)
 		self.createPlotSubdir('ptResolution')
+		self.truthTag = 'patTo' if truth else ''
 		self.loadData()
-
+		
 	def getMedian(self,h):
 		
 	#compute the median for 1-d histogram h1
@@ -109,12 +110,12 @@ class PtResolution(Plot):
 	def loadData(self):
 		for i in range(0,121):
 			#calculate pt range from bin number
-			histPt = self.fileHandler.getHistogram('hoMuonAnalyzer/l1PtResolution/patToL1MuonBin%d' % i)
-			histPtTight = self.fileHandler.getHistogram('hoMuonAnalyzer/l1PtResolution/patToL1MuonTightBin%d' % i)
-			histPtMatch = self.fileHandler.getHistogram('hoMuonAnalyzer/l1PtResolution/patToL1MuonHoMatchBin%d' % i)
-			histPtTightMatch = self.fileHandler.getHistogram('hoMuonAnalyzer/l1PtResolution/patToL1MuonTightHoMatchBin%d' % i)
-			histNoMatch = self.fileHandler.getHistogram('hoMuonAnalyzer/l1PtResolution/patToL1MuonNotHoMatchBin%d' % i)
-			histTightNoMatch = self.fileHandler.getHistogram('hoMuonAnalyzer/l1PtResolution/patToL1MuonTightNotHoMatchBin%d' % i)
+			histPt = self.fileHandler.getHistogram('hoMuonAnalyzer/l1PtResolution/' + self.truthTag + 'L1MuonBin%d' % i)
+			histPtTight = self.fileHandler.getHistogram('hoMuonAnalyzer/l1PtResolution/' + self.truthTag + 'L1MuonTightBin%d' % i)
+			histPtMatch = self.fileHandler.getHistogram('hoMuonAnalyzer/l1PtResolution/' + self.truthTag + 'L1MuonHoMatchBin%d' % i)
+			histPtTightMatch = self.fileHandler.getHistogram('hoMuonAnalyzer/l1PtResolution/' + self.truthTag + 'L1MuonTightHoMatchBin%d' % i)
+			histNoMatch = self.fileHandler.getHistogram('hoMuonAnalyzer/l1PtResolution/' + self.truthTag + 'L1MuonNotHoMatchBin%d' % i)
+			histTightNoMatch = self.fileHandler.getHistogram('hoMuonAnalyzer/l1PtResolution/' + self.truthTag + 'L1MuonTightNotHoMatchBin%d' % i)
 			if i < 40:
 				self.cached_data['x']['values'].append(i + 0.5)
 				self.cached_data['x']['errors'].append(0.5)
@@ -243,7 +244,7 @@ class PtResolution(Plot):
 		
 		c.Update()
 		
-		self.storeCanvas(c, 'rmsVsPt')
+		self.storeCanvas(c, 'rmsVsPt' + self.truthTag)
 		#c2 = TCanvas('cfitResults','fitResults',800,0,800,600)
 		#graphL1Fit.Draw('AP')
 				
@@ -305,7 +306,7 @@ class PtResolution(Plot):
 		label = self.drawLabel()
 		
 		c.Update()
-		self.storeCanvas(c,'quantiles' + dataSet.replace(' ','_').replace('!','Not'))
+		self.storeCanvas(c,'quantiles_' + self.truthTag + '_' + dataSet.replace(' ','_').replace('!','Not'))
 		return c,graphMean,legend,label,graphMedian,graphShape68,graphQ50
 
 	def plotTightPtResolution(self):
@@ -349,11 +350,11 @@ class PtResolution(Plot):
 		legend.Draw()
 		c.Update()
 		
-		self.storeCanvas(c, 'rmsVsPt_tight')
+		self.storeCanvas(c, 'rmsVsPt_tight' + self.truthTag)
 		
 		c2 = self.makeIntegralPlot('patToL1MuonTight')
 		
-		return  c,graphL1TightHo,graphL1TightNotHo,legend,graphL1Tight,c2
+		return  c,graphL1TightHo,graphL1TightNotHo,legend,graphL1Tight,c2,label
 		
 		##
 		# Plot the integral for each histogram as a control plot
@@ -441,7 +442,7 @@ class PtResolution(Plot):
 		legend.Draw()
 		c.Update()
 
-		self.storeCanvas(c, 'rmsVsPt_loose')
+		self.storeCanvas(c, 'rmsVsPt_loose' + self.truthTag)
 	
 		c2 = self.makeIntegralPlot('patToL1Muon')
 		return c,graphL1TightHo,graphL1TightNotHo,legend,label,graphL1Tight,c2
