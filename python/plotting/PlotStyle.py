@@ -1,4 +1,4 @@
-from ROOT import gROOT,gStyle, TColor, TPaveText, TGraph, ROOT, Double, TBox, TH2D, TH1D, TEfficiency, TGraphErrors
+from ROOT import gROOT,gStyle, TColor, TPaveText, TGraph, ROOT, Double, TBox, TH2D, TH1D, TEfficiency, TGraphErrors, THStack
 from math import sqrt,pi
 import matplotlib.pyplot as plt
 import sys
@@ -129,9 +129,14 @@ def setupAxes(plot):
 	if hasattr(plot, 'GetZaxis'):
 		plot.GetZaxis().SetTitleFont(62)
 		plot.GetZaxis().SetLabelFont(62)
-	if (plot.__class__.__name__.find('TGraph') == -1):
-		plot.SetTitleFont(62)
-		plot.SetTitleSize(0.06)
+	#Do not continue if you're working with TGraphs
+	if (plot.__class__.__name__.find('TGraph') != -1):
+		return
+	
+	if(plot.__class__ == THStack):
+		plot = plot.GetHistogram()
+	plot.SetTitleFont(62)
+	plot.SetTitleSize(0.06)
 
 def setBigAxisTitles(plot):
 	if plot.__class__ == TEfficiency:
