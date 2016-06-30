@@ -13,6 +13,21 @@ colorRwthOrange 	= TColor.GetColor("#F6A800")
 colorRwthViolett	= TColor.GetColor("#612158")
 colorRwthLila		= TColor.GetColor("#7A6FAC")
 
+def getWaterMark():
+	watermark = TPaveText(0.093,0.898,0.319,0.940,"NDC")
+	markText = watermark.AddText("A. Kuensken")
+	markText.SetTextAlign(12)
+	markText.SetTextSize(0.0316456)
+	markText.SetTextColor(15)
+	watermark.SetBorderSize(0)
+	watermark.SetFillStyle(0)
+	return watermark
+
+def drawWaterMark():
+	watermark = getWaterMark()
+	watermark.Draw()
+	return watermark
+
 def getLabelCmsPrivateSimulation( x1ndc = 0.6, y1ndc = 0.90, x2ndc = 0.9, y2ndc = 0.93):
 	labelCmsPrivateSimulation = TPaveText(x1ndc,y1ndc,x2ndc,y2ndc,"NDC")
 	labelCmsPrivateSimulation.AddText("#font[62]{CMS private work}, #font[72]{simulation}")
