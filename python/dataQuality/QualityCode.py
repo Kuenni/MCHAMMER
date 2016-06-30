@@ -3,7 +3,7 @@ from plotting.Plot import Plot
 from plotting.OutputModule import CliColors
 from plotting.PlotStyle import setupPalette, colorRwthDarkBlue, colorRwthMagenta,\
 	setupAxes
-from ROOT import TCanvas,TBox,THStack,TLegend
+from ROOT import TCanvas,TBox,THStack,TLegend,TPaveText
 
 class QualityCode(Plot):
 	def __init__(self,filename,data=False, debug = False):
@@ -132,12 +132,10 @@ class QualityCode(Plot):
 		canvas.cd().SetBottomMargin(0.15)
 	
 		histAllCodes = self.fileHandler.getHistogram('hoMuonAnalyzer/multiplicity/L1MuonAllQualityCodes_Multiplicity')
-		histAllCodesTruth = self.fileHandler.getHistogram('hoMuonAnalyzer/multiplicity/L1MuonTruthAllQualityCodes_Multiplicity')
 	
 		setupAxes(histAllCodes)
 	
 		histAllCodes.SetLineWidth(3)
-		histAllCodesTruth.SetLineWidth(3)
 		histAllCodes.SetLineColor(colorRwthDarkBlue)
 		histAllCodes.Scale(1/histAllCodes.Integral())
 		histAllCodes.GetXaxis().SetRangeUser(0,8)	
@@ -149,15 +147,19 @@ class QualityCode(Plot):
 		
 		histAllCodes.Draw()
 		
-		histAllCodesTruth.Scale(1/histAllCodesTruth.Integral())
-		histAllCodesTruth.SetLineColor(colorRwthMagenta)
-		histAllCodesTruth.Draw('Same')
-		
+		histAllCodesTruth = None 
+		if not self.data:
+			histAllCodesTruth = self.fileHandler.getHistogram('hoMuonAnalyzer/multiplicity/L1MuonTruthAllQualityCodes_Multiplicity')
+			histAllCodesTruth.Scale(1/histAllCodesTruth.Integral())
+			histAllCodesTruth.SetLineWidth(3)
+			histAllCodesTruth.SetLineColor(colorRwthMagenta)
+			histAllCodesTruth.Draw('Same')
+			
 		label = self.drawLabel()
 		
 		legend = TLegend(0.1,0.75,0.3,0.9)
 		legend.AddEntry(histAllCodes,"All L1","l")
-		legend.AddEntry(histAllCodesTruth,"L1 Truth","l")
+		if not self.data: legend.AddEntry(histAllCodesTruth,"L1 Truth","l")
 		legend.Draw()
 		
 		canvas.Update()
