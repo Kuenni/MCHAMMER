@@ -90,6 +90,7 @@ private:
 	void analyzeNoSingleMuEventsGenLoop(const edm::Event& iEvent,const edm::EventSetup& iSetup);
 	void analyzeWithGenLoop(const edm::Event& iEvent,const edm::EventSetup& iSetup);
 	void analyzeL1Resolution();
+	void fillL1ResolutionPlots(const l1extra::L1MuonParticle* l1Part, const pat::Muon* patMuon,std::string label);
 	void analyzeL1Sources();
 	void analyzeHoTriggerPrimitives();
 	void analyzeTimingSupport();
