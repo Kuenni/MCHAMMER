@@ -305,7 +305,7 @@ class PtResolution(Plot):
 		label = self.drawLabel()
 		
 		c.Update()
-		self.storeCanvas(c,'quantiles' + dataSet.replace(' ','_'))
+		self.storeCanvas(c,'quantiles' + dataSet.replace(' ','_').replace('!','Not'))
 		return c,graphMean,legend,label,graphMedian,graphShape68,graphQ50
 
 	def plotTightPtResolution(self):
@@ -350,38 +350,54 @@ class PtResolution(Plot):
 		c.Update()
 		
 		self.storeCanvas(c, 'rmsVsPt_tight')
+		
+		c2 = self.makeIntegralPlot('patToL1MuonTight')
+		
+		return  c,graphL1TightHo,graphL1TightNotHo,legend,graphL1Tight,c2
+		
 		##
 		# Plot the integral for each histogram as a control plot
 		##
+	def makeIntegralPlot(self,datasetName):
 		cControlPlot = TCanvas('cControlPlots','control plot integral')
-		dataMatch,errorMatch = self.getHistogramIntegralsAsList('hoMuonAnalyzer/l1PtResolution/L1MuonTightTruthHoMatch')
-		dataNoMatch,errorNoMatch = self.getHistogramIntegralsAsList('hoMuonAnalyzer/l1PtResolution/L1MuonTightTruthNotHoMatch')
+		xData = [self.cached_data['x']['values'],self.cached_data['x']['errors']]
+		dataAllL1,errorAllL1 = self.getHistogramIntegralsAsList('hoMuonAnalyzer/l1PtResolution/' + datasetName)
+		dataMatch,errorMatch = self.getHistogramIntegralsAsList('hoMuonAnalyzer/l1PtResolution/' + datasetName + "HoMatch")
+		dataNoMatch,errorNoMatch = self.getHistogramIntegralsAsList('hoMuonAnalyzer/l1PtResolution/' + datasetName + "NotHoMatch")
+		
+		graphIntegralsAllL1 = getTGraphErrors(xData[0], dataAllL1, ex=xData[1], ey=errorAllL1)
 		graphIntegralsMatch = getTGraphErrors(xData[0], dataMatch, ex=xData[1], ey=errorMatch)
 		graphIntegralsNoMatch = getTGraphErrors(xData[0], dataNoMatch, ex=xData[1], ey=errorNoMatch)
 		
+		graphIntegralsAllL1.SetMarkerStyle(21)
+		graphIntegralsAllL1.SetTitle('Integrals of ' + datasetName + ';p_{T} / GeV;# entries')
+		graphIntegralsAllL1.SetMarkerColor(colorRwthDarkBlue)
+		graphIntegralsAllL1.SetLineColor(colorRwthDarkBlue)
+		
 		graphIntegralsMatch.SetMarkerStyle(20)
-		graphIntegralsMatch.SetTitle('Integrals of tight L1 Object histograms;p_{T} / GeV;# entries')
-		graphIntegralsMatch.SetMarkerColor(colorRwthDarkBlue)
-		graphIntegralsMatch.SetLineColor(colorRwthDarkBlue)
+		graphIntegralsMatch.SetMarkerColor(colorRwthMagenta)
+		graphIntegralsMatch.SetLineColor(colorRwthMagenta)
 		
 		graphIntegralsNoMatch.SetMarkerStyle(34)
-		graphIntegralsNoMatch.SetMarkerColor(colorRwthMagenta)
-		graphIntegralsNoMatch.SetLineColor(colorRwthMagenta)
+		graphIntegralsNoMatch.SetMarkerColor(colorRwthTuerkis)
+		graphIntegralsNoMatch.SetLineColor(colorRwthTuerkis)
 		
-		graphIntegralsMatch.Draw('ap')
+		graphIntegralsAllL1.Draw('ap')
+		graphIntegralsMatch.Draw('samep')
 		graphIntegralsNoMatch.Draw('samep')
 		
 		label = self.drawLabel()
 		
-		setupAxes(graphIntegralsMatch)
+		setupAxes(graphIntegralsAllL1)
 		legend2 = getLegend(y2 = .9)
-		legend2.AddEntry(graphIntegralsMatch,'L1 Tight & HO','ep')
-		legend2.AddEntry(graphIntegralsNoMatch,'L1 Tight & !HO','ep')
+		legend2.AddEntry(graphIntegralsAllL1,datasetName,'ep')
+		legend2.AddEntry(graphIntegralsMatch,datasetName + " And HO",'ep')
+		legend2.AddEntry(graphIntegralsNoMatch,datasetName + " !HO",'ep')
 		legend2.Draw()
 		cControlPlot.Update()
 		
-		self.storeCanvas(cControlPlot, 'rmsVsPt_tight_integrals')
-		return c,graphL1TightHo,graphL1TightNotHo,legend,label, legend2, graphIntegralsMatch, graphIntegralsNoMatch, cControlPlot,graphL1Tight
+		self.storeCanvas(cControlPlot, 'rmsVsPt_integrals' + datasetName)
+		return label, legend2, graphIntegralsMatch, graphIntegralsNoMatch, cControlPlot,graphIntegralsAllL1
 	
 	def plotLoosePtResolution(self):
 		c = TCanvas('cLooseResolution','cLooseResolution')
@@ -426,35 +442,6 @@ class PtResolution(Plot):
 		c.Update()
 
 		self.storeCanvas(c, 'rmsVsPt_loose')
-		##
-		# Plot the integral for each histogram as a control plot
-		##
-		cControlPlot = TCanvas('cControlPlotsLoose','control plot integral')
-		dataMatch,errorMatch = self.getHistogramIntegralsAsList('hoMuonAnalyzer/l1PtResolution/L1MuonTruthHoMatch')
-		dataNoMatch,errorNoMatch = self.getHistogramIntegralsAsList('hoMuonAnalyzer/l1PtResolution/L1MuonTruthNotHoMatch')
-		graphIntegralsMatch = getTGraphErrors(xData[0], dataMatch, ex=xData[1], ey=errorMatch)
-		graphIntegralsNoMatch = getTGraphErrors(xData[0], dataNoMatch, ex=xData[1], ey=errorNoMatch)
-		
-		graphIntegralsMatch.SetMarkerStyle(20)
-		graphIntegralsMatch.SetTitle('Integral of loose L1 Object histograms;p_{T} / GeV;# entries')
-		graphIntegralsMatch.SetMarkerColor(colorRwthDarkBlue)
-		graphIntegralsMatch.SetLineColor(colorRwthDarkBlue)
-		
-		graphIntegralsNoMatch.SetMarkerStyle(34)
-		graphIntegralsNoMatch.SetMarkerColor(colorRwthMagenta)
-		graphIntegralsNoMatch.SetLineColor(colorRwthMagenta)
-		
-		graphIntegralsMatch.Draw('ap')
-		graphIntegralsNoMatch.Draw('samep')
-		
-		label = self.drawLabel()
-		
-		setupAxes(graphIntegralsMatch)
-		legend2 = getLegend(y2 = .9)
-		legend2.AddEntry(graphIntegralsMatch,'L1 & HO','ep')
-		legend2.AddEntry(graphIntegralsNoMatch,'L1 & !HO','ep')
-		legend2.Draw()
-		cControlPlot.Update()
-		
-		self.storeCanvas(cControlPlot, 'rmsVsPt_loose_integrals')
-		return c,graphL1TightHo,graphL1TightNotHo,legend,label,graphIntegralsMatch,graphIntegralsNoMatch,legend2,cControlPlot,graphL1Tight
+	
+		c2 = self.makeIntegralPlot('patToL1Muon')
+		return c,graphL1TightHo,graphL1TightNotHo,legend,label,graphL1Tight,c2
