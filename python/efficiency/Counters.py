@@ -126,8 +126,8 @@ class Counters(Plot):
 		return h,c,hL13x3Alone,hTightL13x3Alone,label,legend,hInverted,textObjects
 	
 	def plotTightL1EtaPhiRatio(self):
-		gL1Tight = self.fileHandler.getGraph('hoMuonAnalyzer/graphs/L1TightMuons')
-		gL1Tight3x3 = self.fileHandler.getGraph('hoMuonAnalyzer/graphs/L1TightMuons3x3')
+		gL1Tight = self.fileHandler.getGraph('hoMuonAnalyzer/graphs/patTightToL1Muons')
+		gL1Tight3x3 = self.fileHandler.getGraph('hoMuonAnalyzer/graphs/patTightToL1Muons3x3')
 		
 		halfPhiBinwidth = L1_PHI_BIN/2.
 		

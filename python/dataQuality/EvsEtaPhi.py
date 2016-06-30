@@ -61,8 +61,8 @@ class EvsEtaPhi(Plot):
 	
 	
 	def calculateCentralFractionInTight(self):
-		hSum = self.fileHandler.getHistogram('hoMuonAnalyzer/deltaEtaDeltaPhiEnergy/averageEMaxAroundPointL1TightMuons_2dSummedWeights')
-		hCounter = self.fileHandler.getHistogram('hoMuonAnalyzer/deltaEtaDeltaPhiEnergy/averageEMaxAroundPointL1TightMuons_2dCounter')
+		hSum = self.fileHandler.getHistogram('hoMuonAnalyzer/deltaEtaDeltaPhiEnergy/averageEMaxAroundPointpatTightToL1Muons_2dSummedWeights')
+		hCounter = self.fileHandler.getHistogram('hoMuonAnalyzer/deltaEtaDeltaPhiEnergy/averageEMaxAroundPointpatTightToL1Muons_2dCounter')
 
 		points = []
 		sum = 0
@@ -255,8 +255,8 @@ class EvsEtaPhi(Plot):
 		canvas = TCanvas('canvasEavTightMuons','EAv Tight muons',1200,1200)
 		canvas.cd().SetLogz()
 			
-		hSum = self.fileHandler.getHistogram('hoMuonAnalyzer/averageEnergy/averageEnergyAroundPointL1TightMuons_SummedEnergy')
-		hCounter = self.fileHandler.getHistogram('hoMuonAnalyzer/averageEnergy/averageEnergyAroundPointL1TightMuons_Counter')
+		hSum = self.fileHandler.getHistogram('hoMuonAnalyzer/averageEnergy/averageEnergyAroundPointpatTightToL1Muons_SummedEnergy')
+		hCounter = self.fileHandler.getHistogram('hoMuonAnalyzer/averageEnergy/averageEnergyAroundPointpatTightToL1Muons_Counter')
 	
 		hSum = setupEAvplot(hSum, hCounter,same=True,limitForAll=0.3)
 		hSum.SetTitle('Average E_{Rec} in HO tiles around tight L1 direction')
@@ -275,7 +275,7 @@ class EvsEtaPhi(Plot):
 		canvas = TCanvas('canvasEmaxcountsTightMuons','E max counts Tight muons',1200,1200)
 		canvas.cd().SetLogz()
 			
-		hCounter = self.fileHandler.getHistogram('hoMuonAnalyzer/deltaEtaDeltaPhiEnergy/averageEMaxAroundPointL1TightMuons_2dCounter')
+		hCounter = self.fileHandler.getHistogram('hoMuonAnalyzer/deltaEtaDeltaPhiEnergy/averageEMaxAroundPointpatTightToL1Muons_2dCounter')
 
 		hCounter.SetTitle('# of E_{Max} in HO tiles around tight L1 direction;#Delta#eta;#Delta#phi;# Entries')
 		hCounter.SetStats(0)
@@ -345,18 +345,18 @@ class EvsEtaPhi(Plot):
 		canvas = TCanvas('canvasEavPerWheelTightMuons','EAv Per Wheel Tight muons',1800,800)
 		canvas.Divide(3,1)
 				
-		hM1Energy = self.fileHandler.getHistogram('hoMuonAnalyzer/averageEnergy/wh1m/averageEnergyAroundPointL1TightMuons_wh-1SummedEnergy')
-		hM1Counter = self.fileHandler.getHistogram('hoMuonAnalyzer/averageEnergy/wh1m/averageEnergyAroundPointL1TightMuons_wh-1Counter')
+		hM1Energy = self.fileHandler.getHistogram('hoMuonAnalyzer/averageEnergy/wh1m/averageEnergyAroundPointpatTightToL1Muons_wh-1SummedEnergy')
+		hM1Counter = self.fileHandler.getHistogram('hoMuonAnalyzer/averageEnergy/wh1m/averageEnergyAroundPointpatTightToL1Muons_wh-1Counter')
 		hM1Energy = setupEAvplot(hM1Energy, hM1Counter)
 		hM1Energy.SetStats(0)
 	
-		h0Energy = self.fileHandler.getHistogram('hoMuonAnalyzer/averageEnergy/wh0/averageEnergyAroundPointL1TightMuons_wh0SummedEnergy')
-		h0Counter = self.fileHandler.getHistogram('hoMuonAnalyzer/averageEnergy/wh0/averageEnergyAroundPointL1TightMuons_wh0Counter')
+		h0Energy = self.fileHandler.getHistogram('hoMuonAnalyzer/averageEnergy/wh0/averageEnergyAroundPointpatTightToL1Muons_wh0SummedEnergy')
+		h0Counter = self.fileHandler.getHistogram('hoMuonAnalyzer/averageEnergy/wh0/averageEnergyAroundPointpatTightToL1Muons_wh0Counter')
 		h0Energy = setupEAvplot(h0Energy, h0Counter)
 		h0Energy.SetStats(0)
 	
-		hP1Energy = self.fileHandler.getHistogram('hoMuonAnalyzer/averageEnergy/wh1p/averageEnergyAroundPointL1TightMuons_wh1SummedEnergy')
-		hP1Counter = self.fileHandler.getHistogram('hoMuonAnalyzer/averageEnergy/wh1p/averageEnergyAroundPointL1TightMuons_wh1Counter')
+		hP1Energy = self.fileHandler.getHistogram('hoMuonAnalyzer/averageEnergy/wh1p/averageEnergyAroundPointpatTightToL1Muons_wh1SummedEnergy')
+		hP1Counter = self.fileHandler.getHistogram('hoMuonAnalyzer/averageEnergy/wh1p/averageEnergyAroundPointpatTightToL1Muons_wh1Counter')
 		hP1Energy = setupEAvplot(hP1Energy, hP1Counter)
 		hP1Energy.SetStats(0)
 	
@@ -448,8 +448,8 @@ class EvsEtaPhi(Plot):
 	def plotEtaPhiForTightL1(self):
 		canvas = TCanvas("cEtaPhi","Eta Phi",1200,1200)
 		canvas.Divide(2,1)
-		graphAll = self.fileHandler.getGraph('hoMuonAnalyzer/graphs/L1TightMuons')
-		graphWithHo = self.fileHandler.getGraph('hoMuonAnalyzer/graphs/L1TightMuons3x3')
+		graphAll = self.fileHandler.getGraph('hoMuonAnalyzer/graphs/patTightToL1Muons')
+		graphWithHo = self.fileHandler.getGraph('hoMuonAnalyzer/graphs/patTightToL1Muons3x3')
 				
 		halfPhiBinwidth = L1_PHI_BIN/2.
 		l1BinOffset = L1_PHI_BIN*3/4.

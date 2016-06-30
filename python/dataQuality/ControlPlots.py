@@ -50,10 +50,10 @@ class ControlPlots(Plot):
 		canvas.cd(1).SetLogz()
 		res1 = self.getIEtaIPhiPlot('hoRecHitsAboveThr')
 		canvas.cd(2).SetLogz()
-		res2 = self.getIEtaIPhiPlot('L1Muon3x3')
+		res2 = self.getIEtaIPhiPlot('patToL1Muons3x3')
 		res2.SetMaximum(res1.GetMaximum())
 		canvas.cd(3).SetLogz()
-		res3 = self.getIEtaIPhiPlot('L1TightMuons3x3')
+		res3 = self.getIEtaIPhiPlot('patTightToL1Muons3x3')
 		res3.SetMaximum(res1.GetMaximum())
 		canvas.Update()
 		res2.SetTitle('L1 #Rightarrow ' + res2.GetTitle())
@@ -134,7 +134,7 @@ class ControlPlots(Plot):
 	'''
 	def plotHoIEtaIPhiMatchedToTightL1(self):
 		canvas = TCanvas('cHoIEtaIPhiAndTightL1','HO iEta iPhi And Tight L1',1300,50,600,500)
-		hoEtaPhi = self.fileHandler.getHistogram('hoMuonAnalyzer/etaPhi/L1TightMuons3x3_iEtaIPhi')
+		hoEtaPhi = self.fileHandler.getHistogram('hoMuonAnalyzer/etaPhi/patTightToL1Muons3x3_iEtaIPhi')
 		hoEtaPhi.SetTitle('Tight L1 matched to HO RecHits > 0.2GeV;i#eta;i#phi;# entries')
 		hoEtaPhi.Draw('colz')
 		canvas.Update()
