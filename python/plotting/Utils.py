@@ -2,13 +2,10 @@ from plotting import OutputModule
 from plotting.PlotStyle import setupAxes
 
 from ROOT import Double,TGraphErrors,TLegend,vector,TMath,gPad,TPad
-from plotting.RootFileHandler import commandLine
 from array import array
 
 import math
-
-import math
-from numpy import nan, dtype
+from numpy import nan
 import numpy as np
 
 commandLine = OutputModule.CommandLineHandler('[Utils.py] ')

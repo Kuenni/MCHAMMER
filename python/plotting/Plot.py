@@ -1,13 +1,11 @@
 from plotting.PlotStyle import setPlotStyle, drawLabelCmsPrivateData,\
-	drawLabelCmsPrivateSimulation
+	drawLabelCmsPrivateSimulation,drawWaterMark
 from plotting.OutputModule import CommandLineHandler, CliColors
 from plotting.RootFileHandler import RootFileHandler
 
 import os
-import sys
 import inspect
 import subprocess
-import cmd
 import shlex
 
 class Plot:
@@ -22,7 +20,7 @@ class Plot:
 		pass
 	
 	def createFileHandler(self,filename):
-		fh = RootFileHandler(filename)
+		fh = RootFileHandler(filename,debug=self.DEBUG)
 		fh.printStatus()
 		return fh
 	
@@ -57,6 +55,8 @@ class Plot:
 			if( not os.path.exists(self.plotSubdir + '/' + plotname[0:plotname.rfind('/')])):
 				os.makedirs(self.plotSubdir + '/' + plotname[0:plotname.rfind('/')])
 				
+		canvas.cd()
+		mark = drawWaterMark()
 		canvas.SaveAs('%s/%s_%s.gif'%(self.plotSubdir,plotname,self.fileHandler.filename))
 		canvas.SaveAs('%s/%s_%s.png'%(self.plotSubdir,plotname,self.fileHandler.filename))
 		return
