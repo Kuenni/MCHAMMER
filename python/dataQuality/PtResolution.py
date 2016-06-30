@@ -115,8 +115,6 @@ class PtResolution(Plot):
 			histPtTightMatch = self.fileHandler.getHistogram('hoMuonAnalyzer/l1PtResolution/patToL1MuonTightHoMatchBin%d' % i)
 			histNoMatch = self.fileHandler.getHistogram('hoMuonAnalyzer/l1PtResolution/patToL1MuonNotHoMatchBin%d' % i)
 			histTightNoMatch = self.fileHandler.getHistogram('hoMuonAnalyzer/l1PtResolution/patToL1MuonTightNotHoMatchBin%d' % i)
-#			c = TCanvas()
-#			c.SetLogy()
 			if i < 40:
 				self.cached_data['x']['values'].append(i + 0.5)
 				self.cached_data['x']['errors'].append(0.5)
@@ -132,23 +130,6 @@ class PtResolution(Plot):
 			self.fillDataIntoCache(histTightNoMatch,'L1 Tight !HO')
 
 			self.commandLine.printProgress(i+1, 121)
-	###
-	#	Get data from the histograms in a python list
-	###
-	def getHistoDataAsList(self,sourceName):
-		values 		= []
-		valuesErr 	= []
-		
-		for i in range(0,121):
-			hist = self.fileHandler.getHistogram(sourceName + 'Bin%d' % i)
-			if hist != None:
-				values.append(hist.GetRMS())
-				valuesErr.append(hist.GetRMSError())
-			else:
-				values.append(0)
-				valuesErr.append(0)
-				self.commandLine.printProgress(i+1, 121)
-		return values,valuesErr
 	
 	###
 	#	Get the intrgrals of the source histograms
@@ -168,23 +149,7 @@ class PtResolution(Plot):
 				valuesErr.append(0)
 				self.commandLine.printProgress(i+1, 121)
 		return values,valuesErr
-	
-	###
-	#	Get the pT values for the x axes as list
-	###
-	def getXaxisData(self):
-		x 		= []
-		xErr	= []
 
-		for i in range(0,121):
-			if i < 40:
-				x.append(i + 0.5)
-				xErr.append(0.5)
-			else:
-				x.append(i*2 - 40 + 1)
-				xErr.append(1)
-			
-		return x,xErr
 	
 	def plotL1(self):
 		return self.makeQuantilePlot('L1')
@@ -345,10 +310,13 @@ class PtResolution(Plot):
 
 	def plotTightPtResolution(self):
 		c = TCanvas('cTightResolution','cTightResolution')
-		xData = self.getXaxisData()
-		tight = self.getHistoDataAsList('hoMuonAnalyzer/l1PtResolution/L1MuonTightTruth')
-		tightAndHo = self.getHistoDataAsList('hoMuonAnalyzer/l1PtResolution/L1MuonTightTruthHoMatch')
-		tightAndNotHo = self.getHistoDataAsList('hoMuonAnalyzer/l1PtResolution/L1MuonTightTruthNotHoMatch')
+		xData = [self.cached_data['x']['values'],self.cached_data['x']['errors']]
+		tight = [self.cached_data['L1 Tight']['rms'],
+				self.cached_data['L1 Tight']['rmsError']]
+		tightAndHo = [self.cached_data['L1 Tight And HO']['rms'],
+				self.cached_data['L1 Tight And HO']['rmsError']]
+		tightAndNotHo = [self.cached_data['L1 Tight !HO']['rms'],
+				self.cached_data['L1 Tight !HO']['rmsError']]
 		
 		graphL1Tight = getTGraphErrors(xData[0], tight[0], ex=xData[1], ey=tight[1])
 		graphL1TightHo = getTGraphErrors(xData[0], tightAndHo[0], ex=xData[1], ey=tightAndHo[1])
@@ -417,11 +385,14 @@ class PtResolution(Plot):
 	
 	def plotLoosePtResolution(self):
 		c = TCanvas('cLooseResolution','cLooseResolution')
-		xData = self.getXaxisData()
-		
-		tight = self.getHistoDataAsList('hoMuonAnalyzer/l1PtResolution/L1MuonTruth')
-		tightAndHo = self.getHistoDataAsList('hoMuonAnalyzer/l1PtResolution/L1MuonTruthHoMatch')
-		tightAndNotHo = self.getHistoDataAsList('hoMuonAnalyzer/l1PtResolution/L1MuonTruthNotHoMatch')
+
+		xData = [self.cached_data['x']['values'],self.cached_data['x']['errors']]
+		tight = [self.cached_data['L1']['rms'],
+				self.cached_data['L1']['rmsError']]
+		tightAndHo = [self.cached_data['L1 And HO']['rms'],
+				self.cached_data['L1 And HO']['rmsError']]
+		tightAndNotHo = [self.cached_data['L1 !HO']['rms'],
+				self.cached_data['L1 !HO']['rmsError']]
 		
 		graphL1Tight = getTGraphErrors(xData[0], tight[0], ex=xData[1], ey=tight[1])
 		graphL1TightHo = getTGraphErrors(xData[0], tightAndHo[0], ex=xData[1], ey=tightAndHo[1])
