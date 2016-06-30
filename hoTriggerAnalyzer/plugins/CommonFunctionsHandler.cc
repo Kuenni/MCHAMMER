@@ -34,8 +34,8 @@ const l1extra::L1MuonParticle* CommonFunctionsHandler::getBestL1MuonMatch(double
 	l1extra::L1MuonParticleCollection::const_iterator l1It = l1Muons->begin();
 	l1extra::L1MuonParticleCollection::const_iterator l1End = l1Muons->end();
 	for(; l1It!=l1End; ++l1It) {
-		float l1Phi = l1It->phi();
-		float l1Eta = l1It->eta() + hoMuonAnalyzer::L1PHI_OFFSET;
+		float l1Phi = l1It->phi() + hoMuonAnalyzer::L1PHI_OFFSET;
+		float l1Eta = l1It->eta();
 		float dR = deltaR(eta,phi,l1Eta,l1Phi);
 		int l1Quality = l1It->gmtMuonCand().quality();
 		if (dR < deltaR_Max && dR < bestDR && l1Quality > bestQuality) { // CB get it from CFG
