@@ -1519,10 +1519,16 @@ void hoMuonAnalyzer::recoControlPlots(){
 	histogramBuilder.fillMultiplicityHistogram(nTightMuons,"tightPatMuonsSize");
 }
 
-void hoMuonAnalyzer::fillTimingHistograms(const l1extra::L1MuonParticle* l1Muon, double hoTime, bool isTight){
+void hoMuonAnalyzer::fillTimingHistograms(const l1extra::L1MuonParticle* l1Muon, const HORecHit* hoRecHit, bool isTight){
 	std::string nameTrunk = "timingSupport_";
 	if(isTight){
 		nameTrunk += "tight_";
+	}
+	double hoTime;
+	if(hoRecHit){
+		hoTime = hoRecHit->time();
+	} else {
+		hoTime = -999;
 	}
 	switch(l1Muon->gmtMuonCand().quality()){
 	case 7:
@@ -1539,6 +1545,8 @@ void hoMuonAnalyzer::fillTimingHistograms(const l1extra::L1MuonParticle* l1Muon,
 		}
 		break;
 	case 6:
+		//Do a crosscheck on the detector index and the quality code
+		histogramBuilder.fillMultiplicityHistogram(l1Muon->gmtMuonCand().detector(),nameTrunk + "_detectorIndexInUnmatchedDt");
 		if(hoTime == -999){
 			histogramBuilder.fillCountHistogram(nameTrunk + "UnmatchedDt");
 			histogramBuilder.fillBxIdHistogram(l1Muon->bx(),nameTrunk + "UnmatchedDt");
@@ -1550,6 +1558,10 @@ void hoMuonAnalyzer::fillTimingHistograms(const l1extra::L1MuonParticle* l1Muon,
 			histogramBuilder.fillDeltaTimeHistogram(hoTime,l1Muon->bx(),nameTrunk + "UnmatchedDtHo");
 			histogramBuilder.fillTimeHistogram(hoTime,nameTrunk + "UnmatchedDtHo");
 			histogramBuilder.fillEtaPhiGraph(l1Muon->eta(), l1Muon->phi() + L1PHI_OFFSET,nameTrunk + "UnmatchedDtHo");
+			histogramBuilder.fillGraph2D(hoRecHit->id().ieta(),hoRecHit->id().iphi(),hoRecHit->time(),nameTrunk + "UnmatchedDtHoTimeGraph");
+			if(l1Muon->bx() != 0){
+				histogramBuilder.fillEtaPhiGraph(l1Muon->eta(), l1Muon->phi() + L1PHI_OFFSET,nameTrunk + "UnmatchedDtHoBxNot0");
+			}
 		}
 		//Unmatched DT
 		break;
@@ -1574,26 +1586,29 @@ void hoMuonAnalyzer::fillTimingHistograms(const l1extra::L1MuonParticle* l1Muon,
  * Study the timing information when RPC info is not available
  */
 void hoMuonAnalyzer::analyzeTimingSupport(){
+	//switch for later use
+	bool isDtOnlyEvent = false;
 	for(auto l1Muon = l1Muons->begin(); l1Muon != l1Muons->end(); l1Muon++){
 		float l1Eta = l1Muon->eta();
 		float l1Phi = l1Muon->phi() + L1PHI_OFFSET;
 		if( fabs(l1Eta) > MAX_ETA){
 			continue;
 		}
+		//Count the number of L1 objects in a dt only l1 muon event
+		//But only count once!
+		if(!isDtOnlyEvent){
+			if(l1Muon->gmtMuonCand().quality() == 6){
+				histogramBuilder.fillMultiplicityHistogram(l1Muons->size(),"nL1InDtOnly");
+				isDtOnlyEvent = true;
+			}
+		}
 		const pat::Muon* patMuon = getBestPatMatch(l1Eta,l1Phi);
 		if(patMuon){
 			bool isTight = patMuon->isTightMuon(getPrimaryVertex());
 			const HORecHit* hoRecHit = hoMatcher->matchByEMaxInGrid(l1Eta,l1Phi,1);
-			if(hoRecHit){
-				fillTimingHistograms(&*l1Muon,hoRecHit->time(),false);
-				if(isTight){
-					fillTimingHistograms(&*l1Muon,hoRecHit->time(),true);
-				}
-			} else {
-				fillTimingHistograms(&*l1Muon,-999,false);
-				if(isTight){
-					fillTimingHistograms(&*l1Muon,-999,true);
-				}
+			fillTimingHistograms(&*l1Muon,hoRecHit,false);
+			if(isTight){
+				fillTimingHistograms(&*l1Muon,hoRecHit,true);
 			}
 		}
 	}
