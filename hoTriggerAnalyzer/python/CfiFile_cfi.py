@@ -1,5 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
+from TrackingTools.TrackAssociator.default_cfi import TrackAssociatorParameterBlock
+parameters = TrackAssociatorParameterBlock.TrackAssociatorParameters
+
+parameters.useEcal = False
+parameters.useHcal = False
+parameters.useMuon = False
+
 hoTriggerAnalyzer = cms.EDAnalyzer('hoTriggerAnalyzer',
 	genSrc = cms.InputTag("genParticles"),
     l1MuonSrc=cms.InputTag("l1extraParticles"),
