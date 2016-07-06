@@ -1176,14 +1176,6 @@ void hoMuonAnalyzer::fillAverageEnergyAroundL1Direction(const l1extra::L1MuonPar
 			double deltaPhi;
 			deltaPhi = FilterPlugin::wrapCheck(l1Phi,hoMatcher->getRecHitPhi(&*recHitIt));
 
-			/**
-			 * Dump delta phi and l1
-			 */
-			ofstream myfile;
-			myfile.open ("deltaPhiVsL1Phi.txt",std::ios::app);
-			myfile << l1Phi << '\t' << deltaPhi << std::endl;
-
-
 			TH1D* hist1D = new TH1D(("deltaPhi" + key).c_str(),"#Delta#phi;#Delta#phi;N Entries",81,-40*HoMatcher::HALF_HO_BIN/2. - HoMatcher::HALF_HO_BIN/4.
 					,40*HoMatcher::HALF_HO_BIN/2. + HoMatcher::HALF_HO_BIN/4.);
 			histogramBuilder.fillHistogram(deltaPhi,"deltaPhi" + key,hist1D);
@@ -1558,7 +1550,8 @@ void hoMuonAnalyzer::fillTimingHistograms(const l1extra::L1MuonParticle* l1Muon,
 			histogramBuilder.fillDeltaTimeHistogram(hoTime,l1Muon->bx(),nameTrunk + "UnmatchedDtHo");
 			histogramBuilder.fillTimeHistogram(hoTime,nameTrunk + "UnmatchedDtHo");
 			histogramBuilder.fillEtaPhiGraph(l1Muon->eta(), l1Muon->phi() + L1PHI_OFFSET,nameTrunk + "UnmatchedDtHo");
-			histogramBuilder.fillGraph2D(hoRecHit->id().ieta(),hoRecHit->id().iphi(),hoRecHit->time(),nameTrunk + "UnmatchedDtHoTimeGraph");
+			histogramBuilder.fillGraph2D(hoRecHit->id().ieta(),hoRecHit->id().iphi(),hoRecHit->time(),nameTrunk + "UnmatchedDtHoTimeGraph2D");
+			histogramBuilder.fillGraph(hoRecHit->id().ieta(),hoRecHit->time(),nameTrunk + "UnmatchedDtHoTimeGraph");
 			if(l1Muon->bx() != 0){
 				histogramBuilder.fillEtaPhiGraph(l1Muon->eta(), l1Muon->phi() + L1PHI_OFFSET,nameTrunk + "UnmatchedDtHoBxNot0");
 			}
