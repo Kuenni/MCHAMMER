@@ -10,7 +10,7 @@ from plotting.Colors import rwthDarkBlue, rwthGruen, rwthRot
 
 	
 class GridMatching(Plot):
-	def __init__(self,filename,data =False):
+	def __init__(self,filename,data =False,debug=False):
 		Plot.__init__(self,filename,data)
 		self.createPlotSubdir('efficiency')
 		
