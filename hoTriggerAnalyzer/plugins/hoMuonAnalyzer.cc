@@ -1862,7 +1862,6 @@ void hoMuonAnalyzer::analyzeEnergyDeposit(const edm::Event& iEvent,const edm::Ev
 			if(hoRecHit){
 				histogramBuilder.fillCountHistogram("energyDeposit_L1RecoHo");
 				histogramBuilder.fillEnergyVsIEta(hoRecHit->energy(),hoRecHit->id().ieta(),"energyDeposit_L1RecoHo");
-				const reco::Vertex primVertex = getPrimaryVertex();
 				if(patMuon->isTightMuon(getPrimaryVertex())){
 					histogramBuilder.fillCountHistogram("energyDeposit_L1RecoHoTight");
 					histogramBuilder.fillEnergyVsIEta(hoRecHit->energy(),hoRecHit->id().ieta(),"energyDeposit_L1RecoHoTight");
