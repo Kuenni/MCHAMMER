@@ -5,7 +5,7 @@ from plotting.Plot import Plot
 from plotting.PlotStyle import setPlotStyle,calcSigma,getLabelCmsPrivateSimulation,\
 	colorRwthRot,colorRwthDarkBlue,colorRwthMagenta,setupAxes,convertToHcalCoords,chimney1,chimney2,colorRwthRot,\
 	setBigAxisTitles
-from plotting.Utils import getLegend, L1_ETA_BIN, fillGraphIn2DHist
+from plotting.Utils import getLegend, L1_ETA_BIN, fillGraphIn2DHist, fill2DGraphIn2DHist
 from numpy import math
 
 class Timing(Plot):
@@ -13,16 +13,52 @@ class Timing(Plot):
 		Plot.__init__(self,filename,data,debug)
 		self.createPlotSubdir('timing')
 	
-	def plotDtBxWrongCoordinates(self):
-		c  = TCanvas("dtBxWrongCoordinates","DT BX Wrong Coordinates",1200,1200)
-		graphDt = self.fileHandler.getGraph('hoMuonAnalyzer/graphs/timingSupport_UnmatchedDtHo')
-		histAll = TH2D('hEtaPhiAll',"#eta#phi for DT BX Wrong;#eta_{L1};#phi_{L1}",30,-15*L1_ETA_BIN	,15*L1_ETA_BIN,
+	def plotHoTimeVsEta(self):
+		canvas = TCanvas('cHoTimeVsEtaUnmatchedDt')
+		
+		hist = TH2D('hHoTimeVsEtaUnmatchedDt',"HO time vs i#eta for unmatched DT cand.",33,-16.5,16.5,
+				201,-100.5,100.5)
+		graph = self.fileHandler.getGraph('hoMuonAnalyzer/graphs/timingSupport_UnmatchedDtHoTimeGraph')
+		fillGraphIn2DHist(graph, hist)
+		hist.Draw('colz')
+		canvas.Update()
+		setupAxes(hist)
+		canvas.Update()
+		return canvas,hist
+	
+	def makeDtOnlyPlot(self,sourceDt,sourceDtHo):
+		c  = TCanvas(sourceDt,sourceDt,1200,1200)
+		graphDt = self.fileHandler.getGraph('hoMuonAnalyzer/graphs/timingSupport_' + sourceDt)
+		histAll = TH2D('hEtaPhi' + sourceDt,";#eta_{L1};#phi_{L1}",30,-15*L1_ETA_BIN,15*L1_ETA_BIN,
 			144, -math.pi,math.pi)
 		fillGraphIn2DHist(graphDt, histAll)
-		setupAxes(histAll)
+		if(sourceDtHo != ''):
+			graphDtHo = self.fileHandler.getGraph('hoMuonAnalyzer/graphs/timingSupport_' + sourceDtHo)
+			fillGraphIn2DHist(graphDtHo, histAll)
+		histAll.SetStats(0)
 		histAll.Draw('colz')
 		c.Update()
-		return histAll,c
+		setupAxes(histAll)
+		c.Update()
+		return c,histAll
+	
+	def plotDtOnlyCoordinates(self):
+		c,hist = self.makeDtOnlyPlot(sourceDt='UnmatchedDt', sourceDtHo='UnmatchedDtHo')
+		hist.SetTitle('#eta#phi for DT-only')
+		self.storeCanvas(c, 'dtOnlyCoordinates')
+		return hist,c
+	
+	def plotDtOnlyBxWrongCoordinates(self):
+		c,hist = self.makeDtOnlyPlot(sourceDt='UnmatchedDtBxNot0', sourceDtHo='UnmatchedDtHoBxNot0')
+		hist.SetTitle('#eta#phi for DT-only, BX Wrong')
+		self.storeCanvas(c, 'dtOnlyBxWrongCoordinates')
+		return hist,c
+	
+	def plotDtOnlyAndHoBxWrongCoordinates(self):
+		c,hist = self.makeDtOnlyPlot(sourceDt='UnmatchedDtHoBxNot0', sourceDtHo='')
+		hist.SetTitle('#eta#phi for DT-only + HO, BX Wrong')
+		self.storeCanvas(c, 'dtOnlyAndHoBxWrongCoordinates')
+		return hist,c
 	
 	def plotDeltaTime(self):
 		hDeltaTAllHo = self.fileHandler.getHistogram('hoMuonAnalyzer/L1MuonPresentHoMatch_DeltaTime')
