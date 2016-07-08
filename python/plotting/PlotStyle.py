@@ -152,6 +152,8 @@ def setupAxes(plot):
 		plot = plot.GetHistogram()
 	plot.SetTitleFont(62)
 	plot.SetTitleSize(0.06)
+	setBigAxisTitles(plot)
+	setupPalette(plot)
 
 def setBigAxisTitles(plot):
 	if plot.__class__ == TEfficiency:
