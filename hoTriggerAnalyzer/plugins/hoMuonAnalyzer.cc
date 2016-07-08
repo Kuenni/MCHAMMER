@@ -1543,6 +1543,9 @@ void hoMuonAnalyzer::fillTimingHistograms(const l1extra::L1MuonParticle* l1Muon,
 			histogramBuilder.fillCountHistogram(nameTrunk + "UnmatchedDt");
 			histogramBuilder.fillBxIdHistogram(l1Muon->bx(),nameTrunk + "UnmatchedDt");
 			histogramBuilder.fillEtaPhiGraph(l1Muon->eta(), l1Muon->phi() + L1PHI_OFFSET,nameTrunk + "UnmatchedDt");
+			if(l1Muon->bx() != 0){
+				histogramBuilder.fillEtaPhiGraph(l1Muon->eta(), l1Muon->phi() + L1PHI_OFFSET,nameTrunk + "UnmatchedDtBxNot0");
+			}
 		}
 		else{
 			histogramBuilder.fillCountHistogram(nameTrunk + "UnmatchedDtHo");
