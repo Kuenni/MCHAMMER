@@ -28,14 +28,14 @@ gridSizeDict = {
 def plotQualityCodes():
 	c = TCanvas('cQualityCodes')
 	c.SetLogy()
-	qualityCodes = fileHandler.getHistogram('hoMuonAnalyzer/multiplicity/L1MuonQualityCodesCentral_Multiplicity')
-	qualityCodesFail = fileHandler.getHistogram('hoMuonAnalyzer/multiplicity/L1MuonQualityCodesCentralFail_Multiplicity')
+	qualityCodes = fileHandler.getHistogram('multiplicity/L1MuonQualityCodesCentral_Multiplicity')
+	qualityCodesFail = fileHandler.getHistogram('multiplicity/L1MuonQualityCodesCentralFail_Multiplicity')
 	
-	qualityCodes3x3 = fileHandler.getHistogram('hoMuonAnalyzer/multiplicity/L1MuonQualityCodes3x3_Multiplicity')
-	qualityCodes3x3Fail = fileHandler.getHistogram('hoMuonAnalyzer/multiplicity/L1MuonQualityCodes3x3Fail_Multiplicity')
+	qualityCodes3x3 = fileHandler.getHistogram('multiplicity/L1MuonQualityCodes3x3_Multiplicity')
+	qualityCodes3x3Fail = fileHandler.getHistogram('multiplicity/L1MuonQualityCodes3x3Fail_Multiplicity')
 	
-	qualityCodes5x5 = fileHandler.getHistogram('hoMuonAnalyzer/multiplicity/L1MuonQualityCodes5x5_Multiplicity')
-	qualityCodes5x5Fail = fileHandler.getHistogram('hoMuonAnalyzer/multiplicity/L1MuonQualityCodes5x5Fail_Multiplicity')
+	qualityCodes5x5 = fileHandler.getHistogram('multiplicity/L1MuonQualityCodes5x5_Multiplicity')
+	qualityCodes5x5Fail = fileHandler.getHistogram('multiplicity/L1MuonQualityCodes5x5Fail_Multiplicity')
 	
 	setupAxes(qualityCodes)
 	qualityCodes.SetTitle('Quality codes for grid matching;;#')
@@ -109,11 +109,11 @@ def plotQualityCodesStacked(gridSize):
 	c.SetLogy()
 	c.cd().SetBottomMargin(0.15)
 	c.cd().SetRightMargin(0.20)
-	qualityCodes = fileHandler.getHistogram('hoMuonAnalyzer/multiplicity/L1MuonQualityCodes' + gridString + '_Multiplicity')
-	qualityCodesFail = fileHandler.getHistogram('hoMuonAnalyzer/multiplicity/L1MuonQualityCodes' + gridString + 'Fail_Multiplicity')
+	qualityCodes = fileHandler.getHistogram('multiplicity/L1MuonQualityCodes' + gridString + '_Multiplicity')
+	qualityCodesFail = fileHandler.getHistogram('multiplicity/L1MuonQualityCodes' + gridString + 'Fail_Multiplicity')
 	
-	countQualityCodes = fileHandler.getHistogram('hoMuonAnalyzer/multiplicity/L1MuonAllQualityCodes_Multiplicity')
-	countQualityCodesTruth = fileHandler.getHistogram('hoMuonAnalyzer/multiplicity/L1MuonTruthAllQualityCodes_Multiplicity')
+	countQualityCodes = fileHandler.getHistogram('multiplicity/L1MuonAllQualityCodes_Multiplicity')
+	countQualityCodesTruth = fileHandler.getHistogram('multiplicity/L1MuonTruthAllQualityCodes_Multiplicity')
 	
 	print
 	cli.output('Sanity check for quality code counts')
@@ -166,9 +166,9 @@ def plotQualityCodesStacked(gridSize):
 
 def createPlotPtVsQualityCode(gridSize):
 	sourceHistogramsForGrid = {
-		1:'hoMuonAnalyzer/correlation/L1MuonpTvsQCCentralFail',
-		2:'hoMuonAnalyzer/correlation/L1MuonpTvsQC3x3Fail',
-		3:'hoMuonAnalyzer/correlation/L1MuonpTvsQC5x5Fail'
+		1:'correlation/L1MuonpTvsQCCentralFail',
+		2:'correlation/L1MuonpTvsQC3x3Fail',
+		3:'correlation/L1MuonpTvsQC5x5Fail'
 	}
 	histogramTitleDict = {
 		1:'Central',
@@ -221,8 +221,8 @@ def plotQualityCodesVsPt():
 	canvas.SetLogy()
 	canvas.cd().SetBottomMargin(0.15)
 
-	histAllCodes = fileHandler.getHistogram('hoMuonAnalyzer/multiplicity/L1MuonAllQualityCodes_Multiplicity')
-	histAllCodesTruth = fileHandler.getHistogram('hoMuonAnalyzer/multiplicity/L1MuonTruthAllQualityCodes_Multiplicity')
+	histAllCodes = fileHandler.getHistogram('multiplicity/L1MuonAllQualityCodes_Multiplicity')
+	histAllCodesTruth = fileHandler.getHistogram('multiplicity/L1MuonTruthAllQualityCodes_Multiplicity')
 
 	setupAxes(histAllCodes)
 

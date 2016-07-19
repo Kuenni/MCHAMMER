@@ -17,20 +17,20 @@ class Counters(Plot):
 		
 	#plot counters for L1, tight l1, and matching to those
 	def plotL1AndTightL1Counters(self):
-		hEvent = self.fileHandler.getHistogram('hoMuonAnalyzer/count/Events_Count')
-		hAllL1 = self.fileHandler.getHistogram('hoMuonAnalyzer/count/L1Muon_Count')
-		hAllL13x3 = self.fileHandler.getHistogram('hoMuonAnalyzer/count/L1Muon3x3_Count')
-		hTightL1 = self.fileHandler.getHistogram('hoMuonAnalyzer/count/L1TightMuons_Count')
-		hTightL13x3 = self.fileHandler.getHistogram('hoMuonAnalyzer/count/L1TightMuons3x3_Count')
+		hEvent = self.fileHandler.getHistogram('count/Events_Count')
+		hAllL1 = self.fileHandler.getHistogram('count/L1Muon_Count')
+		hAllL13x3 = self.fileHandler.getHistogram('count/L1Muon3x3_Count')
+		hTightL1 = self.fileHandler.getHistogram('count/L1TightMuons_Count')
+		hTightL13x3 = self.fileHandler.getHistogram('count/L1TightMuons3x3_Count')
 		
-		hL1 = self.fileHandler.getHistogram('hoMuonAnalyzer/count/energyDeposit_L1_Count')
-		hL1Reco = self.fileHandler.getHistogram('hoMuonAnalyzer/count/energyDeposit_L1Reco_Count')
-		hL1RecoHo = self.fileHandler.getHistogram('hoMuonAnalyzer/count/energyDeposit_L1RecoHo_Count')
-		hL1RecoHoTight = self.fileHandler.getHistogram('hoMuonAnalyzer/count/energyDeposit_L1RecoHoTight_Count')
-		hL1RecoTight = self.fileHandler.getHistogram('hoMuonAnalyzer/count/energyDeposit_L1RecoTight_Count')
-		hL1RecoTightHo = self.fileHandler.getHistogram('hoMuonAnalyzer/count/energyDeposit_L1RecoTightHo_Count')
-		hL1RecoHoNoThr = self.fileHandler.getHistogram('hoMuonAnalyzer/count/energyDeposit_L1RecoHoNoThr_Count')
-		hL1RecoGaHoNoThr = self.fileHandler.getHistogram('hoMuonAnalyzer/count/energyDeposit_L1RecoGaHoNoThr_Count')
+		hL1 = self.fileHandler.getHistogram('count/energyDeposit_L1_Count')
+		hL1Reco = self.fileHandler.getHistogram('count/energyDeposit_L1Reco_Count')
+		hL1RecoHo = self.fileHandler.getHistogram('count/energyDeposit_L1RecoHo_Count')
+		hL1RecoHoTight = self.fileHandler.getHistogram('count/energyDeposit_L1RecoHoTight_Count')
+		hL1RecoTight = self.fileHandler.getHistogram('count/energyDeposit_L1RecoTight_Count')
+		hL1RecoTightHo = self.fileHandler.getHistogram('count/energyDeposit_L1RecoTightHo_Count')
+		hL1RecoHoNoThr = self.fileHandler.getHistogram('count/energyDeposit_L1RecoHoNoThr_Count')
+		hL1RecoGaHoNoThr = self.fileHandler.getHistogram('count/energyDeposit_L1RecoGaHoNoThr_Count')
 		
 		histogramList = [hEvent, hL1, hL1Reco, hL1RecoHo, hL1RecoHoTight,
 						hL1RecoTight, hL1RecoTightHo, hL1RecoHoNoThr, hL1RecoGaHoNoThr ]
@@ -126,8 +126,8 @@ class Counters(Plot):
 		return h,c,hL13x3Alone,hTightL13x3Alone,label,legend,hInverted,textObjects
 	
 	def plotTightL1EtaPhiRatio(self):
-		gL1Tight = self.fileHandler.getGraph('hoMuonAnalyzer/graphs/patTightToL1Muons')
-		gL1Tight3x3 = self.fileHandler.getGraph('hoMuonAnalyzer/graphs/patTightToL1Muons3x3')
+		gL1Tight = self.fileHandler.getGraph('graphs/patTightToL1Muons')
+		gL1Tight3x3 = self.fileHandler.getGraph('graphs/patTightToL1Muons3x3')
 		
 		halfPhiBinwidth = L1_PHI_BIN/2.
 		

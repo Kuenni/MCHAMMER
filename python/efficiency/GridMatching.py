@@ -39,8 +39,8 @@ class GridMatching(Plot):
 		return c,eff3x3,eff3x3Tight
 		
 	def plotL13x3AndL1Tight3x3(self):
-		c,effL1Muon3x3,effL1TightMuon3x3 = self.get3x3MatchingPlot('hoMuonAnalyzer/efficiency/gridMatching_loose3x3_Efficiency',
-			 'hoMuonAnalyzer/efficiency/gridMatching_tight3x3_Efficiency',
+		c,effL1Muon3x3,effL1TightMuon3x3 = self.get3x3MatchingPlot('efficiency/gridMatching_loose3x3_Efficiency',
+			 'efficiency/gridMatching_tight3x3_Efficiency',
 			  'Efficiency for Matching L1 to HO;p_{T,RECO} / GeV;Efficiency')
 		
 		legend = TLegend(0.55,0.1,0.9,0.3)
@@ -63,8 +63,8 @@ class GridMatching(Plot):
 	
 	def plotL13x3AndL1Tight3x3L1Coordinates(self):
 		
-		c,effL1Muon3x3,effL1TightMuon3x3 = self.get3x3MatchingPlot('hoMuonAnalyzer/efficiency/gridMatching_L1pT_loose3x3_Efficiency',
-			 'hoMuonAnalyzer/efficiency/gridMatching_L1pT_tight3x3_Efficiency',
+		c,effL1Muon3x3,effL1TightMuon3x3 = self.get3x3MatchingPlot('efficiency/gridMatching_L1pT_loose3x3_Efficiency',
+			 'efficiency/gridMatching_L1pT_tight3x3_Efficiency',
 			 'Efficiency for Matching L1 to HO;p_{T,L1} / GeV;Efficiency')
 				
 		c.Update()
@@ -86,8 +86,8 @@ class GridMatching(Plot):
 
 	def plotL13x3AndL1Tight3x3FromPatL1Pt(self):
 		
-		c,effL1Muon3x3,effL1TightMuon3x3 = self.get3x3MatchingPlot('hoMuonAnalyzer/efficiency/patToL1Muons_L1pT3x3_Efficiency',
-			 'hoMuonAnalyzer/efficiency/patTightToL1Muons_L1pT3x3_Efficiency',
+		c,effL1Muon3x3,effL1TightMuon3x3 = self.get3x3MatchingPlot('efficiency/patToL1Muons_L1pT3x3_Efficiency',
+			 'efficiency/patTightToL1Muons_L1pT3x3_Efficiency',
 			 'Efficiency (from #font[102]{pat}) for Matching L1 to HO;p_{T,L1} / GeV;Efficiency')
 				
 		c.Update()
@@ -108,8 +108,8 @@ class GridMatching(Plot):
 		return c, legend, effL1Muon3x3, effL1TightMuon3x3,label
 	
 	def plotL13x3AndL1Tight3x3FromPat(self):
-		c,effL1Muon3x3,effL1TightMuon3x3 = self.get3x3MatchingPlot('hoMuonAnalyzer/efficiency/patToL1Muons3x3_Efficiency',
-			 'hoMuonAnalyzer/efficiency/patTightToL1Muons3x3_Efficiency',
+		c,effL1Muon3x3,effL1TightMuon3x3 = self.get3x3MatchingPlot('efficiency/patToL1Muons3x3_Efficiency',
+			 'efficiency/patTightToL1Muons3x3_Efficiency',
 			 'Efficiency (from #font[102]{pat}) for Matching L1 to HO;p_{T,RECO} / GeV;Efficiency')
 				
 		c.Update()
@@ -130,9 +130,9 @@ class GridMatching(Plot):
 		return c, legend, effL1Muon3x3, effL1TightMuon3x3,label
 	
 	def plotL1GridMatchingEfficiency(self):
-		effL1MuonCentral = self.fileHandler.getHistogram('hoMuonAnalyzer/efficiency/L1MuonCentral_Efficiency')
-		effL1Muon3x3 = self.fileHandler.getHistogram('hoMuonAnalyzer/efficiency/L1Muon3x3_Efficiency')
-		effL1Muon5x5 = self.fileHandler.getHistogram('hoMuonAnalyzer/efficiency/L1Muon5x5_Efficiency')
+		effL1MuonCentral = self.fileHandler.getHistogram('efficiency/L1MuonCentral_Efficiency')
+		effL1Muon3x3 = self.fileHandler.getHistogram('efficiency/L1Muon3x3_Efficiency')
+		effL1Muon5x5 = self.fileHandler.getHistogram('efficiency/L1Muon5x5_Efficiency')
 		
 		c = TCanvas("c1","c1",1200,1200)
 		
@@ -225,9 +225,9 @@ class GridMatching(Plot):
 		plt.show()
 	
 	def plotL1TruthGridMatchingPlot(self):
-		effL1MuonCentral = self.fileHandler.getHistogram('hoMuonAnalyzer/efficiency/L1MuonTruthCentral_Efficiency')
-		effL1Muon3x3 = self.fileHandler.getHistogram('hoMuonAnalyzer/efficiency/L1MuonTruth3x3_Efficiency')
-		effL1Muon5x5 = self.fileHandler.getHistogram('hoMuonAnalyzer/efficiency/L1MuonTruth5x5_Efficiency')
+		effL1MuonCentral = self.fileHandler.getHistogram('efficiency/L1MuonTruthCentral_Efficiency')
+		effL1Muon3x3 = self.fileHandler.getHistogram('efficiency/L1MuonTruth3x3_Efficiency')
+		effL1Muon5x5 = self.fileHandler.getHistogram('efficiency/L1MuonTruth5x5_Efficiency')
 		
 		c = TCanvas("c12","c1",1200,1200)
 		
@@ -321,8 +321,8 @@ class GridMatching(Plot):
 	
 	def plot5x5GridTogether(self):
 		c = TCanvas()
-		effL1Muon5x5Truth = self.fileHandler.getHistogram('hoMuonAnalyzer/efficiency/L1MuonTruth5x5_Efficiency')
-		effL1Muon5x5 = self.fileHandler.getHistogram('hoMuonAnalyzer/efficiency/L1Muon5x5_Efficiency')
+		effL1Muon5x5Truth = self.fileHandler.getHistogram('efficiency/L1MuonTruth5x5_Efficiency')
+		effL1Muon5x5 = self.fileHandler.getHistogram('efficiency/L1Muon5x5_Efficiency')
 	
 		effL1Muon5x5.Draw()
 		effL1Muon5x5Truth.Draw("same")
@@ -402,8 +402,8 @@ class GridMatching(Plot):
 		plt.show()
 	
 	def plotDeltaNL1ComparedGridMatching(self):
-		effL1Muon3x3Truth = self.fileHandler.getHistogram('hoMuonAnalyzer/efficiency/L1MuonTruth3x3_Efficiency')
-		effL1Muon3x3 = self.fileHandler.getHistogram('hoMuonAnalyzer/efficiency/L1Muon3x3_Efficiency')
+		effL1Muon3x3Truth = self.fileHandler.getHistogram('efficiency/L1MuonTruth3x3_Efficiency')
+		effL1Muon3x3 = self.fileHandler.getHistogram('efficiency/L1Muon3x3_Efficiency')
 	
 		xValues = []
 		xErrLow = []
@@ -437,8 +437,8 @@ class GridMatching(Plot):
 		plt.show()
 	
 	def plotDeltaNL1ComparedMatchingByEMax(self):
-		effL1Muon = self.fileHandler.getHistogram("hoMuonAnalyzer/efficiency/GenAndL1MuonPt15_Efficiency")
-		effL1MuonTruth = self.fileHandler.getHistogram("hoMuonAnalyzer/efficiency/GenAndL1MuonAndHoAboveThrPt15_Efficiency")
+		effL1Muon = self.fileHandler.getHistogram("efficiency/GenAndL1MuonPt15_Efficiency")
+		effL1MuonTruth = self.fileHandler.getHistogram("efficiency/GenAndL1MuonAndHoAboveThrPt15_Efficiency")
 		xValues = []
 		xErrLow = []
 		xErrHigh= []
@@ -471,11 +471,11 @@ class GridMatching(Plot):
 		plt.show()
 		
 	def plotNtotalGridMatching3x3(self):
-		effL1Muon3x3 = self.fileHandler.getHistogram("hoMuonAnalyzer/efficiency/L1Muon3x3_Efficiency")
-		effL1Muon3x3Truth = self.fileHandler.getHistogram("hoMuonAnalyzer/efficiency/L1MuonTruth3x3_Efficiency")
-		effL1Muon5x5Truth = self.fileHandler.getHistogram("hoMuonAnalyzer/efficiency/L1MuonTruth5x5_Efficiency")
+		effL1Muon3x3 = self.fileHandler.getHistogram("efficiency/L1Muon3x3_Efficiency")
+		effL1Muon3x3Truth = self.fileHandler.getHistogram("efficiency/L1MuonTruth3x3_Efficiency")
+		effL1Muon5x5Truth = self.fileHandler.getHistogram("efficiency/L1MuonTruth5x5_Efficiency")
 	
-		genPt = self.fileHandler.getHistogram("hoMuonAnalyzer/gen_Pt")
+		genPt = self.fileHandler.getHistogram("gen_Pt")
 		
 		yTruth = []
 		yTruthErr = []
@@ -558,8 +558,8 @@ class GridMatching(Plot):
 		
 	def plot3x3GridTogether(self):
 		c = TCanvas()
-		effL1Muon3x3Truth = self.fileHandler.getHistogram('hoMuonAnalyzer/efficiency/L1MuonTruth3x3_Efficiency')
-		effL1Muon3x3 = self.fileHandler.getHistogram('hoMuonAnalyzer/efficiency/L1Muon3x3_Efficiency')
+		effL1Muon3x3Truth = self.fileHandler.getHistogram('efficiency/L1MuonTruth3x3_Efficiency')
+		effL1Muon3x3 = self.fileHandler.getHistogram('efficiency/L1Muon3x3_Efficiency')
 	
 		effL1Muon3x3.Draw()
 		effL1Muon3x3Truth.Draw("same")

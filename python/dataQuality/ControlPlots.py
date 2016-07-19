@@ -21,7 +21,7 @@ class ControlPlots(Plot):
 
 	def plotL1PresentMultiplicity(self):
 		canvas = TCanvas('cL1Multiplicity')
-		hist = self.fileHandler.getHistogram('hoMuonAnalyzer/multiplicity/L1MuonPresent_Multiplicity')
+		hist = self.fileHandler.getHistogram('multiplicity/L1MuonPresent_Multiplicity')
 		hist.GetXaxis().SetRangeUser(0,20)
 		canvas.SetLogy()
 		hist.SetLineWidth(3)
@@ -33,7 +33,7 @@ class ControlPlots(Plot):
 
 	def getIEtaIPhiPlot(self,key):
 	#	canvas = TCanvas('cHoIEtaIPhi' + key,'HO iEta iPhi',0,50,600,500)
-		hoEtaPhi = self.fileHandler.getHistogram('hoMuonAnalyzer/etaPhi/' + key + '_iEtaIPhi')
+		hoEtaPhi = self.fileHandler.getHistogram('etaPhi/' + key + '_iEtaIPhi')
 		hoEtaPhi.SetTitle('HO RecHits > 0.2GeV;i#eta;i#phi;# entries')
 		hoEtaPhi.Draw('colz')
 	#	canvas.Update()
@@ -78,7 +78,7 @@ class ControlPlots(Plot):
 	'''
 	def plotHoIEtaIPhi(self):
 		canvas = TCanvas('cHoIEtaIPhi','HO iEta iPhi',0,50,600,500)
-		hoEtaPhi = self.fileHandler.getHistogram('hoMuonAnalyzer/etaPhi/hoRecHitsAboveThr_iEtaIPhi')
+		hoEtaPhi = self.fileHandler.getHistogram('etaPhi/hoRecHitsAboveThr_iEtaIPhi')
 		hoEtaPhi.SetTitle('HO RecHits > 0.2GeV;i#eta;i#phi;# entries')
 		hoEtaPhi.Draw('colz')
 		canvas.Update()
@@ -96,7 +96,7 @@ class ControlPlots(Plot):
 	'''
 	def plotHoEtaPhiMatchedToL1(self):
 		canvas = TCanvas('cHoEtaPhiAndL1','HO Eta Phi And L1')
-		hoEtaPhi = self.fileHandler.getHistogram('hoMuonAnalyzer/etaPhi/L1MuonWithHoMatchAboveThr_HO_EtaPhi')
+		hoEtaPhi = self.fileHandler.getHistogram('etaPhi/L1MuonWithHoMatchAboveThr_HO_EtaPhi')
 		hoEtaPhi.SetTitle('L1 matched to HO RecHits > 0.2GeV;#eta_{HO};#phi_{HO};# entries')
 		hoEtaPhi.Rebin2D(10,10)
 		hoEtaPhi.GetXaxis().SetRangeUser(-1.5,1.5)
@@ -115,7 +115,7 @@ class ControlPlots(Plot):
 	'''
 	def plotHoEtaPhiMatchedToTightL1(self):
 		canvas = TCanvas('cHoEtaPhiAndTightL1','HO Eta Phi And Tight L1')
-		hoEtaPhi = self.fileHandler.getHistogram('hoMuonAnalyzer/etaPhi/patMuonsTight_HO_EtaPhi')
+		hoEtaPhi = self.fileHandler.getHistogram('etaPhi/patMuonsTight_HO_EtaPhi')
 		hoEtaPhi.SetTitle('Tight L1 matched to HO RecHits > 0.2GeV;#eta_{HO};#phi_{HO};# entries')
 		hoEtaPhi.Rebin2D(10,10)
 		hoEtaPhi.GetXaxis().SetRangeUser(-1.5,1.5)
@@ -134,7 +134,7 @@ class ControlPlots(Plot):
 	'''
 	def plotHoIEtaIPhiMatchedToTightL1(self):
 		canvas = TCanvas('cHoIEtaIPhiAndTightL1','HO iEta iPhi And Tight L1',1300,50,600,500)
-		hoEtaPhi = self.fileHandler.getHistogram('hoMuonAnalyzer/etaPhi/patTightToL1Muons3x3_iEtaIPhi')
+		hoEtaPhi = self.fileHandler.getHistogram('etaPhi/patTightToL1Muons3x3_iEtaIPhi')
 		hoEtaPhi.SetTitle('Tight L1 matched to HO RecHits > 0.2GeV;i#eta;i#phi;# entries')
 		hoEtaPhi.Draw('colz')
 		canvas.Update()
@@ -151,7 +151,7 @@ class ControlPlots(Plot):
 	'''
 	def plotHoIEtaIPhiMatchedToL1(self):
 		canvas = TCanvas('cHoIEtaIPhiAndL1','HO iEta iPhi And L1',650,50,600,500)
-		hoEtaPhi = self.fileHandler.getHistogram('hoMuonAnalyzer/etaPhi/L1Muon3x3_iEtaIPhi')
+		hoEtaPhi = self.fileHandler.getHistogram('etaPhi/L1Muon3x3_iEtaIPhi')
 		hoEtaPhi.SetTitle('L1 matched to HO RecHits > 0.2GeV;i#eta;i#phi;# entries')
 		hoEtaPhi.Draw('colz')
 		canvas.Update()
@@ -168,7 +168,7 @@ class ControlPlots(Plot):
 	'''
 	def plotHoDigiMatchesPerDetId(self):
 		canvas = TCanvas('canvasDigiMatchesMultiplicity')
-		digiMatches = self.fileHandler.getHistogram('hoMuonAnalyzer/hoDigiMatchesPerDetId_Multiplicity')
+		digiMatches = self.fileHandler.getHistogram('hoDigiMatchesPerDetId_Multiplicity')
 		setupAxes(digiMatches)
 		digiMatches.SetTitle('Number of matches between RecHit and Digi for a given DetId')
 		digiMatches.GetXaxis().SetRangeUser(0,5)
@@ -230,9 +230,9 @@ class ControlPlots(Plot):
 	
 	def plotEfficiencyCountCheck(self):
 		c = TCanvas()
-		genHist = self.fileHandler.getHistogram('hoMuonAnalyzer/count/Gen_Count')
-		l1AndGenHist = self.fileHandler.getHistogram('hoMuonAnalyzer/count/GenAndL1Muon_Count')
-		plusHoHist = self.fileHandler.getHistogram('hoMuonAnalyzer/count/GenAndL1MuonAndHoAboveThr_Count')
+		genHist = self.fileHandler.getHistogram('count/Gen_Count')
+		l1AndGenHist = self.fileHandler.getHistogram('count/GenAndL1Muon_Count')
+		plusHoHist = self.fileHandler.getHistogram('count/GenAndL1MuonAndHoAboveThr_Count')
 		plusHoHist.SetLineColor(colorRwthMagenta)
 		genHist.SetLineColor(colorRwthDarkBlue)
 	
@@ -251,7 +251,7 @@ class ControlPlots(Plot):
 	def plotGenEtaPhi(self):
 		c = TCanvas('cGenEta','Gen eta phi',1200,1600)
 		c.Divide(2,1)
-		gen = self.fileHandler.getGraph('hoMuonAnalyzer/graphs/gen')
+		gen = self.fileHandler.getGraph('graphs/gen')
 		
 		histEta = TH1D('hEtaGen',"#eta GEN;#eta;#",288, -math.pi,math.pi)
 		histPhi = TH1D('hPhiGen',"#phi GEN;#phi;#",288, -math.pi,math.pi)

@@ -25,8 +25,8 @@ class TimeWindow:
 			
 	def plotTimeWindowAlone(self):
 		c = TCanvas('cTimeWindowAlone',"Time Window Alone")
-		effL1Muon3x3Truth = self.fileHandler.getHistogram('hoMuonAnalyzer/efficiency/L1MuonTruthTimeWindow3x3_Efficiency')
-		effL1Muon3x3 = self.fileHandler.getHistogram('hoMuonAnalyzer/efficiency/L1MuonTimeWindow3x3_Efficiency')
+		effL1Muon3x3Truth = self.fileHandler.getHistogram('efficiency/L1MuonTruthTimeWindow3x3_Efficiency')
+		effL1Muon3x3 = self.fileHandler.getHistogram('efficiency/L1MuonTimeWindow3x3_Efficiency')
 		
 		effL1Muon3x3.SetMarkerStyle(22)
 		effL1Muon3x3.SetMarkerColor(colorRwthDarkBlue)
@@ -62,8 +62,8 @@ class TimeWindow:
 	
 	def plotAllL1Together(self):
 		c = TCanvas('cTimeWindowAllL1',"Time Window All L1")
-		effL1Muon3x3 = self.fileHandler.getHistogram('hoMuonAnalyzer/efficiency/L1Muon3x3_Efficiency')
-		effL1Muon3x3TW = self.fileHandler.getHistogram('hoMuonAnalyzer/efficiency/L1MuonTimeWindow3x3_Efficiency')
+		effL1Muon3x3 = self.fileHandler.getHistogram('efficiency/L1Muon3x3_Efficiency')
+		effL1Muon3x3TW = self.fileHandler.getHistogram('efficiency/L1MuonTimeWindow3x3_Efficiency')
 
 		effL1Muon3x3.SetMarkerStyle(22)
 		effL1Muon3x3.SetMarkerColor(colorRwthDarkBlue)
@@ -99,8 +99,8 @@ class TimeWindow:
 		
 	def plotTruthL1Together(self):
 		c = TCanvas('cTimeWindowTruthL1',"Time Window Truth L1")
-		effL1Muon3x3 = self.fileHandler.getHistogram('hoMuonAnalyzer/efficiency/L1MuonTruth3x3_Efficiency')
-		effL1Muon3x3TW = self.fileHandler.getHistogram('hoMuonAnalyzer/efficiency/L1MuonTruthTimeWindow3x3_Efficiency')
+		effL1Muon3x3 = self.fileHandler.getHistogram('efficiency/L1MuonTruth3x3_Efficiency')
+		effL1Muon3x3TW = self.fileHandler.getHistogram('efficiency/L1MuonTruthTimeWindow3x3_Efficiency')
 
 		effL1Muon3x3.SetMarkerStyle(22)
 		effL1Muon3x3.SetMarkerColor(colorRwthDarkBlue)
@@ -135,7 +135,7 @@ class TimeWindow:
 		c = TCanvas('cBxidVsPtFails','BxidVsPtFails',800,1200)
 		c.Divide(1,2)
 		c.cd(1).SetLogz()
-		hist = self.fileHandler.getHistogram('hoMuonAnalyzer/time/L1Muon3x3Fail_BxIdVsPt')
+		hist = self.fileHandler.getHistogram('time/L1Muon3x3Fail_BxIdVsPt')
 		setupAxes(hist)
 		hist.SetTitle('Failed matching in 3x3;p_{T} / GeV;BX ID;# entries')
 		hist.SetStats(0)
@@ -173,7 +173,7 @@ class TimeWindow:
 		c = TCanvas('cBxidVsPtMatch','BxidVsPtMatch',800,1200)
 		c.Divide(1,2)
 		c.cd(1).SetLogz()
-		hist = self.fileHandler.getHistogram('hoMuonAnalyzer/time/L1Muon3x3Match_BxIdVsPt')
+		hist = self.fileHandler.getHistogram('time/L1Muon3x3Match_BxIdVsPt')
 		hist.SetStats(0)
 		setupAxes(hist)
 		hist.SetTitle('Successful matching in 3x3;p_{T} / GeV;BX ID;# entries')

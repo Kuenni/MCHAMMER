@@ -19,6 +19,9 @@ class Plot:
 			self.fileHandler = self.createFileHandler(filename)
 		pass
 	
+	def setModuleName(self,moduleName):
+		self.fileHandler.setModuleName(moduleName)
+	
 	def createFileHandler(self,filename):
 		fh = RootFileHandler(filename,debug=self.DEBUG)
 		fh.printStatus()

@@ -61,10 +61,10 @@ class Energy(Plot):
 		return cTogether,resHo, resHoMatched
 	
 	def plotEnergyPerWheel(self,sourceName):	
-		hoM1 = self.fileHandler.getHistogram('hoMuonAnalyzer/energy/perWheel/' + sourceName + '_Energy_M1')
-		hoM0 = self.fileHandler.getHistogram('hoMuonAnalyzer/energy/perWheel/' + sourceName + '_Energy_M0')
-		hoP0 = self.fileHandler.getHistogram('hoMuonAnalyzer/energy/perWheel/' + sourceName + '_Energy_P0')
-		hoP1 = self.fileHandler.getHistogram('hoMuonAnalyzer/energy/perWheel/' + sourceName + '_Energy_P1')
+		hoM1 = self.fileHandler.getHistogram('energy/perWheel/' + sourceName + '_Energy_M1')
+		hoM0 = self.fileHandler.getHistogram('energy/perWheel/' + sourceName + '_Energy_M0')
+		hoP0 = self.fileHandler.getHistogram('energy/perWheel/' + sourceName + '_Energy_P0')
+		hoP1 = self.fileHandler.getHistogram('energy/perWheel/' + sourceName + '_Energy_P1')
 		
 		c = TCanvas('cEPerWheel','E Per Wheel')
 		c.SetLogy()
@@ -98,10 +98,10 @@ class Energy(Plot):
 		return hoM1, hoM0, hoP0, hoP1, legend, c, label
 		
 	def plotEnergyNormalizedToMip(self):
-		ho = self.fileHandler.getHistogram("hoMuonAnalyzer/energy/horeco_Energy")
-		L1MuonAndHoMatch = self.fileHandler.getHistogram('hoMuonAnalyzer/energy/L1MuonWithHoMatch_Energy')
-		L1MuonAndHoMatchAboveThr = self.fileHandler.getHistogram('hoMuonAnalyzer/energy/L1MuonWithHoMatchAboveThr_Energy')
-		L1MuonAndHoMatchAboveThrFilt = self.fileHandler.getHistogram('hoMuonAnalyzer/energy/L1MuonWithHoMatchAboveThrFilt_Energy')
+		ho = self.fileHandler.getHistogram("energy/horeco_Energy")
+		L1MuonAndHoMatch = self.fileHandler.getHistogram('energy/L1MuonWithHoMatch_Energy')
+		L1MuonAndHoMatchAboveThr = self.fileHandler.getHistogram('energy/L1MuonWithHoMatchAboveThr_Energy')
+		L1MuonAndHoMatchAboveThrFilt = self.fileHandler.getHistogram('energy/L1MuonWithHoMatchAboveThrFilt_Energy')
 	
 		canv = TCanvas("cEnergyNormToMip",'Energy Norm To MIP',1200,1200)
 		canv.SetLogy()
@@ -154,10 +154,10 @@ class Energy(Plot):
 			
 	def plotEnergyNormalized(self):
 
-		ho = self.fileHandler.getHistogram("hoMuonAnalyzer/energy/horeco_Energy")
-		L1MuonAndHoMatch = self.fileHandler.getHistogram('hoMuonAnalyzer/energy/L1MuonWithHoMatch_Energy')
-		L1MuonAndHoMatchAboveThr = self.fileHandler.getHistogram('hoMuonAnalyzer/energy/L1MuonWithHoMatchAboveThr_Energy')
-		L1MuonAndHoMatchAboveThrFilt = self.fileHandler.getHistogram('hoMuonAnalyzer/energy/L1MuonWithHoMatchAboveThrFilt_Energy')
+		ho = self.fileHandler.getHistogram("energy/horeco_Energy")
+		L1MuonAndHoMatch = self.fileHandler.getHistogram('energy/L1MuonWithHoMatch_Energy')
+		L1MuonAndHoMatchAboveThr = self.fileHandler.getHistogram('energy/L1MuonWithHoMatchAboveThr_Energy')
+		L1MuonAndHoMatchAboveThrFilt = self.fileHandler.getHistogram('energy/L1MuonWithHoMatchAboveThrFilt_Energy')
 	
 		L1MuonAndHoMatch = None
 		L1MuonAndHoMatchAboveThr = None
@@ -216,10 +216,10 @@ class Energy(Plot):
 	
 	def plotEnergy(self):
 
-		ho = self.fileHandler.getHistogram("hoMuonAnalyzer/energy/horeco_Energy")
-		L1MuonAndHoMatch = self.fileHandler.getHistogram('hoMuonAnalyzer/energy/L1MuonWithHoMatch_Energy')
-		L1MuonAndHoMatchAboveThr = self.fileHandler.getHistogram('hoMuonAnalyzer/energy/L1MuonWithHoMatchAboveThr_Energy')
-		L1MuonAndHoMatchAboveThrFilt = self.fileHandler.getHistogram('hoMuonAnalyzer/energy/L1MuonWithHoMatchAboveThrFilt_Energy')
+		ho = self.fileHandler.getHistogram("energy/horeco_Energy")
+		L1MuonAndHoMatch = self.fileHandler.getHistogram('energy/L1MuonWithHoMatch_Energy')
+		L1MuonAndHoMatchAboveThr = self.fileHandler.getHistogram('energy/L1MuonWithHoMatchAboveThr_Energy')
+		L1MuonAndHoMatchAboveThrFilt = self.fileHandler.getHistogram('energy/L1MuonWithHoMatchAboveThrFilt_Energy')
 	
 		canv = TCanvas("energieCanvas",'Energy canvas',1200,1200)
 		canv.SetLogy()
@@ -271,7 +271,7 @@ class Energy(Plot):
 	
 		canv = TCanvas("energieCanvas",'Energy canvas',1200,1200)
 	
-		energyVsEta = self.fileHandler.getHistogram("hoMuonAnalyzer/energy/" + sourceHistogram)
+		energyVsEta = self.fileHandler.getHistogram("energy/" + sourceHistogram)
 		energyVsEta.Rebin2D(10,1)
 		energyVsEta.GetXaxis().SetRangeUser(-1.1,1.1)
 		energyVsEta.GetYaxis().SetRangeUser(0,2.5)
@@ -296,7 +296,7 @@ class Energy(Plot):
 	
 		canv = TCanvas("energieCanvas",'Energy canvas',1200,1200)
 	
-		energyVsEta = self.fileHandler.getHistogram("hoMuonAnalyzer/energy/" + sourceHistogram)
+		energyVsEta = self.fileHandler.getHistogram("energy/" + sourceHistogram)
 		energyVsEta.Rebin2D(10,1)
 		energyVsEta.GetXaxis().SetRangeUser(-3.17,3.17)
 		energyVsEta.GetYaxis().SetRangeUser(0,2.5)
@@ -323,7 +323,7 @@ class Energy(Plot):
 
 		canv = TCanvas("energieVsPositionCanvas",'Energy canvas',1200,1200)
 
-		energyVsPos = self.fileHandler.getHistogram("hoMuonAnalyzer/energy/" + sourceHistogram)
+		energyVsPos = self.fileHandler.getHistogram("energy/" + sourceHistogram)
 		projection = energyVsPos.Project3DProfile()
 		projection.GetXaxis().SetTitle(energyVsPos.GetXaxis().GetTitle())
 		projection.GetYaxis().SetTitle(energyVsPos.GetYaxis().GetTitle())

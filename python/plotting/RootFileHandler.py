@@ -34,7 +34,20 @@ class RootFileHandler:
 			self.filepath += filename[0:directoryIndex+1]
 		self.filename = filename[directoryIndex+1:]
 		self.getNumberOfFiles()
+		self.cmsswModuleName = 'hoMuonAnalyzer'
 		pass
+
+	### =========================================================================
+	### Set a new module name if the plugin in CMMSW was not the ho Muon Analyzer
+	### =========================================================================
+	def setModuleName(self, moduleName):
+		self.cmsswModuleName = moduleName
+	
+	### =====================================================
+	### Build the full path to the histogram in the ROOT file
+	### =====================================================	
+	def getFullPlotPath(self,plotName):
+		return self.cmsswModuleName + '/' + plotName
 	
 	#Get a tChain for the dataTree in the result root files
 	def getTChain(self):
@@ -60,6 +73,7 @@ class RootFileHandler:
 	and then, the histograms from the other files are added in a loop
 	'''
 	def getHistogram(self,histoname):
+		histoname = self.getFullPlotPath(histoname)
 		rootfile = TFile(self.filepath + '/' + self.fileNameList[0],'READ')
 		try:
 			histNew = rootfile.Get(histoname).Clone()
@@ -84,10 +98,14 @@ class RootFileHandler:
 	'''
 	def getGraph(self,graphname,filesToProcess = -1):
 		rootfile = TFile(self.fileNameList[0],'READ')
-		graph = rootfile.Get(graphname)
-		nTotal = 0
-		counter = graph.GetN()
-		
+		graphname = self.getFullPlotPath(graphname)
+		try:
+			graph = rootfile.Get(graphname)
+			nTotal = 0
+			counter = graph.GetN()
+		except AttributeError:
+			if self.DEBUG: commandLine.warning('Could not get graph %s' % graphname)
+			return None		
 		#Check whether a number of result files to process is given
 		fileRange = filesToProcess if (filesToProcess != -1) else len(self.fileNameList)
 		#Then check that we don't try process more files than available
@@ -114,5 +132,5 @@ class RootFileHandler:
 		return graph
 
 	def printNEvents(self):
-		hEvents = self.getHistogram('hoMuonAnalyzer/count/Events_Count')
+		hEvents = self.getHistogram('count/Events_Count')
 		commandLine.warning('Sample contained %d events' % hEvents.GetBinContent(2))

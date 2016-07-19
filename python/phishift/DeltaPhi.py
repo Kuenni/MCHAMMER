@@ -6,14 +6,14 @@ import math
 
 class DeltaPhi(Plot):
 
-	def __init__(self,filename,data = False):
-		Plot.__init__(self,filename,data)
+	def __init__(self,filename,data = False,debug = False):
+		Plot.__init__(self,filename,data,debug)
 		self.createPlotSubdir('averageEnergy')
 	
 	def plotDeltaPhiVsL1Pt(self):
 		canvas = TCanvas('cDeltaPhiVsL1Pt','DeltaPhiVsL1Pt',1200,1200)
 		canvas.cd().SetLogz()
-		hist = self.fileHandler.getHistogram('hoMuonAnalyzer/correlation/shiftCheckDeltaPhiVsL1PtL1MuonPresent')
+		hist = self.fileHandler.getHistogram('correlation/shiftCheckDeltaPhiVsL1PtL1MuonPresent')
 		hist.Scale(1,'width')
 		hist.SetStats(0)
 		hist.GetYaxis().SetRangeUser(-0.6,.6)
@@ -30,7 +30,7 @@ class DeltaPhi(Plot):
 	def plotDeltaPhiVsL1TightPt(self):
 		canvas = TCanvas('cDeltaPhiVsL1TightPt','DeltaPhiVsL1TightPt',1200,1200)
 		canvas.cd().SetLogz()
-		hist = self.fileHandler.getHistogram('hoMuonAnalyzer/correlation/shiftCheckDeltaPhiVsL1PtL1TightMuons')
+		hist = self.fileHandler.getHistogram('correlation/shiftCheckDeltaPhiVsL1PtL1TightMuons')
 		hist.Scale(1,'width')
 		hist.SetTitle('#Delta#phi shift check, tight muons')
 		hist.SetStats(0)
@@ -47,7 +47,7 @@ class DeltaPhi(Plot):
 	
 	def plotDeltaPhiVsGenPt(self):
 		canvas = TCanvas('cDeltaPhiVsGenPt','DeltaPhiVsGenPt',1200,1200)
-		hist = self.fileHandler.getHistogram('hoMuonAnalyzer/correlation/shiftCheckDeltaPhiVsGenPt')
+		hist = self.fileHandler.getHistogram('correlation/shiftCheckDeltaPhiVsGenPt')
 		hist.GetYaxis().SetRangeUser(-0.6,0.6)
 		hist.Draw('colz')
 		canvas.Update()
@@ -62,7 +62,7 @@ class DeltaPhi(Plot):
 	
 	def plotDeltaPhiVsL1Phi(self):
 		canvas = TCanvas('cDeltaPhiVsL1Phi','DeltaPhiVsL1Phi',1200,1200)
-		hist = self.fileHandler.getHistogram('hoMuonAnalyzer/correlation/shiftCheckDeltaPhiVsPhi')
+		hist = self.fileHandler.getHistogram('correlation/shiftCheckDeltaPhiVsPhi')
 		hist.GetYaxis().SetRangeUser(-1,1)
 		hist.GetXaxis().SetRangeUser(-.5,.5)
 		hist.GetXaxis().SetTitle('L1 #phi')
@@ -98,7 +98,7 @@ class DeltaPhi(Plot):
 		
 	def plotDeltaPhiVsL1Eta(self):
 		canvas = TCanvas('cDeltaPhiVsL1Eta','DeltaPhiVsL1Eta',1200,1200)
-		hist = self.fileHandler.getHistogram('hoMuonAnalyzer/correlation/shiftCheckDeltaPhiVsL1Eta' + self.key)
+		hist = self.fileHandler.getHistogram('correlation/shiftCheckDeltaPhiVsL1Eta' + self.key)
 		hist.GetYaxis().SetRangeUser(-1,1)
 	#	hist.GetXaxis().SetRangeUser(-.5,.5)
 		hist.GetXaxis().SetTitle('L1 #eta')
@@ -122,7 +122,7 @@ class DeltaPhi(Plot):
 		canvas = TCanvas('cL1PhiVsHoPhi','L1PhiVsHoPhi',1200,1200)
 		canvas.Divide(1,2)
 		canvas.cd(1)
-		graph = self.fileHandler.getGraph('hoMuonAnalyzer/correlation/l1PhiVsHoPhi')
+		graph = self.fileHandler.getGraph('correlation/l1PhiVsHoPhi')
 		graph.SetTitle('L1 #phi vs. HO #phi;HO #phi;L1 #phi')
 		graph.SetMarkerStyle(2)
 		setupAxes(graph)
@@ -145,7 +145,7 @@ class DeltaPhi(Plot):
 		canvas = TCanvas('cL1PhiVsHoIPhi','L1PhiVsHoIPhi',1200,1200)
 		canvas.Divide(1,2)
 		canvas.cd(1)
-		graph = self.fileHandler.getGraph('hoMuonAnalyzer/correlation/l1PhiVsHoIPhi')
+		graph = self.fileHandler.getGraph('correlation/l1PhiVsHoIPhi')
 		graph.SetTitle('L1 #phi vs. HO i#phi;HO i#phi;L1 #phi')
 		graph.SetMarkerStyle(2)
 		setupAxes(graph)
@@ -166,7 +166,7 @@ class DeltaPhi(Plot):
 		
 	def plotHoPhiVsHoIPhi(self):
 		canvas = TCanvas('cHoPhiVsHoIPhi','HoPhiVsHoIPhi',1200,1200)
-		graph = self.fileHandler.getGraph('hoMuonAnalyzer/correlation/hoPhiVsHoIPhi')
+		graph = self.fileHandler.getGraph('correlation/hoPhiVsHoIPhi')
 		graph.SetTitle('HO #phi vs. HO i#phi;HO i#phi;HO #phi')
 		graph.SetMarkerStyle(2)
 		setupAxes(graph)
@@ -178,7 +178,7 @@ class DeltaPhi(Plot):
 	
 	def plotDeltaPhiHistogram(self):
 		canvas = TCanvas('cDeltaPhi','Delta Phi',1200,1200)
-		hist = self.fileHandler.getHistogram('hoMuonAnalyzer/histograms1D/deltaPhi' + self.key)
+		hist = self.fileHandler.getHistogram('histograms1D/deltaPhi' + self.key)
 		hist.Draw()
 		
 		label = self.drawLabel()
@@ -187,7 +187,7 @@ class DeltaPhi(Plot):
 		
 	def plotEtaPhiForDeltaPhiOne(self):
 		canvas = TCanvas("cEtaPhiDeltaPhiOne","Eta Phi For DPhi 1",1200,1200)
-		graph = self.fileHandler.getGraph('hoMuonAnalyzer/graphs/averageEnergyDeltaPhi1')
+		graph = self.fileHandler.getGraph('graphs/averageEnergyDeltaPhi1')
 			
 		halfbinwidth = L1_PHI_BIN/2.
 		hist = TH2D('hEtaPhiDeltaPhi1',"#eta#phi of #Delta#phi=1 evts.",30,-15*L1_ETA_BIN	,15*L1_ETA_BIN,
@@ -221,8 +221,8 @@ class DeltaPhi(Plot):
 	def plotEtaPhiForAllL1(self):
 		canvas = TCanvas("cEtaPhi","Eta Phi",1200,1200)
 		canvas.Divide(2,1)
-		graphAll = self.fileHandler.getGraph('hoMuonAnalyzer/graphs/L1MuonPresent')
-		graphWithHo = self.fileHandler.getGraph('hoMuonAnalyzer/graphs/L1Muon3x3')
+		graphAll = self.fileHandler.getGraph('graphs/L1MuonPresent')
+		graphWithHo = self.fileHandler.getGraph('graphs/L1Muon3x3')
 				
 		halfPhiBinwidth = L1_PHI_BIN/2.
 		halfEtaBinwidth = L1_ETA_BIN/2.

@@ -110,12 +110,12 @@ class PtResolution(Plot):
 	def loadData(self):
 		for i in range(0,121):
 			#calculate pt range from bin number
-			histPt = self.fileHandler.getHistogram('hoMuonAnalyzer/l1PtResolution/' + self.truthTag + 'L1MuonBin%d' % i)
-			histPtTight = self.fileHandler.getHistogram('hoMuonAnalyzer/l1PtResolution/' + self.truthTag + 'L1MuonTightBin%d' % i)
-			histPtMatch = self.fileHandler.getHistogram('hoMuonAnalyzer/l1PtResolution/' + self.truthTag + 'L1MuonHoMatchBin%d' % i)
-			histPtTightMatch = self.fileHandler.getHistogram('hoMuonAnalyzer/l1PtResolution/' + self.truthTag + 'L1MuonTightHoMatchBin%d' % i)
-			histNoMatch = self.fileHandler.getHistogram('hoMuonAnalyzer/l1PtResolution/' + self.truthTag + 'L1MuonNotHoMatchBin%d' % i)
-			histTightNoMatch = self.fileHandler.getHistogram('hoMuonAnalyzer/l1PtResolution/' + self.truthTag + 'L1MuonTightNotHoMatchBin%d' % i)
+			histPt = self.fileHandler.getHistogram('l1PtResolution/' + self.truthTag + 'L1MuonBin%d' % i)
+			histPtTight = self.fileHandler.getHistogram('l1PtResolution/' + self.truthTag + 'L1MuonTightBin%d' % i)
+			histPtMatch = self.fileHandler.getHistogram('l1PtResolution/' + self.truthTag + 'L1MuonHoMatchBin%d' % i)
+			histPtTightMatch = self.fileHandler.getHistogram('l1PtResolution/' + self.truthTag + 'L1MuonTightHoMatchBin%d' % i)
+			histNoMatch = self.fileHandler.getHistogram('l1PtResolution/' + self.truthTag + 'L1MuonNotHoMatchBin%d' % i)
+			histTightNoMatch = self.fileHandler.getHistogram('l1PtResolution/' + self.truthTag + 'L1MuonTightNotHoMatchBin%d' % i)
 			if i < 40:
 				self.cached_data['x']['values'].append(i + 0.5)
 				self.cached_data['x']['errors'].append(0.5)
@@ -362,9 +362,9 @@ class PtResolution(Plot):
 	def makeIntegralPlot(self,datasetName):
 		cControlPlot = TCanvas('cControlPlots','control plot integral')
 		xData = [self.cached_data['x']['values'],self.cached_data['x']['errors']]
-		dataAllL1,errorAllL1 = self.getHistogramIntegralsAsList('hoMuonAnalyzer/l1PtResolution/' + datasetName)
-		dataMatch,errorMatch = self.getHistogramIntegralsAsList('hoMuonAnalyzer/l1PtResolution/' + datasetName + "HoMatch")
-		dataNoMatch,errorNoMatch = self.getHistogramIntegralsAsList('hoMuonAnalyzer/l1PtResolution/' + datasetName + "NotHoMatch")
+		dataAllL1,errorAllL1 = self.getHistogramIntegralsAsList('l1PtResolution/' + datasetName)
+		dataMatch,errorMatch = self.getHistogramIntegralsAsList('l1PtResolution/' + datasetName + "HoMatch")
+		dataNoMatch,errorNoMatch = self.getHistogramIntegralsAsList('l1PtResolution/' + datasetName + "NotHoMatch")
 		
 		graphIntegralsAllL1 = getTGraphErrors(xData[0], dataAllL1, ex=xData[1], ey=errorAllL1)
 		graphIntegralsMatch = getTGraphErrors(xData[0], dataMatch, ex=xData[1], ey=errorMatch)

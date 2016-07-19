@@ -22,17 +22,17 @@ class Comparison(Plot):
 	def compareEnergyPerWheel(self):	
 
 		namesHo = [
-				'hoMuonAnalyzer/energy/perWheel/horeco_Energy_M1',
-				'hoMuonAnalyzer/energy/perWheel/horeco_Energy_M0',
-				'hoMuonAnalyzer/energy/perWheel/horeco_Energy_P0',
-				'hoMuonAnalyzer/energy/perWheel/horeco_Energy_P1'
+				'energy/perWheel/horeco_Energy_M1',
+				'energy/perWheel/horeco_Energy_M0',
+				'energy/perWheel/horeco_Energy_P0',
+				'energy/perWheel/horeco_Energy_P1'
 				]
 		
 		namesMatched = [
-				'hoMuonAnalyzer/energy/perWheel/L1MuonWithHoMatchAboveThr_Energy_M1',
-				'hoMuonAnalyzer/energy/perWheel/L1MuonWithHoMatchAboveThr_Energy_M0',
-				'hoMuonAnalyzer/energy/perWheel/L1MuonWithHoMatchAboveThr_Energy_P0',
-				'hoMuonAnalyzer/energy/perWheel/L1MuonWithHoMatchAboveThr_Energy_P1'
+				'energy/perWheel/L1MuonWithHoMatchAboveThr_Energy_M1',
+				'energy/perWheel/L1MuonWithHoMatchAboveThr_Energy_M0',
+				'energy/perWheel/L1MuonWithHoMatchAboveThr_Energy_P0',
+				'energy/perWheel/L1MuonWithHoMatchAboveThr_Energy_P1'
 				]
 				
 		canvas = TCanvas('compareCanvas','comparison',1800,500)
@@ -212,9 +212,9 @@ class Comparison(Plot):
 		
 	def compareEnergyAbsolute(self):
 		
-		hSimHo = self.fileHandlerSimulation.getHistogram('hoMuonAnalyzer/energy/horeco_Energy')
-		hDataHo = self.fileHandler.getHistogram('hoMuonAnalyzer/energy/horeco_Energy')
-		hSimPuHo = self.fileHandlerSimulationPu.getHistogram('hoMuonAnalyzer/energy/horeco_Energy')
+		hSimHo = self.fileHandlerSimulation.getHistogram('energy/horeco_Energy')
+		hDataHo = self.fileHandler.getHistogram('energy/horeco_Energy')
+		hSimPuHo = self.fileHandlerSimulationPu.getHistogram('energy/horeco_Energy')
 		
 		res = self.buildTripleCanvasWithResiduals(hSimHo,hSimPuHo,hDataHo,'cHoOnlycompared')
 		
@@ -223,9 +223,9 @@ class Comparison(Plot):
 		return res
 
 	def compareEnergyAbsoluteHoMatched(self):
-		hSimMatched = self.fileHandlerSimulation.getHistogram('hoMuonAnalyzer/energy/L1MuonWithHoMatchAboveThr_Energy')
-		hDataMatched = self.fileHandler.getHistogram('hoMuonAnalyzer/energy/L1MuonWithHoMatchAboveThr_Energy')
-		hSimPuHo = self.fileHandlerSimulationPu.getHistogram('hoMuonAnalyzer/energy/L1MuonWithHoMatchAboveThr_Energy')
+		hSimMatched = self.fileHandlerSimulation.getHistogram('energy/L1MuonWithHoMatchAboveThr_Energy')
+		hDataMatched = self.fileHandler.getHistogram('energy/L1MuonWithHoMatchAboveThr_Energy')
+		hSimPuHo = self.fileHandlerSimulationPu.getHistogram('energy/L1MuonWithHoMatchAboveThr_Energy')
 				
 		res = self.buildTripleCanvasWithResiduals(hSimMatched,hSimPuHo,hDataMatched,'cL1AndHoCompared',legendPostix='L1 + HO')
 		
@@ -234,9 +234,9 @@ class Comparison(Plot):
 		return res
 	
 	def compareEnergyNormalizedToIntegral(self):
-		hSimMatched = self.fileHandlerSimulation.getHistogram('hoMuonAnalyzer/energy/L1MuonWithHoMatchAboveThr_Energy')
-		hDataMatched = self.fileHandler.getHistogram('hoMuonAnalyzer/energy/L1MuonWithHoMatchAboveThr_Energy')
-		hSimPuHo = self.fileHandlerSimulationPu.getHistogram('hoMuonAnalyzer/energy/L1MuonWithHoMatchAboveThr_Energy')
+		hSimMatched = self.fileHandlerSimulation.getHistogram('energy/L1MuonWithHoMatchAboveThr_Energy')
+		hDataMatched = self.fileHandler.getHistogram('energy/L1MuonWithHoMatchAboveThr_Energy')
+		hSimPuHo = self.fileHandlerSimulationPu.getHistogram('energy/L1MuonWithHoMatchAboveThr_Energy')
 		
 		hSimMatched.Sumw2()
 		hDataMatched.Sumw2()
@@ -278,12 +278,12 @@ class Comparison(Plot):
 		return hDataClone
 	
 	def compareEnergyTightNormalizedToIntegral(self):
-		hSimMatched = self.fileHandlerSimulation.getHistogram('hoMuonAnalyzer/energy/L1RecoHoTight_Energy')
-		hDataMatched = self.fileHandler.getHistogram('hoMuonAnalyzer/energy/L1RecoHoTight_Energy')
-		hSimPuMatched = self.fileHandlerSimulationPu.getHistogram('hoMuonAnalyzer/energy/L1RecoHoTight_Energy')
-		hDataMatchedNotTight = self.fileHandler.getHistogram('hoMuonAnalyzer/energy/L1MuonWithHoMatchAboveThr_Energy')
-		hSimNoPuMatchedNotTight = self.fileHandler.getHistogram('hoMuonAnalyzer/energy/L1MuonWithHoMatchAboveThr_Energy')
-		hSimPuMatchedNotTight = self.fileHandler.getHistogram('hoMuonAnalyzer/energy/L1MuonWithHoMatchAboveThr_Energy')
+		hSimMatched = self.fileHandlerSimulation.getHistogram('energy/L1RecoHoTight_Energy')
+		hDataMatched = self.fileHandler.getHistogram('energy/L1RecoHoTight_Energy')
+		hSimPuMatched = self.fileHandlerSimulationPu.getHistogram('energy/L1RecoHoTight_Energy')
+		hDataMatchedNotTight = self.fileHandler.getHistogram('energy/L1MuonWithHoMatchAboveThr_Energy')
+		hSimNoPuMatchedNotTight = self.fileHandler.getHistogram('energy/L1MuonWithHoMatchAboveThr_Energy')
+		hSimPuMatchedNotTight = self.fileHandler.getHistogram('energy/L1MuonWithHoMatchAboveThr_Energy')
 		
 		hSimMatched.Sumw2()
 		hDataMatched.Sumw2()
@@ -356,9 +356,9 @@ class Comparison(Plot):
 		
 	
 	def compareL1Count(self):
-		hSim = self.fileHandlerSimulation.getHistogram('hoMuonAnalyzer/L1MuonPresent_Pt')
-		hSimPu = self.fileHandlerSimulationPu.getHistogram('hoMuonAnalyzer/L1MuonPresent_Pt')
-		hData = self.fileHandler.getHistogram('hoMuonAnalyzer/L1MuonPresent_Pt')
+		hSim = self.fileHandlerSimulation.getHistogram('L1MuonPresent_Pt')
+		hSimPu = self.fileHandlerSimulationPu.getHistogram('L1MuonPresent_Pt')
+		hData = self.fileHandler.getHistogram('L1MuonPresent_Pt')
 		
 	#	hSimPu.Sumw2()
 	#	hSim.Sumw2()

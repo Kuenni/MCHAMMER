@@ -29,7 +29,7 @@ class QualityCode(Plot):
 	def plot3x3MatchQualityCodesVsPt(self):
 		c = TCanvas('cMatchQC3x3','Match QC 3x3',0,0,900,700)
 		c.SetLogz()
-		hist = self.fileHandler.getHistogram('hoMuonAnalyzer/qualityCode/L1Muon3x3Match_QcVsPt')
+		hist = self.fileHandler.getHistogram('qualityCode/L1Muon3x3Match_QcVsPt')
 		hist.SetStats(0)
 		hist.Scale(1,'width')
 		hist.Draw('colz')
@@ -52,7 +52,7 @@ class QualityCode(Plot):
 	def plot3x3FailQualityCodesVsPt(self):
 		c = TCanvas('cFailQC3x3','Fail QC 3x3',910,0,900,700)
 		c.SetLogz()
-		hist = self.fileHandler.getHistogram('hoMuonAnalyzer/qualityCode/L1Muon3x3Fail_QcVsPt')
+		hist = self.fileHandler.getHistogram('qualityCode/L1Muon3x3Fail_QcVsPt')
 		hist.SetStats(0)
 		hist.Scale(1,'width')
 		hist.Draw('colz')
@@ -70,10 +70,10 @@ class QualityCode(Plot):
 		c = TCanvas('cQualityCodes' + gridString + 'Stacked','Stacked QC ' + gridString,600,0,800,600)
 		c.cd().SetBottomMargin(0.15)
 		c.cd().SetRightMargin(0.20)
-		qualityCodes = self.fileHandler.getHistogram('hoMuonAnalyzer/multiplicity/L1MuonQualityCodes' + gridString + '_Multiplicity')
-		qualityCodesFail = self.fileHandler.getHistogram('hoMuonAnalyzer/multiplicity/L1MuonQualityCodes' + gridString + 'Fail_Multiplicity')
+		qualityCodes = self.fileHandler.getHistogram('multiplicity/L1MuonQualityCodes' + gridString + '_Multiplicity')
+		qualityCodesFail = self.fileHandler.getHistogram('multiplicity/L1MuonQualityCodes' + gridString + 'Fail_Multiplicity')
 		
-		countQualityCodes = self.fileHandler.getHistogram('hoMuonAnalyzer/multiplicity/L1MuonAllQualityCodes_Multiplicity')
+		countQualityCodes = self.fileHandler.getHistogram('multiplicity/L1MuonAllQualityCodes_Multiplicity')
 		
 		self.commandLine.output('Sanity check for quality code counts')
 		for i in range(1,8):
@@ -131,7 +131,7 @@ class QualityCode(Plot):
 		canvas.SetLogy()
 		canvas.cd().SetBottomMargin(0.15)
 	
-		histAllCodes = self.fileHandler.getHistogram('hoMuonAnalyzer/multiplicity/L1MuonAllQualityCodes_Multiplicity')
+		histAllCodes = self.fileHandler.getHistogram('multiplicity/L1MuonAllQualityCodes_Multiplicity')
 	
 		setupAxes(histAllCodes)
 	
@@ -149,7 +149,7 @@ class QualityCode(Plot):
 		
 		histAllCodesTruth = None 
 		if not self.data:
-			histAllCodesTruth = self.fileHandler.getHistogram('hoMuonAnalyzer/multiplicity/L1MuonTruthAllQualityCodes_Multiplicity')
+			histAllCodesTruth = self.fileHandler.getHistogram('multiplicity/L1MuonTruthAllQualityCodes_Multiplicity')
 			histAllCodesTruth.Scale(1/histAllCodesTruth.Integral())
 			histAllCodesTruth.SetLineWidth(3)
 			histAllCodesTruth.SetLineColor(colorRwthMagenta)

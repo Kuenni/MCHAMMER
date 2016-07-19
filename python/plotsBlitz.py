@@ -19,11 +19,20 @@ parser.add_argument('--source','-s'
 					,dest='source'
 					,help='File name scheme for the source of events')
 
+parser.add_argument('--moduleName','-m'
+					,dest='moduleName'
+					,help='Set a different CMSSW module name. Necessary if the analyzer plugin was not'
+						'hoMuonAnalyzer')
+
 parser.add_argument('--DEBUG'
 					,dest='DEBUG',action="store_true",default=False
 					,help='Enable more verbose output in modules.')
 
 args = parser.parse_args()
+
+def updateModuleName(lib):
+	if args.moduleName:
+		lib.setModuleName(args.moduleName)
 
 from comparison.Comparison import Comparison
 from dataQuality.ControlPlots import ControlPlots
@@ -40,29 +49,39 @@ from dataQuality.Timing import Timing
 
 def plotTiming():
 	lib = Timing(filename=args.source,data=args.data,debug = args.DEBUG)
-	resDtCoordsWrong = lib.plotDtBxWrongCoordinates()
-	#resHoTimeEta = lib.plotHoTimeVsEta()
-	resEvsTime = lib.plotHoEnergyVsTime()
-	resDeltaTime = lib.plotDeltaTime()
-	resBxId = lib.plotL1BxId()
-	resTightBxId = lib.plotL1BxId(tight=True)
-	resTimeHo = lib.plotMatchedHoTime()
-	res = lib.plotHoTime()
-	res6 = lib.plotHoTimeLog()
-	res4 = lib.plotImprovementInDt()
-	if not args.data:
-		lib.plotEtaOfWrongBxId()
-		lib.plotEtaPhiOfWrongBxId()
-		lib.plotFractionsOfBxId()
-		res2 = lib.plotDetectorContributionsToTiming()
-		res5 = lib.plotPtAndPhiOfWrongBxId()
-		res4 = lib.plotImprovementInDt()
-		res3 = lib.plotPtAndEtaOfWrongBxId()
+	updateModuleName(lib)
+	resDtOnlyCoordinates = lib.plotDtOnlyCoordinates()
+	resDtOnlyTightCoordinates = lib.plotDtOnlyTightCoordinates()
+	resDtOnlyBxWrong = lib.plotDtOnlyBxWrongCoordinates()
+	resDtOnlyTightBxWrong = lib.plotDtOnlyTightBxWrongCoordinates()
+	resDtOnlyAndHoBxWrong = lib.plotDtOnlyAndHoBxWrongCoordinates()
+	resDtOnlyTightAndHoBxWrong = lib.plotDtOnlyTightAndHoBxWrongCoordinates()
+	resHoTimeEta = lib.plotHoTimeVsEta()
+	resHoTimeEtaBxWrng = lib.plotHoTimeVsEtaBxWrong()
+	resTightHoTimeEtaBxWrng = lib.plotTightHoTimeVsEtaBxWrong()
+	lib.printFractionsForDtOnly()
+# 	resEvsTime = lib.plotHoEnergyVsTime()
+# 	resDeltaTime = lib.plotDeltaTime()
+# 	resBxId = lib.plotL1BxId()
+# 	resTightBxId = lib.plotL1BxId(tight=True)
+# 	resTimeHo = lib.plotMatchedHoTime()
+# 	res = lib.plotHoTime()
+# 	res6 = lib.plotHoTimeLog()
+# 	res4 = lib.plotImprovementInDt()
+# 	if not args.data:
+# 		lib.plotEtaOfWrongBxId()
+# 		lib.plotEtaPhiOfWrongBxId()
+# 		lib.plotFractionsOfBxId()
+# 		res2 = lib.plotDetectorContributionsToTiming()
+# 		res5 = lib.plotPtAndPhiOfWrongBxId()
+# 		res4 = lib.plotImprovementInDt()
+# 		res3 = lib.plotPtAndEtaOfWrongBxId()
 	raw_input('-->')
 	return
 
 def plotEVsEtaPhi():
 	lib = EvsEtaPhi(filename = args.source, data=args.data,debug = args.DEBUG)
+	updateModuleName(lib)
 	lib.calculateCentralFractionInTight()
 	reseMaxCountsTight = lib.plotEMaxCountsForTightMuons()
 	reseMaxCounts = lib.plotEMaxCounts()
@@ -79,24 +98,26 @@ def plotEVsEtaPhi():
 	return
 
 def plotControlPlots():
-	plots = ControlPlots(filename=args.source,data=args.data,debug = args.DEBUG)
-	res1 = plots.plotL1PerPt()
-	res2 = plots.plotHoIEtaIPhi()
-	res3 = plots.plotHoEtaPhiMatchedToL1()
-	resTightAndHoIetaIphi = plots.plotHoIEtaIPhiMatchedToTightL1()
-	resL1AndHoIetaIphi = plots.plotHoIEtaIPhiMatchedToL1()
-	resPatTightHoEtaPhi = plots.plotHoEtaPhiMatchedToTightL1()
-	resSameScale = plots.plotIEtaIPhiOnSameScales()
-	resL1Multiplicity = plots.plotL1PresentMultiplicity()
-	#res2 = plots.plotHoDigiMatchesPerDetId()
+	lib = ControlPlots(filename=args.source,data=args.data,debug = args.DEBUG)
+	updateModuleName(lib)
+	res1 = lib.plotL1PerPt()
+	res2 = lib.plotHoIEtaIPhi()
+	res3 = lib.plotHoEtaPhiMatchedToL1()
+	resTightAndHoIetaIphi = lib.plotHoIEtaIPhiMatchedToTightL1()
+	resL1AndHoIetaIphi = lib.plotHoIEtaIPhiMatchedToL1()
+	resPatTightHoEtaPhi = lib.plotHoEtaPhiMatchedToTightL1()
+	resSameScale = lib.plotIEtaIPhiOnSameScales()
+	resL1Multiplicity = lib.plotL1PresentMultiplicity()
+	#res2 = lib.plotHoDigiMatchesPerDetId()
 	if not args.data:
-		res4 = plots.plotEfficiencyCountCheck()
-		res5 = plots.plotGenEtaPhi()
+		res4 = lib.plotEfficiencyCountCheck()
+		res5 = lib.plotGenEtaPhi()
 	raw_input('-->')
 	return
 
 def plotTimeWindow():
 	lib = TimeWindow(filename=args.source,data=args.data,debug = args.DEBUG)
+	updateModuleName(lib)
 	resAllL1 = lib.plotAllL1Together()
 	resBxidFail = lib.plotBxidVsPtFails()
 	resBxidSucc = lib.plotBxidVsPtMatch()
@@ -107,18 +128,20 @@ def plotTimeWindow():
 	return
 
 def plotPtResolution():
-	#  		libTruth = PtResolution(filename=args.source,truth=True,data=args.data,debug = args.DEBUG)
-#  		resTruth4 = libTruth.plotL1()
-#  		resTruth5 = libTruth.plotL1Tight()
-#  		resTruth6 = libTruth.plotL1AndHo()
-#  		resTruth7 = libTruth.plotL1TightAndHo()
-#  		resTruth8 = libTruth.plotL1NotHo()
-#  		resTruth9 = libTruth.plotL1TightNotHo()
-#  		resTruth1 = libTruth.plotPtResolutionHistograms()
-#  		resTruth2 = libTruth.plotTightPtResolution()
-#  		resTruth3 = libTruth.plotLoosePtResolution()
-# 		raw_input('Hit return to continue')
+	libTruth = PtResolution(filename=args.source,truth=True,data=args.data,debug = args.DEBUG)
+	updateModuleName(libTruth)
+	resTruth4 = libTruth.plotL1()
+	resTruth5 = libTruth.plotL1Tight()
+	resTruth6 = libTruth.plotL1AndHo()
+	resTruth7 = libTruth.plotL1TightAndHo()
+	resTruth8 = libTruth.plotL1NotHo()
+	resTruth9 = libTruth.plotL1TightNotHo()
+	resTruth1 = libTruth.plotPtResolutionHistograms()
+	resTruth2 = libTruth.plotTightPtResolution()
+	resTruth3 = libTruth.plotLoosePtResolution()
+	raw_input('Hit return to continue')
 	lib = PtResolution(filename=args.source,truth=False,data=args.data,debug = args.DEBUG)
+	updateModuleName(lib)
 	res4 = lib.plotL1()
 	res5 = lib.plotL1Tight()
 	res6 = lib.plotL1AndHo()
@@ -133,6 +156,7 @@ def plotPtResolution():
 
 def plotQualityCodes():
 	lib = QualityCode(filename=args.source,data=args.data,debug = args.DEBUG)
+	updateModuleName(lib)
 	res1 = lib.plot3x3MatchQualityCodesVsPt()
 	res2 = lib.plot3x3FailQualityCodesVsPt()
 	res3 = lib.plotQualityCodesStacked(1)
@@ -142,6 +166,7 @@ def plotQualityCodes():
 
 def plotCounters():
 	lib = Counters(filename=args.source,data=args.data,debug = args.DEBUG)
+	updateModuleName(lib)
 	res = lib.plotL1AndTightL1Counters()
 	res2 = lib.plotTightL1EtaPhiRatio()
 	raw_input('-->')
@@ -149,12 +174,14 @@ def plotCounters():
 
 def plotThresholdScan():
 	lib = HoThresholdScan(filename=args.source,data=args.data,debug = args.DEBUG)
+	updateModuleName(lib)
 	res = lib.plotHoThresholdScan()
 	raw_input('-->')
 	return
 
 def plotEfficiency():
 	lib = GridMatching(filename=args.source, data=args.data,debug = args.DEBUG)
+	updateModuleName(lib)
 	#res = lib.plotL1GridMatchingEfficiency()
 	res2 = lib.plotL13x3AndL1Tight3x3()
 	res3 = lib.plotL13x3AndL1Tight3x3L1Coordinates()
@@ -176,6 +203,7 @@ def plotEfficiency():
 
 def plotEnergy():
 	lib = Energy(filename = args.source, data = args.data,debug = args.DEBUG)
+	updateModuleName(lib)
 	resEnergy = lib.plotEnergy()
 	resEnergyNorm = lib.plotEnergyNormalized()
 	resMipNorm = lib.plotEnergyNormalizedToMip()
@@ -186,19 +214,21 @@ def plotEnergy():
 	return
 
 def plotCompareEnergy():
-	libComparison = Comparison(data = args.data,debug = args.DEBUG)
-	resL1Count = libComparison.compareL1Count()
-	resEPerWheel = libComparison.compareEnergyPerWheel()
-	resEAbsolute = libComparison.compareEnergyAbsolute()
-	resEAbsoluteMatched = libComparison.compareEnergyAbsoluteHoMatched()
-	resEIntegralNorm = libComparison.compareEnergyNormalizedToIntegral()
-	resEIntegralNormTight = libComparison.compareEnergyTightNormalizedToIntegral()
+	lib = Comparison(data = args.data,debug = args.DEBUG)
+	updateModuleName(lib)
+	resL1Count = lib.compareL1Count()
+	resEPerWheel = lib.compareEnergyPerWheel()
+	resEAbsolute = lib.compareEnergyAbsolute()
+	resEAbsoluteMatched = lib.compareEnergyAbsoluteHoMatched()
+	resEIntegralNorm = lib.compareEnergyNormalizedToIntegral()
+	resEIntegralNormTight = lib.compareEnergyTightNormalizedToIntegral()
 	raw_input('-->')
 	
 	return
 
 def plotPhiShift():
 	lib = DeltaPhi(filename = args.source,data=args.data,debug = args.DEBUG)
+	updateModuleName(lib)
 	resDeltaPhi = lib.plotDeltaPhiHistogram()
 	resEta = lib.plotDeltaPhiVsL1Eta()
 	resdPhiVsPtL1 = lib.plotDeltaPhiVsL1Pt()

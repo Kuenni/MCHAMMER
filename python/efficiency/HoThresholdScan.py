@@ -7,8 +7,8 @@ from plotting.PlotStyle import colorRwthDarkBlue, setupAxes, colorRwthMagenta
 
 class HoThresholdScan(Plot):
 	
-	def __init__(self,filename,data = False):
-		Plot.__init__(self,filename,data)
+	def __init__(self,filename,data = False, debug = False):
+		Plot.__init__(self,filename,data,debug)
 		self.createPlotSubdir('hoThresholdScan')
 		
 	def plotHoThresholdScan(self):
@@ -22,7 +22,7 @@ class HoThresholdScan(Plot):
 		rmsValues = []
 		
 		for i in range(0,199):
-			hist = self.fileHandler.getHistogram('hoMuonAnalyzer/multiplicity/recHitThrScan%d_Multiplicity' % i)
+			hist = self.fileHandler.getHistogram('multiplicity/recHitThrScan%d_Multiplicity' % i)
 			hist.GetXaxis().SetRangeUser(0,50)
 			hist.Draw()
 			self.storeCanvas(canvas,'plots/hoThresholdScan/hist%fGeV.gif' % ((i+1)*0.025))
