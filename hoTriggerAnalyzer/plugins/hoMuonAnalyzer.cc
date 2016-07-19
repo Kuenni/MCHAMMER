@@ -1516,6 +1516,7 @@ void hoMuonAnalyzer::fillTimingHistograms(const l1extra::L1MuonParticle* l1Muon,
 	if(isTight){
 		nameTrunk += "tight_";
 	}
+	histogramBuilder.fillCountHistogram(nameTrunk);
 	double hoTime;
 	if(hoRecHit){
 		hoTime = hoRecHit->time();
@@ -1553,10 +1554,10 @@ void hoMuonAnalyzer::fillTimingHistograms(const l1extra::L1MuonParticle* l1Muon,
 			histogramBuilder.fillDeltaTimeHistogram(hoTime,l1Muon->bx(),nameTrunk + "UnmatchedDtHo");
 			histogramBuilder.fillTimeHistogram(hoTime,nameTrunk + "UnmatchedDtHo");
 			histogramBuilder.fillEtaPhiGraph(l1Muon->eta(), l1Muon->phi() + L1PHI_OFFSET,nameTrunk + "UnmatchedDtHo");
-			histogramBuilder.fillGraph2D(hoRecHit->id().ieta(),hoRecHit->id().iphi(),hoRecHit->time(),nameTrunk + "UnmatchedDtHoTimeGraph2D");
 			histogramBuilder.fillGraph(hoRecHit->id().ieta(),hoRecHit->time(),nameTrunk + "UnmatchedDtHoTimeGraph");
 			if(l1Muon->bx() != 0){
 				histogramBuilder.fillEtaPhiGraph(l1Muon->eta(), l1Muon->phi() + L1PHI_OFFSET,nameTrunk + "UnmatchedDtHoBxNot0");
+				histogramBuilder.fillGraph(hoRecHit->id().ieta(),hoRecHit->time(),nameTrunk + "UnmatchedDtHoBxNot0TimeGraph");
 			}
 		}
 		//Unmatched DT
