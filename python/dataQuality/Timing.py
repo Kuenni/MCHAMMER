@@ -1,11 +1,12 @@
-from math import sqrt
-from ROOT import TCanvas,ROOT,TFile,TLegend,TF1,TLine,gROOT,TPaveText,TH1D,Double,TH2D,THStack,gStyle
+from math import sqrt, fabs
+from ROOT import TCanvas,ROOT,TFile,TLegend,TF1,TLine,gROOT,TPaveText,TH1D,Double,TH2D,THStack,gStyle,TEfficiency
 from plotting.Plot import Plot
 
 from plotting.PlotStyle import setPlotStyle,calcSigma,getLabelCmsPrivateSimulation,\
 	colorRwthRot,colorRwthDarkBlue,colorRwthMagenta,setupAxes,convertToHcalCoords,chimney1,chimney2,colorRwthRot,\
 	setBigAxisTitles
-from plotting.Utils import getLegend, L1_ETA_BIN, fillGraphIn2DHist, fill2DGraphIn2DHist
+from plotting.Utils import getLegend, L1_ETA_BIN, fillGraphIn2DHist, fill2DGraphIn2DHist,\
+	calcPercent, getTGraphErrors
 from numpy import math
 
 class Timing(Plot):
@@ -13,56 +14,214 @@ class Timing(Plot):
 		Plot.__init__(self,filename,data,debug)
 		self.createPlotSubdir('timing')
 	
-	def plotHoTimeVsEta(self):
-		canvas = TCanvas('cHoTimeVsEtaUnmatchedDt')
+	
+	def printFractionsPerIEta(self,graph):
+		xList = []
+		xErr = []
+		yList = []
+		yErr = []
+		self.output("Fractions of HO time in [-12.5,12.5] ns")
+		counterDict = [{'total':0,'inside':0} for i in range(0,21)]
+		x = Double(0)
+		y = Double(0)
+		nTotal = graph.GetN()
+		for i in range(0,nTotal):
+			indexHelper = int(x+10)
+			graph.GetPoint(i,x,y)
+			counterDict[indexHelper]['total'] += 1
+			if(fabs(y) < 12.5 ):
+				counterDict[indexHelper]['inside'] += 1
 		
-		hist = TH2D('hHoTimeVsEtaUnmatchedDt',"HO time vs i#eta for unmatched DT cand.",33,-16.5,16.5,
+		graph = TEfficiency(graph.GetName(),"",21,-10.5,10.5)
+		
+		for index,item in enumerate(counterDict):
+			total = item['total']
+			inside = item['inside']
+			self.output("iEta: %3d\tTotal: %5d\tInside:%5d\tFraction:%6.2f +/- %6.2f" % 
+					(index - 10, total, inside, calcPercent(inside,total),calcSigma(inside, total)*100))
+			if(index - 10 == 0):
+				continue
+			graph.SetTotalEvents(graph.FindFixBin(index -10),total)
+			graph.SetPassedEvents(graph.FindFixBin(index -10),inside)
+		#getTGraphErrors(xList, yList, xErr, yErr)
+		return graph
+	
+	def printFractionsForDtOnly(self):
+		allL1 = self.fileHandler.getHistogram('count/timingSupport__Count')
+		allTightL1 = self.fileHandler.getHistogram('count/timingSupport_tight__Count')
+		dtOnly = self.makeDtOnlyPlot(sourceDt='UnmatchedDt', sourceDtHo='UnmatchedDtHo')[1]
+		dtOnlyBxWrong = self.makeDtOnlyPlot(sourceDt='UnmatchedDtBxNot0', sourceDtHo='UnmatchedDtHoBxNot0')[1]
+		dtOnlyBxWrongHo = self.makeDtOnlyPlot(sourceDt='UnmatchedDtHoBxNot0', sourceDtHo='')[1]
+		dtOnlyTight = self.makeDtOnlyPlot(sourceDt='tight_UnmatchedDt', sourceDtHo='tight_UnmatchedDtHo')[1]
+		dtOnlyTightBxWrong = self.makeDtOnlyPlot(sourceDt='tight_UnmatchedDtBxNot0', sourceDtHo='tight_UnmatchedDtHoBxNot0')[1]
+		dtOnlyTightBxWrongHo = self.makeDtOnlyPlot(sourceDt='tight_UnmatchedDtHoBxNot0', sourceDtHo='')[1]
+		
+		nAllL1 = allL1.GetEntries()
+		nAllL1Tight = allTightL1.GetEntries()
+		nDtOnly = dtOnly.GetEntries()
+		nDtOnlyBxWrong = dtOnlyBxWrong.GetEntries()
+		nDtOnlyBxWrongHo = dtOnlyBxWrongHo.GetEntries()
+		nDtOnlyTight = dtOnlyTight.GetEntries()
+		nDtOnlyTightBxWrong = dtOnlyTightBxWrong.GetEntries()
+		nDtOnlyTightBxWrongHo = dtOnlyTightBxWrongHo.GetEntries()
+		
+		print
+		header = "%30s  %7s    %s" % ('Data source','Entries','Fraction of total L1')
+		self.debug(header)
+		self.debug('-'*len(header))
+		self.debug("%30s: %7d" % ('L1',nAllL1))
+		self.debug("%30s: %7d => %6.2f +/- %6.2f" % ('DT only',nDtOnly,calcPercent(nDtOnly, nAllL1),calcSigma(nDtOnly,nAllL1)*100))
+		self.debug("%30s: %7d => %6.2f +/- %6.2f"
+				 % ('DT only, BX wrong',nDtOnlyBxWrong,calcPercent(nDtOnlyBxWrong, nAllL1),calcSigma(nDtOnlyBxWrong,nAllL1)*100))
+		self.debug("%30s: %7d => %6.2f +/- %6.2f"
+				 % ('DT only, BX wrong + HO',nDtOnlyBxWrongHo,calcPercent(nDtOnlyBxWrongHo, nAllL1),calcSigma(nDtOnlyBxWrongHo,nAllL1)*100))
+		print
+		self.debug("%30s: %7d => %6.2f +/- %6.2f"
+				 % ('Tight L1',nAllL1Tight,calcPercent(nAllL1Tight, nAllL1),calcSigma(nAllL1Tight,nAllL1)*100))
+		self.debug("%30s: %7d => %6.2f +/- %6.2f"
+				 % ('Tight DT only',nDtOnlyTight,calcPercent(nDtOnlyTight, nAllL1),calcSigma(nDtOnlyTight,nAllL1)*100))
+		self.debug("%30s: %7d => %6.2f +/- %6.2f"
+				 % ('Tight DT only, BX wrong',nDtOnlyTightBxWrong,calcPercent(nDtOnlyTightBxWrong, nAllL1)
+				,calcSigma(nDtOnlyTightBxWrong,nAllL1)*100))
+		self.debug("%30s: %7d => %6.2f +/- %6.2f"
+				 % ('Tight DT only, BX wrong + HO',nDtOnlyTightBxWrongHo,calcPercent(nDtOnlyTightBxWrongHo, nAllL1)
+				,calcSigma(nDtOnlyTightBxWrongHo,nAllL1)*100))
+		print
+		
+		return
+	def plotFractionsVsEta(self,graph,title,saveName):
+		c2 = TCanvas(saveName + '_EtaFractions')
+		graph.SetTitle(title + ';i#eta;Fraction in [-12.5,12.5]ns / %')
+		graph.Draw('ap')
+		c2.Update()
+		setupAxes(graph)
+		label = self.drawLabel()
+		self.storeCanvas(c2,saveName)
+		return c2,graph,label
+		
+	### ========================
+	### Plots of HO time vs iEta
+	### ========================
+	def makeTimeVsEtaPlot(self,source):
+		canvas = TCanvas(source)
+		hist = TH2D(source,source + ";i#eta;Time / ns;#",33,-16.5,16.5,
 				201,-100.5,100.5)
-		graph = self.fileHandler.getGraph('hoMuonAnalyzer/graphs/timingSupport_UnmatchedDtHoTimeGraph')
+		graph = self.fileHandler.getGraph('graphs/timingSupport_' + source)
 		fillGraphIn2DHist(graph, hist)
+		hist.SetStats(0)
 		hist.Draw('colz')
 		canvas.Update()
 		setupAxes(hist)
+		label = self.drawLabel()
 		canvas.Update()
-		return canvas,hist
+		fractionGraph = self.printFractionsPerIEta(graph)
+		return canvas,hist,label,fractionGraph
 	
+	def plotHoTimeVsEta(self):
+		canvas, hist, label, graph = self.makeTimeVsEtaPlot('UnmatchedDtHoTimeGraph')
+		self.storeCanvas(canvas,'UnmatchedDtHo_TimeVsEta')
+		fractionsPerEtaData = self.plotFractionsVsEta(graph,"Fraction of HORecHits at BXID 0",'UnmatchedDtHoTimeGraph_fractionVsEta')
+		return canvas,hist,label,fractionsPerEtaData
+	
+	def plotHoTimeVsEtaBxWrong(self):
+		canvas, hist, label, graph = self.makeTimeVsEtaPlot('UnmatchedDtHoBxNot0TimeGraph')
+		self.storeCanvas(canvas,'UnmatchedDtHoBxNot0TimeGraph_TimeVsEta')
+		fractionsPerEtaData = self.plotFractionsVsEta(graph,"Fraction of HORecHits at BXID 0,L1 BX wrong",'UnmatchedDtHoBxNot0TimeGraph_fractionVsEta')
+		return canvas,hist,label,fractionsPerEtaData
+		
+	def plotTightHoTimeVsEtaBxWrong(self):
+		canvas, hist, label, graph = self.makeTimeVsEtaPlot('tight_UnmatchedDtHoBxNot0TimeGraph')
+		self.storeCanvas(canvas,'tight_UnmatchedDtHoBxNot0TimeGraph_TimeVsEta')
+		fractionsPerEtaData = self.plotFractionsVsEta(graph,"Fraction of HORecHits at BXID 0,Tight L1 BX wrong",'tight_UnmatchedDtHoBxNot0TimeGraph_fractionVsEta')
+		return canvas,hist,label,fractionsPerEtaData
+	
+	### ============================================
+	### Plots of the Coordinates for DT only L1Muons
+	### ============================================
 	def makeDtOnlyPlot(self,sourceDt,sourceDtHo):
 		c  = TCanvas(sourceDt,sourceDt,1200,1200)
-		graphDt = self.fileHandler.getGraph('hoMuonAnalyzer/graphs/timingSupport_' + sourceDt)
-		histAll = TH2D('hEtaPhi' + sourceDt,";#eta_{L1};#phi_{L1}",30,-15*L1_ETA_BIN,15*L1_ETA_BIN,
+		graphDt = self.fileHandler.getGraph('graphs/timingSupport_' + sourceDt)
+		histAll = TH2D('hEtaPhi' + sourceDt,";#eta_{L1};#phi_{L1};#",30,-15*L1_ETA_BIN,15*L1_ETA_BIN,
 			144, -math.pi,math.pi)
 		fillGraphIn2DHist(graphDt, histAll)
+		
+		###
+		'''
+		Temporary stuff to check the eta coordinates in the graphs
+		'''
+		x = Double(0)
+		y = Double(0)
+		listeDt = []
+		for i in range(0,graphDt.GetN()):
+			graphDt.GetPoint(i,x,y)
+			listeDt.append(float(x))
+		self.warning('eta: %s' % (sourceDt))
+		self.warning(str(sorted(set(listeDt))))
+		###
+				
 		if(sourceDtHo != ''):
-			graphDtHo = self.fileHandler.getGraph('hoMuonAnalyzer/graphs/timingSupport_' + sourceDtHo)
+			graphDtHo = self.fileHandler.getGraph('graphs/timingSupport_' + sourceDtHo)
 			fillGraphIn2DHist(graphDtHo, histAll)
+			###
+			'''
+			Temporary stuff to check the eta coordinates in the graphs
+			'''
+			x = Double(0)
+			y = Double(0)
+			listeDtHo = []
+			for i in range(0,graphDtHo.GetN()):
+				graphDtHo.GetPoint(i,x,y)
+				listeDtHo.append(float(x))
+			self.warning('eta: %s' % (sourceDtHo))
+			self.warning(str(sorted(set(listeDtHo))))
+			###
 		histAll.SetStats(0)
 		histAll.Draw('colz')
 		c.Update()
 		setupAxes(histAll)
+		label = self.drawLabel()
 		c.Update()
-		return c,histAll
+		return c,histAll,label
 	
 	def plotDtOnlyCoordinates(self):
-		c,hist = self.makeDtOnlyPlot(sourceDt='UnmatchedDt', sourceDtHo='UnmatchedDtHo')
+		c,hist,label = self.makeDtOnlyPlot(sourceDt='UnmatchedDt', sourceDtHo='UnmatchedDtHo')
 		hist.SetTitle('#eta#phi for DT-only')
 		self.storeCanvas(c, 'dtOnlyCoordinates')
-		return hist,c
+		return hist,c,label
+	
+	def plotDtOnlyTightCoordinates(self):
+		c,hist,label = self.makeDtOnlyPlot(sourceDt='tight_UnmatchedDt', sourceDtHo='tight_UnmatchedDtHo')
+		hist.SetTitle('#eta#phi for tight DT-only')
+		self.storeCanvas(c, 'dtOnlyTightCoordinates')
+		return hist,c,label
 	
 	def plotDtOnlyBxWrongCoordinates(self):
-		c,hist = self.makeDtOnlyPlot(sourceDt='UnmatchedDtBxNot0', sourceDtHo='UnmatchedDtHoBxNot0')
+		c,hist,label = self.makeDtOnlyPlot(sourceDt='UnmatchedDtBxNot0', sourceDtHo='UnmatchedDtHoBxNot0')
 		hist.SetTitle('#eta#phi for DT-only, BX Wrong')
 		self.storeCanvas(c, 'dtOnlyBxWrongCoordinates')
-		return hist,c
+		return hist,c,label
+	
+	def plotDtOnlyTightBxWrongCoordinates(self):
+		c,hist,label = self.makeDtOnlyPlot(sourceDt='tight_UnmatchedDtBxNot0', sourceDtHo='tight_UnmatchedDtHoBxNot0')
+		hist.SetTitle('#eta#phi for tight DT-only, BX Wrong')
+		self.storeCanvas(c, 'dtOnlyTightBxWrongCoordinates')
+		return hist,c,label
 	
 	def plotDtOnlyAndHoBxWrongCoordinates(self):
-		c,hist = self.makeDtOnlyPlot(sourceDt='UnmatchedDtHoBxNot0', sourceDtHo='')
+		c,hist,label = self.makeDtOnlyPlot(sourceDt='UnmatchedDtHoBxNot0', sourceDtHo='')
 		hist.SetTitle('#eta#phi for DT-only + HO, BX Wrong')
 		self.storeCanvas(c, 'dtOnlyAndHoBxWrongCoordinates')
-		return hist,c
+		return hist,c,label
+	
+	def plotDtOnlyTightAndHoBxWrongCoordinates(self):
+		c,hist,label = self.makeDtOnlyPlot(sourceDt='tight_UnmatchedDtHoBxNot0', sourceDtHo='')
+		hist.SetTitle('#eta#phi for tight DT-only + HO, BX Wrong')
+		self.storeCanvas(c, 'dtOnlyTightAndHoBxWrongCoordinates')
+		return hist,c,label
 	
 	def plotDeltaTime(self):
-		hDeltaTAllHo = self.fileHandler.getHistogram('hoMuonAnalyzer/L1MuonPresentHoMatch_DeltaTime')
-		hDeltaTCleanHo = self.fileHandler.getHistogram('hoMuonAnalyzer/timingSupport_UnmatchedDtHo_DeltaTime')
+		hDeltaTAllHo = self.fileHandler.getHistogram('L1MuonPresentHoMatch_DeltaTime')
+		hDeltaTCleanHo = self.fileHandler.getHistogram('timingSupport_UnmatchedDtHo_DeltaTime')
 		
 		c = TCanvas("c","Delta Time",1200,1200)
 		c.SetLogy()
@@ -154,9 +313,9 @@ class Timing(Plot):
 		c2 = TCanvas("cBxId" + TIGHT_TOKEN,"BX ID" + TIGHT_TOKEN,1200,400)
 		c2.Divide(3,1)
 
-		hBxIdBest = self.fileHandler.getHistogram('hoMuonAnalyzer/timingSupport%s_MatchedDtRpcHo_BxId' % TIGHT_TOKEN)
-		hBxIdDtOnly = self.fileHandler.getHistogram('hoMuonAnalyzer/timingSupport%s_UnmatchedDtHo_BxId' % TIGHT_TOKEN)
-		hBxIdOther = self.fileHandler.getHistogram('hoMuonAnalyzer/timingSupport%s_OtherCodesHo_BxId' % TIGHT_TOKEN)
+		hBxIdBest = self.fileHandler.getHistogram('timingSupport%s_MatchedDtRpcHo_BxId' % TIGHT_TOKEN)
+		hBxIdDtOnly = self.fileHandler.getHistogram('timingSupport%s_UnmatchedDtHo_BxId' % TIGHT_TOKEN)
+		hBxIdOther = self.fileHandler.getHistogram('timingSupport%s_OtherCodesHo_BxId' % TIGHT_TOKEN)
 
 		if not hBxIdBest or not hBxIdDtOnly or not hBxIdOther:
 			return
@@ -250,10 +409,10 @@ class Timing(Plot):
 		
 		### Plot matched DT/RPC
 		c2.cd(1).SetLogy()
-		hBxIdBest = self.fileHandler.getHistogram('hoMuonAnalyzer/timingSupport_MatchedDtRpcHo_Time')
-		hBxIdDtOnly = self.fileHandler.getHistogram('hoMuonAnalyzer/timingSupport_UnmatchedDtHo_Time')
-		hBxIdDtOnlyTight = self.fileHandler.getHistogram('hoMuonAnalyzer/timingSupport_tight_UnmatchedDtHo_Time')
-		hBxIdOther = self.fileHandler.getHistogram('hoMuonAnalyzer/timingSupport_OtherCodesHo_Time')
+		hBxIdBest = self.fileHandler.getHistogram('timingSupport_MatchedDtRpcHo_Time')
+		hBxIdDtOnly = self.fileHandler.getHistogram('timingSupport_UnmatchedDtHo_Time')
+		hBxIdDtOnlyTight = self.fileHandler.getHistogram('timingSupport_tight_UnmatchedDtHo_Time')
+		hBxIdOther = self.fileHandler.getHistogram('timingSupport_OtherCodesHo_Time')
 		
 		hIntegral = hBxIdDtOnly.Integral()
 		hIntegralCentral = hBxIdDtOnly.Integral(
@@ -341,7 +500,7 @@ class Timing(Plot):
 			c3.cd(1).SetLogy()
 			label = getLabelCmsPrivateSimulation()
 			label.Draw()
-			hHoTime = self.fileHandler.getHistogram('hoMuonAnalyzer/hoRecHits_Time')
+			hHoTime = self.fileHandler.getHistogram('hoRecHits_Time')
 			
 			hHoTime.SetStats(0)
 			hHoTime.SetTitle("Time distribution for all HO Rec Hits")
@@ -351,7 +510,7 @@ class Timing(Plot):
 			label = getLabelCmsPrivateSimulation()
 			label.Draw()
 			
-		hHoTimeAboveThr = self.fileHandler.getHistogram('hoMuonAnalyzer/hoRecHitsAboveThr_Time')
+		hHoTimeAboveThr = self.fileHandler.getHistogram('hoRecHitsAboveThr_Time')
 		c3.cd(2).SetLogy()
 		hHoTimeAboveThr.SetStats(0)
 		hHoTimeAboveThr.SetTitle("Time distribution for HO Rec Hits > 0.2 GeV")
@@ -393,7 +552,7 @@ class Timing(Plot):
 			c3.cd(1).SetLogy()
 			label = getLabelCmsPrivateSimulation()
 			label.Draw()
-			hHoTime = self.fileHandler.getHistogram('hoMuonAnalyzer/hoRecHits_Time')
+			hHoTime = self.fileHandler.getHistogram('hoRecHits_Time')
 			
 			hHoTime.SetStats(0)
 			hHoTime.SetTitle("Time distribution for all HO Rec Hits")
@@ -403,7 +562,7 @@ class Timing(Plot):
 			label = getLabelCmsPrivateSimulation()
 			label.Draw()
 			
-		hHoTimeAboveThr = self.fileHandler.getHistogram('hoMuonAnalyzer/hoRecHitsAboveThr_Time')
+		hHoTimeAboveThr = self.fileHandler.getHistogram('hoRecHitsAboveThr_Time')
 		c3.cd(2).SetLogy()
 		hHoTimeAboveThr.SetStats(0)
 		hHoTimeAboveThr.SetTitle("Time distribution for HO Rec Hits > 0.2 GeV")
@@ -448,7 +607,7 @@ class Timing(Plot):
 		##BX right plotting pt
 		canvasBxRightPt = TCanvas("cBxRightPt","cBxRightPt",1200,1200)
 		canvasBxRightPt.cd().SetLeftMargin(0.15)
-		hBxRightPt = self.fileHandler.getHistogram('hoMuonAnalyzer/BxRightGen_Pt').Clone()
+		hBxRightPt = self.fileHandler.getHistogram('BxRightGen_Pt').Clone()
 		setPlotStyle()
 		hBxRightPt.Rebin(50)
 		hBxRightPt.GetXaxis().SetRangeUser(0,200)
@@ -467,7 +626,7 @@ class Timing(Plot):
 		##BX wrong plotting pt
 		canvasBxWrongPt = TCanvas("cBxWrongPt","cBxWrongPt",1200,1200)
 		canvasBxWrongPt.cd().SetLeftMargin(0.15)
-		hBxWrongPt = self.fileHandler.getHistogram('hoMuonAnalyzer/BxWrongGen_Pt').Clone()
+		hBxWrongPt = self.fileHandler.getHistogram('BxWrongGen_Pt').Clone()
 		setPlotStyle()
 		hBxWrongPt.Rebin(50)
 		hBxWrongPt.GetXaxis().SetRangeUser(0,200)
@@ -486,8 +645,8 @@ class Timing(Plot):
 		#Plot the histogram stack
 		canvasStack = TCanvas("cStacked","cStacked",1200,1200)
 		canvasStack.cd().SetLeftMargin(0.15)
-		hWrong = self.fileHandler.getHistogram('hoMuonAnalyzer/BxWrongGen_Pt')
-		hRight = self.fileHandler.getHistogram('hoMuonAnalyzer/BxRightGen_Pt')
+		hWrong = self.fileHandler.getHistogram('BxWrongGen_Pt')
+		hRight = self.fileHandler.getHistogram('BxRightGen_Pt')
 		hRightFraction = TH1D('hRightFraction','',100,0,500)
 		hWrongFraction = TH1D('hWrongFraction','',100,0,500)
 		hWrong.Rebin(50)
@@ -533,9 +692,9 @@ class Timing(Plot):
 	def plotEtaPhiOfWrongBxId(self):
 		canvasEtaPhiBxWrong = TCanvas("canvasEtaPhiBxWrong","canvasEtaPhiBxWrong",1200,1200)
 		
-		nEventsWithL1 = self.fileHandler.getHistogram('hoMuonAnalyzer/count/L1MuonPresent_Count').GetBinContent(2)
+		nEventsWithL1 = self.fileHandler.getHistogram('count/L1MuonPresent_Count').GetBinContent(2)
 		
-		etaPhiBxWrongNC = self.fileHandler.getGraph("hoMuonAnalyzer/graphs/BxWrongGen")
+		etaPhiBxWrongNC = self.fileHandler.getGraph("graphs/BxWrongGen")
 		etaPhiBxWrong = convertToHcalCoords(etaPhiBxWrongNC)
 		etaPhiBxWrong.GetXaxis().SetTitle("i#eta / a.u.")
 		etaPhiBxWrong.GetYaxis().SetTitle("i#phi / a.u.")
@@ -569,7 +728,7 @@ class Timing(Plot):
 	
 	def plotEtaOfWrongBxId(self):
 		#Make eta histogram of the graph before
-		etaPhiBxWrongNC = self.fileHandler.getGraph("hoMuonAnalyzer/graphs/BxWrongGen")
+		etaPhiBxWrongNC = self.fileHandler.getGraph("graphs/BxWrongGen")
 		etaPhiBxWrong = convertToHcalCoords(etaPhiBxWrongNC)
 		canvasEtaBxWrong = TCanvas("canvasEtaBxWrong","canvasEtaBxWrong",1200,1200)
 		histEtaBxWrong = TH1D("histEtaBxWrong","histEtaBxWrong;#eta Gen;# Events",20,-0.8,0.8)
@@ -585,7 +744,7 @@ class Timing(Plot):
 		# Create a binwise normalized histogram of eta
 		#
 		canvasEtaBxTotal = TCanvas("canvasEtaBxTotal","canvasEtaBxtotal",1200,1200)
-		etaPhiTotalNC = self.fileHandler.getGraph("hoMuonAnalyzer/graphs/L1ToGen")
+		etaPhiTotalNC = self.fileHandler.getGraph("graphs/L1ToGen")
 		histEtaBxTotal= TH1D("histEtaBxTotal","histEtaBxTotal;#eta Gen;entries / 0.08 #eta",20,-0.8,0.8)
 		x = Double(0)
 		y = Double(0)
@@ -620,7 +779,7 @@ class Timing(Plot):
 		canvas.cd(1).SetLogy()
 	
 		#prepare histogram
-		hist = self.fileHandler.getHistogram("hoMuonAnalyzer/multiplicity/detectorIndexBxWrong_Multiplicity")
+		hist = self.fileHandler.getHistogram("multiplicity/detectorIndexBxWrong_Multiplicity")
 		hist.GetXaxis().SetRangeUser(0.5,5.5)
 		hist.SetLineColor(colorRwthDarkBlue)
 		hist.SetFillColor(colorRwthDarkBlue)
@@ -664,7 +823,7 @@ class Timing(Plot):
 		canvas.cd(2).SetLogy()
 	
 		#prepare second histogram
-		hist2 = self.fileHandler.getHistogram("hoMuonAnalyzer/multiplicity/detectorIndexBxRight_Multiplicity")
+		hist2 = self.fileHandler.getHistogram("multiplicity/detectorIndexBxRight_Multiplicity")
 		hist2.GetXaxis().SetRangeUser(0.5,5.5)
 		hist2.SetLineColor(colorRwthDarkBlue)
 		hist2.SetFillColor(colorRwthDarkBlue)
@@ -700,7 +859,7 @@ class Timing(Plot):
 		canvas = TCanvas("canvasEtaPtBxWrong","EtaPtBxWrong",1200,1200)
 		canvas.cd().Draw()
 		#prepare histogram
-		hist = self.fileHandler.getHistogram("hoMuonAnalyzer/etaPhi/3D/BxWrongGen_EtaPhiPt")
+		hist = self.fileHandler.getHistogram("etaPhi/3D/BxWrongGen_EtaPhiPt")
 	
 		stack = THStack(hist,"zx","2dStack","",-1,-1,-1,-1,"zx","")
 	
@@ -731,7 +890,7 @@ class Timing(Plot):
 		canvas = TCanvas("canvasPtPhiBxWrong","PtPhiBxWrong",1200,1200)
 		canvas.cd().Draw()
 		#prepare histogram
-		hist = self.fileHandler.getHistogram("hoMuonAnalyzer/etaPhi/3D/BxWrongGen_EtaPhiPt")
+		hist = self.fileHandler.getHistogram("etaPhi/3D/BxWrongGen_EtaPhiPt")
 	
 		stack = THStack(hist,"zy","2dStack","",-1,-1,-1,-1,"zy","")
 	
@@ -763,11 +922,11 @@ class Timing(Plot):
 		#Prepare canvas
 		canvas = TCanvas("canvasDtImprovement","DT improvement",1200,1200)
 		canvas.SetLogy()
-		histDt = self.fileHandler.getHistogram("hoMuonAnalyzer/timingSupport_UnmatchedDtHo_BxId")
-		histDtNoHo = self.fileHandler.getHistogram("hoMuonAnalyzer/timingSupport_UnmatchedDt_BxId")
+		histDt = self.fileHandler.getHistogram("timingSupport_UnmatchedDtHo_BxId")
+		histDtNoHo = self.fileHandler.getHistogram("timingSupport_UnmatchedDt_BxId")
 		
 		#Define variables for integrals
-		histHoTime = self.fileHandler.getHistogram('hoMuonAnalyzer/timingSupport_UnmatchedDtHo_Time')
+		histHoTime = self.fileHandler.getHistogram('timingSupport_UnmatchedDtHo_Time')
 		integralHoCorrect = histHoTime.Integral(histHoTime.FindBin(-12.5),histHoTime.FindBin(12.5))
 		integralHoTotal = histHoTime.Integral()
 		integralHoOutside = integralHoTotal - integralHoCorrect
@@ -893,8 +1052,8 @@ class Timing(Plot):
 		return canvas, histDt,histNew,label,legend,pText2,pText,histDtNoHo
 		
 	def plotHoEnergyVsTime(self):
-		hist = self.fileHandler.getHistogram('hoMuonAnalyzer/correlation/hoEnergyVsTime')
-		histTruth = self.fileHandler.getHistogram('hoMuonAnalyzer/correlation/hoTruthEnergyVsTime')
+		hist = self.fileHandler.getHistogram('correlation/hoEnergyVsTime')
+		histTruth = self.fileHandler.getHistogram('correlation/hoTruthEnergyVsTime')
 		
 		histList = [hist]
 		
