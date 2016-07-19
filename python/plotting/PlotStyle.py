@@ -181,6 +181,8 @@ def setupPalette(plot):
 	plot.SetContour(99)
 	#make the palette as small as possible
 	pal = plot.GetListOfFunctions().FindObject("palette")
+	if not pal:
+		return
 	pal.SetX2NDC(0.92)
 
 #Function that returns a new TH2D with the axes already set up
