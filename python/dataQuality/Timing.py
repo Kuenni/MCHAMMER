@@ -2,11 +2,11 @@ from math import sqrt, fabs
 from ROOT import TCanvas,ROOT,TFile,TLegend,TF1,TLine,gROOT,TPaveText,TH1D,Double,TH2D,THStack,gStyle,TEfficiency
 from plotting.Plot import Plot
 
-from plotting.PlotStyle import setPlotStyle,calcSigma,getLabelCmsPrivateSimulation,\
+from plotting.PlotStyle import setPlotStyle,getLabelCmsPrivateSimulation,\
 	colorRwthRot,colorRwthDarkBlue,colorRwthMagenta,setupAxes,convertToHcalCoords,chimney1,chimney2,colorRwthRot,\
 	setBigAxisTitles
-from plotting.Utils import getLegend, L1_ETA_BIN, fillGraphIn2DHist, fill2DGraphIn2DHist,\
-	calcPercent, getTGraphErrors
+from plotting.Utils import getLegend, L1_ETA_BIN, fillGraphIn2DHist,\
+	calcPercent, getTGraphErrors,calcSigma, getMedian
 from numpy import math
 
 class Timing(Plot):
@@ -16,22 +16,23 @@ class Timing(Plot):
 	
 	
 	def printFractionsPerIEta(self,graph):
-		xList = []
-		xErr = []
-		yList = []
-		yErr = []
 		self.output("Fractions of HO time in [-12.5,12.5] ns")
-		counterDict = [{'total':0,'inside':0} for i in range(0,21)]
+		counterDict = [{'total':0,'inside':0, 'hist':TH1D('hist' + str(i-10),'',201,-100.5,100.5)} for i in range(0,21)]
 		x = Double(0)
 		y = Double(0)
 		nTotal = graph.GetN()
 		for i in range(0,nTotal):
-			indexHelper = int(x+10)
 			graph.GetPoint(i,x,y)
+			indexHelper = int(x+10)
 			counterDict[indexHelper]['total'] += 1
-			if(fabs(y) < 12.5 ):
+			counterDict[indexHelper]['hist'].Fill(y)
+			
+		for i in range(0,nTotal):
+			graph.GetPoint(i,x,y)
+			indexHelper = int(x+10)
+			if( fabs(y) < getMedian(counterDict[indexHelper]['hist']) ):
 				counterDict[indexHelper]['inside'] += 1
-		
+	
 		graph = TEfficiency(graph.GetName(),"",21,-10.5,10.5)
 		
 		for index,item in enumerate(counterDict):
