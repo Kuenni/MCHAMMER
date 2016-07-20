@@ -73,7 +73,6 @@ class PtResolution(Plot):
 		self.loadData()
 		
 	def getMedian(self,h):
-		
 	#compute the median for 1-d histogram h1
 		nbins = h.GetXaxis().GetNbins()
 		xList = []

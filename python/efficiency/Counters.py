@@ -1,9 +1,9 @@
 from plotting.Plot import Plot
 
 from ROOT import TCanvas,TH1D,TH2D,TText
-from plotting.PlotStyle import calcSigma, colorRwthDarkBlue, colorRwthMagenta,\
+from plotting.PlotStyle import colorRwthDarkBlue, colorRwthMagenta,\
 	colorRwthTuerkis, setupAxes, setupPalette, colorRwthOrange
-from plotting.Utils import getLegend, L1_ETA_BIN, L1_PHI_BIN, fillGraphIn2DHist,calcPercent,getXinNDC
+from plotting.Utils import getLegend, L1_ETA_BIN, L1_PHI_BIN, fillGraphIn2DHist,calcPercent,getXinNDC,calcSigma
 
 import math
 

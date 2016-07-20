@@ -7,6 +7,7 @@ from array import array
 import math
 from numpy import nan
 import numpy as np
+from math import sqrt
 
 commandLine = OutputModule.CommandLineHandler('[Utils.py] ')
 
@@ -49,6 +50,22 @@ def fillGraphIn2DHist(graph,hist):
 	for i in range(0,nTotal):
 		graph.GetPoint(i,x,y)
 		hist.Fill(x,y)
+		if(not i%10000):
+			commandLine.printProgress(i,nTotal)
+		if(i == nTotal - 1):
+			commandLine.printProgress(nTotal, nTotal)
+	print
+	return hist
+
+def fill2DGraphIn2DHist(graph,hist):
+	x = Double(0)
+	y = Double(0)
+	z = Double(0)
+	commandLine.output('Filling 2D graph in 2D histogram:')
+	nTotal = graph.GetN()
+	for i in range(0,nTotal):
+		graph.GetPoint(i,x,y,z)
+		hist.Fill(x,y,z)
 		if(not i%10000):
 			commandLine.printProgress(i,nTotal)
 		if(i == nTotal - 1):
@@ -133,6 +150,23 @@ def calcPercent(numerator, denominator):
 		return nan
 	return numerator/float(denominator)*100
 
+def calcSigma(num,denom):
+	if(denom == 0):
+		commandLine.error('Tried to divide by 0')
+		return nan
+	return sqrt(num/float(denom*denom) + num*num/float(pow(denom, 3)))
+
+def getMedian(h):
+	#compute the median for 1-d histogram h1
+		nbins = h.GetXaxis().GetNbins()
+		xList = []
+		yList = []
+		for i in range(0,nbins):
+			xList.append(h.GetBinCenter(i+1))
+			yList.append(h.GetBinContent(i+1))
+
+		return TMath.Median(len(xList),np.array(xList,'d'),np.array(yList,'d'))
+
 def getXinNDC(x):
 	gPad.Update()
 	return (x - gPad.GetX1())/(gPad.GetX2()-gPad.GetX1())
@@ -145,22 +179,22 @@ def phiWrapCheck(phi2,phi1):
 		return (delta_phi - 2*math.pi)
 	return delta_phi
 
-def getMedian(th1d):
-	n = th1d.GetXaxis().GetNbins()
-	xVect = vector('double')(n)
-	print xVect
-	xVect = np.array(xVect)
-	print xVect
-	th1d.GetXaxis().GetCenter( xVect )
-	print xVect
-	yVect = th1d.GetArray()
-	print yVect
-	yVect.SetSize(n)
-	print yVect
-	yVect = np.array(yVect)
-	print yVect
-	print np.median([xVect,yVect])
-	print TMath.Median(n,xVect,yVect)
+# def getMedian(th1d):
+# 	n = th1d.GetXaxis().GetNbins()
+# 	xVect = vector('double')(n)
+# 	print xVect
+# 	xVect = np.array(xVect)
+# 	print xVect
+# 	th1d.GetXaxis().GetCenter( xVect )
+# 	print xVect
+# 	yVect = th1d.GetArray()
+# 	print yVect
+# 	yVect.SetSize(n)
+# 	print yVect
+# 	yVect = np.array(yVect)
+# 	print yVect
+# 	print np.median([xVect,yVect])
+# 	print TMath.Median(n,xVect,yVect)
 #  const double * y = h1->GetArray();
 #  // exclude underflow/overflows from bin content array y
 #  return TMath::Median(n, &x[0], &y[1]);

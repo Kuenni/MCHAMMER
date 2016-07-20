@@ -1,10 +1,9 @@
 #!/usr/bin/python
 from ROOT import TCanvas,ROOT,TFile,TF1,TLine,gROOT,TPaveText,TH1D,Double,TH2D,THStack,gStyle,TMarker
-from plotting.PlotStyle import getLabelCmsPrivateSimulation,setupPalette,\
-	calcSigma
+from plotting.PlotStyle import getLabelCmsPrivateSimulation,setupPalette
 from plotting.PlotStyle import setupAxes,drawHoBoxes
 from plotting.PlotStyle import setStatBoxOptions,setStatBoxPosition,pyplotCmsPrivateLabel
-from plotting.Utils import setupEAvplot, L1_PHI_BIN, L1_ETA_BIN, calcPercent
+from plotting.Utils import setupEAvplot, L1_PHI_BIN, L1_ETA_BIN, calcPercent, calcSigma
 
 from plotting.Plot import Plot
 

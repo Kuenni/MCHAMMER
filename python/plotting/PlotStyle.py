@@ -197,9 +197,6 @@ def getTH1D(name,title,nBinsX,xLow,xHigh):
 	setupAxes(hist)
 	return hist
 
-def calcSigma(num,denom):
-	return sqrt(num/float(denom*denom) + num*num/float(pow(denom, 3)))
-
 #Output function for the progress in a python script
 def printProgress(done,total):
 	s = getProgressString(done, total)
