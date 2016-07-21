@@ -128,7 +128,6 @@ class RootFileHandler:
 				g2.GetPoint(j,x,y)
 				graph.SetPoint(graph.GetN(),x,y)
 		commandLine.printProgress(counter,nTotal)
-		print
 		return graph
 
 	def printNEvents(self):

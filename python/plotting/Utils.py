@@ -54,7 +54,6 @@ def fillGraphIn2DHist(graph,hist):
 			commandLine.printProgress(i,nTotal)
 		if(i == nTotal - 1):
 			commandLine.printProgress(nTotal, nTotal)
-	print
 	return hist
 
 def fill2DGraphIn2DHist(graph,hist):
@@ -70,7 +69,6 @@ def fill2DGraphIn2DHist(graph,hist):
 			commandLine.printProgress(i,nTotal)
 		if(i == nTotal - 1):
 			commandLine.printProgress(nTotal, nTotal)
-	print
 	return hist
 
 #Returns a 2D hisotgram containing the binwise difference of both objects
@@ -179,22 +177,3 @@ def phiWrapCheck(phi2,phi1):
 		return (delta_phi - 2*math.pi)
 	return delta_phi
 
-# def getMedian(th1d):
-# 	n = th1d.GetXaxis().GetNbins()
-# 	xVect = vector('double')(n)
-# 	print xVect
-# 	xVect = np.array(xVect)
-# 	print xVect
-# 	th1d.GetXaxis().GetCenter( xVect )
-# 	print xVect
-# 	yVect = th1d.GetArray()
-# 	print yVect
-# 	yVect.SetSize(n)
-# 	print yVect
-# 	yVect = np.array(yVect)
-# 	print yVect
-# 	print np.median([xVect,yVect])
-# 	print TMath.Median(n,xVect,yVect)
-#  const double * y = h1->GetArray();
-#  // exclude underflow/overflows from bin content array y
-#  return TMath::Median(n, &x[0], &y[1]);
