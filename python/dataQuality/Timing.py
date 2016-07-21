@@ -1,5 +1,5 @@
 from math import sqrt, fabs
-from ROOT import TCanvas,ROOT,TFile,TLegend,TF1,TLine,gROOT,TPaveText,TH1D,Double,TH2D,THStack,gStyle,TEfficiency
+from ROOT import TCanvas,ROOT,TFile,TLegend,TF1,TLine,gROOT,TPaveText,TH1D,Double,TH2D,THStack,gStyle,TEfficiency,TBox
 from plotting.Plot import Plot
 
 from plotting.PlotStyle import setPlotStyle,getLabelCmsPrivateSimulation,\
@@ -21,20 +21,42 @@ class Timing(Plot):
 		x = Double(0)
 		y = Double(0)
 		nTotal = graph.GetN()
+		
+		###
+		# Fill histograms for later calculation of mean
+		###
 		for i in range(0,nTotal):
 			graph.GetPoint(i,x,y)
 			indexHelper = int(x+10)
 			counterDict[indexHelper]['total'] += 1
 			counterDict[indexHelper]['hist'].Fill(y)
 			
+		###
+		# Fill the number of objects in interval depending on the
+		# Histogram median
+		###
+		nAllToProcess = len(counterDict) + sum(item['total'] for item in counterDict)
+		nDone = 0
+		if self.DEBUG:
+			self.debug('Filling interval counters')
 		for i in range(0,nTotal):
 			graph.GetPoint(i,x,y)
 			indexHelper = int(x+10)
-			if( fabs(y) < getMedian(counterDict[indexHelper]['hist']) ):
+			median = getMedian(counterDict[indexHelper]['hist'])
+			if not 'median' in counterDict[indexHelper] :
+				counterDict[indexHelper]['median'] = median
+			if( fabs(median - y) < 12.5 ):
 				counterDict[indexHelper]['inside'] += 1
-	
+			nDone += 1
+			if not nDone % 1000:
+				self.printProgress(nDone, nAllToProcess)
+		
+		#Graph for results
 		graph = TEfficiency(graph.GetName(),"",21,-10.5,10.5)
 		
+		###
+		# Plot the results of calculations on CLI
+		###
 		for index,item in enumerate(counterDict):
 			total = item['total']
 			inside = item['inside']
@@ -44,8 +66,7 @@ class Timing(Plot):
 				continue
 			graph.SetTotalEvents(graph.FindFixBin(index -10),total)
 			graph.SetPassedEvents(graph.FindFixBin(index -10),inside)
-		#getTGraphErrors(xList, yList, xErr, yErr)
-		return graph
+		return graph,counterDict
 	
 	def printFractionsForDtOnly(self):
 		allL1 = self.fileHandler.getHistogram('count/timingSupport__Count')
@@ -88,8 +109,8 @@ class Timing(Plot):
 				 % ('Tight DT only, BX wrong + HO',nDtOnlyTightBxWrongHo,calcPercent(nDtOnlyTightBxWrongHo, nAllL1)
 				,calcSigma(nDtOnlyTightBxWrongHo,nAllL1)*100))
 		print
-		
 		return
+	
 	def plotFractionsVsEta(self,graph,title,saveName):
 		c2 = TCanvas(saveName + '_EtaFractions')
 		graph.SetTitle(title + ';i#eta;Fraction in [-12.5,12.5]ns / %')
@@ -115,26 +136,48 @@ class Timing(Plot):
 		setupAxes(hist)
 		label = self.drawLabel()
 		canvas.Update()
-		fractionGraph = self.printFractionsPerIEta(graph)
-		return canvas,hist,label,fractionGraph
+		fractionGraph,counterDict = self.printFractionsPerIEta(graph)
+		
+		medianTofZero = (counterDict[9]['median'] + counterDict[11]['median'])/2.
+		tofFunction = TF1('f','4*sqrt(1+ 1/(tan(2*atan(exp(-x*0.087/2.)))**2))/300000000.*1e9 - 13.3 + [0]',-10,10)
+		tofFunction.SetParameter(0,medianTofZero)
+		tofFunction.Draw('same')
+
+		###
+		# Draw Boxes for the Intervals
+		###
+		intervalBoxes = []
+		for index,item in enumerate(counterDict):
+			iEta = index - 10
+			# Skip iEta 0
+			if iEta == 0:
+				continue
+			box = TBox(iEta - 0.5, item['median'] - 12.5, iEta + 0.5, item['median'] + 12.5)
+			box.SetFillStyle(0)
+			box.SetLineColor(colorRwthMagenta)
+			box.SetLineWidth(2)
+			box.Draw()
+			intervalBoxes.append(box)
+
+		return canvas,hist,label,fractionGraph,intervalBoxes,tofFunction
 	
 	def plotHoTimeVsEta(self):
-		canvas, hist, label, graph = self.makeTimeVsEtaPlot('UnmatchedDtHoTimeGraph')
+		canvas, hist, label, graph, boxes, tofFunction = self.makeTimeVsEtaPlot('UnmatchedDtHoTimeGraph')
 		self.storeCanvas(canvas,'UnmatchedDtHo_TimeVsEta')
 		fractionsPerEtaData = self.plotFractionsVsEta(graph,"Fraction of HORecHits at BXID 0",'UnmatchedDtHoTimeGraph_fractionVsEta')
-		return canvas,hist,label,fractionsPerEtaData
+		return canvas,hist,label,fractionsPerEtaData, boxes, tofFunction
 	
 	def plotHoTimeVsEtaBxWrong(self):
-		canvas, hist, label, graph = self.makeTimeVsEtaPlot('UnmatchedDtHoBxNot0TimeGraph')
+		canvas, hist, label, graph, boxes, tofFunction = self.makeTimeVsEtaPlot('UnmatchedDtHoBxNot0TimeGraph')
 		self.storeCanvas(canvas,'UnmatchedDtHoBxNot0TimeGraph_TimeVsEta')
 		fractionsPerEtaData = self.plotFractionsVsEta(graph,"Fraction of HORecHits at BXID 0,L1 BX wrong",'UnmatchedDtHoBxNot0TimeGraph_fractionVsEta')
-		return canvas,hist,label,fractionsPerEtaData
+		return canvas,hist,label,fractionsPerEtaData, boxes, tofFunction
 		
 	def plotTightHoTimeVsEtaBxWrong(self):
-		canvas, hist, label, graph = self.makeTimeVsEtaPlot('tight_UnmatchedDtHoBxNot0TimeGraph')
+		canvas, hist, label, graph, boxes, tofFunction = self.makeTimeVsEtaPlot('tight_UnmatchedDtHoBxNot0TimeGraph')
 		self.storeCanvas(canvas,'tight_UnmatchedDtHoBxNot0TimeGraph_TimeVsEta')
 		fractionsPerEtaData = self.plotFractionsVsEta(graph,"Fraction of HORecHits at BXID 0,Tight L1 BX wrong",'tight_UnmatchedDtHoBxNot0TimeGraph_fractionVsEta')
-		return canvas,hist,label,fractionsPerEtaData
+		return canvas,hist,label,fractionsPerEtaData, boxes, tofFunction
 	
 	### ============================================
 	### Plots of the Coordinates for DT only L1Muons
@@ -218,6 +261,12 @@ class Timing(Plot):
 		c,hist,label = self.makeDtOnlyPlot(sourceDt='tight_UnmatchedDtHoBxNot0', sourceDtHo='')
 		hist.SetTitle('#eta#phi for tight DT-only + HO, BX Wrong')
 		self.storeCanvas(c, 'dtOnlyTightAndHoBxWrongCoordinates')
+		return hist,c,label
+	
+	def plotDtOnlyTightAndHoBxWrongCoordinatesFine(self):
+		c,hist,label = self.makeDtOnlyPlot(sourceDt='tight_UnmatchedDtHoBxNot0Fine', sourceDtHo='')
+		hist.SetTitle('#eta#phi for tight DT-only + HO, BX Wrong, #eta fine')
+		self.storeCanvas(c, 'dtOnlyTightAndHoBxWrongCoordinatesFine')
 		return hist,c,label
 	
 	def plotDeltaTime(self):
