@@ -4,7 +4,7 @@ class CommandLineHandler:
 	#Output function for the progress in a python script
 	def getProgressString(self,done,total):
 		nHashes = int(done/float(total)*80)
-		progressbar = '[%s%s] %5.2f%% done.\r' % (nHashes*'#',(80-nHashes)*' ',done*100/float(total))
+		progressbar = '[%s%s] %6.2f%% done.\r' % (nHashes*'#',(80-nHashes)*' ',done*100/float(total))
 		return progressbar
 
 	#Output function for the progress in a python script
@@ -12,7 +12,10 @@ class CommandLineHandler:
 		s = self.getProgressString(done, total)
 		sys.stdout.write(s)
 		sys.stdout.flush()
-		pass
+		if done == total:
+			sys.stdout.write(' '*96 + '\r')
+			sys.stdout.flush()
+		return
 
 	#Automatically add prefix to output
 	def output(self,outString):
