@@ -83,3 +83,6 @@ class Plot:
 		
 	def output(self,string):
 		self.commandLine.output(CliColors.BOLD + '<' + inspect.stack()[1][3] + '>  ' + CliColors.ENDC + str(string))
+		
+	def printProgress(self,done,total):
+		self.commandLine.printProgress(done, total)
