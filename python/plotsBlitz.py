@@ -46,9 +46,10 @@ from efficiency.TimeWindow import TimeWindow
 from dataQuality.PtResolution import PtResolution
 from dataQuality.QualityCode import QualityCode
 from dataQuality.Timing import Timing
+from dataQuality.DtOnlyCoordinates import DtOnlyCoordinates
 
-def plotTiming():
-	lib = Timing(filename=args.source,data=args.data,debug = args.DEBUG)
+def plotDtOnlyCoordinates():
+	lib = DtOnlyCoordinates(filename=args.source,data=args.data,debug = args.DEBUG)
 	updateModuleName(lib)
 	resDtOnlyCoordinates = lib.plotDtOnlyCoordinates()
 	resDtOnlyTightCoordinates = lib.plotDtOnlyTightCoordinates()
@@ -56,10 +57,18 @@ def plotTiming():
 	resDtOnlyTightBxWrong = lib.plotDtOnlyTightBxWrongCoordinates()
 	resDtOnlyAndHoBxWrong = lib.plotDtOnlyAndHoBxWrongCoordinates()
 	resDtOnlyTightAndHoBxWrong = lib.plotDtOnlyTightAndHoBxWrongCoordinates()
+	resDtOnlyTightAndHoBxWrongFine = lib.plotDtOnlyTightAndHoBxWrongCoordinatesFine()
+	raw_input('Continue with <Enter>')
+	lib.printFractionsForDtOnly()
+	return
+
+def plotTiming():
+	lib = Timing(filename=args.source,data=args.data,debug = args.DEBUG)
+	updateModuleName(lib)
 	resHoTimeEta = lib.plotHoTimeVsEta()
 	resHoTimeEtaBxWrng = lib.plotHoTimeVsEtaBxWrong()
 	resTightHoTimeEtaBxWrng = lib.plotTightHoTimeVsEtaBxWrong()
-	lib.printFractionsForDtOnly()
+	resTightDtRpc = lib.plotHoTimeVsEtaDtRpcTight()
 # 	resEvsTime = lib.plotHoEnergyVsTime()
 # 	resDeltaTime = lib.plotDeltaTime()
 # 	resBxId = lib.plotL1BxId()
@@ -250,7 +259,8 @@ print ROOT.__file__
 gROOT.ProcessLine(".L $HOMUONTRIGGER_BASE/python/loader.C+");
 
 scripts = ['controlPlots','eVsEtaPhi','timeWindow','ptResolution','qualityCodes',
-			'counters','thresholdScan','efficiency','energy','compareEnergy','timing','phiShift']
+			'counters','thresholdScan','efficiency','energy','compareEnergy','timing','phiShift',
+			'dtOnly']
 
 for script in args.scripts:
 	if(script == 'controlPlots'):
@@ -277,6 +287,8 @@ for script in args.scripts:
 		plotEnergy()
 	elif (script == 'comparison'):
 		plotCompareEnergy()
+	elif (script == 'dtOnly'):
+		plotDtOnlyCoordinates()
 	else:
 		print 'Unknown script requested: %s' % (script)
 		print "Available Scripts:"
