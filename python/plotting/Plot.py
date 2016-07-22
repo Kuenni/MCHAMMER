@@ -84,5 +84,6 @@ class Plot:
 	def output(self,string):
 		self.commandLine.output(CliColors.BOLD + '<' + inspect.stack()[1][3] + '>  ' + CliColors.ENDC + str(string))
 		
-	def printProgress(self,done,total):
-		self.commandLine.printProgress(done, total)
+	def printProgress(self,done,total,updateEvery = 1000):
+		if done == total or not (done % updateEvery):
+			self.commandLine.printProgress(done, total)
