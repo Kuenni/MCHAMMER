@@ -1512,11 +1512,12 @@ void hoMuonAnalyzer::recoControlPlots(){
 	histogramBuilder.fillMultiplicityHistogram(nTightMuons,"tightPatMuonsSize");
 }
 
-void hoMuonAnalyzer::fillTimingHistograms(const l1extra::L1MuonParticle* l1Muon, const HORecHit* hoRecHit, bool isTight){
+void hoMuonAnalyzer::fillTimingHistograms(const l1extra::L1MuonParticle* l1Muon, const HORecHit* hoRecHit, bool isTight, std::string extraId = ""){
 	std::string nameTrunk = "timingSupport_";
 	if(isTight){
 		nameTrunk += "tight_";
 	}
+	nameTrunk += extraId;
 	histogramBuilder.fillCountHistogram(nameTrunk);
 	double hoTime;
 	if(hoRecHit){
@@ -1617,11 +1618,45 @@ void hoMuonAnalyzer::analyzeTimingSupport(){
 		}
 		const pat::Muon* patMuon = getBestPatMatch(l1Eta,l1Phi);
 		if(patMuon){
+
+//			const reco::Vertex primVertex = getPrimaryVertex();
+//			std::cout << "DEBUG #############################################################" << std::endl;
+//			std::cout << primVertex.x() << std::endl;
+//			std::cout << primVertex.y() << std::endl;
+//			std::cout << primVertex.z() << std::endl;
+//						std::cout << "GlobalMuon: " << (patMuon->isGlobalMuon() ? "OK" : "\033[91mFAIL\033[0m") << std::endl;
+//			std::cout << "PFMuon: " << (patMuon->isPFMuon() ? "OK" : "\033[91mFAIL\033[0m") << std::endl;
+//			if (patMuon->globalTrack().isNonnull()){
+//				std::cout << "Normalized Chi^2/ndof: " << (patMuon->globalTrack()->normalizedChi2() < 10? "OK" : "\033[91mFAIL\033[0m") << std::endl;
+//				std::cout << "n muon hits: " << (patMuon->globalTrack()->hitPattern().numberOfValidMuonHits() > 0 ? "OK" : "\033[91mFAIL\033[0m") << std::endl;
+//				std::cout << "Matched Stations: " << (patMuon->numberOfMatchedStations() > 1 ? "OK" : "\033[91mFAIL\033[0m") << std::endl;
+//				std::cout << "dxy : " << ( fabs(patMuon->muonBestTrack()->dxy(primVertex.position())) < 0.2  ? "OK" : "\033[91mFAIL\033[0m") << std::endl;
+//				std::cout << "dz : " << ( fabs(patMuon->muonBestTrack()->dz(primVertex.position())) < 0.5 ? "OK" : "\033[91mFAIL\033[0m") << std::endl;
+//				std::cout << "pixel hits: " << (patMuon->innerTrack()->hitPattern().numberOfValidPixelHits() > 0 ? "OK" : "\033[91mFAIL\033[0m") << std::endl;
+//				std::cout << "tracker layers : " << ( patMuon->innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 ? "OK" : "\033[91mFAIL\033[0m") << std::endl;
+//				std::cout << "dz value: " << patMuon->muonBestTrack()->dz(primVertex.position()) << std::endl;
+//			}
+//			std::cout << "DEBUG #############################################################" << std::endl;
+
 			bool isTight = patMuon->isTightMuon(getPrimaryVertex());
 			const HORecHit* hoRecHit = hoMatcher->matchByEMaxInGrid(l1Eta,l1Phi,1);
 			fillTimingHistograms(&*l1Muon,hoRecHit,false);
 			if(isTight){
 				fillTimingHistograms(&*l1Muon,hoRecHit,true);
+			}
+			/**
+			 * Fill histograms with L1 pT cut
+			 */
+			for(int i = 10; i<=25; i+=5){
+				if(l1Muon->pt() <= i){
+					break;
+				}
+				bool isTight = patMuon->isTightMuon(getPrimaryVertex());
+				const HORecHit* hoRecHit = hoMatcher->matchByEMaxInGrid(l1Eta,l1Phi,1);
+				fillTimingHistograms(&*l1Muon,hoRecHit,false,Form("pt%d_",i));
+				if(isTight){
+					fillTimingHistograms(&*l1Muon,hoRecHit,true,Form("pt%d_",i));
+				}
 			}
 		}
 	}

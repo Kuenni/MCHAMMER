@@ -35,6 +35,7 @@
 #include <TrackingTools/TrackAssociator/plugins/HODetIdAssociator.h>
 
 #include <DataFormats/PatCandidates/interface/Muon.h>
+#include <DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h>
 
 #include <list>
 #include <map>
@@ -95,7 +96,7 @@ private:
 	void analyzeHoTriggerPrimitives();
 	void analyzeTimingSupport();
 	void fillEfficiencyHistograms(double ptMeasured,double ptReal,std::string key);
-	void fillTimingHistograms(const l1extra::L1MuonParticle* l1Muon,const HORecHit* hoRecHit, bool isTight);
+	void fillTimingHistograms(const l1extra::L1MuonParticle* l1Muon,const HORecHit* hoRecHit, bool isTight, std::string extraId);
 	void fillHoGeomAcceptanceGraph(reco::GenParticle genParticle);
 	void fillAverageEnergyAroundL1Direction(const l1extra::L1MuonParticle*,std::string);
 	void fillGridMatchingHistograms(bool passed, int grid, double pt, double time, std::string key, double eta, double phi);
@@ -143,6 +144,7 @@ private:
 	edm::Handle<reco::MuonCollection> recoMuons;
 	edm::Handle<std::vector<pat::Muon>> patMuons;
 	edm::Handle<reco::VertexCollection> vertexColl;
+	edm::Handle<std::vector<L1MuRegionalCand>> dtRegionalCands;
 
 	edm::ESHandle<CaloGeometry> caloGeo;
 	edm::ESHandle<MagneticField> theMagField;
