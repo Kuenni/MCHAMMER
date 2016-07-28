@@ -1,5 +1,5 @@
 from ROOT import gROOT,gStyle, TColor, TPaveText, TGraph, ROOT, Double, TBox, TH2D, TH1D, TEfficiency, TGraphErrors, THStack
-from math import sqrt,pi
+from math import pi
 import matplotlib.pyplot as plt
 import sys
 

@@ -162,7 +162,11 @@ def getMedian(h):
 		for i in range(0,nbins):
 			xList.append(h.GetBinCenter(i+1))
 			yList.append(h.GetBinContent(i+1))
-
+		# For update to ROOT 6, explicit type is needed. Seems to be in connection with
+		# only templated method available in ROOT 6. Write:
+		#
+		# return TMath.Median('double')(len(xList),np.array(xList,'d'),np.array(yList,'d'))
+		#
 		return TMath.Median(len(xList),np.array(xList,'d'),np.array(yList,'d'))
 
 def getXinNDC(x):
