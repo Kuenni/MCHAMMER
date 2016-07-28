@@ -47,6 +47,17 @@ from dataQuality.PtResolution import PtResolution
 from dataQuality.QualityCode import QualityCode
 from dataQuality.Timing import Timing
 from dataQuality.DtOnlyCoordinates import DtOnlyCoordinates
+from dataQuality.HoTimeVsEta import HoTimeVsEta
+
+def plotHoTimeVsEta():
+	lib = HoTimeVsEta(filename=args.source,data=args.data,debug = args.DEBUG)
+	updateModuleName(lib)
+	resHoTimeEta = lib.plotHoTimeVsEta()
+	resHoTimeEtaBxWrng = lib.plotHoTimeVsEtaBxWrong()
+	resTightHoTimeEtaBxWrng = lib.plotTightHoTimeVsEtaBxWrong()
+	resTightDtRpc = lib.plotHoTimeVsEtaDtRpcTight()
+	raw_input('-->')
+	return
 
 def plotDtOnlyCoordinates():
 	lib = DtOnlyCoordinates(filename=args.source,data=args.data,debug = args.DEBUG)
@@ -256,7 +267,7 @@ gROOT.ProcessLine(".L $HOMUONTRIGGER_BASE/python/loader.C+");
 
 scripts = ['controlPlots','eVsEtaPhi','timeWindow','ptResolution','qualityCodes',
 			'counters','thresholdScan','efficiency','energy','compareEnergy','timing','phiShift',
-			'dtOnly']
+			'dtOnly', 'hoTimeVsEta']
 
 for script in args.scripts:
 	if(script == 'controlPlots'):
@@ -285,6 +296,8 @@ for script in args.scripts:
 		plotCompareEnergy()
 	elif (script == 'dtOnly'):
 		plotDtOnlyCoordinates()
+	elif (script == 'hoTimeVsEta'):
+		plotHoTimeVsEta()
 	else:
 		print 'Unknown script requested: %s' % (script)
 		print "Available Scripts:"
