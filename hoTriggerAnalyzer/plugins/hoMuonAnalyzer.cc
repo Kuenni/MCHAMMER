@@ -35,7 +35,6 @@
 #include <DataFormats/HcalRecHit/interface/HORecHit.h>
 #include <DataFormats/HepMCCandidate/interface/GenParticle.h>
 #include <DataFormats/L1Trigger/interface/L1MuonParticle.h>
-#include <DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h>
 #include <DataFormats/Math/interface/deltaR.h>
 #include <DataFormats/Provenance/interface/EventID.h>
 #include <DataFormats/TrajectorySeed/interface/PropagationDirection.h>
@@ -164,6 +163,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	iEvent.getByLabel(edm::InputTag("muons"),recoMuons);
 
 	iEvent.getByLabel(edm::InputTag("selectedPatMuons"),patMuons);
+	iEvent.getByLabel(edm::InputTag("gtDigis","DT"),dtRegionalCands);
 
 	iSetup.get<IdealMagneticFieldRecord>().get(theMagField );
 	iSetup.get<CaloGeometryRecord>().get(caloGeo);
@@ -184,8 +184,17 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	bool useL1EventSetup = true;
 	bool useL1GtTriggerMenuLite = true;
 
-	m_l1GtUtils.getL1GtRunCache(iEvent, iSetup, useL1EventSetup,
-			useL1GtTriggerMenuLite);
+	m_l1GtUtils.getL1GtRunCache(iEvent, iSetup, useL1EventSetup, useL1GtTriggerMenuLite);
+
+	/*
+	 * Get the GMT readout record
+	 */
+	iEvent.getByLabel(edm::InputTag("gtDigis"), pCollection);
+
+	if ( !pCollection.isValid() ) {
+		edm::LogError("DataNotFound") << "can't find L1MuGMTReadoutCollection";
+	}
+
 	/*
 	 *
 	 *  Start of Analysis
@@ -210,6 +219,9 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 	}
 
 	if(!hasMuonsInAcceptance){
+		if(debug){
+			std::cout << coutPrefix << "No L1Muons to process" << std::endl;
+		}
 		return;
 	}
 
@@ -1512,6 +1524,41 @@ void hoMuonAnalyzer::recoControlPlots(){
 	histogramBuilder.fillMultiplicityHistogram(nTightMuons,"tightPatMuonsSize");
 }
 
+/**
+ * Try to find the best match in dt regional candidates for a given
+ * L1 Muon particle
+ */
+const L1MuRegionalCand* hoMuonAnalyzer::findBestCandMatch(const l1extra::L1MuonParticle* l1Muon){
+	const L1MuRegionalCand* dtCand = 0;
+	float bestDeltaR = 999;
+	float bestQuality = 0;
+
+	// get GMT readout collection
+	L1MuGMTReadoutCollection const* gmtrc = pCollection.product();
+	std::vector<L1MuGMTReadoutRecord> gmt_records = gmtrc->getRecords();
+	std::vector<L1MuGMTReadoutRecord>::const_iterator RRItr;
+
+	for ( RRItr = gmt_records.begin(); RRItr != gmt_records.end(); ++RRItr ) {
+		std::vector<L1MuRegionalCand> dttfCands = RRItr->getDTBXCands();
+		std::vector<L1MuRegionalCand>::iterator dttfCand;
+		for( dttfCand = dttfCands.begin(); dttfCand != dttfCands.end();	++dttfCand ) {
+			if(dttfCand->empty()) continue;
+			std::cout << "Finding best cand" << std::endl;
+			float dR = deltaR(l1Muon->eta(),l1Muon->phi()+ L1PHI_OFFSET,dttfCand->etaValue(),dttfCand->phiValue());
+			if(dR < 0.1){
+				if(dR < bestDeltaR){
+					if(dttfCand->quality() > bestQuality){
+						dtCand = &*dttfCand;
+					}
+				}
+			}
+		}// each dttf cand
+	}
+	if(dtCand)
+		std::cout << "Found one" << std::endl;
+	return dtCand;
+}
+
 void hoMuonAnalyzer::fillTimingHistograms(const l1extra::L1MuonParticle* l1Muon, const HORecHit* hoRecHit, bool isTight, std::string extraId = ""){
 	std::string nameTrunk = "timingSupport_";
 	if(isTight){
@@ -1525,7 +1572,8 @@ void hoMuonAnalyzer::fillTimingHistograms(const l1extra::L1MuonParticle* l1Muon,
 	} else {
 		hoTime = -999;
 	}
-	L1MuRegionalCand* l1RegCand = new L1MuRegionalCand(l1Muon->gmtMuonCand().getDataWord());
+
+	const L1MuRegionalCand* l1RegCand = findBestCandMatch(l1Muon);
 	switch(l1Muon->gmtMuonCand().quality()){
 	case 7:
 		//Matched DT-RPC
@@ -1592,7 +1640,6 @@ void hoMuonAnalyzer::fillTimingHistograms(const l1extra::L1MuonParticle* l1Muon,
 		//Other codes
 		break;
 	}
-	delete l1RegCand;
 }
 
 
