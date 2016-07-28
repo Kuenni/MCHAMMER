@@ -36,6 +36,7 @@
 
 #include <DataFormats/PatCandidates/interface/Muon.h>
 #include <DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h>
+#include <DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h>
 
 #include <list>
 #include <map>
@@ -114,6 +115,7 @@ private:
 
 	void recoControlPlots();
 
+	const L1MuRegionalCand* findBestCandMatch(const l1extra::L1MuonParticle* l1Muon);
 	const reco::GenParticle* getBestGenMatch(float,float);
 	const pat::Muon* getBestPatMatch(float eta, float phi);
 	const l1extra::L1MuonParticle* getMatchedL1Object(trigger::TriggerObject,edm::Handle<l1extra::L1MuonParticleCollection>);
@@ -144,6 +146,7 @@ private:
 	edm::Handle<reco::MuonCollection> recoMuons;
 	edm::Handle<std::vector<pat::Muon>> patMuons;
 	edm::Handle<reco::VertexCollection> vertexColl;
+	edm::Handle<L1MuGMTReadoutCollection> pCollection;
 	edm::Handle<std::vector<L1MuRegionalCand>> dtRegionalCands;
 
 	edm::ESHandle<CaloGeometry> caloGeo;
