@@ -137,7 +137,8 @@ class DtOnlyCoordinates(Plot):
 		self.storeCanvas(c, 'dtOnlyTightAndHoBxWrongCoordinates')
 		return hist,c,label
 	
-	def plotDtOnlyTightAndHoBxWrongCoordinatesFine(self):
+	
+	def plotDtOnlyTightAndHoBxWrongCoordinatesFineEta(self):
 		c,hist,label = self.makeDtOnlyPlot(sourceDt='tight_UnmatchedDtHoBxNot0Fine', sourceDtHo='')
 		hist.SetTitle('#eta#phi for tight DT-only + HO, BX Wrong, #eta fine')
 		self.storeCanvas(c, 'dtOnlyTightAndHoBxWrongCoordinatesFine')

@@ -68,7 +68,7 @@ def plotDtOnlyCoordinates():
 	resDtOnlyTightBxWrong = lib.plotDtOnlyTightBxWrongCoordinates()
 	resDtOnlyAndHoBxWrong = lib.plotDtOnlyAndHoBxWrongCoordinates()
 	resDtOnlyTightAndHoBxWrong = lib.plotDtOnlyTightAndHoBxWrongCoordinates()
-	resDtOnlyTightAndHoBxWrongFine = lib.plotDtOnlyTightAndHoBxWrongCoordinatesFine()
+	resDtOnlyTightAndHoBxWrongFine = lib.plotDtOnlyTightAndHoBxWrongCoordinatesFineEta()
 	raw_input('Continue with <Enter>')
 	lib.printFractionsForDtOnly()
 	return
