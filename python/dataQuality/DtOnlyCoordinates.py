@@ -6,10 +6,22 @@ from plotting.Utils import L1_ETA_BIN, fillGraphIn2DHist, calcPercent, calcSigma
 from numpy import math
 
 class DtOnlyCoordinates(Plot):
-	def __init__(self,filename,data,debug):
+	'''
+	Constructor for this specific plot class is different. It is possible to
+	give a string with a pT cut argument. When given, the plots are created only
+	for the selection of L1Muons that passed the given pT cut. Possbile values
+	for the pT cut parameter are (at the moment):
+		pt10, pt15, pt20, pt25
+	'''
+	def __init__(self,filename,data,debug, ptCut=""):
 		Plot.__init__(self,filename,data,debug)
 		self.createPlotSubdir('timing')
-	
+		self.ptCut = ('_' + ptCut) if ptCut != "" else ""
+		
+	### ==========================================
+	### Plots of the fraction of L1muons remaining
+	### after applying different cuts
+	### ==========================================	
 	def printFractionsForDtOnly(self):
 		allL1 = self.fileHandler.getHistogram('count/timingSupport__Count')
 		allTightL1 = self.fileHandler.getHistogram('count/timingSupport_tight__Count')
