@@ -1449,7 +1449,7 @@ void hoMuonAnalyzer::fillGridMatchingHistograms(bool passed, int grid, double pt
 void hoMuonAnalyzer::fillL1ResolutionPlots(const l1extra::L1MuonParticle* l1Part, const pat::Muon* patMuon,std::string label){
 	float l1Eta = l1Part->eta();
 	float l1Phi = l1Part->phi() + L1PHI_OFFSET;
-	bool isTight = patMuon->isTightMuon(getPrimaryVertex());
+	bool isTight = patMuon->isTightMuon(getArtificialPrimaryVertex());
 	const HORecHit* matchedRecHit = 0;
 	matchedRecHit = hoMatcher->matchByEMaxInGrid(l1Eta,l1Phi,2);
 	histogramBuilder.fillL1ResolutionHistogram(l1Part->pt(), patMuon->pt(),label);
@@ -1507,7 +1507,7 @@ void hoMuonAnalyzer::recoControlPlots(){
 		histogramBuilder.fillPtHistogram(patMuonIt->pt(),"patMuons");
 		histogramBuilder.fillEtaPhiGraph(patMuonIt->eta(), patMuonIt->phi(),"patMuons");
 		histogramBuilder.fillEtaPhiHistograms(patMuonIt->eta(),patMuonIt->phi(),"patMuons");
-		if(patMuonIt->isTightMuon(getPrimaryVertex())){
+		if(patMuonIt->isTightMuon(getArtificialPrimaryVertex())){
 			nTightMuons++;
 			histogramBuilder.fillPtHistogram(patMuonIt->pt(),"patMuonsTight");
 			histogramBuilder.fillEtaPhiGraph(patMuonIt->eta(), patMuonIt->phi(),"patMuonsTight");
@@ -1543,8 +1543,8 @@ const L1MuRegionalCand* hoMuonAnalyzer::findBestCandMatch(const l1extra::L1MuonP
 		std::vector<L1MuRegionalCand>::iterator dttfCand;
 		for( dttfCand = dttfCands.begin(); dttfCand != dttfCands.end();	++dttfCand ) {
 			if(dttfCand->empty()) continue;
-			std::cout << "Finding best cand" << std::endl;
-			std::cout << dttfCand->etaValue() << std::endl;
+		//	std::cout << "Finding best cand" << std::endl;
+		//	std::cout << dttfCand->etaValue() << std::endl;
 
 			float dR = deltaR(l1Muon->eta(),l1Muon->phi()+ L1PHI_OFFSET,dttfCand->etaValue(),dttfCand->phiValue());
 			if(dR < 0.1){
@@ -1556,8 +1556,8 @@ const L1MuRegionalCand* hoMuonAnalyzer::findBestCandMatch(const l1extra::L1MuonP
 			}
 		}// each dttf cand
 	}
-	if(dtCand)
-		std::cout << "Found one" << std::endl;
+	//if(dtCand)
+	//	std::cout << "Found one" << std::endl;
 	return dtCand;
 }
 
@@ -1668,7 +1668,7 @@ void hoMuonAnalyzer::analyzeTimingSupport(){
 		const pat::Muon* patMuon = getBestPatMatch(l1Eta,l1Phi);
 		if(patMuon){
 
-//			const reco::Vertex primVertex = getPrimaryVertex();
+//			const reco::Vertex primVertex = getArtificialPrimaryVertex();
 //			std::cout << "DEBUG #############################################################" << std::endl;
 //			std::cout << primVertex.x() << std::endl;
 //			std::cout << primVertex.y() << std::endl;
@@ -1687,7 +1687,7 @@ void hoMuonAnalyzer::analyzeTimingSupport(){
 //			}
 //			std::cout << "DEBUG #############################################################" << std::endl;
 
-			bool isTight = patMuon->isTightMuon(getPrimaryVertex());
+			bool isTight = patMuon->isTightMuon(getArtificialPrimaryVertex());
 			const HORecHit* hoRecHit = hoMatcher->matchByEMaxInGrid(l1Eta,l1Phi,1);
 			fillTimingHistograms(&*l1Muon,hoRecHit,false);
 			if(isTight){
@@ -1700,7 +1700,7 @@ void hoMuonAnalyzer::analyzeTimingSupport(){
 				if(l1Muon->pt() <= i){
 					break;
 				}
-				bool isTight = patMuon->isTightMuon(getPrimaryVertex());
+				bool isTight = patMuon->isTightMuon(getArtificialPrimaryVertex());
 				const HORecHit* hoRecHit = hoMatcher->matchByEMaxInGrid(l1Eta,l1Phi,1);
 				fillTimingHistograms(&*l1Muon,hoRecHit,false,Form("pt%d_",i));
 				if(isTight){
@@ -1729,7 +1729,7 @@ void hoMuonAnalyzer::analyzeGridMatching(){
 		if(patMuon){
 			calculateGridMatchingEfficiency(&*l1Muon,patMuon->pt(),"gridMatching_loose");
 			calculateGridMatchingEfficiency(&*l1Muon,l1Muon->pt(),"gridMatching_L1pT_loose");
-			if(patMuon->isTightMuon(getPrimaryVertex())){
+			if(patMuon->isTightMuon(getArtificialPrimaryVertex())){
 				calculateGridMatchingEfficiency(&*l1Muon,patMuon->pt(),"gridMatching_tight");
 				calculateGridMatchingEfficiency(&*l1Muon,l1Muon->pt(),"gridMatching_L1pT_tight");
 			}
@@ -1757,7 +1757,7 @@ void hoMuonAnalyzer::analyzeGridMatching(){
 			calculateGridMatchingEfficiency(&*l1Part,l1Part->pt(),"patToL1Muons_L1pT");
 			calculateGridMatchingEfficiency(&*l1Part,patMuonIt->pt(),"patToL1Muons");
 			fillAverageEnergyAroundL1Direction(&*l1Part,"patToL1Muons");
-			if(patMuonIt->isTightMuon(getPrimaryVertex())){
+			if(patMuonIt->isTightMuon(getArtificialPrimaryVertex())){
 				histogramBuilder.fillEtaPhiGraph(l1Eta, l1Phi,"patTightToL1Muons");
 				histogramBuilder.fillCountHistogram("patTightToL1Muons");
 				calculateGridMatchingEfficiency(&*l1Part,l1Part->pt(),"patTightToL1Muons_L1pT");
@@ -1881,6 +1881,26 @@ void hoMuonAnalyzer::processGenInformation(const edm::Event& iEvent,const edm::E
 }
 
 /**
+ * Get an artificial primary vertex.
+ * Trying to use this in the PU sample. Might fix the low tight muon output.
+ */
+const reco::Vertex hoMuonAnalyzer::getArtificialPrimaryVertex(){
+	// =================================================================================
+	// Look for the Primary Vertex (and use the BeamSpot instead, if you can't find it):
+	reco::Vertex::Point posVtx;
+	reco::Vertex::Error errVtx;
+
+	reco::BeamSpot bs = *recoBeamSpotHandle;
+
+	errVtx(0,0) = bs.BeamWidthX();
+	errVtx(1,1) = bs.BeamWidthY();
+	errVtx(2,2) = bs.sigmaZ();
+
+	const reco::Vertex vtx(posVtx,errVtx);
+	return vtx;
+}
+
+/**
  * Get the primary vertex for the current event
  * Used to identify tight muons
  */
@@ -1966,7 +1986,7 @@ void hoMuonAnalyzer::analyzeEnergyDeposit(const edm::Event& iEvent,const edm::Ev
 			if(hoRecHit){
 				histogramBuilder.fillCountHistogram("energyDeposit_L1RecoHo");
 				histogramBuilder.fillEnergyVsIEta(hoRecHit->energy(),hoRecHit->id().ieta(),"energyDeposit_L1RecoHo");
-				if(patMuon->isTightMuon(getPrimaryVertex())){
+				if(patMuon->isTightMuon(getArtificialPrimaryVertex())){
 					histogramBuilder.fillCountHistogram("energyDeposit_L1RecoHoTight");
 					histogramBuilder.fillEnergyVsIEta(hoRecHit->energy(),hoRecHit->id().ieta(),"energyDeposit_L1RecoHoTight");
 				}
@@ -1975,7 +1995,7 @@ void hoMuonAnalyzer::analyzeEnergyDeposit(const edm::Event& iEvent,const edm::Ev
 			/**
 			 * Do inverted cut order as well
 			 */
-			if(patMuon->isTightMuon(getPrimaryVertex())){
+			if(patMuon->isTightMuon(getArtificialPrimaryVertex())){
 				histogramBuilder.fillCountHistogram("energyDeposit_L1RecoTight");
 				const HORecHit* hoRecHit = hoMatcher->matchByEMaxInGrid(l1Eta,l1Phi,1);
 				if(hoRecHit){
