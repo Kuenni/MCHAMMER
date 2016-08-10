@@ -1561,10 +1561,10 @@ const L1MuRegionalCand* hoMuonAnalyzer::findBestCandMatch(const l1extra::L1MuonP
 
 void hoMuonAnalyzer::fillTimingHistograms(const l1extra::L1MuonParticle* l1Muon, const HORecHit* hoRecHit, bool isTight, std::string extraId = ""){
 	std::string nameTrunk = "timingSupport_";
+	nameTrunk += extraId;
 	if(isTight){
 		nameTrunk += "tight_";
 	}
-	nameTrunk += extraId;
 	histogramBuilder.fillCountHistogram(nameTrunk);
 	double hoTime;
 	if(hoRecHit){
