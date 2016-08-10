@@ -43,6 +43,8 @@ class DtOnlyCoordinates(Plot):
 		
 		print
 		header = "%30s  %7s    %s" % ('Data source','Entries','Fraction of total L1')
+		if (self.ptCut != ""):
+			header += '\tpT cut: ' + self.ptCut
 		self.debug(header)
 		self.debug('-'*len(header))
 		self.debug("%30s: %7d" % ('L1',nAllL1))
@@ -70,7 +72,8 @@ class DtOnlyCoordinates(Plot):
 	### ============================================
 	def makeDtOnlyPlot(self,sourceDt,sourceDtHo):
 		c  = TCanvas(sourceDt,sourceDt,1200,1200)
-		graphDt = self.fileHandler.getGraph('graphs/timingSupport_' + sourceDt)
+		
+		graphDt = self.fileHandler.getGraph('graphs/timingSupport' + self.ptCut + '_' + sourceDt)
 		histAll = TH2D('hEtaPhi' + sourceDt,";#eta_{L1};#phi_{L1};#",30,-15*L1_ETA_BIN,15*L1_ETA_BIN,
 			144, -math.pi,math.pi)
 		fillGraphIn2DHist(graphDt, histAll)
@@ -90,7 +93,7 @@ class DtOnlyCoordinates(Plot):
 		###
 				
 		if(sourceDtHo != ''):
-			graphDtHo = self.fileHandler.getGraph('graphs/timingSupport_' + sourceDtHo)
+			graphDtHo = self.fileHandler.getGraph('graphs/timingSupport' + self.ptCut + '_' + sourceDtHo)
 			fillGraphIn2DHist(graphDtHo, histAll)
 			###
 			'''
