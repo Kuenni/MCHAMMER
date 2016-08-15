@@ -169,9 +169,9 @@ class DtOnlyCoordinates(Plot):
 		self.storeCanvas(c, 'dtOnlyTightAndHoBxWrongCoordinates')
 		return hist,c,label
 	
-	### ============================================
+	### =========================================================
 	### Predefined plotter functions for the eta fine bit studies
-	### ============================================
+	### =========================================================
 	
 	def plotDtOnlyCoordinatesFineEta(self):
 		c,hist,label = self.makeDtOnlyPlot(sourceDt='UnmatchedDtFine', sourceDtHo='UnmatchedDtHoFine')
