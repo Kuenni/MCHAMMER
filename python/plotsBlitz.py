@@ -21,7 +21,7 @@ parser.add_argument('--source','-s'
 
 parser.add_argument('--moduleName','-m'
 					,dest='moduleName'
-					,help='Set a different CMSSW module name. Necessary if the analyzer plugin was not'
+					,help='Set a different CMSSW module name. Necessary if the analyzer plugin was not '
 						'hoMuonAnalyzer')
 
 parser.add_argument('--DEBUG'
@@ -29,6 +29,9 @@ parser.add_argument('--DEBUG'
 					,help='Enable more verbose output in modules.')
 
 args = parser.parse_args()
+
+if args.DEBUG:
+	print "Running in DEBUG mode"
 
 def updateModuleName(lib):
 	if args.moduleName:
@@ -62,13 +65,14 @@ def plotHoTimeVsEta():
 def plotDtOnlyCoordinates():
 	lib = DtOnlyCoordinates(filename=args.source,data=args.data,debug = args.DEBUG)
 	updateModuleName(lib)
+	resDtEtaFine = lib.doAllEtaFineBitPlots()
+	raw_input('Continue with <Enter>')
 	resDtOnlyCoordinates = lib.plotDtOnlyCoordinates()
 	resDtOnlyTightCoordinates = lib.plotDtOnlyTightCoordinates()
 	resDtOnlyBxWrong = lib.plotDtOnlyBxWrongCoordinates()
 	resDtOnlyTightBxWrong = lib.plotDtOnlyTightBxWrongCoordinates()
 	resDtOnlyAndHoBxWrong = lib.plotDtOnlyAndHoBxWrongCoordinates()
 	resDtOnlyTightAndHoBxWrong = lib.plotDtOnlyTightAndHoBxWrongCoordinates()
-	resDtOnlyTightAndHoBxWrongFine = lib.plotDtOnlyTightAndHoBxWrongCoordinatesFineEta()
 	raw_input('Continue with <Enter>')
 	lib.printFractionsForDtOnly()
 	return
