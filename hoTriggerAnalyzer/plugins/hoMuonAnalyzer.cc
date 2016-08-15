@@ -1543,11 +1543,11 @@ const L1MuRegionalCand* hoMuonAnalyzer::findBestCandMatch(const l1extra::L1MuonP
 		std::vector<L1MuRegionalCand>::iterator dttfCand;
 		for( dttfCand = dttfCands.begin(); dttfCand != dttfCands.end();	++dttfCand ) {
 			if(dttfCand->empty()) continue;
-			std::cout << "Finding best cand" << std::endl;
-			std::cout << dttfCand->etaValue() << std::endl;
+//			std::cout << "Finding best cand" << std::endl;
+//			std::cout << dttfCand->etaValue() << std::endl;
 
 			float dR = deltaR(l1Muon->eta(),l1Muon->phi()+ L1PHI_OFFSET,dttfCand->etaValue(),dttfCand->phiValue());
-			if(dR < 0.1){
+			if(dR < 0.3){
 				if(dR < bestDeltaR){
 					if(dttfCand->quality() > bestQuality){
 						dtCand = &*dttfCand;
