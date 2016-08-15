@@ -1,6 +1,6 @@
 #!/bin/env python
 import os
-from ROOT import TChain,TFile,SetOwnership,Double
+from ROOT import TChain,TFile,TObject,SetOwnership,Double
 from plotting.OutputModule import CommandLineHandler
 
 commandLine = CommandLineHandler('[RootFileHandler] ')
@@ -112,13 +112,18 @@ class RootFileHandler:
 		fileRange = min(len(self.fileNameList), fileRange )
 		
 		for i in range(0,fileRange):
-			rootfile = TFile(self.fileNameList[i],'READ')
-			g = rootfile.Get(graphname)
-			nTotal += g.GetN()
+			try:
+				rootfile = TFile(self.fileNameList[i],'READ')
+				g = rootfile.Get(graphname)
+				nTotal += g.GetN()
+			except AttributeError:
+				if self.DEBUG: commandLine.warning('Could not get graph %s for every source file' % graphname)
 		commandLine.output('getGraph(%s) found %d points to process' % (graphname,nTotal))
 		for i in range(1,fileRange):
 			rootfile = TFile(self.fileNameList[i],'READ')
 			g2 = rootfile.Get(graphname)
+			#Skip files without graph
+			if g2.__class__ == TObject: continue
 			x = Double(0)
 			y = Double(0)
 			for j in range(0,g2.GetN()):
