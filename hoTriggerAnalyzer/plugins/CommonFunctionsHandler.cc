@@ -13,7 +13,7 @@
  */
 CommonFunctionsHandler::CommonFunctionsHandler(const edm::ParameterSet& iConfig){
 	_l1MuonInput = iConfig.getParameter<edm::InputTag>("l1MuonSrc");
-	deltaR_Max = iConfig.getParameter<double>("maxDeltaR");
+	deltaR_Max = iConfig.getParameter<double>("maxDeltaRL1MuonMatching");
 }
 
 /**
