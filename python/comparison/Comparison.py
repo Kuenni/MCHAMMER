@@ -5,14 +5,14 @@ from plotting.PlotStyle import colorRwthDarkBlue, colorRwthMagenta,\
 from plotting.Utils import getLegend,makeResidualsPad
 from plotting.Plot import Plot
 
-SIMULATION_FILE_SCHEME = '/user/kuensken/CMSSW/CMSSW_7_2_2_patch2/src/HoMuonTrigger/PostLS1/SingleMuonGunPooja/NoPUAnalyzed'
-SIMULATION_PU_FILE_SCHEME = '/user/kuensken/CMSSW/CMSSW_7_2_2_patch2/src/HoMuonTrigger/PostLS1/SingleMuonGunWithPU/PU52Analyzed'
+SIMULATION_FILE_SCHEME = '/user/kuensken/CMSSW/CMSSW_7_4_15/src/HoMuonTrigger/PostLS1/SingleMuonGunPooja/NoPUAnalyzed'
+SIMULATION_PU_FILE_SCHEME = '/user/kuensken/CMSSW/CMSSW_7_4_15/src/HoMuonTrigger/PostLS1/SingleMuonGunWithPU/SingleMuWithPu'
 DATA_FILE_SCHEME = '/user/kuensken/CMSSW/CMSSW_7_4_15/src/HoMuonTrigger/PostLS1/collisionData2015/SingleMuon2015D'
 
 class Comparison(Plot):
 	#Initialize
-	def __init__(self,data):
-		Plot.__init__(self,data = data)
+	def __init__(self,data,debug):
+		Plot.__init__(self,debug = debug, data = data)
 		self.createPlotSubdir('energyComparison')
 		self.createPlotSubdir('l1CountComparison')
 		self.fileHandlerSimulation = self.createFileHandler(SIMULATION_FILE_SCHEME)
@@ -278,9 +278,9 @@ class Comparison(Plot):
 		return hDataClone
 	
 	def compareEnergyTightNormalizedToIntegral(self):
-		hSimMatched = self.fileHandlerSimulation.getHistogram('energy/L1RecoHoTight_Energy')
-		hDataMatched = self.fileHandler.getHistogram('energy/L1RecoHoTight_Energy')
-		hSimPuMatched = self.fileHandlerSimulationPu.getHistogram('energy/L1RecoHoTight_Energy')
+		hSimMatched = self.fileHandlerSimulation.getHistogram('energy/patMuonsTight_Energy')
+		hDataMatched = self.fileHandler.getHistogram('energy/patMuonsTight_Energy')
+		hSimPuMatched = self.fileHandlerSimulationPu.getHistogram('energy/patMuonsTight_Energy')
 		hDataMatchedNotTight = self.fileHandler.getHistogram('energy/L1MuonWithHoMatchAboveThr_Energy')
 		hSimNoPuMatchedNotTight = self.fileHandler.getHistogram('energy/L1MuonWithHoMatchAboveThr_Energy')
 		hSimPuMatchedNotTight = self.fileHandler.getHistogram('energy/L1MuonWithHoMatchAboveThr_Energy')
