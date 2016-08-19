@@ -225,6 +225,25 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		return;
 	}
 
+	/**
+	 * Debug stuff. Look into DTTF cands to see if there are at all
+	 * any cands with eta fine bit set
+	 */
+	// get GMT readout collection
+	L1MuGMTReadoutCollection const* gmtrc = pCollection.product();
+	std::vector<L1MuGMTReadoutRecord> gmt_records = gmtrc->getRecords();
+	std::vector<L1MuGMTReadoutRecord>::const_iterator RRItr;
+	int fineCounter = 0;
+	for ( RRItr = gmt_records.begin(); RRItr != gmt_records.end(); ++RRItr ) {
+		std::vector<L1MuRegionalCand> dttfCands = RRItr->getDTBXCands();
+		std::vector<L1MuRegionalCand>::iterator dttfCand;
+		for( dttfCand = dttfCands.begin(); dttfCand != dttfCands.end();	++dttfCand ) {
+			if(dttfCand->empty()) continue;
+				if(dttfCand->isFineHalo())
+					fineCounter++;
+		}
+	}
+	histogramBuilder.fillMultiplicityHistogram(fineCounter,"fineBitsPerEvent");
 
 	analyzeL1Sources();
 
@@ -1556,8 +1575,8 @@ const L1MuRegionalCand* hoMuonAnalyzer::findBestCandMatch(const l1extra::L1MuonP
 			}
 		}// each dttf cand
 	}
-	if(dtCand)
-		std::cout << "Found one" << std::endl;
+//	if(dtCand)
+//		std::cout << "Found one" << std::endl;
 	return dtCand;
 }
 
@@ -1576,6 +1595,9 @@ void hoMuonAnalyzer::fillTimingHistograms(const l1extra::L1MuonParticle* l1Muon,
 	}
 
 	const L1MuRegionalCand* l1RegCand = findBestCandMatch(l1Muon);
+	/**
+	 * TODO: Is the low number of events a
+	 */
 	switch(l1Muon->gmtMuonCand().quality()){
 	case 7:
 		//Matched DT-RPC
@@ -1600,6 +1622,8 @@ void hoMuonAnalyzer::fillTimingHistograms(const l1extra::L1MuonParticle* l1Muon,
 			histogramBuilder.fillEtaPhiGraph(l1Muon->eta(), l1Muon->phi() + L1PHI_OFFSET,nameTrunk + "UnmatchedDt");
 			if(l1RegCand->isFineHalo()){
 				histogramBuilder.fillEtaPhiGraph(l1Muon->eta(), l1Muon->phi() + L1PHI_OFFSET,nameTrunk + "UnmatchedDtFine");
+			} else {
+				histogramBuilder.fillEtaPhiGraph(l1Muon->eta(), l1Muon->phi() + L1PHI_OFFSET,nameTrunk + "UnmatchedDtNotFine");
 			}
 			if(l1Muon->bx() != 0){
 				histogramBuilder.fillEtaPhiGraph(l1Muon->eta(), l1Muon->phi() + L1PHI_OFFSET,nameTrunk + "UnmatchedDtBxNot0");
@@ -1616,6 +1640,8 @@ void hoMuonAnalyzer::fillTimingHistograms(const l1extra::L1MuonParticle* l1Muon,
 			histogramBuilder.fillEtaPhiGraph(l1Muon->eta(), l1Muon->phi() + L1PHI_OFFSET,nameTrunk + "UnmatchedDtHo");
 			if(l1RegCand->isFineHalo()){
 				histogramBuilder.fillEtaPhiGraph(l1Muon->eta(), l1Muon->phi() + L1PHI_OFFSET,nameTrunk + "UnmatchedDtHoFine");
+			} else {
+				histogramBuilder.fillEtaPhiGraph(l1Muon->eta(), l1Muon->phi() + L1PHI_OFFSET,nameTrunk + "UnmatchedDtHoNotFine");
 			}
 			histogramBuilder.fillGraph(hoRecHit->id().ieta(),hoRecHit->time(),nameTrunk + "UnmatchedDtHoTimeGraph");
 			if(l1Muon->bx() != 0){
