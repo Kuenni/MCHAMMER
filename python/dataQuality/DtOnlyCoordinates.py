@@ -124,9 +124,11 @@ class DtOnlyCoordinates(Plot):
 	def doAllEtaFineBitPlots(self):
 		plots = []
 		plots.append(self.plotDtOnlyCoordinatesFineEta())
+		plots.append(self.plotDtOnlyCoordinatesNotFineEta())
 		plots.append(self.plotDtOnlyBxWrongCoordinatesFineEta())
 		plots.append(self.plotDtOnlyAndHoCoordinatesFineEta())
 		plots.append(self.plotDtOnlyAndHoBxWrongCoordinatesFineEta())
+		
 		return plots
 	
 	### =========================
@@ -177,6 +179,12 @@ class DtOnlyCoordinates(Plot):
 		c,hist,label = self.makeDtOnlyPlot(sourceDt='UnmatchedDtFine', sourceDtHo='UnmatchedDtHoFine')
 		hist.SetTitle('#eta#phi for DT-only, #eta fine')
 		self.storeCanvas(c, 'dtOnlyCoordinatesFine')
+		return hist,c,label
+	
+	def plotDtOnlyCoordinatesNotFineEta(self):
+		c,hist,label = self.makeDtOnlyPlot(sourceDt='UnmatchedDtNotFine', sourceDtHo='UnmatchedDtHoNotFine')
+		hist.SetTitle('#eta#phi for DT-only, #eta not fine')
+		self.storeCanvas(c, 'dtOnlyCoordinatesNotFine')
 		return hist,c,label
 	
 	def plotDtOnlyBxWrongCoordinatesFineEta(self):
