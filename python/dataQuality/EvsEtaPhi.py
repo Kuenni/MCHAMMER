@@ -56,7 +56,7 @@ class EvsEtaPhi(Plot):
 	
 		canvas.Update()
 		self.storeCanvas(canvas,'averageEnergy')
-		return canvas,hSum,label,hCounter
+		return canvas,hSum,label,hCounter,drawHoBoxes(canvas)
 	
 	
 	def calculateCentralFractionInTight(self):
@@ -270,6 +270,28 @@ class EvsEtaPhi(Plot):
 		self.storeCanvas(canvas,'eAverageTightMuons')
 		return canvas,hSum,label#,boxes
 	
+	### ##########################################################
+	### Put data of fraction of events inside tile grid on the CLI
+	### ##########################################################
+	def outputFractionsInTileGrid(self,hist):
+		#Calculate fraction in grids
+		integralCentral = hist.Integral(hist.GetXaxis().FindBin(-.0435),hist.GetXaxis().FindBin(.0435),
+									hist.GetYaxis().FindBin(-.0435),hist.GetYaxis().FindBin(.0435))
+		integral3x3 = hist.Integral(hist.GetXaxis().FindBin(-.1305),hist.GetXaxis().FindBin(.1305),
+									hist.GetYaxis().FindBin(-.1305),hist.GetYaxis().FindBin(.1305))
+		integral5x5 = hist.Integral(hist.GetXaxis().FindBin(-.2175),hist.GetXaxis().FindBin(.2175),
+									hist.GetYaxis().FindBin(-.2175),hist.GetYaxis().FindBin(.2175))
+		integralTotal = hist.Integral()
+		
+		self.output(80*'#')
+		self.output('%20s:%5.2f%% +/- %5.2f%%' % ('Central Fraction',calcPercent(integralCentral,integralTotal),
+												calcSigma(integralCentral,integralTotal)*100))
+		self.output('%20s:%5.2f%% +/- %5.2f%%' % ('3x3 Fraction',calcPercent(integral3x3,integralTotal),
+												calcSigma(integral3x3,integralTotal)*100))
+		self.output('%20s:%5.2f%% +/- %5.2f%%' % ('5x5 Fraction',calcPercent(integral5x5,integralTotal),
+												calcSigma(integral5x5,integralTotal)*100))
+		self.output(80*'#')
+	
 	def plotEMaxCountsForTightMuons(self):
 		canvas = TCanvas('canvasEmaxcountsTightMuons','E max counts Tight muons',1200,1200)
 		canvas.cd().SetLogz()
@@ -287,23 +309,10 @@ class EvsEtaPhi(Plot):
 		canvas.Update()
 		#boxes = drawHoBoxes(canvas)
 		self.storeCanvas(canvas,'eMaxCountsTightMuons')
-		
-		#Calculate fraction in 3x3 grid
-		integralCentral = hCounter.Integral(hCounter.GetXaxis().FindBin(-.0435),hCounter.GetXaxis().FindBin(.0435),
-									hCounter.GetYaxis().FindBin(-.0435),hCounter.GetYaxis().FindBin(.0435))
-		integral3x3 = hCounter.Integral(hCounter.GetXaxis().FindBin(-.1305),hCounter.GetXaxis().FindBin(.1305),
-									hCounter.GetYaxis().FindBin(-.1305),hCounter.GetYaxis().FindBin(.1305))
-		integralTotal = hCounter.Integral()
-		
-		self.output(80*'#')
+
+		#Output fractions in grid		
 		self.output('Emax fraction for Tight')
-		self.output('%20s:%5.2f%% +/- %5.2f%%' % ('Central Fraction',calcPercent(integralCentral,integralTotal),
-												calcSigma(integralCentral,integralTotal)*100))
-		self.output('%20s:%5.2f%% +/- %5.2f%%' % ('3x3 Fraction',calcPercent(integral3x3,integralTotal),
-												calcSigma(integral3x3,integralTotal)*100))
-		
-		self.output(80*'#')
-		
+		self.outputFractionsInTileGrid(hCounter)
 		return canvas,label,hCounter
 	
 	def plotEMaxCounts(self):
@@ -324,20 +333,9 @@ class EvsEtaPhi(Plot):
 		#boxes = drawHoBoxes(canvas)
 		self.storeCanvas(canvas,'eMaxCounts')
 		
-		#Calculate fraction in 3x3 grid
-		integralCentral = hCounter.Integral(hCounter.GetXaxis().FindBin(-.0435),hCounter.GetXaxis().FindBin(.0435),
-									hCounter.GetYaxis().FindBin(-.0435),hCounter.GetYaxis().FindBin(.0435))
-		integral3x3 = hCounter.Integral(hCounter.GetXaxis().FindBin(-.1305),hCounter.GetXaxis().FindBin(.1305),
-									hCounter.GetYaxis().FindBin(-.1305),hCounter.GetYaxis().FindBin(.1305))
-		integralTotal = hCounter.Integral()
-		
-		self.output(80*'#')
-		self.output('%20s:%5.2f%% +/- %5.2f%%' % ('Central Fraction',calcPercent(integralCentral,integralTotal),
-												calcSigma(integralCentral,integralTotal)*100))
-		self.output('%20s:%5.2f%% +/- %5.2f%%' % ('3x3 Fraction',calcPercent(integral3x3,integralTotal),
-												calcSigma(integral3x3,integralTotal)*100))
-		
-		self.output(80*'#')
+		#Output fractions in grid		
+		self.outputFractionsInTileGrid(hCounter)
+
 		return canvas,label,hCounter
 		
 	def plotEavPerWheelForTightMuons(self):
