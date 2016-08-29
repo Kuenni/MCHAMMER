@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 import argparse
+from types import FunctionType
 
 parser = argparse.ArgumentParser()
-parser.add_argument('scripts', metavar='scripts', type=str, nargs='+',
+parser.add_argument('--scripts','-s', dest='scripts', nargs='+',
                    help='The subscript(s) to be called for plotting')
 
 parser.add_argument('--data','-d'
@@ -15,24 +16,48 @@ parser.add_argument('--list','-l'
 					,action="store_true",default=False
 					,help='Show list of available scripts')
 
-parser.add_argument('--source','-s'
+parser.add_argument('--fileScheme','-f'
 					,dest='source'
 					,help='File name scheme for the source of events')
 
 parser.add_argument('--moduleName','-m'
 					,dest='moduleName'
-					,help='Set a different CMSSW module name. Necessary if the analyzer plugin was not'
+					,help='Set a different CMSSW module name. Necessary if the analyzer plugin was not '
 						'hoMuonAnalyzer')
 
 parser.add_argument('--DEBUG'
 					,dest='DEBUG',action="store_true",default=False
 					,help='Enable more verbose output in modules.')
 
+parser.add_argument('--non-interactive'
+					,dest='nonInteractive',action="store_true",default=False
+					,help='Do not ask for user input to end the script. Plots will close automatically.')
+
+parser.add_argument('--all','-a'
+					,dest='plotAll',action="store_true",default=False
+					,help='Produces all plots that are available. Implies non interactive mode.')
+
 args = parser.parse_args()
+
+if args.DEBUG:
+	print "Running in DEBUG mode"
+
+if args.plotAll:
+	args.nonInteractive = True
+	import sys
+	#Need to do this before importing pyROOT
+	#to enable batch mode
+	sys.argv.append( '-b' )
+	print "Running in batch mode"
 
 def updateModuleName(lib):
 	if args.moduleName:
 		lib.setModuleName(args.moduleName)
+
+def checkUserInput():
+	if not args.nonInteractive:
+		raw_input('Continue with <Enter>')
+	return
 
 from comparison.Comparison import Comparison
 from dataQuality.ControlPlots import ControlPlots
@@ -47,45 +72,53 @@ from dataQuality.PtResolution import PtResolution
 from dataQuality.QualityCode import QualityCode
 from dataQuality.Timing import Timing
 from dataQuality.DtOnlyCoordinates import DtOnlyCoordinates
+from dataQuality.HoTimeVsEta import HoTimeVsEta
+
+def plotHoTimeVsEta():
+	lib = HoTimeVsEta(filename=args.source,data=args.data,debug = args.DEBUG)
+	updateModuleName(lib)
+	resHoTimeEta = lib.plotHoTimeVsEta()
+	resHoTimeEtaBxWrng = lib.plotHoTimeVsEtaBxWrong()
+	resTightHoTimeEtaBxWrng = lib.plotTightHoTimeVsEtaBxWrong()
+	resTightDtRpc = lib.plotHoTimeVsEtaDtRpcTight()
+	checkUserInput()
+	return
 
 def plotDtOnlyCoordinates():
 	lib = DtOnlyCoordinates(filename=args.source,data=args.data,debug = args.DEBUG)
 	updateModuleName(lib)
+	resDtEtaFine = lib.doAllEtaFineBitPlots()
+	checkUserInput()
 	resDtOnlyCoordinates = lib.plotDtOnlyCoordinates()
 	resDtOnlyTightCoordinates = lib.plotDtOnlyTightCoordinates()
 	resDtOnlyBxWrong = lib.plotDtOnlyBxWrongCoordinates()
 	resDtOnlyTightBxWrong = lib.plotDtOnlyTightBxWrongCoordinates()
 	resDtOnlyAndHoBxWrong = lib.plotDtOnlyAndHoBxWrongCoordinates()
 	resDtOnlyTightAndHoBxWrong = lib.plotDtOnlyTightAndHoBxWrongCoordinates()
-	resDtOnlyTightAndHoBxWrongFine = lib.plotDtOnlyTightAndHoBxWrongCoordinatesFine()
-	raw_input('Continue with <Enter>')
+	checkUserInput()
 	lib.printFractionsForDtOnly()
 	return
 
 def plotTiming():
 	lib = Timing(filename=args.source,data=args.data,debug = args.DEBUG)
 	updateModuleName(lib)
-	resHoTimeEta = lib.plotHoTimeVsEta()
-	resHoTimeEtaBxWrng = lib.plotHoTimeVsEtaBxWrong()
-	resTightHoTimeEtaBxWrng = lib.plotTightHoTimeVsEtaBxWrong()
-	resTightDtRpc = lib.plotHoTimeVsEtaDtRpcTight()
-# 	resEvsTime = lib.plotHoEnergyVsTime()
-# 	resDeltaTime = lib.plotDeltaTime()
-# 	resBxId = lib.plotL1BxId()
-# 	resTightBxId = lib.plotL1BxId(tight=True)
-# 	resTimeHo = lib.plotMatchedHoTime()
-# 	res = lib.plotHoTime()
-# 	res6 = lib.plotHoTimeLog()
-# 	res4 = lib.plotImprovementInDt()
-# 	if not args.data:
-# 		lib.plotEtaOfWrongBxId()
-# 		lib.plotEtaPhiOfWrongBxId()
-# 		lib.plotFractionsOfBxId()
-# 		res2 = lib.plotDetectorContributionsToTiming()
-# 		res5 = lib.plotPtAndPhiOfWrongBxId()
-# 		res4 = lib.plotImprovementInDt()
-# 		res3 = lib.plotPtAndEtaOfWrongBxId()
-	raw_input('-->')
+ 	resEvsTime = lib.plotHoEnergyVsTime()
+ 	resDeltaTime = lib.plotDeltaTime()
+ 	resBxId = lib.plotL1BxId()
+ 	resTightBxId = lib.plotL1BxId(tight=True)
+ 	resTimeHo = lib.plotMatchedHoTime()
+ 	res = lib.plotHoTime()
+ 	res6 = lib.plotHoTimeLog()
+ 	res4 = lib.plotImprovementInDt()
+ 	if not args.data:
+ 		lib.plotEtaOfWrongBxId()
+ 		lib.plotEtaPhiOfWrongBxId()
+ 		lib.plotFractionsOfBxId()
+ 		res2 = lib.plotDetectorContributionsToTiming()
+ 		res5 = lib.plotPtAndPhiOfWrongBxId()
+ 		res4 = lib.plotImprovementInDt()
+ 		res3 = lib.plotPtAndEtaOfWrongBxId()
+	checkUserInput()
 	return
 
 def plotEVsEtaPhi():
@@ -103,7 +136,7 @@ def plotEVsEtaPhi():
 	res7 = lib.plotEavPerWheelForTightMuons()
 	resWheelwise = lib.plotEAveragePerWheel()
 	resEtaPhiTight = lib.plotEtaPhiForTightL1()
-	raw_input('-->')
+	checkUserInput()
 	return
 
 def plotControlPlots():
@@ -121,7 +154,7 @@ def plotControlPlots():
 	if not args.data:
 		res4 = lib.plotEfficiencyCountCheck()
 		res5 = lib.plotGenEtaPhi()
-	raw_input('-->')
+	checkUserInput()
 	return
 
 def plotTimeWindow():
@@ -133,7 +166,7 @@ def plotTimeWindow():
 	if not args.data:
 		resTimeWindowAlone = lib.plotTimeWindowAlone()
 		resTruthL1 = lib.plotTruthL1Together()
-	raw_input('-->')
+	checkUserInput()
 	return
 
 def plotPtResolution():
@@ -148,7 +181,7 @@ def plotPtResolution():
 	resTruth1 = libTruth.plotPtResolutionHistograms()
 	resTruth2 = libTruth.plotTightPtResolution()
 	resTruth3 = libTruth.plotLoosePtResolution()
-	raw_input('Hit return to continue')
+	checkUserInput()
 	lib = PtResolution(filename=args.source,truth=False,data=args.data,debug = args.DEBUG)
 	updateModuleName(lib)
 	res4 = lib.plotL1()
@@ -160,7 +193,7 @@ def plotPtResolution():
 	res1 = lib.plotPtResolutionHistograms()
 	res2 = lib.plotTightPtResolution()
 	res3 = lib.plotLoosePtResolution()
-	raw_input('-->')
+	checkUserInput()
 	return
 
 def plotQualityCodes():
@@ -170,7 +203,7 @@ def plotQualityCodes():
 	res2 = lib.plot3x3FailQualityCodesVsPt()
 	res3 = lib.plotQualityCodesStacked(1)
 	res4 = lib.plotAllQualitiyCodes()
-	raw_input('-->')
+	checkUserInput()
 	return
 
 def plotCounters():
@@ -178,14 +211,14 @@ def plotCounters():
 	updateModuleName(lib)
 	res = lib.plotL1AndTightL1Counters()
 	res2 = lib.plotTightL1EtaPhiRatio()
-	raw_input('-->')
+	checkUserInput()
 	return
 
 def plotThresholdScan():
 	lib = HoThresholdScan(filename=args.source,data=args.data,debug = args.DEBUG)
 	updateModuleName(lib)
 	res = lib.plotHoThresholdScan()
-	raw_input('-->')
+	checkUserInput()
 	return
 
 def plotEfficiency():
@@ -207,7 +240,7 @@ def plotEfficiency():
 		res3x3Together = lib.plot3x3GridTogether()
 		resN3x3 = lib.plotNtotalGridMatching3x3()
 		res5x5Together = lib.plot5x5GridTogether()
-	raw_input('-->')
+	checkUserInput()
 	return
 
 def plotEnergy():
@@ -219,7 +252,7 @@ def plotEnergy():
 	resEPerWheelHo = lib.plotHoEnergyPerWheel()
 	resEPerWheelMatchedHo = lib.plotMatchedHoEnergyPerWheel()
 	resEPerWheelTogether = lib.plotMatchedAndNotMatchedPerWheel()
-	raw_input('-->')
+	checkUserInput()
 	return
 
 def plotCompareEnergy():
@@ -231,7 +264,7 @@ def plotCompareEnergy():
 	resEAbsoluteMatched = lib.compareEnergyAbsoluteHoMatched()
 	resEIntegralNorm = lib.compareEnergyNormalizedToIntegral()
 	resEIntegralNormTight = lib.compareEnergyTightNormalizedToIntegral()
-	raw_input('-->')
+	checkUserInput()
 	
 	return
 
@@ -250,7 +283,7 @@ def plotPhiShift():
 		res5 = lib.plotL1PhiVsHoIPhi()
 		#res = lib.plotDeltaPhiVsL1Phi()
 		#res2 = lib.plotDeltaPhiVsL1Pt()
-	raw_input('-->')
+	checkUserInput()
 	return
 
 from ROOT import gROOT
@@ -260,38 +293,46 @@ gROOT.ProcessLine(".L $HOMUONTRIGGER_BASE/python/loader.C+");
 
 scripts = ['controlPlots','eVsEtaPhi','timeWindow','ptResolution','qualityCodes',
 			'counters','thresholdScan','efficiency','energy','compareEnergy','timing','phiShift',
-			'dtOnly']
+			'dtOnly', 'hoTimeVsEta']
 
-for script in args.scripts:
-	if(script == 'controlPlots'):
-		plotControlPlots()
-	elif(script == 'eVsEtaPhi'):
-		plotEVsEtaPhi()
-	elif(script == 'phiShift'):
-		plotPhiShift()
-	elif(script == 'timeWindow'):
-		plotTimeWindow()
-	elif(script == 'ptResolution'):
-		plotPtResolution()
-	elif(script == 'qualityCodes'):
-		plotQualityCodes()
-	elif (script=='timing'):
-		plotTiming()
-	elif (script == 'counters'):
-		plotCounters()
-	elif (script == 'thresholdScan'):
-		plotThresholdScan()
-	elif (script == 'efficiency'):
-		plotEfficiency()
-	elif (script == 'energy'):
-		plotEnergy()
-	elif (script == 'comparison'):
-		plotCompareEnergy()
-	elif (script == 'dtOnly'):
-		plotDtOnlyCoordinates()
-	else:
-		print 'Unknown script requested: %s' % (script)
-		print "Available Scripts:"
-		for script in scripts:
-			print '\t',script
-			
+if args.scripts:
+	for script in args.scripts:
+		if(script == 'controlPlots'):
+			plotControlPlots()
+		elif(script == 'eVsEtaPhi'):
+			plotEVsEtaPhi()
+		elif(script == 'phiShift'):
+			plotPhiShift()
+		elif(script == 'timeWindow'):
+			plotTimeWindow()
+		elif(script == 'ptResolution'):
+			plotPtResolution()
+		elif(script == 'qualityCodes'):
+			plotQualityCodes()
+		elif (script=='timing'):
+			plotTiming()
+		elif (script == 'counters'):
+			plotCounters()
+		elif (script == 'thresholdScan'):
+			plotThresholdScan()
+		elif (script == 'efficiency'):
+			plotEfficiency()
+		elif (script == 'energy'):
+			plotEnergy()
+		elif (script == 'comparison'):
+			plotCompareEnergy()
+		elif (script == 'dtOnly'):
+			plotDtOnlyCoordinates()
+		elif (script == 'hoTimeVsEta'):
+			plotHoTimeVsEta()
+		else:
+			print 'Unknown script requested: %s' % (script)
+			print "Available Scripts:"
+			for script in scripts:
+				print '\t',script
+else:
+	if args.plotAll:
+		[t() for f,t in locals().items() if type(t) == FunctionType and (f.find('plot') == 0)]
+		print "#########################"
+		print "# And that's it, folks! #"
+		print "#########################"

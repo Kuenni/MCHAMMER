@@ -6,10 +6,22 @@ from plotting.Utils import L1_ETA_BIN, fillGraphIn2DHist, calcPercent, calcSigma
 from numpy import math
 
 class DtOnlyCoordinates(Plot):
-	def __init__(self,filename,data,debug):
+	'''
+	Constructor for this specific plot class is different. It is possible to
+	give a string with a pT cut argument. When given, the plots are created only
+	for the selection of L1Muons that passed the given pT cut. Possbile values
+	for the pT cut parameter are (at the moment):
+		pt10, pt15, pt20, pt25
+	'''
+	def __init__(self,filename,data,debug, ptCut=""):
 		Plot.__init__(self,filename,data,debug)
 		self.createPlotSubdir('timing')
-	
+		self.ptCut = ('_' + ptCut) if ptCut != "" else ""
+		
+	### ==========================================
+	### Plots of the fraction of L1muons remaining
+	### after applying different cuts
+	### ==========================================	
 	def printFractionsForDtOnly(self):
 		allL1 = self.fileHandler.getHistogram('count/timingSupport__Count')
 		allTightL1 = self.fileHandler.getHistogram('count/timingSupport_tight__Count')
@@ -31,6 +43,8 @@ class DtOnlyCoordinates(Plot):
 		
 		print
 		header = "%30s  %7s    %s" % ('Data source','Entries','Fraction of total L1')
+		if (self.ptCut != ""):
+			header += '\tpT cut: ' + self.ptCut
 		self.debug(header)
 		self.debug('-'*len(header))
 		self.debug("%30s: %7d" % ('L1',nAllL1))
@@ -58,7 +72,8 @@ class DtOnlyCoordinates(Plot):
 	### ============================================
 	def makeDtOnlyPlot(self,sourceDt,sourceDtHo):
 		c  = TCanvas(sourceDt,sourceDt,1200,1200)
-		graphDt = self.fileHandler.getGraph('graphs/timingSupport_' + sourceDt)
+		
+		graphDt = self.fileHandler.getGraph('graphs/timingSupport' + self.ptCut + '_' + sourceDt)
 		histAll = TH2D('hEtaPhi' + sourceDt,";#eta_{L1};#phi_{L1};#",30,-15*L1_ETA_BIN,15*L1_ETA_BIN,
 			144, -math.pi,math.pi)
 		fillGraphIn2DHist(graphDt, histAll)
@@ -78,7 +93,7 @@ class DtOnlyCoordinates(Plot):
 		###
 				
 		if(sourceDtHo != ''):
-			graphDtHo = self.fileHandler.getGraph('graphs/timingSupport_' + sourceDtHo)
+			graphDtHo = self.fileHandler.getGraph('graphs/timingSupport' + self.ptCut + '_' + sourceDtHo)
 			fillGraphIn2DHist(graphDtHo, histAll)
 			###
 			'''
@@ -100,6 +115,25 @@ class DtOnlyCoordinates(Plot):
 		label = self.drawLabel()
 		c.Update()
 		return c,histAll,label
+	
+	### =============================================
+	### Do all the plots for the eta fine bit studies
+	### and return the resulting plots
+	### =============================================	
+	
+	def doAllEtaFineBitPlots(self):
+		plots = []
+		plots.append(self.plotDtOnlyCoordinatesFineEta())
+		plots.append(self.plotDtOnlyCoordinatesNotFineEta())
+		plots.append(self.plotDtOnlyBxWrongCoordinatesFineEta())
+		plots.append(self.plotDtOnlyAndHoCoordinatesFineEta())
+		plots.append(self.plotDtOnlyAndHoBxWrongCoordinatesFineEta())
+		
+		return plots
+	
+	### =========================
+	### Predefined plot functions
+	### =========================
 	
 	def plotDtOnlyCoordinates(self):
 		c,hist,label = self.makeDtOnlyPlot(sourceDt='UnmatchedDt', sourceDtHo='UnmatchedDtHo')
@@ -137,9 +171,37 @@ class DtOnlyCoordinates(Plot):
 		self.storeCanvas(c, 'dtOnlyTightAndHoBxWrongCoordinates')
 		return hist,c,label
 	
-	def plotDtOnlyTightAndHoBxWrongCoordinatesFine(self):
-		c,hist,label = self.makeDtOnlyPlot(sourceDt='tight_UnmatchedDtHoBxNot0Fine', sourceDtHo='')
-		hist.SetTitle('#eta#phi for tight DT-only + HO, BX Wrong, #eta fine')
-		self.storeCanvas(c, 'dtOnlyTightAndHoBxWrongCoordinatesFine')
+	### =========================================================
+	### Predefined plotter functions for the eta fine bit studies
+	### =========================================================
+	
+	def plotDtOnlyCoordinatesFineEta(self):
+		c,hist,label = self.makeDtOnlyPlot(sourceDt='UnmatchedDtFine', sourceDtHo='UnmatchedDtHoFine')
+		hist.SetTitle('#eta#phi for DT-only, #eta fine')
+		self.storeCanvas(c, 'dtOnlyCoordinatesFine')
+		return hist,c,label
+	
+	def plotDtOnlyCoordinatesNotFineEta(self):
+		c,hist,label = self.makeDtOnlyPlot(sourceDt='UnmatchedDtNotFine', sourceDtHo='UnmatchedDtHoNotFine')
+		hist.SetTitle('#eta#phi for DT-only, #eta not fine')
+		self.storeCanvas(c, 'dtOnlyCoordinatesNotFine')
+		return hist,c,label
+	
+	def plotDtOnlyBxWrongCoordinatesFineEta(self):
+		c,hist,label = self.makeDtOnlyPlot(sourceDt='UnmatchedDtBxNot0Fine', sourceDtHo='UnmatchedDtHoBxNot0Fine')
+		hist.SetTitle('#eta#phi for DT-only, BX Wrong, #eta fine')
+		self.storeCanvas(c, 'dtOnlyBxWrongCoordinatesFine')
+		return hist,c,label
+	
+	def plotDtOnlyAndHoCoordinatesFineEta(self):
+		c,hist,label = self.makeDtOnlyPlot(sourceDt='UnmatchedDtHoFine', sourceDtHo='')
+		hist.SetTitle('#eta#phi for DT-only + HO, #eta fine')
+		self.storeCanvas(c, 'dtOnlyAndHoCoordinatesFine')
+		return hist,c,label	
+	
+	def plotDtOnlyAndHoBxWrongCoordinatesFineEta(self):
+		c,hist,label = self.makeDtOnlyPlot(sourceDt='UnmatchedDtHoBxNot0Fine', sourceDtHo='')
+		hist.SetTitle('#eta#phi for DT-only + HO, BX Wrong, #eta fine')
+		self.storeCanvas(c, 'dtOnlyAndHoBxWrongCoordinatesFine')
 		return hist,c,label
 	

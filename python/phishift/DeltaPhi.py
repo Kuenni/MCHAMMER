@@ -30,7 +30,7 @@ class DeltaPhi(Plot):
 	def plotDeltaPhiVsL1TightPt(self):
 		canvas = TCanvas('cDeltaPhiVsL1TightPt','DeltaPhiVsL1TightPt',1200,1200)
 		canvas.cd().SetLogz()
-		hist = self.fileHandler.getHistogram('correlation/shiftCheckDeltaPhiVsL1PtL1TightMuons')
+		hist = self.fileHandler.getHistogram('correlation/shiftCheckDeltaPhiVsL1PtpatTightToL1Muons')
 		hist.Scale(1,'width')
 		hist.SetTitle('#Delta#phi shift check, tight muons')
 		hist.SetStats(0)

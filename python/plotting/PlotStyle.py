@@ -1,7 +1,8 @@
 from ROOT import gROOT,gStyle, TColor, TPaveText, TGraph, ROOT, Double, TBox, TH2D, TH1D, TEfficiency, TGraphErrors, THStack
-from math import sqrt,pi
+from math import pi
 import matplotlib.pyplot as plt
 import sys
+from array import array
 
 colorRwthMagenta 	= TColor.GetColor("#E30066")
 colorRwthLightBlue 	= TColor.GetColor("#8EBAE5")
@@ -13,6 +14,18 @@ colorRwthOrange 	= TColor.GetColor("#F6A800")
 colorRwthViolett	= TColor.GetColor("#612158")
 colorRwthLila		= TColor.GetColor("#7A6FAC")
 
+def setColorPalette():
+	nGradients = 100
+	palette = []
+	r = [0, 0/255., 227./255., 255/255., 244/255.]
+	g = [0,0/255.,0/255.,237/255.,244/255.]
+	b = [0,159/255.,102/255.,0/255.,244/255.]
+	stop = [0,.25,.55,.9,1]
+	FI = TColor.CreateGradientColorTable(5,array('d',stop),array('d',r),array('d',g),array('d',b),nGradients)
+	for i in range(0,nGradients):
+		palette.append(FI+i)
+	gStyle.SetPalette(nGradients,array('i',palette))
+	
 def getWaterMark():
 	watermark = TPaveText(0.093,0.898,0.319,0.940,"NDC")
 	markText = watermark.AddText("A. Kuensken")
@@ -128,8 +141,7 @@ def setPlotStyle():
 	gStyle.SetTitleFont(62)
 	gStyle.SetLegendBorderSize(1)
 	gStyle.SetLegendFont(62)
-#	gStyle.SetFillColor(0)
-	gStyle.SetPalette(1)
+	setColorPalette()
 
 #Set all Axes to bold font
 def setupAxes(plot):

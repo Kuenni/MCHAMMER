@@ -1,7 +1,7 @@
 #!/usr/bin/python
 from ROOT import TCanvas,TFile,ROOT,TPaveText,TGraph,TLegend
 from plotting.Plot import Plot
-from efficiency.QualityCodes import plotQualityCodes,plotQualityCodesVsPt,plotQualityCodesStacked
+#from efficiency.QualityCodes import plotQualityCodes,plotQualityCodesVsPt,plotQualityCodesStacked
 import matplotlib.pyplot as plt
 from cmath import sqrt
 from plotting.PlotStyle import colorRwthMagenta, colorRwthGruen,\
@@ -13,6 +13,7 @@ class GridMatching(Plot):
 	def __init__(self,filename,data =False,debug=False):
 		Plot.__init__(self,filename,data)
 		self.createPlotSubdir('efficiency')
+		plt.ioff()
 		
 	def get3x3MatchingPlot(self,hist3x3,hist3x3Tight,histTitle):
 		eff3x3 = self.fileHandler.getHistogram(hist3x3)
@@ -222,7 +223,7 @@ class GridMatching(Plot):
 		pyplotCmsPrivateLabel(ax)
 		plt.savefig('plots/efficiency.png')
 	
-		plt.show()
+		plt.show(block=False)
 	
 	def plotL1TruthGridMatchingPlot(self):
 		effL1MuonCentral = self.fileHandler.getHistogram('efficiency/L1MuonTruthCentral_Efficiency')
@@ -316,7 +317,7 @@ class GridMatching(Plot):
 		plt.legend(loc='lower right')
 		pyplotCmsPrivateLabel(ax)
 		plt.savefig('plots/efficiencyTruth.png')
-		plt.show()
+		plt.show(block=False)
 	
 	
 	def plot5x5GridTogether(self):
@@ -399,7 +400,7 @@ class GridMatching(Plot):
 	
 		fig.subplots_adjust(hspace=0)
 		plt.savefig('plots/efficiency5x5.png')
-		plt.show()
+		plt.show(block=False)
 	
 	def plotDeltaNL1ComparedGridMatching(self):
 		effL1Muon3x3Truth = self.fileHandler.getHistogram('efficiency/L1MuonTruth3x3_Efficiency')
@@ -434,7 +435,7 @@ class GridMatching(Plot):
 		ax1.set_title(r'# L1 in direct comparison for Grid Matching (3x3)')
 		pyplotCmsPrivateLabel(ax1)
 		plt.savefig('plots/nL13x3.png')
-		plt.show()
+		plt.show(block=False)
 	
 	def plotDeltaNL1ComparedMatchingByEMax(self):
 		effL1Muon = self.fileHandler.getHistogram("efficiency/GenAndL1MuonPt15_Efficiency")
@@ -468,7 +469,7 @@ class GridMatching(Plot):
 		ax1.set_title(r'# L1 in direct comparison for $\Delta$R matching by E$_{Max}$')
 		pyplotCmsPrivateLabel(ax1)
 		plt.savefig('plots/nL1ByEmax.png')
-		plt.show()
+		plt.show(block=False)
 		
 	def plotNtotalGridMatching3x3(self):
 		effL1Muon3x3 = self.fileHandler.getHistogram("efficiency/L1Muon3x3_Efficiency")
@@ -554,7 +555,7 @@ class GridMatching(Plot):
 		ax1.set_title('# L1')
 		pyplotCmsPrivateLabel(ax1)
 		plt.savefig('plots/nL1ByEmax3x3Absolute.png')
-		plt.show()
+		plt.show(block=False)
 		
 	def plot3x3GridTogether(self):
 		c = TCanvas()
@@ -636,5 +637,5 @@ class GridMatching(Plot):
 	
 		fig.subplots_adjust(hspace=0)
 		plt.savefig('plots/efficiency3x3.png')
-		plt.show()
+		plt.show(block=False)
 	

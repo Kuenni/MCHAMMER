@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 
 class TimeWindow:
 	
-	def __init__(self,filename,data = False):
+	def __init__(self,filename,debug,data = False):
 		self.commandLine = CommandLineHandler('[TimeWindow] ')
 		self.fileHandler = RootFileHandler(filename)
 		self.fileHandler.printStatus()
