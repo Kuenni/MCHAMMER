@@ -1,6 +1,6 @@
 #!/bin/env python
 import os
-from ROOT import TChain,TFile,TObject,SetOwnership,Double
+from ROOT import TChain,TFile,SetOwnership,Double
 from plotting.OutputModule import CommandLineHandler
 
 commandLine = CommandLineHandler('[RootFileHandler] ')
@@ -37,6 +37,12 @@ class RootFileHandler:
 		self.cmsswModuleName = 'hoMuonAnalyzer'
 		pass
 
+	### ================================================================
+	### Get the full file path for a file connected to this file handler
+	### ================================================================
+	def getFile(self,index):
+		return self.filepath + '/' + self.fileNameList[index]
+
 	### =========================================================================
 	### Set a new module name if the plugin in CMMSW was not the ho Muon Analyzer
 	### =========================================================================
@@ -53,7 +59,7 @@ class RootFileHandler:
 	def getTChain(self):
 		chain = TChain('hoDataTreeFiller/dataTree')
 		for f in self.fileNameList:
-			chain.Add(f)
+			chain.Add(self.filepath + f)
 		return chain
 	
 	#Print status information
@@ -74,7 +80,7 @@ class RootFileHandler:
 	'''
 	def getHistogram(self,histoname):
 		histoname = self.getFullPlotPath(histoname)
-		rootfile = TFile(self.filepath + '/' + self.fileNameList[0],'READ')
+		rootfile = TFile(self.getFile(0),'READ')
 		try:
 			histNew = rootfile.Get(histoname).Clone()
 		except ReferenceError:
@@ -82,7 +88,7 @@ class RootFileHandler:
 			return None
 		histNew.SetDirectory(0)
 		for i in range(1,len(self.fileNameList)):
-			rootfile = TFile(self.filepath + '/' + self.fileNameList[i],'READ')
+			rootfile = TFile(self.getFile(i),'READ')
 			try:
 				hist = rootfile.Get(histoname).Clone()
 				histNew.Add(hist)
@@ -97,7 +103,7 @@ class RootFileHandler:
 	from the first file
 	'''
 	def getGraph(self,graphname,filesToProcess = -1):
-		rootfile = TFile(self.fileNameList[0],'READ')
+		rootfile = TFile(self.getFile(0),'READ')
 		graphname = self.getFullPlotPath(graphname)
 		try:
 			graph = rootfile.Get(graphname)
@@ -112,18 +118,13 @@ class RootFileHandler:
 		fileRange = min(len(self.fileNameList), fileRange )
 		
 		for i in range(0,fileRange):
-			try:
-				rootfile = TFile(self.fileNameList[i],'READ')
-				g = rootfile.Get(graphname)
-				nTotal += g.GetN()
-			except AttributeError:
-				if self.DEBUG: commandLine.warning('Could not get graph %s for every source file' % graphname)
+			rootfile = TFile(self.getFile(i),'READ')
+			g = rootfile.Get(graphname)
+			nTotal += g.GetN()
 		commandLine.output('getGraph(%s) found %d points to process' % (graphname,nTotal))
 		for i in range(1,fileRange):
-			rootfile = TFile(self.fileNameList[i],'READ')
+			rootfile = TFile(self.getFile(i),'READ')
 			g2 = rootfile.Get(graphname)
-			#Skip files without graph
-			if g2.__class__ == TObject: continue
 			x = Double(0)
 			y = Double(0)
 			for j in range(0,g2.GetN()):
