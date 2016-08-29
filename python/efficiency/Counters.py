@@ -140,6 +140,10 @@ class Counters(Plot):
 		hL1Tight = fillGraphIn2DHist(gL1Tight,hL1Tight)
 		hL1Tight3x3 = fillGraphIn2DHist(gL1Tight3x3,hL1Tight3x3)
 		
+		c1 = TCanvas("available tight L1 for matching")
+		hClone = hL1Tight.Clone('hClone')
+		hClone.Draw('colz')
+		
 		hRatio = hL1Tight3x3.Clone('asdfasdf')
 		hRatio.Divide(hL1Tight)
 		
@@ -167,5 +171,5 @@ class Counters(Plot):
 		hPhi.Scale(1/float(16))#16 eta bins, cutoff due to |eta| < 0.8
 		hPhi.Draw()
 		
-		return c,hRatio,label,c2,hEta,hPhi
+		return c,hRatio,label,c2,hEta,hPhi,c1,hClone
 	
