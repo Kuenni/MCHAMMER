@@ -63,15 +63,15 @@ class Submitter(gridlib.ce.ProxyDelegator,gridlib.se.GridpackManager):
 		task.executable_upload = False
 
 		self.createTempExe()
-		
+				
 		tarFileUrl = "{0}/{1}.tar.gz".format('gridpacks',self.taskName)
 		execTarUrl = "{0}/{1}_exec.tar.gz".format('gridpacks',self.taskName)
 		
 		cesubmit.createAndUploadGridPack(['../../loader.C','../../hoTriggerAnalyzer'],tarFileUrl)
 		cesubmit.createAndUploadGridPack('exec.sh',execTarUrl)
 		
-		gridPackUrl = os.path.join(self.username_cern,tarFileUrl)
-		execGridPackUrl = os.path.join(self.username_cern,execTarUrl)
+		gridPackUrl = os.path.join('/store/user',self.username_cern,tarFileUrl)
+		execGridPackUrl = os.path.join('/store/user',self.username_cern,execTarUrl)
 		
 		task.add_gridpack(gridPackUrl,extract_dir="$CMSSW_BASE/src/HoMuonTrigger")
 		task.add_gridpack(execGridPackUrl)
