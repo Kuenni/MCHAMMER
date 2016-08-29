@@ -110,6 +110,7 @@ def plotTiming():
  	res = lib.plotHoTime()
  	res6 = lib.plotHoTimeLog()
  	res4 = lib.plotImprovementInDt()
+ 	resTightImpr = lib.plotImprovementInTightDt()
  	if not args.data:
  		lib.plotEtaOfWrongBxId()
  		lib.plotEtaPhiOfWrongBxId()

@@ -845,6 +845,139 @@ class Timing(Plot):
 		canvas.Update()
 		self.storeCanvas(canvas, 'correctedDt')
 		return canvas, histDt,histNew,label,legend,pText2,pText,histDtNoHo
+	
+	def plotImprovementInTightDt(self):
+		#Prepare canvas
+		canvas = TCanvas("canvasTightDtImprovement","tight DT improvement",1200,1200)
+		canvas.SetLogy()
+		histDt = self.fileHandler.getHistogram("timingSupport_tight_UnmatchedDtHo_BxId")
+		histDtNoHo = self.fileHandler.getHistogram("timingSupport_tight_UnmatchedDt_BxId")
+		
+		#Define variables for integrals
+		histHoTime = self.fileHandler.getHistogram('timingSupport_tight_UnmatchedDtHo_Time')
+		integralHoCorrect = histHoTime.Integral(histHoTime.FindBin(-12.5),histHoTime.FindBin(12.5))
+		integralHoTotal = histHoTime.Integral()
+		integralHoOutside = integralHoTotal - integralHoCorrect
+		hoFractionWrong = integralHoOutside/float(integralHoTotal)
+		hoFractionRight = integralHoCorrect/float(integralHoTotal)
+		
+		#Print some information
+		heading = 'Integrals of the Ho timing (tight):'
+		print 80*'#'
+		print heading
+		print len(heading)*'-'
+		print 'Timing correct:\t%d\t=>\t%6.3f%% +/- %6.3f%%'%(integralHoCorrect,hoFractionRight*100,calcSigma(integralHoCorrect, integralHoTotal)*100)
+		print 'Timing outside:\t%d\t=>\t%6.3f%% +/- %f%%'%(integralHoOutside,hoFractionWrong*100,calcSigma(integralHoOutside, integralHoTotal)*100)
+		print 'Timing total:%d'%(integralHoTotal)
+		print
+		
+		#Define Variables for bx id counts
+		dtBx0 = histDt.GetBinContent(6)
+		dtBxM1 = histDt.Integral(histDt.FindBin(-10),histDt.FindBin(-1))#histDt.GetBinContent(5)
+		dtBxP1 = histDt.Integral(histDt.FindBin(1),histDt.FindBin(10))#histDt.GetBinContent(7)
+		dtBxTotal = dtBx0 + dtBxM1 + dtBxP1
+		dtFractionWrongM1 = dtBxM1/float(dtBxTotal)
+		dtFractionWrongP1 = dtBxP1/float(dtBxTotal)
+	
+		noHodtBx0 = histDtNoHo.GetBinContent(6)
+		noHodtBxM1 = histDtNoHo.Integral(histDtNoHo.FindBin(-10),histDtNoHo.FindBin(-1))
+		noHodtBxP1 = histDtNoHo.Integral(histDtNoHo.FindBin(1),histDtNoHo.FindBin(10))
+		noHodtBxTotal = noHodtBx0 + noHodtBxM1 + noHodtBxP1
+		noHodtFractionWrongM1 = noHodtBxM1/float(noHodtBxTotal)
+		noHodtFractionWrongP1 = noHodtBxP1/float(noHodtBxTotal)
+		
+		
+		#Print some information
+		heading = 'Bin contents for tight DT timing:'
+		print heading
+		print len(heading)*'-'
+		print 'BX ID  0:\t%d\t=>\t%6.3f%% +/- %6.3f%%'%(dtBx0,dtBx0/float(dtBxTotal)*100,calcSigma(dtBx0, dtBxTotal)*100)
+		print 'BX ID -1:\t%d\t=>\t%6.3f%% +/- %6.3f%%'%(dtBxM1,dtFractionWrongM1*100,calcSigma(dtBxM1, dtBxTotal)*100)
+		print 'BX ID +1:\t%d\t=>\t%6.3f%% +/- %6.3f%%'%(dtBxP1,dtFractionWrongP1*100,calcSigma(dtBxP1, dtBxTotal)*100)
+		print 'BX ID total:\t%d\t(hist integral: %d)' % (dtBxTotal,histDt.Integral())
+		print
+		
+		print 'NO HO'
+		print 'BX ID  0:\t%d\t=>\t%6.3f%% +/- %6.3f%%'%(noHodtBx0,noHodtBx0/float(noHodtBxTotal)*100,calcSigma(noHodtBx0, noHodtBxTotal)*100)
+		print 'BX ID -1:\t%d\t=>\t%6.3f%% +/- %6.3f%%'%(noHodtBxM1,noHodtFractionWrongM1*100,calcSigma(noHodtBxM1, noHodtBxTotal)*100)
+		print 'BX ID +1:\t%d\t=>\t%6.3f%% +/- %6.3f%%'%(noHodtBxP1,noHodtFractionWrongP1*100,calcSigma(noHodtBxP1, noHodtBxTotal)*100)
+		print 'BX ID total:\t%d\t(hist integral: %d)' % (noHodtBxTotal,histDtNoHo.Integral())
+		
+		print
+		
+		#Calculate corrected numbers
+		correctedBxIdM1 = dtBxM1 + hoFractionWrong*dtBx0/2. - hoFractionRight*dtBxM1
+		correctedBxId0 = dtBx0 - hoFractionWrong*dtBx0 + hoFractionRight*dtBxM1 + hoFractionRight*dtBxP1
+		correctedBxIdP1 = dtBxP1 + hoFractionWrong*dtBx0/2. - hoFractionRight*dtBxP1
+		correctedTotal = correctedBxIdM1 + correctedBxId0 + correctedBxIdP1
+		correctedRightFraction = correctedBxId0/float(correctedTotal)
+		
+		heading = 'DT After correction:'
+		print heading
+		print len(heading)*'-'
+		print 'BX -1:\t',int(correctedBxIdM1)
+		print 'BX  0:\t',int(correctedBxId0)
+		print 'BX +1:\t',int(correctedBxIdP1)
+		print 
+		#Fill corrected histogram
+		histNew = TH1D("histNewTight","BX ID in tight DT only triggers;BX ID;rel. fraction",6,-2.5,3.5)
+		histNew.SetBinContent(histNew.FindBin(-1),correctedBxIdM1)
+		histNew.SetBinContent(histNew.FindBin(0),correctedBxId0)
+		histNew.SetBinContent(histNew.FindBin(1),correctedBxIdP1)
+		histNew.SetLineColor(colorRwthMagenta)
+		histNew.SetStats(0)
+		histNew.Scale(1/histNew.Integral())
+		histNew.SetLineStyle(9)
+		setupAxes(histNew)
+		setBigAxisTitles(histNew)
+		histDt.GetXaxis().SetRangeUser(-3,3)
+		histDt.SetLineWidth(3)
+		histDt.Scale(1/histDt.Integral())
+		histDt.SetLineColor(colorRwthDarkBlue)
+		
+		histNew.Draw()
+		histDt.Draw('same')
+		histNew.Draw('same')
+				
+		histDtNoHo.Scale(1/histDtNoHo.Integral())
+		histDtNoHo.SetLineWidth(3)
+		#histDtNoHo.Draw('same')
+	
+		#Add label
+		label = self.drawLabel()
+		
+		#Add legend
+		legend = TLegend(0.7,0.65,0.9,0.8)
+		legend.AddEntry(histDt,"tight DT Only + HO","l")
+		legend.AddEntry(histNew,"tight DT shifted with HO","l")
+		legend.SetBorderSize(1)
+		legend.Draw()
+		
+		#Add text object
+		pText = TPaveText(0.52,0.8,0.9,0.9,'NDC')
+		pText.AddText('Fraction in tight BX ID 0: %5.2f%% #pm %5.2f%%' % (dtBx0/float(dtBxTotal)*100,calcSigma(dtBx0, dtBxTotal)*100))
+		pText.AddText('Fraction in tight BX ID 0 (HO corr.): %5.2f%% #pm %5.2f%%' % (correctedRightFraction*100,calcSigma(correctedBxId0, correctedTotal)*100))
+		pText.SetBorderSize(1)
+		pText.SetFillColor(0)
+		pText.Draw()
+		
+		pText2 = TPaveText(0.7,0.6,0.9,0.65,'NDC')
+		pText2.AddText('Entries: %d' % (histDt.GetEntries()))
+		pText2.SetBorderSize(1)
+		pText2.SetFillColor(0)
+		pText2.Draw()
+		
+		#Print again some information
+		heading = 'Fraction of correct BXID (tight):'
+		print heading
+		print len(heading)*'-'
+		print 'Uncorrected:\t%5.2f%% #pm %f%%' % (dtBx0/float(dtBxTotal)*100,calcSigma(dtBx0, dtBxTotal)*100)
+		print 'Corrected\t%5.2f%% #pm %f%%' % (correctedRightFraction*100,calcSigma(correctedBxId0, correctedTotal)*100)
+		print 80*'#'
+		
+		canvas.Update()
+		self.storeCanvas(canvas, 'correctedTightDt')
+		return canvas, histDt,histNew,label,legend,pText2,pText,histDtNoHo
 		
 	def plotHoEnergyVsTime(self):
 		hist = self.fileHandler.getHistogram('correlation/hoEnergyVsTime')
