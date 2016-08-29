@@ -124,6 +124,24 @@ class HoTimeVsEta(Plot):
 
 		return canvas,hist,label,fractionGraph,intervalBoxes,tofFunction
 	
+	### ====================
+	### Plot L1 BX ID vs eta
+	### ====================
+	def makeL1TimeVsEtaPlot(self,source):
+		canvas = TCanvas(source,source)
+		canvas.SetLogz()
+		hist = TH2D(source,source + ";#eta_{L1};BXID;#",10,-1,1,
+				7,-3.5,3.5)
+		graph = self.fileHandler.getGraph('graphs/timingSupport_' + source)
+		fillGraphIn2DHist(graph, hist)
+		hist.SetStats(0)
+		hist.Draw('colz')
+		canvas.Update()
+		setupAxes(hist)
+		label = self.drawLabel()
+		canvas.Update()
+		return canvas,label,hist
+	
 	### ============================
 	### Predefined plotter functions
 	### ============================
@@ -151,3 +169,8 @@ class HoTimeVsEta(Plot):
 		self.storeCanvas(canvas,'tight_MatchedDtRpcHoTimeGraph_TimeVsEta')
 		fractionsPerEtaData = self.plotFractionsVsEta(graph,"Fraction of HORecHits at BXID 0,Tight L1 DT/RPC tight",'tight_MatchedDtRpcHoTimeGraph_fractionVsEta')
 		return canvas,hist,label,fractionsPerEtaData, boxes, tofFunction
+	
+	def plotL1TimeVsEta(self):
+		canvas, hist, label = self.makeL1TimeVsEtaPlot('bxidVsEta')
+		self.storeCanvas(canvas,'bxidVsEta')
+		return canvas,hist,label
