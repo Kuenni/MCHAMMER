@@ -1594,6 +1594,11 @@ void hoMuonAnalyzer::fillTimingHistograms(const l1extra::L1MuonParticle* l1Muon,
 		hoTime = -999;
 	}
 
+	/**
+	 * Fill graph containing eta and bxID information of L1Muons
+	 */
+	histogramBuilder.fillGraph(l1Muon->eta(),l1Muon->bx(),nameTrunk + "bxidVsEta");
+
 	const L1MuRegionalCand* l1RegCand = findBestCandMatch(l1Muon);
 	/**
 	 * TODO: Is the low number of events a
