@@ -16,7 +16,7 @@ class RootFileHandler:
 		commandLine.debug(self.filepath)
 		commandLine.debug(self.filename)
 		for f in os.listdir(self.filepath):
-			if f.find(self.filename) != -1:
+			if f.find(self.filename) == 0:
 				fileCounter += 1
 				self.fileNameList.append(f)
 		self.numberOfFiles = fileCounter
