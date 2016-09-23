@@ -73,6 +73,15 @@ from dataQuality.QualityCode import QualityCode
 from dataQuality.Timing import Timing
 from dataQuality.DtOnlyCoordinates import DtOnlyCoordinates
 from dataQuality.HoTimeVsEta import HoTimeVsEta
+from dataQuality.DtRpc import DtRpc
+
+def plotDtRpc():
+	lib = DtRpc(filename=args.source,data=args.data,debug = args.DEBUG)
+	resDtRpc = lib.plotDtRpc()
+	resDtRpcFine = lib.plotDtRpcFine()
+	resDtRpcNotFine = lib.plotDtRpcNotFine()
+	checkUserInput()
+	return
 
 def plotHoTimeVsEta():
 	lib = HoTimeVsEta(filename=args.source,data=args.data,debug = args.DEBUG)
@@ -299,7 +308,7 @@ gROOT.ProcessLine(".L $HOMUONTRIGGER_BASE/python/loader.C+");
 
 scripts = ['controlPlots','eVsEtaPhi','timeWindow','ptResolution','ptResolutionTruth','qualityCodes',
 			'counters','thresholdScan','efficiency','energy','compareEnergy','timing','phiShift',
-			'dtOnly', 'hoTimeVsEta']
+			'dtOnly', 'hoTimeVsEta','dtRpc']
 
 if args.scripts:
 	for script in args.scripts:
@@ -333,6 +342,8 @@ if args.scripts:
 			plotDtOnlyCoordinates()
 		elif (script == 'hoTimeVsEta'):
 			plotHoTimeVsEta()
+		elif (script == 'dtRpc'):
+			plotDtRpc()
 		else:
 			print 'Unknown script requested: %s' % (script)
 			print "Available Scripts:"
