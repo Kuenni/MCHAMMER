@@ -172,18 +172,6 @@ def plotTimeWindow():
 	return
 
 def plotPtResolution():
-	libTruth = PtResolution(filename=args.source,truth=True,data=args.data,debug = args.DEBUG)
-	updateModuleName(libTruth)
-	resTruth4 = libTruth.plotL1()
-	resTruth5 = libTruth.plotL1Tight()
-	resTruth6 = libTruth.plotL1AndHo()
-	resTruth7 = libTruth.plotL1TightAndHo()
-	resTruth8 = libTruth.plotL1NotHo()
-	resTruth9 = libTruth.plotL1TightNotHo()
-	resTruth1 = libTruth.plotPtResolutionHistograms()
-	resTruth2 = libTruth.plotTightPtResolution()
-	resTruth3 = libTruth.plotLoosePtResolution()
-	checkUserInput()
 	lib = PtResolution(filename=args.source,truth=False,data=args.data,debug = args.DEBUG)
 	updateModuleName(lib)
 	res4 = lib.plotL1()
@@ -197,6 +185,20 @@ def plotPtResolution():
 	res3 = lib.plotLoosePtResolution()
 	checkUserInput()
 	return
+
+def plotTruthPtResolution():
+	libTruth = PtResolution(filename=args.source,truth=True,data=args.data,debug = args.DEBUG)
+	updateModuleName(libTruth)
+	resTruth4 = libTruth.plotL1()
+	resTruth5 = libTruth.plotL1Tight()
+	resTruth6 = libTruth.plotL1AndHo()
+	resTruth7 = libTruth.plotL1TightAndHo()
+	resTruth8 = libTruth.plotL1NotHo()
+	resTruth9 = libTruth.plotL1TightNotHo()
+	resTruth1 = libTruth.plotPtResolutionHistograms()
+	resTruth2 = libTruth.plotTightPtResolution()
+	resTruth3 = libTruth.plotLoosePtResolution()
+	checkUserInput()
 
 def plotQualityCodes():
 	lib = QualityCode(filename=args.source,data=args.data,debug = args.DEBUG)
@@ -293,7 +295,7 @@ import ROOT
 print ROOT.__file__
 gROOT.ProcessLine(".L $HOMUONTRIGGER_BASE/python/loader.C+");
 
-scripts = ['controlPlots','eVsEtaPhi','timeWindow','ptResolution','qualityCodes',
+scripts = ['controlPlots','eVsEtaPhi','timeWindow','ptResolution','ptResolutionTruth','qualityCodes',
 			'counters','thresholdScan','efficiency','energy','compareEnergy','timing','phiShift',
 			'dtOnly', 'hoTimeVsEta']
 
@@ -309,6 +311,8 @@ if args.scripts:
 			plotTimeWindow()
 		elif(script == 'ptResolution'):
 			plotPtResolution()
+		elif(script == 'ptResolutionTruth'):
+			plotTruthPtResolution()
 		elif(script == 'qualityCodes'):
 			plotQualityCodes()
 		elif (script=='timing'):
