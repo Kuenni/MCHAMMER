@@ -56,6 +56,26 @@ def fillGraphIn2DHist(graph,hist):
 			commandLine.printProgress(nTotal, nTotal)
 	return hist
 
+def fillGraphIn1DHist(graph,hist,axis = 'y'):
+	x = Double(0)
+	y = Double(0)
+	if( not axis == 'y' or not axis == 'x'):
+		commandLine.warning('Unsupported axis: %s' % axis)
+		axis = y
+	commandLine.output('Filling %s axis of graph in 1D histogram:' % axis)
+	nTotal = graph.GetN()
+	for i in range(0,nTotal):
+		graph.GetPoint(i,x,y)
+		if axis == 'x':
+			hist.Fill(x)
+		else:
+			hist.Fill(y)
+		if(not i%10000):
+			commandLine.printProgress(i,nTotal)
+		if(i == nTotal - 1):
+			commandLine.printProgress(nTotal, nTotal)
+	return hist
+
 def fill2DGraphIn2DHist(graph,hist):
 	x = Double(0)
 	y = Double(0)
