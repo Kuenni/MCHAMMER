@@ -239,8 +239,15 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		std::vector<L1MuRegionalCand>::iterator dttfCand;
 		for( dttfCand = dttfCands.begin(); dttfCand != dttfCands.end();	++dttfCand ) {
 			if(dttfCand->empty()) continue;
-				if(dttfCand->isFineHalo())
+			if(fabs(dttfCand->etaValue()) <= MAX_ETA ){
+				histogramBuilder.fillEtaPhiGraph(dttfCand->etaValue(),dttfCand->phiValue(),"DttfCands");
+				if(dttfCand->isFineHalo()){
 					fineCounter++;
+					histogramBuilder.fillEtaPhiGraph(dttfCand->etaValue(),dttfCand->phiValue(),"DttfCands_Fine");
+				} else {
+					histogramBuilder.fillEtaPhiGraph(dttfCand->etaValue(),dttfCand->phiValue(),"DttfCands_NotFine");
+				}
+			}
 		}
 	}
 	histogramBuilder.fillMultiplicityHistogram(fineCounter,"fineBitsPerEvent");
@@ -1588,7 +1595,7 @@ const L1MuRegionalCand* hoMuonAnalyzer::findBestCandMatch(const l1extra::L1MuonP
 //			std::cout << "Finding best cand" << std::endl;
 //			std::cout << dttfCand->etaValue() << std::endl;
 
-			float dR = deltaR(l1Muon->eta(),l1Muon->phi()+ L1PHI_OFFSET,dttfCand->etaValue(),dttfCand->phiValue());
+			float dR = deltaR(l1Muon->eta(),l1Muon->phi()+ L1PHI_OFFSET,dttfCand->etaValue(),dttfCand->phiValue() - M_PI);
 			if(dR < 0.3){
 				if(dR < bestDeltaR){
 					if(dttfCand->quality() > bestQuality){
