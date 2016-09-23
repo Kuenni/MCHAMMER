@@ -129,7 +129,7 @@ class PtResolution(Plot):
 			self.fillDataIntoCache(histNoMatch,'L1 !HO')
 			self.fillDataIntoCache(histTightNoMatch,'L1 Tight !HO')
 
-			self.commandLine.printProgress(i+1, 121)
+			self.printProgress(i+1, 121,1)
 	
 	###
 	#	Get the intrgrals of the source histograms
@@ -147,7 +147,7 @@ class PtResolution(Plot):
 			else:
 				values.append(0)
 				valuesErr.append(0)
-				self.commandLine.printProgress(i+1, 121)
+				self.printProgress(i+1, 121,1)
 		return values,valuesErr
 
 	
@@ -275,6 +275,7 @@ class PtResolution(Plot):
 		graphQ50.SetLineColor(colorRwthLila)
 		
 		graphShape68 = TGraph()
+		graphShape68.SetName(dataSet)
 		graphShape68.SetFillStyle(3001)
 		graphShape68.SetFillColor(colorRwthGruen)
 		graphShape68.SetLineColor(colorRwthGruen)
@@ -298,8 +299,8 @@ class PtResolution(Plot):
 		legend = getLegend(y2 = .9)
 		legend.AddEntry(graphMean,dataSet + ' p_{T} Mean','ep')
 		legend.AddEntry(graphMedian,dataSet + ' p_{T} Median','l')
-		legend.AddEntry(graphShape68,dataSet + ' p_{T} 25% - 75%','f')
-		legend.AddEntry(graphQ50,dataSet + ' p_{T} Q50','l')
+		legend.AddEntry(graphShape68,dataSet + ' p_{T} Q_{25} - Q_{75}','f')
+		legend.AddEntry(graphQ50,dataSet + ' p_{T} Q_{50}','l')
 		legend.Draw()
 		
 		label = self.drawLabel()
