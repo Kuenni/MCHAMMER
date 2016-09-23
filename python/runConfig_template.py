@@ -147,8 +147,9 @@ process.p = cms.Path(process.genfilter*
 					process.muonL1Match*
 					process.patMuons*
 					process.selectedPatMuons*
-					process.hoMuonAnalyzer*
-					process.hoDigiAnalyzer)
+					process.hoMuonAnalyzer
+					#*process.hoDigiAnalyzer
+					)
 
 #Schedule Definition
 process.schedule = cms.Schedule(
