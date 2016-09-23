@@ -77,11 +77,13 @@ from dataQuality.HoTimeVsEta import HoTimeVsEta
 def plotHoTimeVsEta():
 	lib = HoTimeVsEta(filename=args.source,data=args.data,debug = args.DEBUG)
 	updateModuleName(lib)
+	resCombined = lib.plotCombined()
+	resCombinedTight = lib.plotCombinedTight()
 	resL1TimeVsEta = lib.plotL1TimeVsEta()
-# 	resHoTimeEta = lib.plotHoTimeVsEta()
-# 	resHoTimeEtaBxWrng = lib.plotHoTimeVsEtaBxWrong()
-# 	resTightHoTimeEtaBxWrng = lib.plotTightHoTimeVsEtaBxWrong()
-# 	resTightDtRpc = lib.plotHoTimeVsEtaDtRpcTight()
+	resHoTimeEta = lib.plotHoTimeVsEta()
+	resHoTimeEtaBxWrng = lib.plotHoTimeVsEtaBxWrong()
+	resTightHoTimeEtaBxWrng = lib.plotTightHoTimeVsEtaBxWrong()
+	resTightDtRpc = lib.plotHoTimeVsEtaDtRpcTight()
 	checkUserInput()
 	return
 
