@@ -88,8 +88,8 @@ class DtOnlyCoordinates(Plot):
 		for i in range(0,graphDt.GetN()):
 			graphDt.GetPoint(i,x,y)
 			listeDt.append(float(x))
-		self.warning('eta: %s' % (sourceDt))
-		self.warning(str(sorted(set(listeDt))))
+# 		self.warning('eta: %s' % (sourceDt))
+# 		self.warning(str(sorted(set(listeDt))))
 		###
 				
 		if(sourceDtHo != ''):
@@ -105,8 +105,8 @@ class DtOnlyCoordinates(Plot):
 			for i in range(0,graphDtHo.GetN()):
 				graphDtHo.GetPoint(i,x,y)
 				listeDtHo.append(float(x))
-			self.warning('eta: %s' % (sourceDtHo))
-			self.warning(str(sorted(set(listeDtHo))))
+# 			self.warning('eta: %s' % (sourceDtHo))
+# 			self.warning(str(sorted(set(listeDtHo))))
 			###
 		histAll.SetStats(0)
 		histAll.Draw('colz')
