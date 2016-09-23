@@ -13,6 +13,8 @@ colorRwthRot		= TColor.GetColor("#CC071E")
 colorRwthOrange 	= TColor.GetColor("#F6A800")
 colorRwthViolett	= TColor.GetColor("#612158")
 colorRwthLila		= TColor.GetColor("#7A6FAC")
+colorRwthLightGray	= TColor.GetColor("#CFD1D2")
+colorRwthDarkGray	= TColor.GetColor("#646567")
 
 def setColorPalette():
 	nGradients = 100
@@ -141,7 +143,7 @@ def setPlotStyle():
 	gStyle.SetTitleFont(62)
 	gStyle.SetLegendBorderSize(1)
 	gStyle.SetLegendFont(62)
-	setColorPalette()
+#	setColorPalette()
 
 #Set all Axes to bold font
 def setupAxes(plot):
