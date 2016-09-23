@@ -1621,6 +1621,7 @@ void hoMuonAnalyzer::fillTimingHistograms(const l1extra::L1MuonParticle* l1Muon,
 	case 6:
 		//Do a crosscheck on the detector index and the quality code
 		histogramBuilder.fillMultiplicityHistogram(l1Muon->gmtMuonCand().detector(),nameTrunk + "_detectorIndexInUnmatchedDt");
+		histogramBuilder.fillGraph(l1Muon->eta(),l1Muon->bx(),nameTrunk + "dtOnly_bxidVsEta");
 		if(hoTime == -999){
 			histogramBuilder.fillCountHistogram(nameTrunk + "UnmatchedDt");
 			histogramBuilder.fillBxIdHistogram(l1Muon->bx(),nameTrunk + "UnmatchedDt");
