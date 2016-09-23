@@ -332,6 +332,29 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		histogramBuilder.fillPdgIdHistogram(bl1Muon->pdgId(),"L1MuonPresent");
 		histogramBuilder.fillVzHistogram(bl1Muon->vz(),"L1MuonPresent");
 		histogramBuilder.fillEtaPhiGraph(l1Muon_eta, l1Muon_phi, "L1MuonPresent");
+
+		/**
+		 * Fill eta phi graphs with coordinates of L1Muons depending on their detector/quality.
+		 * No bias by matching to HO introduced here
+		 */
+		const L1MuRegionalCand* l1RegCand = findBestCandMatch(bl1Muon);
+		switch (bl1Muon->gmtMuonCand().quality()) {
+			case 7:
+				histogramBuilder.fillEtaPhiGraph(l1Muon_eta, l1Muon_phi, "L1MuonPresent_DT_RPC");
+				if(l1RegCand->isFineHalo()){
+					histogramBuilder.fillEtaPhiGraph(bl1Muon->eta(), bl1Muon->phi() + L1PHI_OFFSET,"L1MuonPresent_DT_RPC_Fine");
+				} else {
+					histogramBuilder.fillEtaPhiGraph(bl1Muon->eta(), bl1Muon->phi() + L1PHI_OFFSET,"L1MuonPresent_DT_RPC_NotFine");
+				}
+				break;
+			case 6:
+				histogramBuilder.fillEtaPhiGraph(l1Muon_eta, l1Muon_phi, "L1MuonPresent_DT");
+				break;
+			default:
+				histogramBuilder.fillEtaPhiGraph(l1Muon_eta, l1Muon_phi, "L1MuonPresent_Other");
+				break;
+		}
+
 		fillAverageEnergyAroundL1Direction(bl1Muon,"L1MuonPresent");
 		//For variable binning
 //		listL1MuonPt.push_back(bl1Muon->pt());
