@@ -63,12 +63,12 @@ class HoTimeVsEta(Plot):
 		# Plot the results of calculations on CLI
 		###
 		for index,item in enumerate(counterDict):
+			if(index - 10 == 0):
+				continue
 			total = item['total']
 			inside = item['inside']
 			self.output("iEta: %3d\tTotal: %5d\tInside:%5d\tFraction:%6.2f +/- %6.2f" % 
 					(index - 10, total, inside, calcPercent(inside,total),calcSigma(inside, total)*100))
-			if(index - 10 == 0):
-				continue
 			graph.SetTotalEvents(graph.FindFixBin(index -10),total)
 			graph.SetPassedEvents(graph.FindFixBin(index -10),inside)
 		return graph,counterDict
