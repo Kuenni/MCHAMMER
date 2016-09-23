@@ -4,9 +4,9 @@ from plotting.Plot import Plot
 
 from plotting.PlotStyle import setPlotStyle,getLabelCmsPrivateSimulation,\
 	colorRwthRot,colorRwthDarkBlue,colorRwthMagenta,setupAxes,convertToHcalCoords,chimney1,chimney2,colorRwthRot,\
-	setBigAxisTitles
+	setBigAxisTitles, colorRwthGruen
 from plotting.Utils import getLegend, L1_ETA_BIN, fillGraphIn2DHist,\
-	calcPercent, getTGraphErrors,calcSigma, getMedian
+	calcPercent, getTGraphErrors,calcSigma, getMedian, fillGraphIn1DHist
 from numpy import math
 
 class Timing(Plot):
