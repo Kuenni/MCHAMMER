@@ -59,6 +59,7 @@ public:
 	static int getDeltaIphi(double phi, double phiHo);
 
 	int countHoDigisByDetId(DetId id);
+	int countHoHitsAboveThr(double eta, double phi, int gridSize);
 
 	bool isRecHitInGrid(double eta, double phi, const HORecHit* recHit, int gridSize);
 	bool hasHoHitInGrid(double eta, double phi, int gridSize);

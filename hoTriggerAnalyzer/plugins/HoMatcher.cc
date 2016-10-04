@@ -119,6 +119,27 @@ const HORecHit* HoMatcher::matchByEMaxInGrid(double eta, double phi, int gridSiz
 }
 
 /**
+ * Count how many HoRecHits are above Thr for a given grid
+ */
+int HoMatcher::countHoHitsAboveThr(double eta, double phi, int gridSize){
+	HORecHitCollection::const_iterator hoRecHitIt = hoRecoHits->begin();
+	int matches = 0;
+	//Loop over all rec hits
+	for( ; hoRecHitIt!=hoRecoHits->end(); hoRecHitIt++ ){
+		//Only look for potential hits, except for explicit requests
+		if(!(hoRecHitIt->energy() >= threshold)){
+			continue;
+		}
+		double deltaIEta = getDeltaIeta(eta,&*hoRecHitIt);
+		double deltaIPhi = getDeltaIphi(phi,&*hoRecHitIt);
+		if (abs(deltaIEta) <= gridSize && abs(deltaIPhi) <= gridSize){
+			matches++;
+		}
+	}
+	return matches;
+}
+
+/**
  * Returns the eta value from a rec hits det id value
  */
 double HoMatcher::getRecHitEta(const HORecHit* recHit){
