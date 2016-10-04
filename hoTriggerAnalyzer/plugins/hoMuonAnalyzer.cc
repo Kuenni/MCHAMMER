@@ -1611,25 +1611,22 @@ const L1MuRegionalCand* hoMuonAnalyzer::findBestCandMatch(const l1extra::L1MuonP
 		std::vector<L1MuRegionalCand>::iterator dttfCand;
 		for( dttfCand = dttfCands.begin(); dttfCand != dttfCands.end();	++dttfCand ) {
 			if(dttfCand->empty()) continue;
-//			std::cout << "Finding best cand" << std::endl;
-//			std::cout << dttfCand->etaValue() << std::endl;
-
-			float dR = deltaR(l1Muon->eta(),l1Muon->phi()+ L1PHI_OFFSET,dttfCand->etaValue(),dttfCand->phiValue() - M_PI);
-			if(dR < 0.3){
+			//phiValue is lower edge of bin -> + half L1Bin
+			float dR = deltaR(l1Muon->eta(),l1Muon->phi()+ L1PHI_OFFSET,dttfCand->etaValue(),dttfCand->phiValue() + L1PHI_OFFSET);
+			if(dR < 0.5){
 				if(dR < bestDeltaR){
 					if(dttfCand->quality() > bestQuality){
 						dtCand = &*dttfCand;
+						bestDeltaR = dR;
 					}
 				}
 			}
 		}// each dttf cand
 	}
-//	if(dtCand)
-//		std::cout << "Found one" << std::endl;
 	return dtCand;
 }
 
-void hoMuonAnalyzer::fillTimingHistograms(const l1extra::L1MuonParticle* l1Muon, const HORecHit* hoRecHit, bool isTight, std::string extraId = ""){
+void hoMuonAnalyzer::fillTimingHistograms(const l1extra::L1MuonParticle* l1Muon, const HORecHit* hoRecHit, bool isTight, std::string extraId){
 	std::string nameTrunk = "timingSupport_";
 	nameTrunk += extraId;
 	if(isTight){
