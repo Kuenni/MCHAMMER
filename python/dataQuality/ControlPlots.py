@@ -78,6 +78,7 @@ class ControlPlots(Plot):
 	'''
 	def plotHoIEtaIPhi(self):
 		canvas = TCanvas('cHoIEtaIPhi','HO iEta iPhi',0,50,600,500)
+		canvas.SetLogz()
 		hoEtaPhi = self.fileHandler.getHistogram('etaPhi/hoRecHitsAboveThr_iEtaIPhi')
 		hoEtaPhi.SetTitle('HO RecHits > 0.2GeV;i#eta;i#phi;# entries')
 		hoEtaPhi.Draw('colz')
