@@ -1408,6 +1408,10 @@ void hoMuonAnalyzer::calculateGridMatchingEfficiency(const l1extra::L1MuonPartic
 		return;
 	}
 
+	//Fill n multiple possbile HORecHits
+	histogramBuilder.fillMultiplicityHistogram(hoMatcher->countHoHitsAboveThr(l1Eta,l1Phi,3),key + "_nHoHits3x3");
+	histogramBuilder.fillMultiplicityHistogram(hoMatcher->countHoHitsAboveThr(l1Eta,l1Phi,5),key + "_nHoHits5x5");
+
 	calculateGridMatchingEfficiency(l1Eta, l1Phi,pt, key);
 	//Analyze the BX ID of L1 objects that do not have a match in the grid
 	const HORecHit* recHit = hoMatcher->matchByEMaxInGrid(l1Eta,l1Phi,2);//getClosestRecHitInGrid(l1Eta,l1Phi,2);
