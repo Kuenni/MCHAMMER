@@ -610,6 +610,18 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 					histogramBuilder.fillEtaPhiGraph(genEta,genPhi,"NoL1GenInGA");
 					histogramBuilder.fillEtaPhiGraph(muMatchEta,muMatchPhi,"NoL1TdmiInGA");
 				}
+				const HORecHit* matchedRecHit = 0;
+				matchedRecHit = hoMatcher->matchByEMaxInGrid(muMatchEta,muMatchPhi,5);
+				if(matchedRecHit){
+					histogramBuilder.fillDeltaEtaDeltaPhiHistogramsWithWeights(muMatchEta
+							,float(hoMatcher->getRecHitEta(matchedRecHit))	,muMatchPhi
+							,float(hoMatcher->getRecHitPhi(matchedRecHit))	,matchedRecHit->energy()
+							,"averageEMaxAroundPoint_NoL1_Tdmi");
+					histogramBuilder.fillDeltaEtaDeltaPhiEnergyHistogram(muMatchEta
+							,float(hoMatcher->getRecHitEta(matchedRecHit))	,muMatchPhi
+							,float(hoMatcher->getRecHitPhi(matchedRecHit))	,matchedRecHit->energy()
+							,"averageEMaxAroundPoint_NoL1_Tdmi");
+				}
 			}
 		}
 
