@@ -19,6 +19,27 @@ class ControlPlots(Plot):
 		gROOT.ProcessLine(".L $HOMUONTRIGGER_BASE/python/loader.C+");
 		self.createPlotSubdir('controlPlots')
 
+	def makeNHitsPlot(self,source):
+		canvas = TCanvas('cNHoHitsPerL1' + source,'cNHoHitsPerL1' + source)
+		hist = self.fileHandler.getHistogram('multiplicity/' + source + '_Multiplicity')
+		hist.GetXaxis().SetRangeUser(0,20)
+		canvas.SetLogy()
+		hist.SetLineWidth(3)
+		hist.SetLineColor(colorRwthDarkBlue)
+		setupAxes(hist)
+		hist.SetTitle(source + 'HORecHits per L1;# possible Hits per L1Muon;#')
+		hist.Draw()
+		return hist,canvas
+	
+	#######################################
+	# Predefined calls to plotting script #
+	#######################################
+	def plotNHitsPerL1(self):
+		return self.makeNHitsPlot('gridMatching_loose_nHoHits3x3')
+
+	def plotNHitsPerTightL1(self):
+		return self.makeNHitsPlot('gridMatching_tight_nHoHits3x3')
+
 	def plotL1PresentMultiplicity(self):
 		canvas = TCanvas('cL1Multiplicity')
 		hist = self.fileHandler.getHistogram('multiplicity/L1MuonPresent_Multiplicity')
