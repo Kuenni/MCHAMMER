@@ -74,6 +74,7 @@
 #include <iostream>
 #include <iterator>
 #include <utility>
+#include <math.h>
 
 #include "../interface/FilterPlugin.h"
 
@@ -348,10 +349,12 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		switch (bl1Muon->gmtMuonCand().quality()) {
 			case 7:
 				histogramBuilder.fillEtaPhiGraph(l1Muon_eta, l1Muon_phi, "L1MuonPresent_DT_RPC");
-				if(l1RegCand->isFineHalo()){
-					histogramBuilder.fillEtaPhiGraph(bl1Muon->eta(), bl1Muon->phi() + L1PHI_OFFSET,"L1MuonPresent_DT_RPC_Fine");
-				} else {
-					histogramBuilder.fillEtaPhiGraph(bl1Muon->eta(), bl1Muon->phi() + L1PHI_OFFSET,"L1MuonPresent_DT_RPC_NotFine");
+				if(l1RegCand){
+					if(l1RegCand->isFineHalo()){
+						histogramBuilder.fillEtaPhiGraph(bl1Muon->eta(), bl1Muon->phi() + L1PHI_OFFSET,"L1MuonPresent_DT_RPC_Fine");
+					} else {
+						histogramBuilder.fillEtaPhiGraph(bl1Muon->eta(), bl1Muon->phi() + L1PHI_OFFSET,"L1MuonPresent_DT_RPC_NotFine");
+					}
 				}
 				break;
 			case 6:
@@ -1630,6 +1633,7 @@ void hoMuonAnalyzer::fillTimingHistograms(const l1extra::L1MuonParticle* l1Muon,
 	histogramBuilder.fillGraph(l1Muon->eta(),l1Muon->bx(),nameTrunk + "bxidVsEta");
 
 	const L1MuRegionalCand* l1RegCand = findBestCandMatch(l1Muon);
+
 	/**
 	 * TODO: Is the low number of events a
 	 */
@@ -1646,6 +1650,8 @@ void hoMuonAnalyzer::fillTimingHistograms(const l1extra::L1MuonParticle* l1Muon,
 			histogramBuilder.fillDeltaTimeHistogram(hoTime,l1Muon->bx(),nameTrunk + "MatchedDtRpcHo");
 			histogramBuilder.fillTimeHistogram(hoTime,nameTrunk + "MatchedDtRpcHo");
 			histogramBuilder.fillGraph(hoRecHit->id().ieta(),hoRecHit->time(),nameTrunk + "MatchedDtRpcHoTimeGraph");
+			histogramBuilder.fillGraphPerIeta(hoRecHit->id().ieta(),hoRecHit->id().iphi(),hoRecHit->time(),nameTrunk + "MatchedDtRpcHoIphiTime");
+
 		}
 		break;
 	case 6:
@@ -1665,6 +1671,8 @@ void hoMuonAnalyzer::fillTimingHistograms(const l1extra::L1MuonParticle* l1Muon,
 				histogramBuilder.fillEtaPhiGraph(l1Muon->eta(), l1Muon->phi() + L1PHI_OFFSET,nameTrunk + "UnmatchedDtBxNot0");
 				if(l1RegCand->isFineHalo()){
 					histogramBuilder.fillEtaPhiGraph(l1Muon->eta(), l1Muon->phi() + L1PHI_OFFSET,nameTrunk + "UnmatchedDtBxNot0Fine");
+				} else{
+					histogramBuilder.fillEtaPhiGraph(l1Muon->eta(), l1Muon->phi() + L1PHI_OFFSET,nameTrunk + "UnmatchedDtBxNot0NotFine");
 				}
 			}
 		}
@@ -1680,11 +1688,16 @@ void hoMuonAnalyzer::fillTimingHistograms(const l1extra::L1MuonParticle* l1Muon,
 				histogramBuilder.fillEtaPhiGraph(l1Muon->eta(), l1Muon->phi() + L1PHI_OFFSET,nameTrunk + "UnmatchedDtHoNotFine");
 			}
 			histogramBuilder.fillGraph(hoRecHit->id().ieta(),hoRecHit->time(),nameTrunk + "UnmatchedDtHoTimeGraph");
+			histogramBuilder.fillGraphPerIeta(hoRecHit->id().ieta(),hoRecHit->id().iphi(),hoRecHit->time(),nameTrunk + "UnmatchedDtHoIphiTime");
 			if(l1Muon->bx() != 0){
 				histogramBuilder.fillEtaPhiGraph(l1Muon->eta(), l1Muon->phi() + L1PHI_OFFSET,nameTrunk + "UnmatchedDtHoBxNot0");
 				histogramBuilder.fillGraph(hoRecHit->id().ieta(),hoRecHit->time(),nameTrunk + "UnmatchedDtHoBxNot0TimeGraph");
+				histogramBuilder.fillGraphPerIeta(hoRecHit->id().ieta(),hoRecHit->id().iphi(),hoRecHit->time(),nameTrunk + "UnmatchedDtHoBxNot0IphiTime");
+
 				if(l1RegCand->isFineHalo()){
 					histogramBuilder.fillEtaPhiGraph(l1Muon->eta(), l1Muon->phi() + L1PHI_OFFSET,nameTrunk + "UnmatchedDtHoBxNot0Fine");
+				} else {
+					histogramBuilder.fillEtaPhiGraph(l1Muon->eta(), l1Muon->phi() + L1PHI_OFFSET,nameTrunk + "UnmatchedDtHoBxNot0NotFine");
 				}
 			}
 		}
