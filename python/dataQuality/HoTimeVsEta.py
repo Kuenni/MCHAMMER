@@ -249,6 +249,23 @@ class HoTimeVsEta(Plot):
 		yMax = gPad.GetFrame().GetY2()
 		yMin = gPad.GetFrame().GetY1()
 		
+		#Print average Fraction excluding iEta +/-2
+		x = Double(0)
+		y = Double(0)
+		mean = 0
+		var = 0
+		for i in range(0,histHo.GetPaintedGraph().GetN()):
+			histHo.GetPaintedGraph().GetPoint(i,x,y)
+			if abs(x) == 2:
+				continue
+			mean += y
+			var += histHo.GetPaintedGraph().GetErrorY(i)*histHo.GetPaintedGraph().GetErrorY(i)
+			
+		mean /= histHo.GetPaintedGraph().GetN() - 2
+		sigma = sqrt(var / (histHo.GetPaintedGraph().GetN() - 2))
+		
+		self.debug("Average fraction excluding iEta +/- 2 %s: %5.2f%% +/- %5.2f%%" % ('[Tight]' if tight else '',mean*100,sigma*100))
+		
 		#Left axis part
 		f1 = TF1("f1","x",-0.87,0)
 		A1 = TGaxis(-10,yMax,-0.5,yMax,"f1",010,"-")
