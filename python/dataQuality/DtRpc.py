@@ -62,3 +62,7 @@ class DtRpc(Plot):
 	
 	def plotDtRpcNotFine(self):
 		return self.makeCoordinatePlot('DT_RPC_NotFine')
+	
+	def plotDt(self):
+		return self.makeCoordinatePlot('DT')
+	
