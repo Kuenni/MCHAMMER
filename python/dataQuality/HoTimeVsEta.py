@@ -148,6 +148,8 @@ class HoTimeVsEta(Plot):
 		label = self.drawLabel()
 		canvas.Update()
 
+		self.storeCanvas(canvas, 'timeVsPhi/' +  source + '/iEta' + str(iEta) )
+
 		return canvas,hist,label,graph
 	
 	#
@@ -156,7 +158,7 @@ class HoTimeVsEta(Plot):
 	def plotTimeVsPhi(self):
 		results = []
 		for i in range(-12,13):
-			results.append(self.makeTimeVsPhiPlot("UnmatchedDtHoIphiTime",i))
+			results.append(self.makeTimeVsPhiPlot("UnmatchedDtHoIphiTime",i,'Unmatched DT i#eta '))
 		return results
 	
 	#
@@ -165,7 +167,7 @@ class HoTimeVsEta(Plot):
 	def plotTimeVsPhiTight(self):
 		results = []
 		for i in range(-12,13):
-			results.append(self.makeTimeVsPhiPlot("tight_UnmatchedDtHoIphiTime",i))
+			results.append(self.makeTimeVsPhiPlot("tight_UnmatchedDtHoIphiTime",i,'#verb{tight} Unmatched DT i#eta '))
 		return results
 	
 	#
@@ -174,7 +176,7 @@ class HoTimeVsEta(Plot):
 	def plotTimeVsPhiDtRpc(self):
 		results = []
 		for i in range(-12,13):
-			results.append(self.makeTimeVsPhiPlot("MatchedDtRpcHoIphiTime",i))
+			results.append(self.makeTimeVsPhiPlot("MatchedDtRpcHoIphiTime",i,'DT/RPC i#eta '))
 		return results	
 	
 	### ====================
