@@ -168,6 +168,8 @@ def plotEVsEtaPhi():
 def plotControlPlots():
 	lib = ControlPlots(filename=args.source,data=args.data,debug = args.DEBUG)
 	updateModuleName(lib)
+	resNHits = lib.plotNHitsPerL1()
+	resNHitsTight = lib.plotNHitsPerTightL1()
 	res1 = lib.plotL1PerPt()
 	res2 = lib.plotHoIEtaIPhi()
 	res3 = lib.plotHoEtaPhiMatchedToL1()
