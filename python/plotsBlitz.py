@@ -74,25 +74,38 @@ from dataQuality.Timing import Timing
 from dataQuality.DtOnlyCoordinates import DtOnlyCoordinates
 from dataQuality.HoTimeVsEta import HoTimeVsEta
 from dataQuality.DtRpc import DtRpc
+from dataQuality.DttfCands import DttfCands
+
+def plotDttfCands():
+	lib = DttfCands(filename=args.source,data=args.data,debug = args.DEBUG)
+	resDttf = lib.plotDttfCands()
+	resDttfFine = lib.plotDttfCandsFine()
+	resDttfNotFine = lib.plotDttfCandsNotFine()
+	checkUserInput()
+	return
 
 def plotDtRpc():
 	lib = DtRpc(filename=args.source,data=args.data,debug = args.DEBUG)
 	resDtRpc = lib.plotDtRpc()
 	resDtRpcFine = lib.plotDtRpcFine()
 	resDtRpcNotFine = lib.plotDtRpcNotFine()
+	resDt = lib.plotDt()
 	checkUserInput()
 	return
 
 def plotHoTimeVsEta():
 	lib = HoTimeVsEta(filename=args.source,data=args.data,debug = args.DEBUG)
 	updateModuleName(lib)
-	resCombined = lib.plotCombined()
-	resCombinedTight = lib.plotCombinedTight()
-	resL1TimeVsEta = lib.plotL1TimeVsEta()
-	resHoTimeEta = lib.plotHoTimeVsEta()
-	resHoTimeEtaBxWrng = lib.plotHoTimeVsEtaBxWrong()
-	resTightHoTimeEtaBxWrng = lib.plotTightHoTimeVsEtaBxWrong()
-	resTightDtRpc = lib.plotHoTimeVsEtaDtRpcTight()
+	res = lib.plotTimeVsPhi()
+	res2 = lib.plotTimeVsPhiTight()
+	res3 = lib.plotTimeVsPhiDtRpc()
+# 	resCombined = lib.plotCombined()
+# 	resCombinedTight = lib.plotCombinedTight()
+# 	resL1TimeVsEta = lib.plotL1TimeVsEta()
+# 	resHoTimeEta = lib.plotHoTimeVsEta()
+# 	resHoTimeEtaBxWrng = lib.plotHoTimeVsEtaBxWrong()
+# 	resTightHoTimeEtaBxWrng = lib.plotTightHoTimeVsEtaBxWrong()
+# 	resTightDtRpc = lib.plotHoTimeVsEtaDtRpcTight()
 	checkUserInput()
 	return
 
@@ -308,7 +321,7 @@ gROOT.ProcessLine(".L $HOMUONTRIGGER_BASE/python/loader.C+");
 
 scripts = ['controlPlots','eVsEtaPhi','timeWindow','ptResolution','ptResolutionTruth','qualityCodes',
 			'counters','thresholdScan','efficiency','energy','compareEnergy','timing','phiShift',
-			'dtOnly', 'hoTimeVsEta','dtRpc']
+			'dtOnly', 'hoTimeVsEta','dtRpc','dttfCands']
 
 if args.scripts:
 	for script in args.scripts:
@@ -344,6 +357,8 @@ if args.scripts:
 			plotHoTimeVsEta()
 		elif (script == 'dtRpc'):
 			plotDtRpc()
+		elif (script == 'dttfCands'):
+			plotDttfCands()
 		else:
 			print 'Unknown script requested: %s' % (script)
 			print "Available Scripts:"
