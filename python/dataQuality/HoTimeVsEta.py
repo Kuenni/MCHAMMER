@@ -5,11 +5,11 @@ Created on Jul 25, 2016
 '''
 from plotting.Plot import Plot
 from plotting.Utils import getMedian, calcPercent, fillGraphIn2DHist, calcSigma,\
-	getLegend
+	getLegend, fill2DGraphIn2DHist
 from ROOT import Double, TH1D, TCanvas, TEfficiency, TF1, TH2D, TBox, TGaxis,gPad,gStyle,TPaveText
 from plotting.PlotStyle import setupAxes, colorRwthMagenta, colorRwthRot,\
 	colorRwthDarkBlue, colorRwthDarkGray
-from math import fabs
+from math import fabs, sqrt
 import numpy as np
 
 class HoTimeVsEta(Plot):
@@ -129,6 +129,54 @@ class HoTimeVsEta(Plot):
 
 		return canvas,hist,label,fractionGraph,intervalBoxes,tofFunction
 	
+	### ========================
+	### Plots of HO time vs iPhi
+	### ========================
+	def makeTimeVsPhiPlot(self,source,iEta,title = ""):
+		canvas = TCanvas(source + str(iEta),str(iEta))
+		if title == "":
+			title = source
+		hist = TH2D(source + str(iEta),title + str(iEta) + ";i#phi;Time / ns;#",72,.5,72.5,
+				201,-100.5,100.5)
+		graph = self.fileHandler.getGraph('graphs/iEta/timingSupport_' + source + 'Ieta' + str(iEta))
+		if not graph: return
+		fillGraphIn2DHist(graph, hist)
+		hist.SetStats(0)
+		hist.Draw('colz')
+		canvas.Update()
+		setupAxes(hist)
+		label = self.drawLabel()
+		canvas.Update()
+
+		return canvas,hist,label,graph
+	
+	#
+	# Plot all iEta bins, time vs iphi
+	#
+	def plotTimeVsPhi(self):
+		results = []
+		for i in range(-12,13):
+			results.append(self.makeTimeVsPhiPlot("UnmatchedDtHoIphiTime",i))
+		return results
+	
+	#
+	# Plot all iEta bins, time vs iphi tight
+	#
+	def plotTimeVsPhiTight(self):
+		results = []
+		for i in range(-12,13):
+			results.append(self.makeTimeVsPhiPlot("tight_UnmatchedDtHoIphiTime",i))
+		return results
+	
+	#
+	# Plot all iEta bins, time vs iphi DT/RPC
+	#
+	def plotTimeVsPhiDtRpc(self):
+		results = []
+		for i in range(-12,13):
+			results.append(self.makeTimeVsPhiPlot("MatchedDtRpcHoIphiTime",i))
+		return results	
+	
 	### ====================
 	### Plot L1 BX ID vs eta
 	### ====================
@@ -183,7 +231,7 @@ class HoTimeVsEta(Plot):
 		else:
 			histHo = self.plotHoTimeVsEta()[3][1]
 			
-		histHo.SetTitle(('Tight ' if tight else '') + 'Unmatched DT, + HO')
+		histHo.SetTitle(('Tight ' if tight else '') + 'Unmatched DT + HO')
 		
 		canvas = TCanvas('combinedPlot' + ('Tight ' if tight else '') + hist.GetName(),'combinedPlot')
 		canvas.cd().SetTopMargin(.15)
