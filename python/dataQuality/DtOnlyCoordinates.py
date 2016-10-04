@@ -77,37 +77,12 @@ class DtOnlyCoordinates(Plot):
 		histAll = TH2D('hEtaPhi' + sourceDt,";#eta_{L1};#phi_{L1};#",30,-15*L1_ETA_BIN,15*L1_ETA_BIN,
 			144, -math.pi,math.pi)
 		fillGraphIn2DHist(graphDt, histAll)
-		
-		###
-		'''
-		Temporary stuff to check the eta coordinates in the graphs
-		'''
-		x = Double(0)
-		y = Double(0)
-		listeDt = []
-		for i in range(0,graphDt.GetN()):
-			graphDt.GetPoint(i,x,y)
-			listeDt.append(float(x))
-# 		self.warning('eta: %s' % (sourceDt))
-# 		self.warning(str(sorted(set(listeDt))))
-		###
 				
 		if(sourceDtHo != ''):
 			graphDtHo = self.fileHandler.getGraph('graphs/timingSupport' + self.ptCut + '_' + sourceDtHo)
-			fillGraphIn2DHist(graphDtHo, histAll)
-			###
-			'''
-			Temporary stuff to check the eta coordinates in the graphs
-			'''
-			x = Double(0)
-			y = Double(0)
-			listeDtHo = []
-			for i in range(0,graphDtHo.GetN()):
-				graphDtHo.GetPoint(i,x,y)
-				listeDtHo.append(float(x))
-# 			self.warning('eta: %s' % (sourceDtHo))
-# 			self.warning(str(sorted(set(listeDtHo))))
-			###
+			if not graphDtHo:
+				fillGraphIn2DHist(graphDtHo, histAll)
+
 		histAll.SetStats(0)
 		histAll.Draw('colz')
 		c.Update()
@@ -125,9 +100,10 @@ class DtOnlyCoordinates(Plot):
 		plots = []
 		plots.append(self.plotDtOnlyCoordinatesFineEta())
 		plots.append(self.plotDtOnlyCoordinatesNotFineEta())
-		plots.append(self.plotDtOnlyBxWrongCoordinatesFineEta())
-		plots.append(self.plotDtOnlyAndHoCoordinatesFineEta())
-		plots.append(self.plotDtOnlyAndHoBxWrongCoordinatesFineEta())
+		plots.append(self.plotDtOnlyBxWrongCoordinatesNotFineEta())
+# 		plots.append(self.plotDtOnlyBxWrongCoordinatesFineEta())
+		#plots.append(self.plotDtOnlyAndHoCoordinatesFineEta())
+		#plots.append(self.plotDtOnlyAndHoBxWrongCoordinatesFineEta())
 		
 		return plots
 	
@@ -191,6 +167,12 @@ class DtOnlyCoordinates(Plot):
 		c,hist,label = self.makeDtOnlyPlot(sourceDt='UnmatchedDtBxNot0Fine', sourceDtHo='UnmatchedDtHoBxNot0Fine')
 		hist.SetTitle('#eta#phi for DT-only, BX Wrong, #eta fine')
 		self.storeCanvas(c, 'dtOnlyBxWrongCoordinatesFine')
+		return hist,c,label
+	
+	def plotDtOnlyBxWrongCoordinatesNotFineEta(self):
+		c,hist,label = self.makeDtOnlyPlot(sourceDt='UnmatchedDtBxNot0NotFine', sourceDtHo='UnmatchedDtHoBxNot0NotFine')
+		hist.SetTitle('#eta#phi for DT-only, BX Wrong, not #eta fine')
+		self.storeCanvas(c, 'dtOnlyBxWrongCoordinatesNotFine')
 		return hist,c,label
 	
 	def plotDtOnlyAndHoCoordinatesFineEta(self):
