@@ -76,15 +76,27 @@ def fillGraphIn1DHist(graph,hist,axis = 'y'):
 			commandLine.printProgress(nTotal, nTotal)
 	return hist
 
-def fill2DGraphIn2DHist(graph,hist):
+#
+# Fill a slice of a 2D ROOT graph in a 2D ROOT histogram
+#
+def fill2DGraphIn2DHist(graph,hist,sliceOnValue):
 	x = Double(0)
 	y = Double(0)
 	z = Double(0)
+	
+	# sliceOnValue can either be a value or a range 
+	minSlice = maxSlice = sliceOnValue
+	
+	if sliceOnValue is list:
+		minSlice = sliceOnValue[0]
+		maxSlice = sliceOnValue[1]
+	
 	commandLine.output('Filling 2D graph in 2D histogram:')
 	nTotal = graph.GetN()
 	for i in range(0,nTotal):
 		graph.GetPoint(i,x,y,z)
-		hist.Fill(x,y,z)
+		if(x >= minSlice or x <= maxSlice):
+			hist.Fill(y,z)
 		if(not i%10000):
 			commandLine.printProgress(i,nTotal)
 		if(i == nTotal - 1):
