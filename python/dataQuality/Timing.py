@@ -444,8 +444,8 @@ class Timing(Plot):
 		hRight = self.fileHandler.getHistogram('BxRightGen_Pt')
 		hRightFraction = TH1D('hRightFraction','',100,0,500)
 		hWrongFraction = TH1D('hWrongFraction','',100,0,500)
-		hWrong.Rebin(50)
-		hRight.Rebin(50)
+		#hWrong.Rebin(50)
+		#hRight.Rebin(50)
 		#Fill the histograms with the bin wise fractions
 		for i in range(0,hRight.GetNbinsX()):
 			nRight = hRight.GetBinContent(i+1)
@@ -468,7 +468,7 @@ class Timing(Plot):
 		stack.Add(hRightFraction)
 		stack.Add(hWrongFraction)
 		stack.Draw()
-		stack.GetXaxis().SetRangeUser(0,201)
+		stack.GetXaxis().SetRangeUser(0.5,201)
 		stack.GetYaxis().SetTitle('rel. fraction / 5 GeV')
 		stack.GetYaxis().SetTitleOffset(2)
 		stack.GetXaxis().SetTitle('p_{T} Gen')
