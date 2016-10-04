@@ -760,6 +760,21 @@ void HistogramBuilder::fillGraph(double x, double y, std::string key){
 }
 
 /**
+ * Fill a TGraph for given iEta with iPhi and Time
+ */
+void HistogramBuilder::fillGraphPerIeta(double iEta, double iPhi, double time, std::string key){
+	TFileDirectory graphDir = _fileService->mkdir("graphs");
+	TFileDirectory iEtaDir = _fileService->mkdir("graphs/iEta");
+	key += Form("Ieta%d", (int)iEta);
+	if(!_graphs.count(key)){
+		_graphs[key] = iEtaDir.make<TGraph>();
+		_graphs[key]->SetTitle(key.c_str());
+		_graphs[key]->SetName(key.c_str());
+	}
+	_graphs[key]->SetPoint(_graphs[key]->GetN(),iPhi, time);
+}
+
+/**
  * Fill a TGraph2D with given x, y, z and key
  */
 void HistogramBuilder::fillGraph2D(double x, double y, double z, std::string key){

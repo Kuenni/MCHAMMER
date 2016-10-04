@@ -56,6 +56,7 @@ class HistogramBuilder {
   void fillGraph(double x, double y, std::string key);
   void fillGraph2D(double x, double y, double z, std::string key);
   void fillHistogram(double x, std::string key,TH1D* histogram = 0);
+  void fillGraphPerIeta(double x, double y, double z, std::string key);
   void fillHltIndexHistogram(int hltIndex, std::string key);
   void fillIEtaIPhiHistogram(int iEta, int iPhi, std::string key);
   void fillL1MuonPtHistograms(float pt, std::string key);
