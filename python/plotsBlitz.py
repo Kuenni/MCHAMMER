@@ -75,9 +75,18 @@ from dataQuality.DtOnlyCoordinates import DtOnlyCoordinates
 from dataQuality.HoTimeVsEta import HoTimeVsEta
 from dataQuality.DtRpc import DtRpc
 from dataQuality.DttfCands import DttfCands
+from dataQuality.NoL1Muon import NoL1Muon
+
+def plotNoL1Muons():
+	lib = NoL1Muon(filename=args.source,data=args.data,debug = args.DEBUG)
+	updateModuleName(lib)
+	resEmax = lib.plotEMaxNoL1Muon()
+	checkUserInput()
+	return
 
 def plotDttfCands():
 	lib = DttfCands(filename=args.source,data=args.data,debug = args.DEBUG)
+	updateModuleName(lib)
 	resDttf = lib.plotDttfCands()
 	resDttfFine = lib.plotDttfCandsFine()
 	resDttfNotFine = lib.plotDttfCandsNotFine()
@@ -86,6 +95,7 @@ def plotDttfCands():
 
 def plotDtRpc():
 	lib = DtRpc(filename=args.source,data=args.data,debug = args.DEBUG)
+	updateModuleName(lib)
 	resDtRpc = lib.plotDtRpc()
 	resDtRpcFine = lib.plotDtRpcFine()
 	resDtRpcNotFine = lib.plotDtRpcNotFine()
@@ -151,6 +161,7 @@ def plotEVsEtaPhi():
 	lib = EvsEtaPhi(filename = args.source, data=args.data,debug = args.DEBUG)
 	updateModuleName(lib)
 	lib.calculateCentralFractionInTight()
+	resNoL1 = lib.plotEMaxNoL1Muon()
 	reseMaxCountsTight = lib.plotEMaxCountsForTightMuons()
 	reseMaxCounts = lib.plotEMaxCounts()
 	res = lib.plotAverageEnergyAroundL1()
@@ -170,6 +181,7 @@ def plotControlPlots():
 	updateModuleName(lib)
 	resNHits = lib.plotNHitsPerL1()
 	resNHitsTight = lib.plotNHitsPerTightL1()
+	resHitsVsPt3x3 = lib.plotNHitsVsPt()
 	res1 = lib.plotL1PerPt()
 	res2 = lib.plotHoIEtaIPhi()
 	res3 = lib.plotHoEtaPhiMatchedToL1()
@@ -323,7 +335,7 @@ gROOT.ProcessLine(".L $HOMUONTRIGGER_BASE/python/loader.C+");
 
 scripts = ['controlPlots','eVsEtaPhi','timeWindow','ptResolution','ptResolutionTruth','qualityCodes',
 			'counters','thresholdScan','efficiency','energy','compareEnergy','timing','phiShift',
-			'dtOnly', 'hoTimeVsEta','dtRpc','dttfCands']
+			'dtOnly', 'hoTimeVsEta','dtRpc','dttfCands','noL1Muons']
 
 if args.scripts:
 	for script in args.scripts:
@@ -361,6 +373,8 @@ if args.scripts:
 			plotDtRpc()
 		elif (script == 'dttfCands'):
 			plotDttfCands()
+		elif (script == 'noL1Muons'):
+			plotNoL1Muons()
 		else:
 			print 'Unknown script requested: %s' % (script)
 			print "Available Scripts:"
