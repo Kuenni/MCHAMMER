@@ -562,7 +562,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		histogramBuilder.fillMultiplicityHistogram(countGenMatches,"nL1WithGenMatch");
 	//################################
 	//################################
-	//		This is for the case where no L1Muon was found
+	//	This is for the case where no L1Muon was found
 	//################################
 	//################################
 	if(l1Muons->size() == 0){
@@ -1409,8 +1409,12 @@ void hoMuonAnalyzer::calculateGridMatchingEfficiency(const l1extra::L1MuonPartic
 	}
 
 	//Fill n multiple possbile HORecHits
-	histogramBuilder.fillMultiplicityHistogram(hoMatcher->countHoHitsAboveThr(l1Eta,l1Phi,3),key + "_nHoHits3x3");
-	histogramBuilder.fillMultiplicityHistogram(hoMatcher->countHoHitsAboveThr(l1Eta,l1Phi,5),key + "_nHoHits5x5");
+	int nHits3x3 = hoMatcher->countHoHitsAboveThr(l1Eta,l1Phi,1);
+	int nHits5x5 = hoMatcher->countHoHitsAboveThr(l1Eta,l1Phi,2);
+	histogramBuilder.fillMultiplicityHistogram(nHits3x3,key + "_nHoHits3x3");
+	histogramBuilder.fillMultiplicityHistogram(nHits5x5,key + "_nHoHits5x5");
+	histogramBuilder.fillGraph(l1muon->pt(),nHits3x3,key + "_nHoHitsVsPt3x3");
+	histogramBuilder.fillGraph(l1muon->pt(),nHits5x5,key + "_nHoHitsVsPt5x5");
 
 	calculateGridMatchingEfficiency(l1Eta, l1Phi,pt, key);
 	//Analyze the BX ID of L1 objects that do not have a match in the grid
