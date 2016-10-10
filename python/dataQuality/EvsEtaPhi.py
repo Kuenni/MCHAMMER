@@ -283,22 +283,25 @@ class EvsEtaPhi(Plot):
 									hist.GetYaxis().FindBin(-.2175),hist.GetYaxis().FindBin(.2175))
 		integralTotal = hist.Integral()
 		
-		self.output(80*'#')
-		self.output('%20s:%5.2f%% +/- %5.2f%%' % ('Central Fraction',calcPercent(integralCentral,integralTotal),
+		self.debug(80*'#')
+		self.debug('%20s:%5.2f%% +/- %5.2f%%' % ('Central Fraction',calcPercent(integralCentral,integralTotal),
 												calcSigma(integralCentral,integralTotal)*100))
-		self.output('%20s:%5.2f%% +/- %5.2f%%' % ('3x3 Fraction',calcPercent(integral3x3,integralTotal),
+		self.debug('%20s:%5.2f%% +/- %5.2f%%' % ('3x3 Fraction',calcPercent(integral3x3,integralTotal),
 												calcSigma(integral3x3,integralTotal)*100))
-		self.output('%20s:%5.2f%% +/- %5.2f%%' % ('5x5 Fraction',calcPercent(integral5x5,integralTotal),
+		self.debug('%20s:%5.2f%% +/- %5.2f%%' % ('5x5 Fraction',calcPercent(integral5x5,integralTotal),
 												calcSigma(integral5x5,integralTotal)*100))
-		self.output(80*'#')
+		self.debug(80*'#')
 	
-	def plotEMaxCountsForTightMuons(self):
-		canvas = TCanvas('canvasEmaxcountsTightMuons','E max counts Tight muons',1200,1200)
+	#########################################################
+	# Generalized plotting script: Emax around L1 direction #
+	#########################################################
+	def makeEmaxPlot(self,source):
+		canvas = TCanvas('canvasEmaxcounts' + source,'E max counts' + source,1200,1200)
 		canvas.cd().SetLogz()
 			
-		hCounter = self.fileHandler.getHistogram('deltaEtaDeltaPhiEnergy/averageEMaxAroundPointpatTightToL1Muons_2dCounter')
+		hCounter = self.fileHandler.getHistogram('deltaEtaDeltaPhiEnergy/averageEMaxAroundPoint' + source + '_2dCounter')
 
-		hCounter.SetTitle('# of E_{Max} in HO tiles around tight L1 direction;#Delta#eta;#Delta#phi;# Entries')
+		hCounter.SetTitle('# of E_{Max} in HO tiles around L1 direction ' + source + ';#Delta#eta;#Delta#phi;# Entries')
 		hCounter.SetStats(0)
 		hCounter.GetXaxis().SetRangeUser(-.5,.5)
 		hCounter.GetYaxis().SetRangeUser(-.5,.5)
@@ -308,35 +311,21 @@ class EvsEtaPhi(Plot):
 		setupPalette(hCounter)
 		canvas.Update()
 		#boxes = drawHoBoxes(canvas)
-		self.storeCanvas(canvas,'eMaxCountsTightMuons')
+		self.storeCanvas(canvas,'eMaxCounts' + source)
 
 		#Output fractions in grid		
-		self.output('Emax fraction for Tight')
+		self.debug('Emax fraction for ' + source)
 		self.outputFractionsInTileGrid(hCounter)
 		return canvas,label,hCounter
+	
+	####################
+	# Predefined plots #
+	####################
+	def plotEMaxCountsForTightMuons(self):
+		return self.makeEmaxPlot('patTightToL1Muons')
 	
 	def plotEMaxCounts(self):
-		canvas = TCanvas('canvasEmaxcounts','E max counts',1200,1200)
-		canvas.cd().SetLogz()
-			
-		hCounter = self.fileHandler.getHistogram('deltaEtaDeltaPhiEnergy/averageEMaxAroundPointL1MuonPresent_2dCounter')
-		#hSum = setupEAvplot(hSum, hCounter,same=True,limitForAll=0.3)
-		hCounter.SetTitle('# of E_{Max} in HO tiles around L1 direction;#Delta#eta;#Delta#phi;# Entries')
-		hCounter.SetStats(0)
-		hCounter.GetXaxis().SetRangeUser(-.5,.5)
-		hCounter.GetYaxis().SetRangeUser(-.5,.5)
-		hCounter.Draw('colz')
-		label = self.drawLabel()
-		canvas.Update()		
-		setupPalette(hCounter)
-		canvas.Update()
-		#boxes = drawHoBoxes(canvas)
-		self.storeCanvas(canvas,'eMaxCounts')
-		
-		#Output fractions in grid		
-		self.outputFractionsInTileGrid(hCounter)
-
-		return canvas,label,hCounter
+		return self.makeEmaxPlot('L1MuonPresent')
 		
 	def plotEavPerWheelForTightMuons(self):
 		canvas = TCanvas('canvasEavPerWheelTightMuons','EAv Per Wheel Tight muons',1800,800)
