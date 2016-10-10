@@ -1,12 +1,9 @@
 #!/bin/env python
-import os
 from plotting.Plot import Plot
 from ROOT import TCanvas,ROOT,TFile,TF1,TLine,gROOT,TPaveText,TH1D,Double,TH2D,THStack,gStyle
 from plotting.PlotStyle import setPlotStyle,drawLabelCmsPrivateSimulation,colorRwthDarkBlue,\
-	setStatBoxOptions, setStatBoxPosition, setupPalette, drawLabelCmsPrivateData
+	setStatBoxOptions, setStatBoxPosition, setupPalette
 from plotting.PlotStyle import colorRwthMagenta,setupAxes,printProgress
-from plotting.RootFileHandler import RootFileHandler
-from plotting.OutputModule import CommandLineHandler
 from array import array
 import math
 from plotting.Utils import fillGraphIn2DHist
@@ -22,7 +19,7 @@ class ControlPlots(Plot):
 	def makeNHitsPlot(self,source):
 		canvas = TCanvas('cNHoHitsPerL1' + source,'cNHoHitsPerL1' + source)
 		hist = self.fileHandler.getHistogram('multiplicity/' + source + '_Multiplicity')
-		hist.GetXaxis().SetRangeUser(0,20)
+		hist.GetXaxis().SetRangeUser(0,50)
 		canvas.SetLogy()
 		hist.SetLineWidth(3)
 		hist.SetLineColor(colorRwthDarkBlue)
@@ -31,11 +28,28 @@ class ControlPlots(Plot):
 		hist.Draw()
 		return hist,canvas
 	
+	def makeNHitsVsPtPlot(self,source):
+		canvas = TCanvas('cNHoHitsVsPt' + source,'cNHoHitsVsPt' + source)
+		graph = self.fileHandler.getGraph('graphs/' + source )
+		hist = TH2D(source,source,50,-.5,49.5,201,-.5,200.5)
+		fillGraphIn2DHist(graph, hist)
+		hist.GetXaxis().SetRangeUser(0,50)
+		#canvas.SetLogy()
+		#hist.SetLineWidth(3)
+		#hist.SetLineColor(colorRwthDarkBlue)
+		setupAxes(hist)
+		#hist.SetTitle(source + 'HORecHits per L1;# possible Hits per L1Muon;#')
+		hist.Draw('colz')
+		return hist,canvas
+	
 	#######################################
 	# Predefined calls to plotting script #
 	#######################################
 	def plotNHitsPerL1(self):
 		return self.makeNHitsPlot('gridMatching_loose_nHoHits3x3')
+	
+	def plotNHitsVsPt(self):
+		return self.makeNHitsVsPtPlot('gridMatching_loose_nHoHitsVsPt3x3')
 
 	def plotNHitsPerTightL1(self):
 		return self.makeNHitsPlot('gridMatching_tight_nHoHits3x3')
