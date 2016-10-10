@@ -15,6 +15,7 @@ class Plot:
 		self.key = 'L1MuonPresent' if data else 'L1MuonTruth'
 		self.data = data
 		self.DEBUG = debug
+		self.filename = filename
 		if self.DEBUG:
 			self.debug("Creating plot module %s" % self.__class__.__name__)
 		if filename != None:
