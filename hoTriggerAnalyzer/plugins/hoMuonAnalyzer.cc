@@ -593,7 +593,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 				/**
 				 * #############################################
 				 * # Use TrackDetMatchInfo to see where the gen particle ends up in HO. When selecting only events, where gen is in
-				 * # the geometric acceptance of HO, this gives a more realistic estimator for the number of recoverable
+				 * # the geometric acceptance of HO, this gives a more realistic estimation for the number of recoverable
 				 * # Triggers
 				 * #############################################
 				 */
@@ -1268,43 +1268,6 @@ void hoMuonAnalyzer::fillAverageEnergyAroundL1Direction(const l1extra::L1MuonPar
 			histogramBuilder.fillHistogram(hoPhi,"averageEnergyHoPhi" + key,histHoPhi);
 			delete histHoPhi;
 
-			double variableBinArray[] = {0,0.5,1,1.5,2,2.5,3,3.5,4,4.5,5,6,7,8,10,12,14,16,18,20,25,30,35,40,45,50,60,70,80,100,120,140,200};
-
-			TH2D* hist = new TH2D(("shiftCheckDeltaPhiVsL1Pt" + key).c_str(),"#Delta#phi shift check;p_{T} / GeV;#Delta#phi",32,variableBinArray,
-					73,-36*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN,36*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN);
-
-			histogramBuilder.fillCorrelationHistogram(l1Muon->pt(),deltaPhi,"shiftCheckDeltaPhiVsL1Pt" + key,hist);
-			delete hist;
-
-			// y: ho-half bins, zero centered -> shift by quarter Ho bin
-			// x: ho quarter bins, zero centered -> 288 bins + 1 bin, borders shifted by ho eighth bin
-			hist = new TH2D(("shiftCheckDeltaPhiVsPhi" + key).c_str(),"#Delta#phi shift check;#phi;#Delta#phi",
-					289,-36*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/4.,36*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/4.,
-					145,-36*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/2.,36*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/2.);
-			histogramBuilder.fillCorrelationHistogram(l1Phi,deltaPhi,"shiftCheckDeltaPhiVsPhi" + key,hist);
-			delete hist;
-
-			histogramBuilder.fillCorrelationGraph(l1Phi,deltaPhi,"shiftCheckDeltaPhiVsPhiGraph" + key);
-//TODO: Find an implementation that works for both, data and mc
-//			const reco::GenParticle* gen = getBestGenMatch(l1Muon->eta(),l1Muon->phi());
-//			hist = new TH2D(("shiftCheckDeltaPhiVsGenPt" + key).c_str(),"#Delta#phi shift check;p_{T} / GeV;#Delta#phi",200,0,200,
-//					73,-36*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN,36*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN);
-//			histogramBuilder.fillCorrelationHistogram(gen->pt(),deltaPhi,"shiftCheckDeltaPhiVsGenPt" + key,hist);
-//			delete hist;
-
-			//Delta phi vs l1 eta
-			hist = new TH2D(("shiftCheckDeltaPhiVsL1Eta" + key).c_str(),"#Delta#phi shift check;#eta_{L1};#Delta#phi",
-					30,-15*0.1,15*0.1,//L1 has 0.1 bins in eta
-					73,-36*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN,36*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN);
-			histogramBuilder.fillCorrelationHistogram(l1Eta,deltaPhi,"shiftCheckDeltaPhiVsL1Eta" + key,hist);
-			delete hist;
-
-//			//Delta phi vs gen eta
-//			hist = new TH2D(("shiftCheckDeltaPhiVsGenEta" + key).c_str(),"#Delta#phi shift check;#eta_{Gen};#Delta#phi",
-//					145,-36*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN/2.,36*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN/2.,//Half an HO bin in eta,
-//					73,-36*HoMatcher::HO_BIN - HoMatcher::HALF_HO_BIN,36*HoMatcher::HO_BIN + HoMatcher::HALF_HO_BIN);
-//			histogramBuilder.fillCorrelationHistogram(gen->eta(),deltaPhi,"shiftCheckDeltaPhiVsGenEta" + key,hist);
-//			delete hist;
 		}
 	}//for loop
 
@@ -1552,6 +1515,7 @@ void hoMuonAnalyzer::analyzeL1Resolution(){
 				continue;
 			}
 			fillL1ResolutionPlots(l1Part,&*patMuonIt,"patToL1Muon");
+			histogramBuilder.fillGraph(patMuonIt->eta(),l1Part->eta(),"l1EtaVsPatEta");
 		}
 	}// End loop over pat
 
