@@ -183,6 +183,10 @@ void HistogramBuilder::fillEnergyHistograms(float energy, std::string key){
 	_h1Energy[key]->Fill(energy);
 }
 
+/*
+ * Fills energy of HORecHit depending on eta.
+ * Internally calls also the function for a total energy histogram
+ */
 void HistogramBuilder::fillEnergyVsIEta(float energy, int iEta, std::string key){
 	TFileDirectory energyDir = _fileService->mkdir("energy");
 	TFileDirectory energySubDir = _fileService->mkdir("energy/perWheel");
