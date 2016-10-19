@@ -1529,7 +1529,19 @@ void hoMuonAnalyzer::analyzeL1Resolution(){
 				continue;
 			}
 			fillL1ResolutionPlots(l1Part,&*patMuonIt,"patToL1Muon");
-			histogramBuilder.fillGraph(patMuonIt->eta(),l1Part->eta(),"l1EtaVsPatEta");
+			const L1MuRegionalCand* dttfCand = findBestCandMatch(l1Part);
+			if(dttfCand){
+				if(dttfCand->isFineHalo())
+					histogramBuilder.fillGraph(patMuonIt->eta(),l1Part->eta(),"l1EtaVsPatEtaFine");
+				if(patMuonIt->isTightMuon(getPrimaryVertex())){
+					histogramBuilder.fillGraph(patMuonIt->eta(),l1Part->eta(),"l1EtaVsPatEtaFineTight");
+				}
+				else
+					histogramBuilder.fillGraph(patMuonIt->eta(),l1Part->eta(),"l1EtaVsPatEtaNotFine");
+				if(patMuonIt->isTightMuon(getPrimaryVertex())){
+					histogramBuilder.fillGraph(patMuonIt->eta(),l1Part->eta(),"l1EtaVsPatEtaNotFineTight");
+				}
+			}
 		}
 	}// End loop over pat
 
