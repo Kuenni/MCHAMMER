@@ -295,19 +295,23 @@ class EvsEtaPhi(Plot):
 	#########################################################
 	# Generalized plotting script: Emax around L1 direction #
 	#########################################################
-	def makeEmaxPlot(self,source):
+	def makeEmaxPlot(self,source, title = ""):
+		if title == "":
+			title = '# of E_{Max} in HO tiles around L1 direction ' + source
+			
 		canvas = TCanvas('canvasEmaxcounts' + source,'E max counts' + source,1200,1200)
 		canvas.cd().SetLogz()
 			
 		hCounter = self.fileHandler.getHistogram('deltaEtaDeltaPhiEnergy/averageEMaxAroundPoint' + source + '_2dCounter')
 
-		hCounter.SetTitle('# of E_{Max} in HO tiles around L1 direction ' + source + ';#Delta#eta;#Delta#phi;# Entries')
+		hCounter.SetTitle(title + ';#Delta#eta;#Delta#phi;# Entries')
 		hCounter.SetStats(0)
 		hCounter.GetXaxis().SetRangeUser(-.5,.5)
 		hCounter.GetYaxis().SetRangeUser(-.5,.5)
 		hCounter.Draw('colz')
 		label = self.drawLabel()
 		canvas.Update()		
+		setupAxes(hCounter)
 		setupPalette(hCounter)
 		canvas.Update()
 		#boxes = drawHoBoxes(canvas)
