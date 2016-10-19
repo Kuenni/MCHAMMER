@@ -341,6 +341,19 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		histogramBuilder.fillVzHistogram(bl1Muon->vz(),"L1MuonPresent");
 		histogramBuilder.fillEtaPhiGraph(l1Muon_eta, l1Muon_phi, "L1MuonPresent");
 
+		//
+		// Fill ho energy in direction opposite to L1Muon when there is no reco muon found
+		// Trying to measure the HO Noise
+		//
+		const pat::Muon* patMuon = getBestPatMatch(l1Muon_eta, l1Muon_phi + M_PI);
+		if(!patMuon){//Do not want muons to interfere
+			for(auto hoRecHitIt = hoRecoHits->begin() ; hoRecHitIt != hoRecoHits->end(); hoRecHitIt++){
+				if(hoMatcher->isRecHitInGrid(l1Muon_eta,l1Muon_phi + M_PI,&*hoRecHitIt,2)){
+					histogramBuilder.fillEnergyVsIEta(hoRecHitIt->energy(),hoRecHitIt->id().ieta(),"L1MuonPlusPi");
+				}
+			}
+		}
+
 		/**
 		 * Fill eta phi graphs with coordinates of L1Muons depending on their detector/quality.
 		 * No bias by matching to HO introduced here
