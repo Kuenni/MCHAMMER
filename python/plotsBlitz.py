@@ -182,6 +182,8 @@ def plotControlPlots():
 	updateModuleName(lib)
 	resEtaFine = lib.plotL1EtaVsPatEtaFine()
 	resEtaNotFine = lib.plotL1EtaVsPatEtaNotFine()
+	resEtaFineTight = lib.plotL1EtaVsPatEtaFineTight()
+	resEtaNotFineTight = lib.plotL1EtaVsPatEtaNotFineTight()
 	resNHits = lib.plotNHitsPerL1()
 	resNHitsTight = lib.plotNHitsPerTightL1()
 	resHitsVsPt3x3 = lib.plotNHitsVsPt()

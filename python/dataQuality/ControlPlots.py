@@ -76,6 +76,12 @@ class ControlPlots(Plot):
 
 	def plotL1EtaVsPatEtaNotFine(self):
 		return self.makeL1EtaVsPatEtaPlot('l1EtaVsPatEtaNotFine')
+	
+	def plotL1EtaVsPatEtaFineTight(self):
+		return self.makeL1EtaVsPatEtaPlot('l1EtaVsPatEtaFineTight')
+	
+	def plotL1EtaVsPatEtaNotFineTight(self):
+		return self.makeL1EtaVsPatEtaPlot('l1EtaVsPatEtaNotFineTight')
 
 	def plotL1PresentMultiplicity(self):
 		canvas = TCanvas('cL1Multiplicity')
