@@ -81,6 +81,7 @@ def plotNoL1Muons():
 	lib = NoL1Muon(filename=args.source,data=args.data,debug = args.DEBUG)
 	updateModuleName(lib)
 	resEmax = lib.plotEMaxNoL1Muon()
+	lib.printNoL1Info()
 	checkUserInput()
 	return
 
@@ -109,13 +110,13 @@ def plotHoTimeVsEta():
 	res = lib.plotTimeVsPhi()
 	res2 = lib.plotTimeVsPhiTight()
 	res3 = lib.plotTimeVsPhiDtRpc()
-# 	resCombined = lib.plotCombined()
-# 	resCombinedTight = lib.plotCombinedTight()
-# 	resL1TimeVsEta = lib.plotL1TimeVsEta()
-# 	resHoTimeEta = lib.plotHoTimeVsEta()
-# 	resHoTimeEtaBxWrng = lib.plotHoTimeVsEtaBxWrong()
-# 	resTightHoTimeEtaBxWrng = lib.plotTightHoTimeVsEtaBxWrong()
-# 	resTightDtRpc = lib.plotHoTimeVsEtaDtRpcTight()
+ 	resCombined = lib.plotCombined()
+ 	resCombinedTight = lib.plotCombinedTight()
+ 	resL1TimeVsEta = lib.plotL1TimeVsEta()
+ 	resHoTimeEta = lib.plotHoTimeVsEta()
+ 	resHoTimeEtaBxWrng = lib.plotHoTimeVsEtaBxWrong()
+ 	resTightHoTimeEtaBxWrng = lib.plotTightHoTimeVsEtaBxWrong()
+ 	resTightDtRpc = lib.plotHoTimeVsEtaDtRpcTight()
 	checkUserInput()
 	return
 
@@ -179,9 +180,12 @@ def plotEVsEtaPhi():
 def plotControlPlots():
 	lib = ControlPlots(filename=args.source,data=args.data,debug = args.DEBUG)
 	updateModuleName(lib)
+	resEtaFine = lib.plotL1EtaVsPatEtaFine()
+	resEtaNotFine = lib.plotL1EtaVsPatEtaNotFine()
 	resNHits = lib.plotNHitsPerL1()
 	resNHitsTight = lib.plotNHitsPerTightL1()
 	resHitsVsPt3x3 = lib.plotNHitsVsPt()
+	resTightHitsVsPt3x3 = lib.plotTightNHitsVsPt()
 	res1 = lib.plotL1PerPt()
 	res2 = lib.plotHoIEtaIPhi()
 	res3 = lib.plotHoEtaPhiMatchedToL1()
