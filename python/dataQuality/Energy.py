@@ -155,6 +155,7 @@ class Energy(Plot):
 	def plotEnergyNormalized(self):
 
 		ho = self.fileHandler.getHistogram("energy/horeco_Energy")
+		hoNoise = self.fileHandler.getHistogram("energy/L1MuonPlusPi_Energy")
 		L1MuonAndHoMatch = self.fileHandler.getHistogram('energy/L1MuonWithHoMatch_Energy')
 		L1MuonAndHoMatchAboveThr = self.fileHandler.getHistogram('energy/L1MuonWithHoMatchAboveThr_Energy')
 		L1MuonAndHoMatchAboveThrFilt = self.fileHandler.getHistogram('energy/L1MuonWithHoMatchAboveThrFilt_Energy')
@@ -175,13 +176,20 @@ class Energy(Plot):
 		ho.SetLineColor(colorRwthDarkBlue)
 		ho.SetLineWidth(3)
 		ho.Scale(1/ho.Integral())
+		
+		hoNoise.SetLineColor(colorRwthMagenta)
+		hoNoise.SetLineWidth(3)
+		hoNoise.Scale(1/hoNoise.Integral())
+		
 		setupAxes(ho)
 		ho.Draw()
+		hoNoise.Draw('same')
 		
 		label = self.drawLabel()
 		
 		legend = getLegend(0.5,0.65,0.9,0.9)
 		legend.AddEntry(ho,'All HO hits','l')
+		legend.AddEntry(hoNoise,'HO hits no muon expected','l')
 		legend.Draw()
 	
 		if(L1MuonAndHoMatch):
@@ -212,7 +220,7 @@ class Energy(Plot):
 # 		f = TFile.Open("plots/energy/energyNorm.root","RECREATE")
 # 		canv.Write()
 # 		f.Close()
-		return [canv,ho,L1MuonAndHoMatch, L1MuonAndHoMatchAboveThr,L1MuonAndHoMatchAboveThrFilt,label,legend]
+		return [canv,ho,L1MuonAndHoMatch, L1MuonAndHoMatchAboveThr,L1MuonAndHoMatchAboveThrFilt,hoNoise,label,legend]
 	
 	def plotEnergy(self):
 
