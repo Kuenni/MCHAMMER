@@ -56,9 +56,26 @@ class ControlPlots(Plot):
 	
 	def plotNHitsVsPt(self):
 		return self.makeNHitsVsPtPlot('gridMatching_loose_nHoHitsVsPt3x3')
+	
+	def plotTightNHitsVsPt(self):
+		return self.makeNHitsVsPtPlot('gridMatching_tight_nHoHitsVsPt3x3')
 
 	def plotNHitsPerTightL1(self):
 		return self.makeNHitsPlot('gridMatching_tight_nHoHits3x3')
+
+	def makeL1EtaVsPatEtaPlot(self,source, title=""):
+		canvas = TCanvas(source,source)
+		graph = self.fileHandler.getGraph('graphs/' + source)
+		hist = TH2D(source,title if title else source + ";#eta_{RECO};#eta_{L1};#",200,-1.0,1.0,20,-1.0,1.0)
+		fillGraphIn2DHist(graph, hist)
+		hist.Draw('colz')
+		return canvas,hist
+
+	def plotL1EtaVsPatEtaFine(self):
+		return self.makeL1EtaVsPatEtaPlot('l1EtaVsPatEtaFine')
+
+	def plotL1EtaVsPatEtaNotFine(self):
+		return self.makeL1EtaVsPatEtaPlot('l1EtaVsPatEtaNotFine')
 
 	def plotL1PresentMultiplicity(self):
 		canvas = TCanvas('cL1Multiplicity')
