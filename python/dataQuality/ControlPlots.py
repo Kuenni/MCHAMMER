@@ -6,7 +6,7 @@ from plotting.PlotStyle import setPlotStyle,drawLabelCmsPrivateSimulation,colorR
 from plotting.PlotStyle import colorRwthMagenta,setupAxes,printProgress
 from array import array
 import math
-from plotting.Utils import fillGraphIn2DHist
+from plotting.Utils import fillGraphIn2DHist,normalizeTH2DAlongXAxis
 
 
 class ControlPlots(Plot):
@@ -31,10 +31,16 @@ class ControlPlots(Plot):
 	def makeNHitsVsPtPlot(self,source):
 		canvas = TCanvas('cNHoHitsVsPt' + source,'cNHoHitsVsPt' + source)
 		graph = self.fileHandler.getGraph('graphs/' + source )
-		hist = TH2D(source,source,50,-.5,49.5,201,-.5,200.5)
+		variableBinArray = sorted([0,0.5,1,1.5,2,2.5,3,3.5,4,4.5,5,6,7,8,9,10,12,14,16,18,20,25,30,35,40,45,50,60,70,80,100,120,140,180])
+		runArray = array('d',variableBinArray)
+		hist = TH2D(source,source,50,-.5,49.5,len(runArray) -1, runArray)
+		#hist = TH2D(source,source,50,-.5,49.5,201,-.5,200.5)
 		fillGraphIn2DHist(graph, hist)
+		normalizeTH2DAlongXAxis(hist)
+		#hist.Scale(1/hist.Integral(),'width')
+		#hist.SetMinimum(1e-7)
 		hist.GetXaxis().SetRangeUser(0,50)
-		#canvas.SetLogy()
+		canvas.SetLogz()
 		#hist.SetLineWidth(3)
 		#hist.SetLineColor(colorRwthDarkBlue)
 		setupAxes(hist)
