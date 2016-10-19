@@ -105,7 +105,7 @@ class HoTimeVsEta(Plot):
 		label = self.drawLabel()
 		canvas.Update()
 		fractionGraph,counterDict = self.printFractionsPerIEta(graph)
-		
+		self.debug('Integral of plot %20s: %d' % (source,hist.Integral()))
 		medianTofZero = (counterDict[9]['median'] + counterDict[11]['median'])/2.
 		tofFunction = TF1('f','4*sqrt(1+ 1/(tan(2*atan(exp(-x*0.087/2.)))**2))/300000000.*1e9 - 13.3 + [0]',-10,10)
 		tofFunction.SetParameter(0,medianTofZero)
