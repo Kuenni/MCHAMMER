@@ -630,7 +630,7 @@ hoMuonAnalyzer::analyze(const edm::Event& iEvent,
 		/**
 		 * #################################
 		 * # L1 Muon objects contain data
-		 * # FIXME: Loop over l1 and try to find gens. This way, the direction information of the strange l1 is already available
+		 * # Loop over l1 and try to find gens. This way, the direction information of the strange l1 is already available
 		 * # Loop over gens and inspect also the case, where the matching from gen to l1 failed
 		 * # This might be a hint on ghost reduction
 		 * #################################
@@ -1007,7 +1007,8 @@ const reco::GenParticle* hoMuonAnalyzer::getBestGenMatch(float eta, float phi){
 /**
  * Returns a pointer to the closest gen particle of all particles that are closer
  * than delta R < delta R max
- * TODO: Could do this and the gen function with a template
+ *
+ * Could do this and the gen function with a template
  *
  */
 const pat::Muon* hoMuonAnalyzer::getBestPatMatch(float eta, float phi) {
@@ -1222,7 +1223,7 @@ void hoMuonAnalyzer::analyzeWithGenLoop(const edm::Event& iEvent,const edm::Even
 
 					//Implement efficiency analysis for time window
 					if(matchedRecHit->time() > -12.5 && matchedRecHit->time() < 12.5){
-						//TODO: Put this stuff in the fillGridmatching efficiency function
+						//Might probably be removed. Fixed timing window won't work in data
 					}
 				}
 			}
@@ -1409,7 +1410,7 @@ void hoMuonAnalyzer::calculateGridMatchingEfficiency(const l1extra::L1MuonPartic
 }
 
 void hoMuonAnalyzer::fillTriggerRatesForQualityCodes(){
-	//Todo: For L1 pt use the l1 binning
+	//For L1 pt use the l1 binning
 	//Normalize per bin width
 	//Do this as stacked plot?
 	//Use tight information only?
@@ -1613,11 +1614,10 @@ void hoMuonAnalyzer::fillTimingHistograms(const l1extra::L1MuonParticle* l1Muon,
 	 */
 	histogramBuilder.fillGraph(l1Muon->eta(),l1Muon->bx(),nameTrunk + "bxidVsEta");
 
+	//No test for non-null needed. Starting from L1 information so there should be a regional
+	//candidate somewhere
 	const L1MuRegionalCand* l1RegCand = findBestCandMatch(l1Muon);
 
-	/**
-	 * TODO: Is the low number of events a
-	 */
 	switch(l1Muon->gmtMuonCand().quality()){
 	case 7:
 		//Matched DT-RPC
