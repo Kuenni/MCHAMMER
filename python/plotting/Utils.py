@@ -28,7 +28,7 @@ def setupEAvplot(histE,histC = None,xmin = -0.4, xmax = 0.4, ymin = -0.4, ymax =
 		histE = average2DHistogramBinwise(histE,histC)
 	if same:
 		if limitForAll == None:
-			commandLine.output('WARNING: Requested same histogram borders for all ranges but '
+			commandLine.warning('WARNING: Requested same histogram borders for all ranges but '
 							'did not give limitForAll parameter. Using default values instead!')
 		else:
 			xmin = ymin = -limitForAll
@@ -41,6 +41,18 @@ def setupEAvplot(histE,histC = None,xmin = -0.4, xmax = 0.4, ymin = -0.4, ymax =
 	histE.GetZaxis().SetTitle('Reconstructed Energy / GeV')
 	setupAxes(histE)
 	return histE
+
+def normalizeTH2DAlongXAxis(hist):
+	#First count all entries along axis
+	for yBin in range(hist.GetYaxis().GetNbins()+1):
+		nEntries = 0
+		#First count all entries in x-direction
+		for xBin in range(hist.GetXaxis().GetNbins()):
+			nEntries += hist.GetBinContent(xBin,yBin)
+		#Then normalize
+		for xBin in range(hist.GetXaxis().GetNbins()):
+			if nEntries:
+				hist.SetBinContent(xBin,yBin,hist.GetBinContent(xBin,yBin)/nEntries)
 
 def fillGraphIn2DHist(graph,hist):
 	x = Double(0)
