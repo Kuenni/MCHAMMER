@@ -79,14 +79,14 @@ class Timing(Plot):
 		
 		integralCenter = hDeltaTCleanHo.Integral(hDeltaTCleanHo.FindBin(fitFirstMin.GetMinimumX(-20,-10)),hDeltaTCleanHo.FindBin(fitSecondMin.GetMinimumX(10,20)))
 		integralCenterAll = hDeltaTAllHo.Integral(hDeltaTAllHo.FindBin(fitFirstMin.GetMinimumX(-20,-10)),hDeltaTAllHo.FindBin(fitSecondMin.GetMinimumX(10,20)))
-		self.output(80*'#')
-		self.output('Integral of center area in clean histogram :%d' % integralCenter)
-		self.output('==> %.2f%% +/- %.2f%%' % (integralCenter/hDeltaTCleanHo.Integral()*100
+		self.debug(80*'#')
+		self.debug('Integral of center area in clean histogram :%d' % integralCenter)
+		self.debug('==> %.2f%% +/- %.2f%%' % (integralCenter/hDeltaTCleanHo.Integral()*100
 											,calcSigma(integralCenter, hDeltaTCleanHo.Integral())*100))
-		self.output('Integral of center area in all matched HO events:%d' % integralCenterAll)
-		self.output('==> %.2f%% +/- %.2f%%' % (integralCenterAll/hDeltaTAllHo.Integral()*100
+		self.debug('Integral of center area in all matched HO events:%d' % integralCenterAll)
+		self.debug('==> %.2f%% +/- %.2f%%' % (integralCenterAll/hDeltaTAllHo.Integral()*100
 											,calcSigma(integralCenterAll, hDeltaTAllHo.Integral())*100))
-		self.output(80*'#')
+		self.debug(80*'#')
 		
 		paveText = TPaveText(0.6,0.7,0.9,0.75,'NDC')
 		paveText.AddText('%s' % ('Central peak contains (filtered hist.)'))
@@ -127,27 +127,27 @@ class Timing(Plot):
 		dtBx0OtherIntegral = hBxIdOther.Integral()
 		dtBx0OtherOther = dtBx0OtherIntegral - dtBx0OtherCentral
 		
-		self.output('#'*20)
-		self.output('!TIGHT!' if tight else '')
-		self.output('DT/RPC')
-		self.output('-'*10)
-		self.output('Events in BXID 0: %d\t%6.3f%% +/- %6.3f%%' % (dtBx0BestCentral,dtBx0BestCentral/float(dtBx0BestIntegral)*100,calcSigma(dtBx0BestCentral, dtBx0BestIntegral)*100))
-		self.output('Events in other BXID: %d\t%6.3f%% +/- %6.3f%%' % (dtBx0BestOther,dtBx0BestOther/float(dtBx0BestIntegral)*100,calcSigma(dtBx0BestOther, dtBx0BestIntegral)*100))
-		self.output('Consistency check (Central + Other, Integral): %d, %d' % (dtBx0BestCentral + dtBx0BestOther,dtBx0BestIntegral))
-		self.output('')
-		self.output('DT')
-		self.output('-'*10)
-		self.output('Events in BXID 0: %d\t%6.3f%% +/- %6.3f%%' % (dtBx0DtOnlyCentral,dtBx0DtOnlyCentral/float(dtBx0DtOnlyIntegral)*100,calcSigma(dtBx0DtOnlyCentral, dtBx0DtOnlyIntegral)*100))
-		self.output('Events in other BXID: %d\t%6.3f%% +/- %6.3f%%' % (dtBx0DtOnlyOther,dtBx0DtOnlyOther/float(dtBx0DtOnlyIntegral)*100,calcSigma(dtBx0DtOnlyOther, dtBx0DtOnlyIntegral)*100))
-		self.output('Consistency check (Central + Other, Integral): %d, %d' % (dtBx0DtOnlyCentral + dtBx0DtOnlyOther,dtBx0DtOnlyIntegral))
-		self.output('')
-		self.output('Other')
-		self.output('-'*10)
-		self.output('Events in BXID 0: %d\t%6.3f%% +/- %6.3f%%' % (dtBx0OtherCentral,dtBx0OtherCentral/float(dtBx0OtherIntegral)*100,calcSigma(dtBx0OtherCentral, dtBx0OtherIntegral)*100))
-		self.output('Events in other BXID: %d\t%6.3f%% +/- %6.3f%%' % (dtBx0OtherOther,dtBx0OtherOther/float(dtBx0OtherIntegral)*100,calcSigma(dtBx0OtherOther, dtBx0OtherIntegral)*100))
-		self.output('Consistency check (Central + Other, Integral): %d, %d' % (dtBx0OtherCentral + dtBx0OtherOther,dtBx0OtherIntegral))
-		self.output('')
-		self.output('#'*20)
+		self.debug('#'*20)
+		self.debug('!TIGHT!' if tight else '')
+		self.debug('DT/RPC')
+		self.debug('-'*10)
+		self.debug('Events in BXID 0: %d\t%6.3f%% +/- %6.3f%%' % (dtBx0BestCentral,dtBx0BestCentral/float(dtBx0BestIntegral)*100,calcSigma(dtBx0BestCentral, dtBx0BestIntegral)*100))
+		self.debug('Events in other BXID: %d\t%6.3f%% +/- %6.3f%%' % (dtBx0BestOther,dtBx0BestOther/float(dtBx0BestIntegral)*100,calcSigma(dtBx0BestOther, dtBx0BestIntegral)*100))
+		self.debug('Consistency check (Central + Other, Integral): %d, %d' % (dtBx0BestCentral + dtBx0BestOther,dtBx0BestIntegral))
+		self.debug('')
+		self.debug('DT')
+		self.debug('-'*10)
+		self.debug('Events in BXID 0: %d\t%6.3f%% +/- %6.3f%%' % (dtBx0DtOnlyCentral,dtBx0DtOnlyCentral/float(dtBx0DtOnlyIntegral)*100,calcSigma(dtBx0DtOnlyCentral, dtBx0DtOnlyIntegral)*100))
+		self.debug('Events in other BXID: %d\t%6.3f%% +/- %6.3f%%' % (dtBx0DtOnlyOther,dtBx0DtOnlyOther/float(dtBx0DtOnlyIntegral)*100,calcSigma(dtBx0DtOnlyOther, dtBx0DtOnlyIntegral)*100))
+		self.debug('Consistency check (Central + Other, Integral): %d, %d' % (dtBx0DtOnlyCentral + dtBx0DtOnlyOther,dtBx0DtOnlyIntegral))
+		self.debug('')
+		self.debug('Other')
+		self.debug('-'*10)
+		self.debug('Events in BXID 0: %d\t%6.3f%% +/- %6.3f%%' % (dtBx0OtherCentral,dtBx0OtherCentral/float(dtBx0OtherIntegral)*100,calcSigma(dtBx0OtherCentral, dtBx0OtherIntegral)*100))
+		self.debug('Events in other BXID: %d\t%6.3f%% +/- %6.3f%%' % (dtBx0OtherOther,dtBx0OtherOther/float(dtBx0OtherIntegral)*100,calcSigma(dtBx0OtherOther, dtBx0OtherIntegral)*100))
+		self.debug('Consistency check (Central + Other, Integral): %d, %d' % (dtBx0OtherCentral + dtBx0OtherOther,dtBx0OtherIntegral))
+		self.debug('')
+		self.debug('#'*20)
 
 		
 		### Plot matched DT/RPC
@@ -974,6 +974,8 @@ class Timing(Plot):
 		print 'Uncorrected:\t%5.2f%% #pm %f%%' % (dtBx0/float(dtBxTotal)*100,calcSigma(dtBx0, dtBxTotal)*100)
 		print 'Corrected\t%5.2f%% #pm %f%%' % (correctedRightFraction*100,calcSigma(correctedBxId0, correctedTotal)*100)
 		print 80*'#'
+		
+		setupAxes(histNew)
 		
 		canvas.Update()
 		self.storeCanvas(canvas, 'correctedTightDt')
