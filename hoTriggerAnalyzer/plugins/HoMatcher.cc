@@ -132,7 +132,7 @@ int HoMatcher::countHoHitsAboveThr(double eta, double phi, int gridSize){
 		}
 		double deltaIEta = getDeltaIeta(eta,&*hoRecHitIt);
 		double deltaIPhi = getDeltaIphi(phi,&*hoRecHitIt);
-		if (abs(deltaIEta) <= gridSize && abs(deltaIPhi) <= gridSize){
+		if (fabs(deltaIEta) <= gridSize && fabs(deltaIPhi) <= gridSize){
 			matches++;
 		}
 	}
