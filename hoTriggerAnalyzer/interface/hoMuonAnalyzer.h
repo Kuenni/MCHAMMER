@@ -188,6 +188,7 @@ private:
 	bool debug;
 	bool firstRun;
 	bool isData;
+	bool useArtificialPrimaryVertex;
 
 
 	/**
