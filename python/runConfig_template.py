@@ -84,7 +84,8 @@ process.hoMuonAnalyzer = cms.EDAnalyzer(
 	maxDeltaRL1MuonMatching = cms.double(1.),
 	TrackAssociatorParameters=parameters,
 	hoDigiSrc = cms.InputTag('simHcalDigis'),
-	hoAdcThreshold = cms.int32(60)
+	hoAdcThreshold = cms.int32(60),
+	useArtificialPrimaryVertex = cms.bool(%USE_ARTIFICIAL_VERTEX%)
     )
 
 #Create the HO digi analyzer module
@@ -100,7 +101,7 @@ process.hoDigiAnalyzer = cms.EDAnalyzer(
 	TrackAssociatorParameters=parameters,
 	hoDigiSrc = cms.InputTag('simHcalDigis'),
 	hoAdcThreshold = cms.int32(60)
-    )
+	)
 
 #Alternative matcher: TrivialDeltaRMatcher
 process.l1MuonGenMatch = cms.EDProducer("MCTruthDeltaRMatcherNew",
