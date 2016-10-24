@@ -113,7 +113,7 @@ hoMuonAnalyzer::hoMuonAnalyzer(const edm::ParameterSet& iConfig){
 	threshold = iConfig.getParameter<double>("hoEnergyThreshold");
 	debug = iConfig.getParameter<bool>("debug");
 	deltaR_L1MuonMatching = iConfig.getParameter<double>("maxDeltaRL1MuonMatching");
-
+	useArtificialPrimaryVertex = iConfig.getParameter<bool>("useArtificialPrimaryVertex");
 
 	singleMuOpenTrigName = "L1_SingleMuOpen";
 	singleMu3TrigName = "L1_SingleMu3";
@@ -1963,6 +1963,27 @@ void hoMuonAnalyzer::processGenInformation(const edm::Event& iEvent,const edm::E
 }
 
 /**
+ * Get an artificial primary vertex.
+ * Trying to use this in the PU sample. Might fix the low tight muon output.
+ */
+const reco::Vertex hoMuonAnalyzer::getArtificialPrimaryVertex(){
+	// =================================================================================
+	// Look for the Primary Vertex (and use the BeamSpot instead, if you can't find it):
+	reco::Vertex::Point posVtx;
+	reco::Vertex::Error errVtx;
+
+	reco::BeamSpot bs = *recoBeamSpotHandle;
+
+	posVtx = bs.position();
+	errVtx(0,0) = bs.BeamWidthX();
+	errVtx(1,1) = bs.BeamWidthY();
+	errVtx(2,2) = bs.sigmaZ();
+
+	const reco::Vertex vtx(posVtx,errVtx);
+	return vtx;
+}
+
+/**
  * Get the primary vertex for the current event
  * Used to identify tight muons
  */
@@ -1971,6 +1992,7 @@ const reco::Vertex hoMuonAnalyzer::getPrimaryVertex(){
 	// Look for the Primary Vertex (and use the BeamSpot instead, if you can't find it):
 	reco::Vertex::Point posVtx;
 	reco::Vertex::Error errVtx;
+	reco::Vertex vtx;
 	unsigned int theIndexOfThePrimaryVertex = 999.;
 
 	if (vertexColl.isValid()){
@@ -1982,21 +2004,15 @@ const reco::Vertex hoMuonAnalyzer::getPrimaryVertex(){
 		}
 	}
 
-	reco::BeamSpot bs = *recoBeamSpotHandle;
-
-	if (theIndexOfThePrimaryVertex<100) {
+	if ((theIndexOfThePrimaryVertex<100) && !useArtificialPrimaryVertex) {
 		posVtx = ((*vertexColl)[theIndexOfThePrimaryVertex]).position();
 		errVtx = ((*vertexColl)[theIndexOfThePrimaryVertex]).error();
+		//vtx = reco::Vertex(posVtx,errVtx);
+		vtx = (reco::Vertex(posVtx,errVtx));
 	}
 	else {
-
-		posVtx = bs.position();
-		errVtx(0,0) = bs.BeamWidthX();
-		errVtx(1,1) = bs.BeamWidthY();
-		errVtx(2,2) = bs.sigmaZ();
+		vtx = getArtificialPrimaryVertex();
 	}
-
-	const reco::Vertex vtx(posVtx,errVtx);
 	return vtx;
 }
 

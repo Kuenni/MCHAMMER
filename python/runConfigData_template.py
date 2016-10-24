@@ -93,7 +93,8 @@ process.hoMuonAnalyzer = cms.EDAnalyzer(
 	debug = cms.bool(False),
 	maxDeltaRL1MuonMatching = cms.double(1.),
 	hoDigiSrc = cms.InputTag('simHcalDigis'),
-	hoAdcThreshold = cms.int32(60)
+	hoAdcThreshold = cms.int32(60),
+	useArtificialPrimaryVertex = cms.bool(%USE_ARTIFICIAL_VERTEX%)
     )
 
 # Path and EndPath definitions

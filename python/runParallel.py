@@ -234,6 +234,10 @@ def createRunConfigs():
 					line = line.replace('%GLOBALTAG%',gt)
 					if args.lumiFile:
 						line = line.replace('%LUMIFILE%',args.lumiFile)
+					if args.conditions == 'pu':
+						line = line.replace('%USE_ARTIFICIAL_VERTEX%','True')
+					else:
+						line = line.replace('%USE_ARTIFICIAL_VERTEX%','False')
 					outfile.write(line)
 				outfile.close()
 				infile.close()

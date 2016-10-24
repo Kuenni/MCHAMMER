@@ -120,6 +120,7 @@ private:
 	const pat::Muon* getBestPatMatch(float eta, float phi);
 	const l1extra::L1MuonParticle* getMatchedL1Object(trigger::TriggerObject,edm::Handle<l1extra::L1MuonParticleCollection>);
 	const reco::Vertex getPrimaryVertex();
+	const reco::Vertex getArtificialPrimaryVertex();
 
 	bool processTriggerDecision(string algorithmName,const edm::Event& );
 	bool isInTimeWindow(double time){
@@ -187,6 +188,7 @@ private:
 	bool debug;
 	bool firstRun;
 	bool isData;
+	bool useArtificialPrimaryVertex;
 
 
 	/**
