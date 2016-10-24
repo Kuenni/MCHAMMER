@@ -168,7 +168,7 @@ class Energy(Plot):
 		canv.SetLogy()
 	
 		ho.SetStats(0)
-		ho.SetTitle('Normalized energy distribution of HO hits (Integral)')
+		ho.SetTitle('Normalized energy distribution of HO hits')
 		ho.GetXaxis().SetTitle('Reconstructed HO energy / GeV')
 		ho.GetYaxis().SetTitle('rel. fraction')
 		ho.GetXaxis().SetRangeUser(-0.2,6)
@@ -181,7 +181,7 @@ class Energy(Plot):
 		hoNoise.SetLineWidth(3)
 		hoNoise.Scale(1/hoNoise.Integral())
 		
-		setupAxes(ho)
+		setupAxes(ho)		
 		ho.Draw()
 		hoNoise.Draw('same')
 		
@@ -189,7 +189,7 @@ class Energy(Plot):
 		
 		legend = getLegend(0.5,0.65,0.9,0.9)
 		legend.AddEntry(ho,'All HO hits','l')
-		legend.AddEntry(hoNoise,'HO hits no muon expected','l')
+		legend.AddEntry(hoNoise,'HO hits, no #mu expected','l')
 		legend.Draw()
 	
 		if(L1MuonAndHoMatch):
@@ -214,12 +214,11 @@ class Energy(Plot):
 			L1MuonAndHoMatchAboveThrFilt.Draw('same')
 			legend.AddEntry(L1MuonAndHoMatchAboveThrFilt,'L1Muon + HO match > 0.2 GeV (In Ho Geom.)','l')
 	
+		setupAxes(ho)
+		canv.Update()
 		
 		self.storeCanvas(canv,'energyNorm')
-	
-# 		f = TFile.Open("plots/energy/energyNorm.root","RECREATE")
-# 		canv.Write()
-# 		f.Close()
+
 		return [canv,ho,L1MuonAndHoMatch, L1MuonAndHoMatchAboveThr,L1MuonAndHoMatchAboveThrFilt,hoNoise,label,legend]
 	
 	def plotEnergy(self):
