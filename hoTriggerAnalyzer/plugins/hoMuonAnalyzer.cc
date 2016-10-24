@@ -1892,6 +1892,7 @@ const reco::Vertex hoMuonAnalyzer::getArtificialPrimaryVertex(){
 
 	reco::BeamSpot bs = *recoBeamSpotHandle;
 
+	posVtx = bs.position();
 	errVtx(0,0) = bs.BeamWidthX();
 	errVtx(1,1) = bs.BeamWidthY();
 	errVtx(2,2) = bs.sigmaZ();
@@ -1909,6 +1910,7 @@ const reco::Vertex hoMuonAnalyzer::getPrimaryVertex(){
 	// Look for the Primary Vertex (and use the BeamSpot instead, if you can't find it):
 	reco::Vertex::Point posVtx;
 	reco::Vertex::Error errVtx;
+	reco::Vertex vtx;
 	unsigned int theIndexOfThePrimaryVertex = 999.;
 
 	if (vertexColl.isValid()){
@@ -1920,21 +1922,15 @@ const reco::Vertex hoMuonAnalyzer::getPrimaryVertex(){
 		}
 	}
 
-	reco::BeamSpot bs = *recoBeamSpotHandle;
-
 	if (theIndexOfThePrimaryVertex<100) {
 		posVtx = ((*vertexColl)[theIndexOfThePrimaryVertex]).position();
 		errVtx = ((*vertexColl)[theIndexOfThePrimaryVertex]).error();
+		//vtx = reco::Vertex(posVtx,errVtx);
+		vtx = (reco::Vertex(posVtx,errVtx));
 	}
 	else {
-
-		posVtx = bs.position();
-		errVtx(0,0) = bs.BeamWidthX();
-		errVtx(1,1) = bs.BeamWidthY();
-		errVtx(2,2) = bs.sigmaZ();
+		vtx = getArtificialPrimaryVertex();
 	}
-
-	const reco::Vertex vtx(posVtx,errVtx);
 	return vtx;
 }
 
