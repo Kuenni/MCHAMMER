@@ -162,7 +162,6 @@ def plotEVsEtaPhi():
 	lib = EvsEtaPhi(filename = args.source, data=args.data,debug = args.DEBUG)
 	updateModuleName(lib)
 	lib.calculateCentralFractionInTight()
-	resNoL1 = lib.plotEMaxNoL1Muon()
 	reseMaxCountsTight = lib.plotEMaxCountsForTightMuons()
 	reseMaxCounts = lib.plotEMaxCounts()
 	res = lib.plotAverageEnergyAroundL1()
