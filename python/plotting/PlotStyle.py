@@ -28,8 +28,8 @@ def setColorPalette():
 		palette.append(FI+i)
 	gStyle.SetPalette(nGradients,array('i',palette))
 	
-def getWaterMark():
-	watermark = TPaveText(0.093,0.898,0.319,0.940,"NDC")
+def getWaterMark(markPosition):
+	watermark = TPaveText(markPosition['x1ndc'], markPosition['y1ndc'], markPosition['x2ndc'], markPosition['y2ndc'],"NDC")
 	markText = watermark.AddText("A. Kuensken")
 	markText.SetTextAlign(12)
 	markText.SetTextSize(0.0316456)
@@ -38,8 +38,8 @@ def getWaterMark():
 	watermark.SetFillStyle(0)
 	return watermark
 
-def drawWaterMark():
-	watermark = getWaterMark()
+def drawWaterMark(markPosition = {'x1ndc' : 0.093, 'y1ndc' : 0.898, 'x2ndc' : 0.319, 'y2ndc' : 0.940}):
+	watermark = getWaterMark(markPosition = markPosition)
 	watermark.Draw()
 	return watermark
 

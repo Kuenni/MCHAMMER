@@ -56,14 +56,18 @@ class Plot:
 		return
 	
 	#Save a canvas as gif file with the source data file name attached
-	def storeCanvas(self,canvas,plotname,drawMark = True):
+	def storeCanvas(self,canvas,plotname,drawMark = True,
+				markPosition = {'x1ndc' : 0.093, 'y1ndc' : 0.898, 'x2ndc' : 0.319, 'y2ndc' : 0.940}):
 		if(plotname.find('/') != -1):
 			if( not os.path.exists(self.plotSubdir + '/' + plotname[0:plotname.rfind('/')])):
 				os.makedirs(self.plotSubdir + '/' + plotname[0:plotname.rfind('/')])
 				
 		canvas.cd()
+
 		if drawMark:
-			mark = drawWaterMark()
+			mark = drawWaterMark(markPosition = markPosition)
+		
+		canvas.Update()
 		canvas.SaveAs('%s/%s_%s.gif'%(self.plotSubdir,plotname,self.fileHandler.filename))
 		canvas.SaveAs('%s/%s_%s.png'%(self.plotSubdir,plotname,self.fileHandler.filename))
 		return

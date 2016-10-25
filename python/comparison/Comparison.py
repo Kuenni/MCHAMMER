@@ -368,6 +368,7 @@ class Comparison(Plot):
 		hData.Scale(1/hData.Integral(),'width')
 		
 		c = TCanvas('cNvsPt','Nvs pt')
+		c.cd().SetLeftMargin(0.17)
 		
 		hSim.SetMarkerStyle(20)
 		hSim.SetMarkerColor(colorRwthLila)
@@ -381,6 +382,7 @@ class Comparison(Plot):
 		hSimPu.SetTitle('Normalized distribution of p_{T};p_{T,L1};normalized fraction / binwidth')
 		hSimPu.SetStats(0)
 		hSimPu.GetXaxis().SetRangeUser(0,20)
+		hSimPu.GetYaxis().SetTitle("Normalized fraction / #frac{1}{GeV}")
 		hSimPu.Draw('lp')
 		hSim.Draw('same,lp')		
 		setupAxes(hSimPu)
@@ -400,5 +402,6 @@ class Comparison(Plot):
 		label = self.drawLabel()
 		
 		c.Update()
-		self.storeCanvas(c, 'l1CountComparison/l1CountNormalized')
+		self.storeCanvas(c, 'l1CountComparison/l1CountNormalized',
+						markPosition={'x1ndc' : 0.16, 'y1ndc' : 0.898, 'x2ndc' : 0.319, 'y2ndc' : 0.940})
 		return hSim,c,hSimPu,hData,legend,label
