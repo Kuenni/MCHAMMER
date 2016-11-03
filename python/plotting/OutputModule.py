@@ -22,13 +22,13 @@ class CommandLineHandler:
 		print self.prefix,outString
 
 	def warning(self,outString):
-		print CliColors.WARNING + self.prefix + outString + CliColors.ENDC
+		print CliColors.WARNING,self.prefix,outString,CliColors.ENDC
 		
 	def error(self,outString):
-		print CliColors.FAIL + self.prefix + outString + CliColors.ENDC
+		print CliColors.FAIL,self.prefix,outString,CliColors.ENDC
 
 	def debug(self,outString):
-		print CliColors.OKBLUE + self.prefix + outString + CliColors.ENDC
+		print CliColors.OKBLUE,self.prefix,outString,CliColors.ENDC
 		
 	def __init__(self,outputPrefix):
 		self.prefix = outputPrefix
