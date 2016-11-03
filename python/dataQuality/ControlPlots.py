@@ -71,6 +71,36 @@ class ControlPlots(Plot):
 		hist.Draw('colz')
 		return canvas,hist
 
+	def plotL1EtaVsPatEta(self):
+		c, hist = self.plotL1EtaVsPatEtaFine()
+		graph = self.fileHandler.getGraph('graphs/l1EtaVsPatEtaNotFine')
+		fillGraphIn2DHist(graph, hist)
+		hist.SetTitle('L1Muon #eta vs. pat #eta')
+		c.Update()		
+		setupAxes(hist)
+		setupPalette(hist)
+		hist.SetStats(0)
+		hist.GetXaxis().SetRangeUser(-.8,.8)
+		hist.GetYaxis().SetRangeUser(-.8,.8)
+		c.Update()
+		return c,hist
+
+	def plotL1EtaVsPatEtaTight(self):
+		c, hist = self.plotL1EtaVsPatEtaFineTight()
+		graph = self.fileHandler.getGraph('graphs/l1EtaVsPatEtaNotFineTight')
+		fillGraphIn2DHist(graph, hist)
+		hist.SetTitle('tight L1Muon #eta vs. pat #eta')
+		c.Update()		
+		setupAxes(hist)
+		setupPalette(hist)
+		hist.SetStats(0)
+		hist.GetXaxis().SetRangeUser(-.8,.8)
+		hist.GetYaxis().SetRangeUser(-.8,.8)
+		label = self.drawLabel()
+		c.Update()
+		self.storeCanvas(c,'l1EtaVsPatEtaTight')
+		return c,hist,label
+
 	def plotL1EtaVsPatEtaFine(self):
 		return self.makeL1EtaVsPatEtaPlot('l1EtaVsPatEtaFine')
 
