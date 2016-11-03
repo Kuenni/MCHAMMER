@@ -22,7 +22,7 @@ class EvsEtaPhi(Plot):
 	of the L1 muons
 	'''
 	def plotAverageEnergyAroundL1(self):
-		canvas = TCanvas('canvasAverageEnergy','Average energy',1200,1200)
+		canvas = TCanvas('canvasAverageEnergy','Average energy',900,900)
 		canvas.cd().SetLogz()
 		
 		hSum = self.fileHandler.getHistogram('averageEnergy/averageEnergyAroundPoint' + self.key + '_SummedEnergy')
@@ -36,15 +36,14 @@ class EvsEtaPhi(Plot):
 		hSum.GetXaxis().SetRangeUser(-0.6,0.6)
 		hSum.GetYaxis().SetRangeUser(-0.6,0.6)
 	#	hSum.SetStats(0)
-		hSum.GetXaxis().SetTitle('#Delta#eta')
-		hSum.GetYaxis().SetTitle('#Delta#phi')
+	#	hSum.GetXaxis().SetTitle('#Delta#eta')
+	#	hSum.GetYaxis().SetTitle('#Delta#phi')
 		hSum.GetZaxis().SetTitle('Reconstructed Energy / GeV')
-		hSum.SetTitle('Average Energy in HO tiles around L1 direction')
+		hSum.SetTitle('Average Energy in HO tiles around L1 direction;#Delta#eta;#Delta#phi;Reconstructed Energy / GeV')
 		hSum.Draw('colz')
 	#	hCounter.Draw('same,text')
 		
-		label = getLabelCmsPrivateSimulation()
-		label.Draw()
+		label = self.drawLabel()
 		
 		canvas.Update()
 		
@@ -299,21 +298,20 @@ class EvsEtaPhi(Plot):
 		if title == "":
 			title = '# of E_{Max} in HO tiles around L1 direction ' + source
 			
-		canvas = TCanvas('canvasEmaxcounts' + source,'E max counts' + source,1200,1200)
+		canvas = TCanvas('canvasEmaxcounts' + source,'E max counts' + source,900,900)
 		canvas.cd().SetLogz()
-			
+		
 		hCounter = self.fileHandler.getHistogram('deltaEtaDeltaPhiEnergy/averageEMaxAroundPoint' + source + '_2dCounter')
-
+		hCounter.GetXaxis().SetRangeUser(-.6,.6)
+		hCounter.GetYaxis().SetRangeUser(-.6,.6)
 		hCounter.SetTitle(title + ';#Delta#eta;#Delta#phi;# Entries')
 		hCounter.SetStats(0)
-		hCounter.GetXaxis().SetRangeUser(-.5,.5)
-		hCounter.GetYaxis().SetRangeUser(-.5,.5)
 		hCounter.Draw('colz')
-		label = self.drawLabel()
 		canvas.Update()		
 		setupAxes(hCounter)
 		setupPalette(hCounter)
 		canvas.Update()
+		label = self.drawLabel()
 		#boxes = drawHoBoxes(canvas)
 		self.storeCanvas(canvas,'eMaxCounts' + source)
 
@@ -464,22 +462,24 @@ class EvsEtaPhi(Plot):
 		histAll.SetStats(0)
 		histAll.GetXaxis().SetRangeUser(-1,1)
 		histAll.SetTitle(histAll.GetTitle() + ';#eta_{L1};#phi_{L1};Entries')
-		setupAxes(histAll)
 		histAll.Draw('colz')
+		canvas.Update()
+		setupAxes(histAll)
+		setupPalette(histAll)
 		label1 = self.drawLabel()
 		canvas.Update()
 		
-		setupPalette(histAll)
+		
 		
 		canvas.cd(2)
 		histWithHo.SetStats(0)
 		histWithHo.GetXaxis().SetRangeUser(-1,1)
 		histWithHo.SetTitle(histWithHo.GetTitle() + ';#eta_{L1};#phi_{L1};Entries')
-		setupAxes(histWithHo)
 		histWithHo.Draw('colz')
 		label2 = self.drawLabel()
 		
 		canvas.Update()
+		setupAxes(histWithHo)
 		setupPalette(histWithHo)
 		
 		canvas.Update()
