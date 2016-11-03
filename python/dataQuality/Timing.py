@@ -8,6 +8,7 @@ from plotting.PlotStyle import setPlotStyle,getLabelCmsPrivateSimulation,\
 from plotting.Utils import getLegend, L1_ETA_BIN, fillGraphIn2DHist,\
 	calcPercent, getTGraphErrors,calcSigma, getMedian, fillGraphIn1DHist
 from numpy import math
+from plotting.OutputModule import CliColors
 
 class Timing(Plot):
 	def __init__(self,filename,data,debug):
@@ -276,12 +277,12 @@ class Timing(Plot):
 		legend.AddEntry(hBxIdDtOnlyTight,'DT only, tight','l')
 		legend.Draw()
 		
-		self.output(80*'#')
-		self.output('Not tight: Integral in [-12.5,12.5]:\t %8d => %5.2f%% +/- %5.2f%%' % (hIntegral,
+		self.debug(80*'#')
+		self.debug('Not tight: Integral in [-12.5,12.5]:\t %8d => %5.2f%% +/- %5.2f%%' % (hIntegral,
 				hIntegralCentral/float(hIntegral)*100,calcSigma(hIntegralCentral, hIntegral)*100))
-		self.output('Tight: Integral in [-12.5,12.5]:\t\t %8d => %5.2f%% +/- %5.2f%%' % (hIntegralTight,
+		self.debug('Tight: Integral in [-12.5,12.5]:\t\t %8d => %5.2f%% +/- %5.2f%%' % (hIntegralTight,
 				hIntegralTighCentral/float(hIntegralTight)*100,calcSigma(hIntegralTighCentral, hIntegralTight)*100))
-		self.output(80*'#')
+		self.debug(80*'#')
 		
 		self.storeCanvas(c, 'matchedHoDtOnlyWithTight')
 				
@@ -322,10 +323,10 @@ class Timing(Plot):
 		fit.SetParameter(2,1)
 		hHoTimeAboveThr.Fit(fit,'','R',-12.5,12.5)
 		
-		self.output(80*'#')
-		self.output('Chi^2: %5.2f' % fit.GetChisquare())
-		self.output('NDF: %d' % fit.GetNDF())
-		self.output(80*'#')
+		self.debug(80*'#')
+		self.debug('Chi^2: %5.2f' % fit.GetChisquare())
+		self.debug('NDF: %d' % fit.GetNDF())
+		self.debug(80*'#')
 		
 		pText = TPaveText(0.7,0.8,0.9,0.9,'NDC')
 		pText.AddText('Mean: %.2f ns' % (fit.GetParameter(1)))
@@ -369,19 +370,19 @@ class Timing(Plot):
 		label = getLabelCmsPrivateSimulation()
 		label.Draw()
 		
-		self.output(80*'#')
-		self.output( 'Integral of HO > 0.2 GeV time histogram:')
-		self.output( hHoTimeAboveThr.Integral())
-		self.output('')
+		self.debug(80*'#')
+		self.debug( 'Integral of HO > 0.2 GeV time histogram:')
+		self.debug( hHoTimeAboveThr.Integral())
+		self.debug('')
 		
 		xLow = -5
 		xHigh = 5
 		histogramBetween = hHoTimeAboveThr.Integral(hHoTimeAboveThr.FindBin(xLow),hHoTimeAboveThr.FindBin(xHigh))
 		histogramTotal = float(hHoTimeAboveThr.Integral())
-		self.output( 'Histogram integral between %.f ns and %.f ns' % (xLow,xHigh) )
-		self.output( '%d/%d => %.2f +/- %f' % (histogramBetween,histogramTotal
+		self.debug( 'Histogram integral between %.f ns and %.f ns' % (xLow,xHigh) )
+		self.debug( '%d/%d => %.2f +/- %f' % (histogramBetween,histogramTotal
 											,histogramBetween/histogramTotal,calcSigma(histogramBetween, histogramTotal))) 
-		self.output( 80*'#')
+		self.debug( 80*'#')
 		
 		fit = TF1("fit","gaus",-10,10)
 		hHoTimeAboveThr.Fit(fit)
@@ -730,6 +731,7 @@ class Timing(Plot):
 		
 		#Print some information
 		heading = 'Integrals of the Ho timing:'
+		print CliColors.OKBLUE
 		print 80*'#'
 		print heading
 		print len(heading)*'-'
@@ -841,7 +843,8 @@ class Timing(Plot):
 		print 'Uncorrected:\t%5.2f%% #pm %f%%' % (dtBx0/float(dtBxTotal)*100,calcSigma(dtBx0, dtBxTotal)*100)
 		print 'Corrected\t%5.2f%% #pm %f%%' % (correctedRightFraction*100,calcSigma(correctedBxId0, correctedTotal)*100)
 		print 80*'#'
-		
+		print CliColors.ENDC
+
 		canvas.Update()
 		self.storeCanvas(canvas, 'correctedDt')
 		return canvas, histDt,histNew,label,legend,pText2,pText,histDtNoHo
@@ -863,6 +866,7 @@ class Timing(Plot):
 		
 		#Print some information
 		heading = 'Integrals of the Ho timing (tight):'
+		print CliColors.OKBLUE
 		print 80*'#'
 		print heading
 		print len(heading)*'-'
@@ -974,7 +978,8 @@ class Timing(Plot):
 		print 'Uncorrected:\t%5.2f%% #pm %f%%' % (dtBx0/float(dtBxTotal)*100,calcSigma(dtBx0, dtBxTotal)*100)
 		print 'Corrected\t%5.2f%% #pm %f%%' % (correctedRightFraction*100,calcSigma(correctedBxId0, correctedTotal)*100)
 		print 80*'#'
-		
+		print CliColors.ENDC
+
 		setupAxes(histNew)
 		
 		canvas.Update()
