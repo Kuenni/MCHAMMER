@@ -265,8 +265,24 @@ class HoTimeVsEta(Plot):
 			
 		mean /= histHo.GetPaintedGraph().GetN() - 2
 		sigma = sqrt(var / (histHo.GetPaintedGraph().GetN() - 2))
-		
+
 		self.debug("Average fraction excluding iEta +/- 2 %s: %5.2f%% +/- %5.2f%%" % ('[Tight]' if tight else '',mean*100,sigma*100))
+
+		nTotal = 0
+		nPassed = 0
+		for item in countsInL1:
+			if fabs(item['eta']) == 2 or fabs(item['eta'] == 0):
+				continue
+			nTotal += item['total']
+			nPassed += item['zero']
+
+		#Print again with ClopperPearson uncertainty, the counts are for L1!!!
+		mean = nPassed/nTotal*100
+		sigmaPlus = TEfficiency.ClopperPearson(int(nTotal),int(nPassed),.68,1)*100 - mean
+		sigmaMinus = mean - TEfficiency.ClopperPearson(int(nTotal),int(nPassed),.68,0)*100
+		#self.debug("Average fraction excluding iEta +/- 2 %s with Clop.Pear.: %5.2f%% +%5.2f%% -%5.2f%%" 
+		#		% ('[Tight]' if tight else '',mean,sigmaPlus,sigmaMinus))
+	
 		
 		#Left axis part
 		f1 = TF1("f1","x",-0.87,0)
@@ -317,7 +333,7 @@ class HoTimeVsEta(Plot):
 		legend.Draw()
 		
 		canvas.Update()
-		self.storeCanvas(canvas, "combinedFractionL1AndHo" + ('Tight ' if tight else ''),drawMark=False)
+		self.storeCanvas(canvas, "combinedFractionL1AndHo" + ('Tight' if tight else ''),drawMark=False)
 			
 		return histHo, graph1,canvas,A1,f1,A2,f2,box,graph2,axisLabel,legend
 	
